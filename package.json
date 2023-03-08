@@ -5,7 +5,7 @@
     "version": "0.30.0",
     "icon": "resources/ocp-logo.png",
     "license": "Apache-2.0",
-    "repository": "https://github.com/bernhard-42/vscode-cadquery-viewer",
+    "repository": "https://github.com/bernhard-42/vscode-ocp-cad-viewer",
     "engines": {
         "vscode": "^1.71.0"
     },
