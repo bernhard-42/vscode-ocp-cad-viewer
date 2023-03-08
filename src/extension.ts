@@ -122,7 +122,7 @@ export async function activate(context: vscode.ExtensionContext) {
                 ];
                 let libs = Object.keys(snippets);
                 let lib = (await vscode.window.showQuickPick(libs, {
-                    placeHolder: `Select CAD library"?`
+                    placeHolder: `Select the CAD library`
                 }));
                 if (lib === undefined) {
                     return;
@@ -132,18 +132,21 @@ export async function activate(context: vscode.ExtensionContext) {
                     prompt: "Location of the .vscode folder",
                     value: `${getCurrentFolder()}/.vscode`
                 });
+                if (dotVscode === undefined) {
+                    return;
+                }
 
                 let prefix = await vscode.window.showInputBox({
-                    prompt: "Do you use a import alias, just press return if not?",
-                    placeHolder: `xy.`
-                }) || "";
+                    prompt: `Do you use a import alias (import ${lib} as xy)? Just press return if not.`,
+                    placeHolder: `xy`
+                });
+                if (prefix === undefined) {
+                    return;
+                }
                 if (prefix !== "" && prefix[prefix.length - 1] !== ".") {
                     prefix = prefix + ".";
                 }
 
-                if (dotVscode === undefined) {
-                    return;
-                }
                 let filename = path.join(dotVscode, `${lib}.code-snippets`);
                 if (!fs.existsSync(dotVscode)) {
                     fs.mkdirSync(dotVscode, { recursive: true });
