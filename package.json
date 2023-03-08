@@ -470,24 +470,24 @@
         "test": "node ./out/test/runTest.js"
     },
     "devDependencies": {
-        "@types/glob": "^7.2.0",
-        "@types/mocha": "^9.1.1",
-        "@types/node": "^16.18.12",
+        "@types/glob": "^8.1.0",
+        "@types/mocha": "^10.0.1",
+        "@types/node": "^18.14.6",
         "@types/vscode": "^1.71.0",
         "@typescript-eslint/eslint-plugin": "^5.31.0",
         "@typescript-eslint/parser": "^5.31.0",
         "@vscode/test-electron": "^2.1.5",
         "eslint": "^8.20.0",
-        "glob": "^8.0.3",
+        "glob": "^8.1.0",
         "mocha": "^10.0.0",
         "typescript": "^4.7.4"
     },
     "dependencies": {
         "@types/adm-zip": "^0.5.0",
         "@types/follow-redirects": "^1.14.1",
+        "@vscode/vsce": "^2.11.0",
         "adm-zip": "^0.5.10",
         "follow-redirects": "^1.15.2",
-        "three-cad-viewer": "^1.7.0",
-        "vsce": "^2.11.0"
+        "three-cad-viewer": "^1.7.0"
     }
 }
