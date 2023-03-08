@@ -1,0 +1,13 @@
+LICENSE
+README.md
+setup.cfg
+setup.py
+ocp_vscode/__init__.py
+ocp_vscode/animation.py
+ocp_vscode/show.py
+ocp_vscode.egg-info/PKG-INFO
+ocp_vscode.egg-info/SOURCES.txt
+ocp_vscode.egg-info/dependency_links.txt
+ocp_vscode.egg-info/not-zip-safe
+ocp_vscode.egg-info/requires.txt
+ocp_vscode.egg-info/top_level.txt

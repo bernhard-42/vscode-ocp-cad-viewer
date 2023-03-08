@@ -1,0 +1,493 @@
+{
+    "name": "ocp-cad-viewer",
+    "displayName": "OCP CAD Viewer",
+    "description": "An integrated OCP CAD viewer for CadQuery and build123d",
+    "version": "0.30.0",
+    "icon": "resources/ocp-logo.png",
+    "license": "Apache-2.0",
+    "repository": "https://github.com/bernhard-42/vscode-cadquery-viewer",
+    "engines": {
+        "vscode": "^1.71.0"
+    },
+    "categories": [
+        "Other"
+    ],
+    "activationEvents": [
+        "onCommand:ocpCadViewer.ocpCadViewer"
+    ],
+    "main": "./out/extension.js",
+    "contributes": {
+        "commands": [
+            {
+                "command": "ocpCadViewer.ocpCadViewer",
+                "title": "OCP CAD Viewer: Open viewer"
+            },
+            {
+                "command": "ocpCadViewer.openViewer",
+                "title": "OCP CAD Viewer: Open viewer (button)",
+                "icon": {
+                    "light": "resources/open.png",
+                    "dark": "resources/open.png"
+                }
+            },
+            {
+                "command": "ocpCadViewer.restartIpython",
+                "title": "OCP CAD Viewer: Restart IPython terminal",
+                "icon": {
+                    "light": "resources/restart.png",
+                    "dark": "resources/restart.png"
+                }
+            },
+            {
+                "command": "ocpCadViewer.ipythonRunCell",
+                "title": "OCP CAD Viewer: Run IPython cell (delimited by '# %%')",
+                "icon": {
+                    "light": "resources/start.png",
+                    "dark": "resources/start.png"
+                }
+            },
+            {
+                "command": "ocpCadViewer.installLibrary",
+                "title": "OCP CAD Viewer: Install library",
+                "icon": {
+                    "light": "resources/install.png",
+                    "dark": "resources/install.png"
+                }
+            },
+            {
+                "command": "ocpCadViewer.installPythonModule",
+                "title": "OCP CAD Viewer: Install ocp_vscode library",
+                "icon": {
+                    "light": "resources/install.png",
+                    "dark": "resources/install.png"
+                }
+            },
+            {
+                "command": "ocpCadViewer.installIPythonExtension",
+                "title": "OCP CAD Viewer: Install IPython extension 'HoangKimLai.ipython'",
+                "icon": {
+                    "light": "resources/install.png",
+                    "dark": "resources/install.png"
+                }
+            },
+            {
+                "command": "ocpCadViewer.installVscodeSnippets",
+                "title": "OCP CAD Viewer: Install CAD snippets into <project>/.vscode/"
+            },
+            {
+                "command": "ocpCadViewer.downloadExamples",
+                "title": "OCP CAD Viewer: Download examples for a specific library",
+                "icon": {
+                    "light": "resources/install.png",
+                    "dark": "resources/install.png"
+                }
+            },
+            {
+                "command": "ocpCadViewer.pasteSnippet",
+                "title": "OCP CAD Viewer: Paste code snippet",
+                "icon": {
+                    "light": "resources/light/paste.png",
+                    "dark": "resources/dark/paste.png"
+                }
+            },
+            {
+                "command": "ocpCadViewer.refreshLibraries",
+                "title": "OCP CAD Viewer: Refresh libraries list",
+                "icon": {
+                    "light": "resources/light/refresh.svg",
+                    "dark": "resources/dark/refresh.svg"
+                }
+            },
+            {
+                "command": "ocpCadViewer.preferences",
+                "title": "OCP CAD Viewer: Open preferences",
+                "icon": {
+                    "light": "resources/settings.png",
+                    "dark": "resources/settings.png"
+                }
+            }
+        ],
+        "viewsContainers": {
+            "activitybar": [
+                {
+                    "id": "ocpCadHome",
+                    "title": "OCP CAD Viewer",
+                    "icon": "resources/ocp-icon.svg"
+                }
+            ]
+        },
+        "views": {
+            "ocpCadHome": [
+                {
+                    "id": "ocpCadStatus",
+                    "name": "Viewer Manager"
+                },
+                {
+                    "id": "ocpCadSetup",
+                    "name": "Library Manager"
+                }
+            ]
+        },
+        "viewsWelcome": [
+            {
+                "view": "ocpCadStatus",
+                "contents": "In order to use OCP CAD Viewer, the Python library ocp_vscode needs to be installed.\n[Install ocp_vscode from pypi](command:ocpCadViewer.installPythonModule)\nFurther libraries can be installed or re-installed in the Library Manager below.\n\nAvailable libraries and their install (and import) commands can be found in the 'OCP CAD Viewer' preferences of VS Code.\n[Open OCP CAD Viewer Preferences](command:workbench.action.openSettings?%5B%22OCP%20CAD%20Viewer%22%5D)\n"
+            }
+        ],
+        "menus": {
+            "view/title": [
+                {
+                    "command": "ocpCadViewer.refreshLibraries",
+                    "when": "view == ocpCadSetup",
+                    "group": "navigation@1"
+                },
+                {
+                    "command": "ocpCadViewer.preferences",
+                    "when": "view == ocpCadStatus",
+                    "group": "navigation@1"
+                }
+            ],
+            "view/item/context": [
+                {
+                    "command": "ocpCadViewer.installLibrary",
+                    "when": "view == ocpCadSetup && viewItem == library",
+                    "group": "inline@0"
+                },
+                {
+                    "command": "ocpCadViewer.installIPythonExtension",
+                    "when": "view == ocpCadStatus && viewItem == ipythonExtMissing",
+                    "group": "inline@0"
+                },
+                {
+                    "command": "ocpCadViewer.downloadExamples",
+                    "when": "view == ocpCadSetup && viewItem == examples",
+                    "group": "inline@0"
+                },
+                {
+                    "command": "ocpCadViewer.pasteSnippet",
+                    "when": "view == ocpCadStatus && viewItem == library",
+                    "group": "inline@1"
+                },
+                {
+                    "command": "ocpCadViewer.pasteSnippet",
+                    "when": "view == ocpCadStatus && viewItem == status",
+                    "group": "inline@1"
+                },
+                {
+                    "command": "ocpCadViewer.pasteSnippet",
+                    "when": "view == ocpCadStatus && viewItem == open",
+                    "group": "inline@1"
+                },
+                {
+                    "command": "ocpCadViewer.openViewer",
+                    "when": "view == ocpCadStatus && viewItem == status",
+                    "group": "inline@0"
+                },
+                {
+                    "command": "ocpCadViewer.ipythonRunCell",
+                    "when": "view == ocpCadStatus && viewItem == open",
+                    "group": "inline@2"
+                },
+                {
+                    "command": "ocpCadViewer.restartIpython",
+                    "when": "view == ocpCadStatus && viewItem == open",
+                    "group": "inline@0"
+                }
+            ]
+        },
+        "keybindings": [
+            {
+                "command": "ocpCadViewer.ocpCadViewer",
+                "key": "ctrl+k v",
+                "mac": "cmd+k v",
+                "when": "editorTextFocus && editorLangId=='python'"
+            }
+        ],
+        "configuration": {
+            "title": "OCP CAD Viewer",
+            "properties": {
+                "OcpCadViewer.treeWidth": {
+                    "type": "integer",
+                    "default": 240,
+                    "description": "OCP CAD Viewer navigation tree width",
+                    "order": 0
+                },
+                "OcpCadViewer.dark": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Use dark mode",
+                    "order": 3
+                },
+                "OcpCadViewer.orbitControl": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Use 'orbit' control mode instead of 'trackball'",
+                    "order": 4
+                },
+                "OcpCadViewer.up": {
+                    "type": "string",
+                    "default": "Z",
+                    "description": "Provides up direction, 'Z', 'Y' or 'L' (legacy)",
+                    "order": 5
+                },
+                "OcpCadViewer.glass": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Use glass mode with transparent navigation tree",
+                    "order": 1
+                },
+                "OcpCadViewer.tools": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Show toolbar",
+                    "order": 2
+                },
+                "OcpCadViewer.rotateSpeed": {
+                    "type": "number",
+                    "default": 1,
+                    "description": "Rotation speed",
+                    "order": 6
+                },
+                "OcpCadViewer.zoomSpeed": {
+                    "type": "number",
+                    "default": 1,
+                    "description": "Zoom speed",
+                    "order": 7
+                },
+                "OcpCadViewer.panSpeed": {
+                    "type": "number",
+                    "default": 1,
+                    "description": "Pan speed",
+                    "order": 8
+                },
+                "OcpCadViewer.installCommands": {
+                    "type": "object",
+                    "description": "Shell commands to install Python libraries. The values for placeholders {python}, {conda_env}, {ocp_vscode_version} will be replaced accordingly during execution",
+                    "default": {
+                        "cadquery": {
+                            "pip": [
+                                "{unset_conda} {python} -m pip install git+https://github.com/cadquery/cadquery.git"
+                            ],
+                            "conda": [
+                                "conda install -y -n {conda_env} -c conda-forge -c cadquery cadquery=master"
+                            ],
+                            "mamba": [
+                                "mamba install -y -n {conda_env} -c conda-forge -c cadquery cadquery=master"
+                            ],
+                            "poetry": [
+                                "poetry add git+https://github.com/cadquery/cadquery.git"
+                            ]
+                        },
+                        "build123d": {
+                            "pip": [
+                                "{python} -m pip install git+https://github.com/gumyr/build123d.git"
+                            ],
+                            "poetry": [
+                                "poetry add git+https://github.com/gumyr/build123d.git"
+                            ]
+                        },
+                        "ocp_vscode": {
+                            "pip": [
+                                "{python} -m pip install ocp_vscode=={ocp_vscode_version}"
+                            ],
+                            "poetry": [
+                                "poetry add ocp_vscode=={ocp_vscode_version}"
+                            ]
+                        },
+                        "ipython": {
+                            "pip": [
+                                "{python} -m pip install ipython"
+                            ],
+                            "conda": [
+                                "conda install -y -n {conda_env} -c conda-forge ipython"
+                            ],
+                            "mamba": [
+                                "mamba install -y -n {conda_env} -c conda-forge ipython"
+                            ],
+                            "poetry": [
+                                "poetry add ipython"
+                            ]
+                        }
+                    }
+                },
+                "OcpCadViewer.codeSnippets": {
+                    "type": "object",
+                    "description": "Python snippets to import the Python libraries",
+                    "default": {
+                        "cadquery": [
+                            "import cadquery as cq"
+                        ],
+                        "build123d": [
+                            "from build123d import *"
+                        ],
+                        "ocp_vscode": [
+                            "from ocp_vscode import show, show_object, reset_show, set_port, set_defaults, get_defaults"
+                        ],
+                        "ipython": [
+                            "\n# %%\n"
+                        ]
+                    }
+                },
+                "OcpCadViewer.dotVscodeSnippets": {
+                    "type": "object",
+                    "description": "Python snippets to help writing CAD code",
+                    "default": {
+                        "build123d": {
+                            "BuildPart": {
+                                "scope": "python",
+                                "prefix": "bd_p",
+                                "body": [
+                                    "with {prefix}BuildPart() as ${1:partname}:",
+                                    "    $0"
+                                ]
+                            },
+                            "BuildSketch": {
+                                "scope": "python",
+                                "prefix": "bd_s",
+                                "body": [
+                                    "with {prefix}BuildSketch() as ${1:sketchname}:",
+                                    "    $0"
+                                ]
+                            },
+                            "BuildLine": {
+                                "scope": "python",
+                                "prefix": "bd_l",
+                                "body": [
+                                    "with {prefix}BuildLine() as ${1:linename}:",
+                                    "    $0"
+                                ]
+                            },
+                            "Part": {
+                                "scope": "python",
+                                "prefix": "bd_bp",
+                                "body": [
+                                    "with {prefix}BuildPart() as ${1:partname}:",
+                                    "    {prefix}${2:class}(${3:params}, align=({prefix}Align.CENTER, {prefix}Align.CENTER, {prefix}Align.CENTER))",
+                                    "    $0"
+                                ]
+                            },
+                            "Sketch": {
+                                "scope": "python",
+                                "prefix": "bd_bs",
+                                "body": [
+                                    "with {prefix}BuildSketch() as ${1:sketchname}:",
+                                    "    {prefix}${2:class}(${3:params}, align=({prefix}Align.CENTER, {prefix}Align.CENTER))",
+                                    "    $0"
+                                ]
+                            },
+                            "Line": {
+                                "scope": "python",
+                                "prefix": "bd_bl",
+                                "body": [
+                                    "with {prefix}BuildLine() as ${1:linename}:",
+                                    "    {prefix}${2:class}(${3:params})",
+                                    "    $0"
+                                ]
+                            },
+                            "LineChain": {
+                                "scope": "python",
+                                "prefix": "bd_lchain",
+                                "body": [
+                                    "with {prefix}BuildLine() as ${1:linename}:",
+                                    "    ${2:l1} = {prefix}Line((${3:start}), (${4:end}))",
+                                    "    ${5:l2} = {prefix}Line(${2:l1} @ 0, (${6:end}))",
+                                    "    ${7:l3} = {prefix}Line(${5:l2} @ 0, (${8:end}))",
+                                    "    $0"
+                                ]
+                            },
+                            "PartSketch": {
+                                "scope": "python",
+                                "prefix": "bd_pask",
+                                "body": [
+                                    "with {prefix}BuildPart() as ${1:partname}:",
+                                    "    with {prefix}BuildSketch() as ${2:sketchname}:",
+                                    "        {prefix}${3:class}(${4:params}, align=({prefix}Align.CENTER, {prefix}Align.CENTER))",
+                                    "        ${1:partname}.edges()",
+                                    "    $0"
+                                ]
+                            },
+                            "SketchLine": {
+                                "scope": "python",
+                                "prefix": "bd_skli",
+                                "body": [
+                                    "with {prefix}BuildSketch() as ${1:sketchname}:",
+                                    "    with {prefix}BuildLine() as ${2:linename}:",
+                                    "        {prefix}${3:class}(${4:params})",
+                                    "    MakeFace()",
+                                    "    $0"
+                                ]
+                            },
+                            "ExtrudeLine": {
+                                "scope": "python",
+                                "prefix": "bd_exli",
+                                "body": [
+                                    "with {prefix}BuildPart() as ${1:partname}:",
+                                    "    with {prefix}BuildSketch() as ${2:sketchname}:",
+                                    "        with {prefix}BuildLine() as ${3:linename}:",
+                                    "            {prefix}${4:class}(${5:params})",
+                                    "        {prefix}MakeFace()",
+                                    "    {prefix}Extrude(amount=${6:amount})",
+                                    "    $0"
+                                ]
+                            },
+                            "ExtrudeSketch": {
+                                "scope": "python",
+                                "prefix": "bd_exsk",
+                                "body": [
+                                    "with {prefix}BuildPart() as ${1:partname}:",
+                                    "    with {prefix}BuildSketch() as ${2:sketchname}:",
+                                    "        {prefix}${3:class}(${4:params}, align=({prefix}Align.CENTER, {prefix}Align.CENTER))",
+                                    "    {prefix}Extrude(amount=${5:amount})",
+                                    "    $0"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "OcpCadViewer.exampleDownloads": {
+                    "type": "object",
+                    "description": "Github download path for repository zip archives",
+                    "default": {
+                        "cadquery": {
+                            "zip": "https://github.com/CadQuery/cadquery/archive/refs/heads/master.zip",
+                            "example_path": "cadquery-master/examples"
+                        },
+                        "build123d": {
+                            "zip": "https://github.com/gumyr/build123d/archive/refs/heads/dev.zip",
+                            "example_path": "build123d-dev/examples"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "scripts": {
+        "vscode:prepublish": "yarn run compile",
+        "compile": "tsc -p ./",
+        "watch": "tsc -watch -p ./",
+        "pretest": "yarn run compile && yarn run lint",
+        "lint": "eslint src --ext ts",
+        "test": "node ./out/test/runTest.js"
+    },
+    "devDependencies": {
+        "@types/glob": "^7.2.0",
+        "@types/mocha": "^9.1.1",
+        "@types/node": "^16.18.12",
+        "@types/vscode": "^1.71.0",
+        "@typescript-eslint/eslint-plugin": "^5.31.0",
+        "@typescript-eslint/parser": "^5.31.0",
+        "@vscode/test-electron": "^2.1.5",
+        "eslint": "^8.20.0",
+        "glob": "^8.0.3",
+        "mocha": "^10.0.0",
+        "typescript": "^4.7.4"
+    },
+    "dependencies": {
+        "@types/adm-zip": "^0.5.0",
+        "@types/follow-redirects": "^1.14.1",
+        "adm-zip": "^0.5.10",
+        "follow-redirects": "^1.15.2",
+        "three-cad-viewer": "^1.7.0",
+        "vsce": "^2.11.0"
+    }
+}
