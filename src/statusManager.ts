@@ -20,7 +20,7 @@ import * as output from "./output";
 import { ipythonExtensionInstalled } from "./utils";
 
 const URL =
-    "https://github.com/bernhard-42/vscode-cadquery-viewer/releases/download";
+    "https://github.com/bernhard-42/vscode-ocp-cad-viewer/releases/download";
 
 export class StatusManagerProvider implements vscode.TreeDataProvider<Status> {
     installed: boolean = false;

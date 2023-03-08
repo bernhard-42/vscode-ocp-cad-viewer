@@ -26,7 +26,7 @@ import { StatusManagerProvider } from "./statusManager";
 import { TerminalExecute } from "./system/terminal";
 
 const URL =
-    "https://github.com/bernhard-42/vscode-cadquery-viewer/releases/download";
+    "https://github.com/bernhard-42/vscode-cop-cad-viewer/releases/download";
 
 function sanitize(lib: string) {
     return lib.replace("-", "_");
