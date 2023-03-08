@@ -1,3 +1,0 @@
-ocp-tessellate>=1.0.0rc9
-requests
-orjson

@@ -1,0 +1,12 @@
+out
+dist
+node_modules
+.vscode-test/
+*.vsix
+vsc-extension-quickstart.md
+ipc
+ocp_vscode.egg-info
+ocp_vscode/__pycache__
+build
+dist
+.DS_Store
