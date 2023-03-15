@@ -8,7 +8,8 @@ _OCP CAD Viewer for VS Code_ is an extension to show [CadQuery](https://github.c
 
 -   A fairly recent version of VS Code, e.g. 1.76.0 or newer
 -   [Python extension](https://marketplace.visualstudio.com/items?itemName=ms-python.python) installed in VS Code
--   `pip` available in the Python enviroment that will be used for CAD development
+-   a Python 3.9 environment with `pip` available (3.9 is currently the highest version that casadi can be installed under)
+    - This can be created by installing python 3.9, then running `python3.9 -m venv venv`, then activating the virtual enviroment and ensuring that VS Code detects it before continuing with the installation
 
 **Steps**:
 
