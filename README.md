@@ -9,7 +9,7 @@ _OCP CAD Viewer for VS Code_ is an extension to show [CadQuery](https://github.c
 -   A fairly recent version of VS Code, e.g. 1.76.0 or newer
 -   [Python extension](https://marketplace.visualstudio.com/items?itemName=ms-python.python) installed in VS Code
 -   a Python 3.9 environment with `pip` available (3.9 is currently the highest version that casadi can be installed under)
-    - This can be created by installing python 3.9, then running `python3.9 -m venv venv`, then activating the virtual enviroment and ensuring that VS Code detects it before continuing with the installation
+    - This can be created by installing python 3.9, running `python3.9 -m venv venv`, then activating the virtual enviroment and ensuring that VS Code detects it before continuing with the installation
 
 **Steps**:
 
@@ -28,6 +28,8 @@ _OCP CAD Viewer for VS Code_ is an extension to show [CadQuery](https://github.c
 -   Start the OCP CAD Viewer by pressing the green box-arrow button in the "Viewer Manager" section of the OCP CAD Viewer sidebar
 -   Paste the import code by using the paste button behing the library names in the "Viewer Manager" section
 -   Use the usual Run menu to run the code
+
+Please note that using this method runs your entire script every time you want to refresh the model, which has a ~2s delay due to having to import the `cadquery` or `build123d` libraries. Using the iPython method below takes a couple of extra steps to set up, but **vastly** reduces this delay by only loading the libraries once per session.
 
 ![Use with run](screenshots/ocp_vscode-work.gif)
 
