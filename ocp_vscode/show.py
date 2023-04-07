@@ -238,15 +238,14 @@ def show(
 
     timeit = preset("timeit", kwargs.get("timeit"))
 
-    if names is not None:
-        if len(names) != len(set(names)):
-            raise ValueError("All names need to be unique")
+    if names is not None and len(names) != len(cad_objs):
+        raise ValueError("Length of cad objects and names need to be the same")
 
-        if colors is not None and len(colors) != len(names):
-            raise ValueError("Length of names and colors need to be the same")
+    if colors is not None and len(colors) != len(cad_objs):
+        raise ValueError("Length of cad objects and colors need to be the same")
 
-        if alphas is not None and len(alphas) != len(names):
-            raise ValueError("Length of names and alphas need to be the same")
+    if alphas is not None and len(alphas) != len(cad_objs):
+        raise ValueError("Length of cad objects and alphas need to be the same")
 
     if kwargs.get("default_edgecolor") is not None:
         kwargs["default_edgecolor"] = Color(kwargs["default_edgecolor"]).web_color
