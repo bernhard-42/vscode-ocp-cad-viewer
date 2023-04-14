@@ -30,6 +30,8 @@ export class CadqueryController {
     statusController: StatusManagerProvider;
     view: vscode.Webview | undefined;
     port: number;
+    viewer_message = "{}";
+    splash: boolean = true;
 
     constructor(
         private context: vscode.ExtensionContext,
@@ -48,6 +50,13 @@ export class CadqueryController {
 
                 let panel = CadqueryViewer.currentPanel;
                 this.view = panel?.getView();
+                if (this.view) {
+                    this.view.onDidReceiveMessage(
+                        message => {
+                            this.viewer_message = message;
+                        });
+
+                }
             }
         }
     }
@@ -98,12 +107,21 @@ export class CadqueryController {
             (req: IncomingMessage, res: ServerResponse) => {
                 let response = "";
                 if (req.method === "GET") {
-                    response = "Only POST supported\n";
-                    res.writeHead(200, {
-                        "Content-Length": response.length,
-                        "Content-Type": "text/plain"
-                    });
-                    res.end(response);
+                    if (req.url == "/status") {
+                        response = this.viewer_message;
+                        res.writeHead(200, {
+                            "Content-Length": response.length,
+                            "Content-Type": "text/plain"
+                        });
+                        res.end(response);
+                    } else if (req.url == "/config") {
+                        response = JSON.stringify(this.config());
+                        res.writeHead(200, {
+                            "Content-Length": response.length,
+                            "Content-Type": "text/plain"
+                        });
+                        res.end(response);
+                    }
                 } else if (req.method === "POST") {
                     var json = "";
                     req.on("data", (chunk: string) => {
@@ -117,6 +135,7 @@ export class CadqueryController {
                         response = "done";
                         res.writeHead(201, { "Content-Type": "text/plain" });
                         res.end(response);
+                        if (this.splash) { this.splash = false }
                     });
                 }
             }

@@ -155,7 +155,6 @@ export function template() {
         }
 
         function nc(change) {
-            console.debug("Viewer:", JSON.stringify(change, null, 2));
             if (change.zoom !== undefined) {
                 _zoom = change.zoom.new;
             }
@@ -168,6 +167,29 @@ export function template() {
             if (change.target !== undefined) {
                 _target = change.target.new;
             }
+
+            var changed = false;
+            Object.keys(change).forEach((k) => {
+                if(change[k].new !== undefined) {
+                    message[k] = change[k].new;
+                    changed = true;
+                }
+            });
+            if (changed) {
+                vscode.postMessage(JSON.stringify({
+                    command: 'status',
+                    text: message
+                }))    
+            }       
+        }
+
+        function normalizeWidth(width, glass) {
+            const treeWidth = glass ? 0: preset(_config.treeWidth, displayDefaultOptions.treeWidth);
+            return Math.max(minWidth, width - treeWidth - 42);
+        }
+
+        function normalizeHeight(height) {
+            return height - 65;
         }
 
         function getSize() {
