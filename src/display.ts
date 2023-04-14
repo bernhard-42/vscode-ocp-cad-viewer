@@ -44,6 +44,7 @@ export function template() {
         var _quaternion = null;
         var _target = null;
         var viewerOptions = {};
+        const minWidth = 665;
         const vscode = acquireVsCodeApi();
         var message = {};
 
