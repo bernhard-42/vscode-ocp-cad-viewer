@@ -17,17 +17,13 @@
 import * as vscode from "vscode";
 
 export function template() {
-    let options = vscode.workspace.getConfiguration("OcpCadViewer");
+    let options = vscode.workspace.getConfiguration("OcpCadViewer.view");
     let theme = options.get("dark") ? "dark" : "light";
-    let treeWidth = options.get("treeWidth");
-    let control = options.get("orbitControl") ? "orbit" : "trackball";
+    let treeWidth = options.get("tree_width");
+    let control = options.get("orbit_control") ? "orbit" : "trackball";
     let up = options.get("up");
     let glass = options.get("glass");
     let tools = options.get("tools");
-    let rotateSpeed = options.get("rotateSpeed");
-    let zoomSpeed = options.get("zoomSpeed");
-    let panSpeed = options.get("panSpeed");
-
     let html = `
 <!DOCTYPE html>
 <html>
@@ -47,7 +43,46 @@ export function template() {
         var _position = null;
         var _quaternion = null;
         var _target = null;
+        var viewerOptions = {};
+        const vscode = acquireVsCodeApi();
+        var message = {};
+
+        const displayDefaultOptions = {
+            cadWidth: 730,
+            height: 525,
+            treeWidth: ${treeWidth},
+            glass: ${glass},
+            theme: '${theme}',
+            pinning: false,
+        };   
+
+        const viewerDefaultOptions = {
+            timeit: false,
+            tools: ${tools},
+            glass: ${glass},
+            up: '${up}',
+            zoom: 1.0,
+            position: null,
+            quaternion: null,
+            target: null,
+            control: '${control}',
+        };
         
+        const renderDefaultOptions = {
+            ambientIntensity:  0.75,
+            directIntensity:  0.15,
+            edgeColor:  0x707070,
+            defaultOpacity:  0.5,
+            normalLen:  0,
+            angularTolerance: 0.2,
+            deviation: 0.1,
+            defaultColor: "#e8b024"
+        };
+        
+        // console.log("displayDefaultOptions", displayDefaultOptions);
+        // console.log("viewerDefaultOptions", viewerDefaultOptions);
+        // console.log("renderDefaultOptions", renderDefaultOptions);
+
         const MAP_HEX = {
             0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6,
             7: 7, 8: 8, 9: 9, a: 10, b: 11, c: 12, d: 13,
@@ -146,97 +181,104 @@ export function template() {
             return (config === undefined) ? val : config;
         }
 
-        function showViewer() {
+        function getDisplayOptions() {
             const size = getSize()
-            const treeWidth = ${glass} ? 0: ${treeWidth};
-            const minWidth = ${glass} ? 665 : 665 - ${treeWidth};
-            
-            const displayOptions = {
-                cadWidth: Math.max(minWidth, size.width - treeWidth - 42),
-                height: size.height - 65,
+            const glass = preset(_config.glass, displayDefaultOptions.glass)
+            const treeWidth = glass ? 0: preset(_config.treeWidth, displayDefaultOptions.treeWidth);
+            return {
+                glass: glass,
                 treeWidth: treeWidth,
-                theme: '${theme}',
-                pinning: false,
-            };    
+                cadWidth: normalizeWidth(size.width, glass),
+                height: normalizeHeight(size.height) 
+            }            
+        }
+
+        function showViewer(shapes, states, config) {
+            _shapes = shapes;
+            _states = states;
+            _config = config;
+
+            const displayOptions = getDisplayOptions();
 
             const container = document.getElementById("cad_viewer");
             container.innerHTML = ""
             viewer = new Viewer(container, displayOptions, nc);
             
-            if (_states != null) {
-                render(_shapes, _states, _config);
-            }     
-            
+            render();
             // viewer.trimUI(["axes", "axes0", "grid", "ortho", "more", "help"])           
         }    
 
-        function render(shapes, states, config) {
-            _states = states;
-            _shapes = shapes;
-            _config = config;
-            
-            const tessellationOptions = {
-                ambientIntensity: preset(config.ambient_intensity, 0.75),
-                directIntensity: preset(config.direct_intensity, 0.15),
-                edgeColor: preset(config.default_edgecolor, 0x707070),
-                defaultOpacity: preset(config.default_opacity, 0.5),
-                normalLen: preset(config.normal_len, 0),
-            };
-
-
+        function render() {
             const renderOptions = {
-                axes: preset(config.axes, false),
-                axes0: preset(config.axes0, false),
-                blackEdges: preset(config.black_edges, false),
-                grid: preset(config.grid, [false, false, false]),
-                collapse: preset(config.collapse, 1),
-                ortho: preset(config.ortho, true),
-                ticks: preset(config.ticks, 10),
-                timeit: preset(config.timeit, false),
-                tools: preset(config.tools, ${tools}),
-                glass: preset(config.glass, ${glass}),
-                up: preset(config.up, '${up}'),
-                transparent: preset(config.transparent, false),
-                zoom: preset(config.zoom, 1.0),
-                position: preset(config.position, null),
-                quaternion: preset(config.quaternion, null),
-                target: preset(config.target, null),
-                control: preset(config.control, '${control}'),
-                panSpeed: preset(config.panSpeed, ${panSpeed}),
-                zoomSpeed: preset(config.zoomSpeed, ${zoomSpeed}),
-                rotateSpeed: preset(config.rotateSpeed, ${rotateSpeed}),
+                ambientIntensity: preset(_config.ambient_intensity, renderDefaultOptions.ambientIntensity),
+                directIntensity: preset(_config.direct_intensity, renderDefaultOptions.directIntensity),
+                edgeColor: preset(_config.default_edgecolor, renderDefaultOptions.defaultEdgecolor),
+                defaultOpacity: preset(_config.default_opacity, renderDefaultOptions.defaultOpacity),
+                normalLen: preset(_config.normal_len, renderDefaultOptions.normalLen),
             };
-
-            viewer?.clear();
-
-            var shapesStates = viewer.renderTessellatedShapes(shapes, states, tessellationOptions)
+            // console.log("renderOptions", renderOptions)
             
-            if (config.reset_camera) {
+            viewerOptions = {
+                axes: preset(_config.axes, viewerDefaultOptions.axes),
+                axes0: preset(_config.axes0, viewerDefaultOptions.axes0),
+                blackEdges: preset(_config.black_edges, viewerDefaultOptions.black_edges),
+                grid: preset(_config.grid, viewerDefaultOptions.grid),
+                collapse: preset(_config.collapse, viewerDefaultOptions.collapse),
+                ortho: preset(_config.ortho, viewerDefaultOptions.ortho),
+                ticks: preset(_config.ticks, viewerDefaultOptions.ticks),
+                timeit: preset(_config.timeit, viewerDefaultOptions.timeit),
+                tools: preset(_config.tools, viewerDefaultOptions.tools),
+                glass: preset(_config.glass, viewerDefaultOptions.glass),
+                up: preset(_config.up, viewerDefaultOptions.up),
+                transparent: preset(_config.transparent, viewerDefaultOptions.transparent),
+                control: preset(_config.control, viewerDefaultOptions.control),
+                panSpeed: preset(_config.pan_speed, viewerDefaultOptions.panSpeed),
+                zoomSpeed: preset(_config.zoom_speed, viewerDefaultOptions.zoomSpeed),
+                rotateSpeed: preset(_config.rotate_speed, viewerDefaultOptions.rotateSpeed),
+            };
+            // console.log("viewerOptions", viewerOptions)
+            if (_config.zoom !== undefined) {
+                viewerOptions.zoom = _config.zoom;
+            }
+            if (_config.position !== undefined) {
+                viewerOptions.position = _config.position;
+            }
+            if (viewerOptions.quaternion !== undefined) {
+                viewerOptions.quaternion = _config.quaternion;
+            }
+            if (viewerOptions.target !== undefined) {
+                viewerOptions.target = _config.target;
+            }
+            
+            var shapesAndTree = viewer.renderTessellatedShapes(_shapes, _states, renderOptions)
+            
+            if (preset(_config.reset_camera, true)) {
                 _zoom = null;
                 _position = null;
                 _quaternion = null;
                 _target = null;                
             } else {
                 if (_zoom !== null) {
-                    renderOptions["zoom"] = _zoom;
+                    viewerOptions["zoom"] = _zoom;
                 }
                 if (_position !== null) {
-                    renderOptions["position"] = _position;
+                    viewerOptions["position"] = _position;
                 }
                 if (_quaternion !== null) {
-                    renderOptions["quaternion"] = _quaternion;
+                    viewerOptions["quaternion"] = _quaternion;
                 }
                 if (_target !== null) {
-                    renderOptions["target"] = _target;
+                    viewerOptions["target"] = _target;
                 }
             }
             
             viewer.render(
-                ...shapesStates,
-                states,
-                renderOptions,
+                ...shapesAndTree,
+                _states,
+                viewerOptions,
             );
-        }
+            console.log(viewer)
+        }      
 
         window.addEventListener('resize', function(event) {         
             const displayOptions = getDisplayOptions();

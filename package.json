@@ -206,61 +206,173 @@
         "configuration": {
             "title": "OCP CAD Viewer",
             "properties": {
-                "OcpCadViewer.treeWidth": {
+                "OcpCadViewer.view.tree_width": {
                     "type": "integer",
                     "default": 240,
                     "description": "OCP CAD Viewer navigation tree width",
                     "order": 0
                 },
-                "OcpCadViewer.dark": {
-                    "type": "boolean",
-                    "default": false,
-                    "description": "Use dark mode",
-                    "order": 3
-                },
-                "OcpCadViewer.orbitControl": {
-                    "type": "boolean",
-                    "default": false,
-                    "description": "Use 'orbit' control mode instead of 'trackball'",
-                    "order": 4
-                },
-                "OcpCadViewer.up": {
-                    "type": "string",
-                    "default": "Z",
-                    "description": "Provides up direction, 'Z', 'Y' or 'L' (legacy)",
-                    "order": 5
-                },
-                "OcpCadViewer.glass": {
+                "OcpCadViewer.view.glass": {
                     "type": "boolean",
                     "default": true,
                     "description": "Use glass mode with transparent navigation tree",
                     "order": 1
                 },
-                "OcpCadViewer.tools": {
+                "OcpCadViewer.view.tools": {
                     "type": "boolean",
                     "default": true,
                     "description": "Show toolbar",
                     "order": 2
                 },
-                "OcpCadViewer.rotateSpeed": {
+                "OcpCadViewer.view.dark": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Use dark mode",
+                    "order": 3
+                },
+                "OcpCadViewer.view.orbit_control": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Use 'orbit' control mode instead of 'trackball'",
+                    "order": 4
+                },
+                "OcpCadViewer.view.up": {
+                    "type": "string",
+                    "enum": [
+                        "Z",
+                        "Y",
+                        "L"
+                    ],
+                    "default": "Z",
+                    "description": "Provides up direction, 'Z', 'Y' or 'L' (legacy)",
+                    "order": 5
+                },
+                "OcpCadViewer.view.rotate_speed": {
                     "type": "number",
                     "default": 1,
                     "description": "Rotation speed",
                     "order": 6
                 },
-                "OcpCadViewer.zoomSpeed": {
+                "OcpCadViewer.view.zoom_speed": {
                     "type": "number",
                     "default": 1,
                     "description": "Zoom speed",
                     "order": 7
                 },
-                "OcpCadViewer.panSpeed": {
+                "OcpCadViewer.view.pan_speed": {
                     "type": "number",
                     "default": 1,
                     "description": "Pan speed",
                     "order": 8
                 },
-                "OcpCadViewer.installCommands": {
+                "OcpCadViewer.view.axes": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Show axes",
+                    "order": 9
+                },
+                "OcpCadViewer.view.axes0": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Show axes at the origin (0, 0, 0)",
+                    "order": 10
+                },
+                "OcpCadViewer.view.black_edges": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Show edges in black",
+                    "order": 11
+                },
+                "OcpCadViewer.view.grid_XY": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Show grid on XY plane",
+                    "order": 12
+                },
+                "OcpCadViewer.view.grid_YZ": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Show grid on YZ plane",
+                    "order": 13
+                },
+                "OcpCadViewer.view.grid_XZ": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Show grid on XZ plane",
+                    "order": 14
+                },
+                "OcpCadViewer.view.collapse": {
+                    "type": "string",
+                    "enum": [
+                        "1",
+                        "C",
+                        "E"
+                    ],
+                    "default": "1",
+                    "description": "1: collapse all leaf nodes, C: collapse all nodes, E: expand all nodes",
+                    "order": 15
+                },
+                "OcpCadViewer.view.ortho": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Use orthographic camera",
+                    "order": 16
+                },
+                "OcpCadViewer.view.ticks": {
+                    "type": "number",
+                    "default": 10,
+                    "description": "Default number of ticks",
+                    "order": 17
+                },
+                "OcpCadViewer.render.transparent": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Show objects transparent",
+                    "order": 30
+                },
+                "OcpCadViewer.render.default_opacity": {
+                    "type": "number",
+                    "default": 0.5,
+                    "description": "Default opacity for transparent objects",
+                    "order": 31
+                },
+                "OcpCadViewer.render.angular_tolerance": {
+                    "type": "number",
+                    "default": 0.2,
+                    "description": "Angular tolerance for tessellation algorithm",
+                    "order": 32
+                },
+                "OcpCadViewer.render.deviation": {
+                    "type": "number",
+                    "default": 0.1,
+                    "description": "Deviation of for tessellation algorithm",
+                    "order": 33
+                },
+                "OcpCadViewer.render.default_color": {
+                    "type": "string",
+                    "default": "#e8b024",
+                    "description": "Default shape color",
+                    "order": 34
+                },
+                "OcpCadViewer.render.default_edgecolor": {
+                    "type": "string",
+                    "default": "#707070",
+                    "description": "",
+                    "order": 35
+                },
+                "OcpCadViewer.render.ambient_intensity": {
+                    "type": "number",
+                    "default": 0.75,
+                    "description": "Intensity of ambient light",
+                    "order": 36
+                },
+                "OcpCadViewer.render.direct_intensity": {
+                    "type": "number",
+                    "default": 0.15,
+                    "description": "Intensity of direct light",
+                    "order": 37
+                },
+                "OcpCadViewer.advanced.installCommands": {
                     "type": "object",
                     "description": "Shell commands to install Python libraries. The values for placeholders {python}, {conda_env}, {ocp_vscode_version} will be replaced accordingly during execution",
                     "default": {
@@ -308,9 +420,10 @@
                                 "poetry add ipython"
                             ]
                         }
-                    }
+                    },
+                    "order": 50
                 },
-                "OcpCadViewer.codeSnippets": {
+                "OcpCadViewer.advanced.codeSnippets": {
                     "type": "object",
                     "description": "Python snippets to import the Python libraries",
                     "default": {
@@ -326,9 +439,25 @@
                         "ipython": [
                             "\n# %%\n"
                         ]
-                    }
+                    },
+                    "order": 51
                 },
-                "OcpCadViewer.dotVscodeSnippets": {
+                "OcpCadViewer.advanced.exampleDownloads": {
+                    "type": "object",
+                    "description": "Github download path for repository zip archives",
+                    "default": {
+                        "cadquery": {
+                            "zip": "https://github.com/CadQuery/cadquery/archive/refs/heads/master.zip",
+                            "example_path": "cadquery-master/examples"
+                        },
+                        "build123d": {
+                            "zip": "https://github.com/gumyr/build123d/archive/refs/heads/dev.zip",
+                            "example_path": "build123d-dev/examples"
+                        }
+                    },
+                    "order": 52
+                },
+                "OcpCadViewer.snippets.dotVscodeSnippets": {
                     "type": "object",
                     "description": "Python snippets to help writing CAD code",
                     "default": {
@@ -442,21 +571,8 @@
                                 ]
                             }
                         }
-                    }
-                },
-                "OcpCadViewer.exampleDownloads": {
-                    "type": "object",
-                    "description": "Github download path for repository zip archives",
-                    "default": {
-                        "cadquery": {
-                            "zip": "https://github.com/CadQuery/cadquery/archive/refs/heads/master.zip",
-                            "example_path": "cadquery-master/examples"
-                        },
-                        "build123d": {
-                            "zip": "https://github.com/gumyr/build123d/archive/refs/heads/dev.zip",
-                            "example_path": "build123d-dev/examples"
-                        }
-                    }
+                    },
+                    "order": 53
                 }
             }
         }

@@ -117,7 +117,7 @@ export async function activate(context: vscode.ExtensionContext) {
         vscode.commands.registerCommand(
             "ocpCadViewer.installVscodeSnippets",
             async () => {
-                let snippets = vscode.workspace.getConfiguration("OcpCadViewer")[
+                let snippets = vscode.workspace.getConfiguration("OcpCadViewer.snippets")[
                     "dotVscodeSnippets"
                 ];
                 let libs = Object.keys(snippets);

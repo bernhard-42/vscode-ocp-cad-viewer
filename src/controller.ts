@@ -60,6 +60,39 @@ export class CadqueryController {
         this.view?.postMessage(logo);
     }
 
+    public config() {
+        let options = vscode.workspace.getConfiguration("OcpCadViewer.view");
+        let c: Record<string, any> = {
+            "theme": options.get("dark") ? "dark" : "light",
+            "tree_width": options.get("tree_width"),
+            "control": options.get("orbit_control") ? "orbit" : "trackball",
+            "up": options.get("up"),
+            "glass": options.get("glass"),
+            "tools": options.get("tools"),
+            "rotate_speed": options.get("rotate_speed"),
+            "zoom_speed": options.get("zoom_speed"),
+            "pan_speed": options.get("pan_speed"),
+            "axes": options.get("axes"),
+            "axes0": options.get("axes0"),
+            "black_edges": options.get("black_edges"),
+            "grid": [options.get("grid_XY"), options.get("grid_XZ"), options.get("grid_YZ")],
+            "collapse": options.get("collapse"),
+            "ortho": options.get("ortho"),
+            "ticks": options.get("ticks")
+        }
+        options = vscode.workspace.getConfiguration("OcpCadViewer.render");
+        c["transparent"] = options.get("transparent");
+        c["default_opacity"] = options.get("default_opacity");
+        c["angular_tolerance"] = options.get("angular_tolerance");
+        c["deviation"] = options.get("deviation");
+        c["default_color"] = options.get("default_color");
+        c["default_edgecolor"] = options.get("default_edgecolor");
+        c["ambient_intensity"] = options.get("ambient_intensity");
+        c["direct_intensity"] = options.get("direct_intensity");
+        c["_splash"] = this.splash;
+        return c
+    }
+
     public startCommandServer(port: number): boolean {
         this.server = createServer(
             (req: IncomingMessage, res: ServerResponse) => {

@@ -97,15 +97,15 @@ export class LibraryManagerProvider
 
     readConfig() {
         this.installCommands =
-            vscode.workspace.getConfiguration("OcpCadViewer")[
+            vscode.workspace.getConfiguration("OcpCadViewer.advanced")[
             "installCommands"
             ];
         this.codeSnippets =
-            vscode.workspace.getConfiguration("OcpCadViewer")[
+            vscode.workspace.getConfiguration("OcpCadViewer.advanced")[
             "codeSnippets"
             ];
         this.exampleDownloads =
-            vscode.workspace.getConfiguration("OcpCadViewer")[
+            vscode.workspace.getConfiguration("OcpCadViewer.advanced")[
             "exampleDownloads"
             ];
     }
