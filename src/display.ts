@@ -35,10 +35,10 @@ export function template() {
 <head>
     <meta charset="utf-8" />
     <title>OCP CAD Viewer</title>
-    <link rel="stylesheet" href="https://unpkg.com/three-cad-viewer@1.7.3/dist/three-cad-viewer.css" /> <!-- 1.7.3 -->
+    <link rel="stylesheet" href="https://unpkg.com/three-cad-viewer@1.7.5/dist/three-cad-viewer.css" /> <!-- 1.7.5 -->
 
     <script type="module">
-        import { Viewer, Timer } from "https://unpkg.com/three-cad-viewer@1.7.3/dist/three-cad-viewer.esm.js";
+        import { Viewer, Timer } from "https://unpkg.com/three-cad-viewer@1.7.5/dist/three-cad-viewer.esm.js";
         var viewer = null;
         var _shapes = null;
         var _states = null;
@@ -238,19 +238,11 @@ export function template() {
             );
         }
 
-        showViewer();
-        
-        window.addEventListener('resize', function(event) {
-            var reset = false;
-            if (_config !== null) {
-                reset = _config.reset_camera;
-                _config.reset_camera = false;
-            }
-            showViewer();
-            if (_config !== null) {
-                _config.reset_camera = reset;
-            }
+        window.addEventListener('resize', function(event) {         
+            const displayOptions = getDisplayOptions();
+            viewer.resizeCadView(displayOptions.cadWidth, displayOptions.treeWidth, displayOptions.height, displayOptions.glass);
         }, true);
+
         console.log("resize listener registered");
 
         window.addEventListener('message', event => {
