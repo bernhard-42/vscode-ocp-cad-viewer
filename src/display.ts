@@ -253,7 +253,7 @@ export function template() {
 
                 let meshData = data.data;
                 let config = data.config;
-                render(meshData.shapes, meshData.states, config);
+                showViewer(meshData.shapes, meshData.states, config);
 
             } else if (data.type === "animation") {
                 const tracks = data.data;
