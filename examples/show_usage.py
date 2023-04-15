@@ -1,0 +1,219 @@
+from build123d import *
+from ocp_vscode import (
+    show,
+    set_defaults,
+    status,
+    workspace_config,
+    combined_config,
+    get_defaults,
+)
+
+b = Box(1, 2, 3)
+b = fillet(b.edges(), 0.2)
+c = Pos(2, 2, 0) * Cylinder(0.5, 2)
+
+#
+# Use config with show for one time setting configurations
+#
+
+# %%
+# Use default settings
+show(b, c)
+
+# %%
+# Unset glass mode
+show(b, c, glass=False)
+
+# %%
+# Remove tools
+show(b, c, tools=False)
+
+# %%
+# Reset the above settings
+show(b, c, tools=True, glass=True)
+
+# %%
+show(b, c, orbit_control=True)
+
+# %%
+import cadquery as cq
+
+b1 = cq.Workplane().box(1, 2, 3)
+b2 = cq.Workplane().box(1, 2, 1)
+b3 = cq.Workplane().box(2, 1, 2)
+a1 = cq.Assembly(name="a")
+b4 = cq.Assembly(name="b")
+b4.add(b2, name="b2", loc=Location((-3, -3, -3)))
+b4.add(b3, name="b3", loc=Location((3, 3, 3)))
+a1.add(b4)
+a1.add(b1, name="b1")
+
+show(a1, collapse="1")
+
+# %%
+show(a1, collapse="C")
+
+# %%
+show(a1, collapse="E")
+
+# %%
+# Provide names to objects
+
+show(b, c, names=["b", "c"])
+
+# %%
+# Provide colors to objects
+
+show(b, c, colors=["red", "green"])
+
+# %%
+# Provide tranparency to objects
+
+show(b, c, alphas=[0.9, 0.1])
+
+# %%
+# Set the progress indicator to only show instances
+show(b, c, progress="-")
+
+# %%
+# Show axes at center of overall mass
+
+show(b, c, axes=True, axes0=False)
+
+# %%
+# Show axes at (0, 0, 0)
+
+show(b, c, axes=True, axes0=True)
+
+# %%
+# Show XY grid
+
+show(b, c, grid=(True, True, False))
+
+# %%
+# Show XY grid with more ticks
+
+show(b, c, grid=(True, False, True), ticks=20)
+
+# %%
+# Show object in perspective mode
+
+show(b, c, ortho=False)
+
+# %%
+# Use Y axis as up direction
+
+show(b, c, up="Y")
+
+# %%
+# Show all objects with transparency and default opacity level
+
+show(b, c, transparent=True)
+
+# %%
+# Show all objects with transparency and set the opacity level
+
+show(b, c, transparent=True, default_opacity=0.1)
+
+# %%
+show(b, c, black_edges=True)
+
+# %%
+# Change default color to cyan
+
+show(b, c, default_color=(0, 255, 255))
+
+# %%
+# Change default color to red (css color name)
+
+show(b, c, default_color="red")
+
+
+# %%
+# Set the default edge color
+
+show(b, c, default_edgecolor="red")
+
+# %%
+# Change position and orientation of camera. Use "status()" to get actual values
+show(
+    b,
+    c,
+    zoom=0.5,
+    position=[9.698604277066465, 7.541399465537116, -9.653647529954416],
+    quaternion=[
+        0.572480622757492,
+        0.5644006736361671,
+        0.594707074888687,
+        0.006427382326782352,
+    ],
+    target=[0.4643458377039448, -0.4267553835514652, -3.9303273888943013],
+)
+
+# %%
+# Do not reset the camera
+
+show(b, c, reset_camera=False, colors=["red", "green"], alphas=[0.3, 0.7])
+
+# %%
+# Suppress rendering edges
+
+show(b, c, render_edges=False)
+
+# %%
+# Render vertes normals
+
+show(b, c, render_normals=True)
+
+# %%
+# Increase tessellation accuracy (a factor, defaulting to 0.1)
+
+show(b, c, deviation=0.001, debug=True, timeit=True)
+
+# %%
+# Increase angular tolerance for tessellation
+
+show(b, c, angular_tolerance=0.02, debug=True, timeit=True)
+
+# %%
+# Increase accuracy for discretizing edges
+
+show(*b.edges(), debug=True, timeit=True)
+
+# %%
+show(*b.edges(), edge_accuracy=0.02, debug=True, timeit=True)
+
+# %%
+# Make the ambinence brighter
+
+show(b, c, ambient_intensity=0.1)
+
+# %%
+# Make the direct lights brighter
+
+show(b, c, direct_intensity=0.9)
+
+# %%
+# Set pan speed to very fast
+show(b, c, pan_speed=10)
+
+# %%
+# Set rotate speed to very slow
+show(b, c, rotate_speed=0.1)
+
+# %%
+# Set zoom speed to very fast
+show(b, c, zoom_speed=10)
+
+# %%
+# Enable debug output in python nd javascript
+show(b, c, debug=True)
+
+# %%
+# Time the tesselllation
+show(b, c, timeit=3)
+
+# %%
+#
+# Use config defaults
+#

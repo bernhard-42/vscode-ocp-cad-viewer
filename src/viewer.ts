@@ -77,22 +77,23 @@ export class CadqueryViewer {
         this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
         this._panel.webview.html = "";
 
+        // TODO This doesn't seem to be needed: Remove?
         // Update the content based on view changes
-        this._panel.onDidChangeViewState(
-            (e) => {
-                if (this._panel.visible) {
-                    output.debug("Webview panel changed state");
-                    this.update(template());
-                }
-            },
-            null,
-            this._disposables
-        );
+        // this._panel.onDidChangeViewState(
+        //     (e) => {
+        //         if (this._panel.visible) {
+        //             output.debug("Webview panel changed state");
+        //             this.update(template());
+        //         }
+        //     },
+        //     null,
+        //     this._disposables
+        // );
 
         // Handle messages from the webview
         this._panel.webview.onDidReceiveMessage(
             (message) => {
-                output.debug(`Received message ${message} from Webview panel`);
+                // output.debug(`Received message ${message} from Webview panel`);
                 switch (message.command) {
                     case "alert":
                         vscode.window.showErrorMessage(message.text);
@@ -132,3 +133,4 @@ export class CadqueryViewer {
         return this._panel.webview;
     }
 }
+/*  */

@@ -87,11 +87,11 @@ export class CadqueryController {
             "grid": [options.get("grid_XY"), options.get("grid_XZ"), options.get("grid_YZ")],
             "collapse": options.get("collapse"),
             "ortho": options.get("ortho"),
-            "ticks": options.get("ticks")
+            "ticks": options.get("ticks"),
+            "default_opacity": options.get("default_opacity"),
+            "transparent": options.get("transparent"),
         }
         options = vscode.workspace.getConfiguration("OcpCadViewer.render");
-        c["transparent"] = options.get("transparent");
-        c["default_opacity"] = options.get("default_opacity");
         c["angular_tolerance"] = options.get("angular_tolerance");
         c["deviation"] = options.get("deviation");
         c["default_color"] = options.get("default_color");

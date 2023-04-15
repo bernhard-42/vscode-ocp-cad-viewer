@@ -25,28 +25,63 @@ from ocp_tessellate.convert import (
     to_assembly,
     mp_get_results,
 )
-from ocp_tessellate.defaults import get_default, get_defaults, preset
 from ocp_tessellate.utils import numpy_to_buffer_json, Timer, Color
 from ocp_tessellate.mp_tessellator import init_pool, keymap, close_pool
 from ocp_tessellate.cad_objects import OCP_PartGroup
 
-
+CMD_URL = "http://127.0.0.1"
 CMD_PORT = 3939
 REQUEST_TIMEOUT = 2000
 
 OBJECTS = {"objs": [], "names": [], "colors": [], "alphas": []}
 
+CONFIG_UI_KEYS = [
+    "axes",
+    "axes0",
+    "black_edges",
+    "grid",
+    "ortho",
+    "transparent",
+]
 
-class Progress:
-    def __init__(self, levels=None):
-        if levels is None:
-            self.levels = ["+", "c", "-"]
-        else:
-            self.levels = levels
+CONFIG_WORKSPACE_KEYS = CONFIG_UI_KEYS + [
+    # viewer
+    "collapse",
+    "dark",
+    "glass",
+    "orbit_control",
+    "ticks",
+    "tools",
+    "tree_width",
+    "up",
+    # mouse
+    "pan_speed",
+    "rotate_speed",
+    "zoom_speed",
+    # render settings
+    "ambient_intensity",
+    "angular_tolerance",
+    "default_color",
+    "default_edgecolor",
+    "default_opacity",
+    "deviation",
+    "direct_intensity",
+]
 
-    def update(self, mark="+"):
-        if mark in self.levels:
-            print(mark, end="", flush=True)
+CONFIG_CONTROL_KEYS = [
+    "edge_accuracy",
+    "debug",
+    "mate_scale",
+    "render_edges",
+    "render_mates",
+    "render_normals",
+    "reset_camera",
+    "timeit",
+]
+
+CONFIG_KEYS = CONFIG_WORKSPACE_KEYS + CONFIG_CONTROL_KEYS
+
+DEFAULTS = {}
 
 
 def set_port(port):
@@ -62,7 +97,7 @@ def _send(data, port=None, timeit=False):
             j = json.dumps(data)
 
         with Timer(timeit, "", "http send", 1):
-            r = requests.post(f"http://127.0.0.1:{port}", data=j)
+            r = requests.post(f"{CMD_URL}:{port}", data=j)
 
     except Exception as ex:
         print("Cannot connect to viewer, is it running and the right port provided?")
@@ -70,6 +105,157 @@ def _send(data, port=None, timeit=False):
 
     if r.status_code != 201:
         print("Error", r.text)
+
+
+def get_default(key):
+    return DEFAULTS.get(key)
+
+
+def get_defaults():
+    return DEFAULTS
+
+
+def set_defaults(**kwargs):
+    """Set viewer defaults
+    Valid keywords to configure the viewer (**kwargs):
+    - UI
+        glass:               Use glass mode where tree is an overlay over the cad object (default=False)
+        tools:               Show tools (default=True)
+        tree_width:          Width of the object tree (default=240)
+
+    - Viewer
+        - axes:              Show axes (default=False)
+        - axes0:             Show axes at (0,0,0) (default=False)
+        - grid:              Show grid (default=False)
+        - ortho:             Use orthographic projections (default=True)
+        - transparent:       Show objects transparent (default=False)
+        - default_opacity:   Opacity value for transparent objects (default=0.5)
+        - black_edges:       Show edges in black color (default=False)
+        - orbit_control:     Mouse control use "orbit" control instead of "trackball" control (default=False)
+        - collapse:          1: collapse all leaf nodes, C: collapse all nodes, E: expand all nodes (default=1)
+        - ticks:             Hint for the number of ticks in both directions (default=10)
+        - up:                Use z-axis ('Z') or y-axis ('Y') as up direction for the camera (default="Z")
+
+        - zoom:              Zoom factor of view (default=1.0)
+        - position:          Camera position
+        - quaternion:        Camera orientation as quaternion
+        - target:            Camera look at target
+        - reset_camera:      Reset camera position, rotation and zoom to default (default=True)
+
+        - pan_speed:         Speed of mouse panning (default=1)
+        - rotate_speed:      Speed of mouse rotate (default=1)
+        - zoom_speed:        Speed of mouse zoom (default=1)
+
+    - Renderer
+        - deviation:         Shapes: Deviation from linear deflection value (default=0.1)
+        - angular_tolerance: Shapes: Angular deflection in radians for tessellation (default=0.2)
+        - edge_accuracy:     Edges: Precision of edge discretization (default: mesh quality / 100)
+
+        - default_color:     Default mesh color (default=(232, 176, 36))
+        - default_edgecolor: Default mesh color (default=(128, 128, 128))
+        - ambient_intensity  Intensity of ambient ligth (default=1.0)
+        - direct_intensity   Intensity of direct lights (default=0.12)
+
+        - render_edges:      Render edges  (default=True)
+        - render_normals:    Render normals (default=False)
+        - render_mates:      Render mates for MAssemblies (default=False)
+        - mate_scale:        Scale of rendered mates for MAssemblies (default=1)
+
+    - Debug
+        - debug:          Show debug statements to the VS Code browser console (default=False)
+        - timeit:            Show timing information from level 0-3 (default=False)
+    """
+    global DEFAULTS
+    for key, value in kwargs.items():
+        if key in CONFIG_UI_KEYS:
+            data = {
+                "type": "ui",
+                "config": {key: value},
+            }
+            _send(data)
+        elif key in CONFIG_KEYS:
+            DEFAULTS[key] = value
+
+        else:
+            print(f"'{key}' is an unkown config, ignored!")
+
+
+def reset_defaults():
+    """Reset defaults not given in workspace config"""
+    global DEFAULTS
+    DEFAULTS = {
+        "render_edges": True,
+        "render_normals": False,
+        "render_mates": False,
+        "mate_scale": 1.0,
+        "timeit": False,
+        "reset_camera": True,
+        "debug": False,
+    }
+
+
+def preset(key, value):
+    return get_default(key) if value is None else value
+
+
+reset_defaults()
+
+
+def ui_filter(conf):
+    return {k: v for k, v in conf.items() if k in CONFIG_UI_KEYS}
+
+
+def status(port=None):
+    if port is None:
+        port = CMD_PORT
+    try:
+        conf = requests.get(f"{CMD_URL}:{port}/status").json()["text"]
+        return conf
+
+    except Exception as ex:
+        print("Error: Cannot access viewer status:", ex)
+
+
+def workspace_config(port=None):
+    if port is None:
+        port = CMD_PORT
+    try:
+        return requests.get(f"{CMD_URL}:{port}/config").json()
+
+    except Exception as ex:
+        print("Error: Cannot access viewer config:", ex)
+
+
+def combined_config(port=None, use_status=True):
+    if port is None:
+        port = CMD_PORT
+
+    try:
+        wspace_config = workspace_config(port)
+        wspace_status = status(port)
+
+    except Exception as ex:
+        print("Error: Cannot access viewer config:", ex)
+
+    if use_status and wspace_config["_splash"]:
+        del wspace_config["_splash"]
+        wspace_config["axes"] = False
+        wspace_config["axes0"] = True
+        wspace_config["grid"] = [True, False, False]
+        wspace_config["ortho"] = False
+        wspace_config["transparent"] = False
+        wspace_config["black_edges"] = False
+
+    wspace_config.update(DEFAULTS)
+    if use_status:
+        wspace_config.update(ui_filter(wspace_status))
+    return wspace_config
+
+
+def get_changed_config(key):
+    wspace_config = workspace_config()
+    wspace_config.update(DEFAULTS)
+    return wspace_config.get(key)
 
 
 def _tessellate(
@@ -86,10 +272,12 @@ def _tessellate(
             names=names,
             colors=colors,
             alphas=alphas,
-            render_mates=kwargs.get("render_mates", get_default("render_mates")),
-            mate_scale=kwargs.get("mate_scale", get_default("mate_scale")),
-            default_color=kwargs.get("default_color", get_default("default_color")),
-            show_parent=kwargs.get("show_parent", get_default("show_parent")),
+            render_mates=kwargs.get("render_mates", get_changed_config("render_mates")),
+            mate_scale=kwargs.get("mate_scale", get_changed_config("mate_scale")),
+            default_color=kwargs.get(
+                "default_color", get_changed_config("default_color")
+            ),
+            show_parent=kwargs.get("show_parent", get_changed_config("show_parent")),
             progress=progress,
         )
 
@@ -99,23 +287,26 @@ def _tessellate(
             part_group = part_group.objects[0]
 
     # Do not send defaults for postion, rotation and zoom unless they are set in kwargs
-    config = {
+    if workspace_config().get("_splash"):
+        conf = combined_config(use_status=False)
+    else:
+        conf = combined_config(use_status=True)
+
+    params = {
         k: v
-        for k, v in get_defaults().items()
+        for k, v in conf.items()
         if not k
         in (
             "position",
             "rotation",
             "zoom",
+            "target",
             # controlled by VSCode panel size
             "cad_width",
             "height",
             # controlled by VSCode settings
             "tree_width",
             "theme",
-            "control",
-            "glass",
-            "tools",
         )
     }
 
@@ -128,22 +319,22 @@ def _tessellate(
         elif k in [
             "tree_width",
             "theme",
-            "control",
-            "glass",
-            "tools",
         ]:
             print(f"Setting {k} can only be set in VSCode config")
 
         elif v is not None:
-            config[k] = v
+            params[k] = v
 
-    parallel = preset("parallel", config.get("parallel"))
+    parallel = preset("parallel", params.get("parallel"))
     if parallel and not any(
         [isinstance(obj, OCP_PartGroup) for obj in part_group.objects]
     ):
         print("parallel only works for assemblies, setting it to False")
         parallel = False
-        kwargs["parallel"] = False
+        params["parallel"] = False
+
+    if kwargs.get("debug") is not None and kwargs["debug"]:
+        print("\ntessellation parameters:\n", params)
 
     with Timer(timeit, "", "tessellate", 1):
         if parallel:
@@ -151,17 +342,17 @@ def _tessellate(
             keymap.reset()
 
         instances, shapes, states = tessellate_group(
-            part_group, kwargs, progress, config.get("timeit")
+            part_group, params, progress, params.get("timeit")
         )
 
         if parallel:
             instances, shapes = mp_get_results(instances, shapes, progress)
             close_pool()
 
-    config["normal_len"] = get_normal_len(
-        preset("render_normals", config.get("render_normals")),
+    params["normal_len"] = get_normal_len(
+        preset("render_normals", params.get("render_normals")),
         shapes,
-        preset("deviation", config.get("deviation")),
+        preset("deviation", params.get("deviation")),
     )
 
     with Timer(timeit, "", "bb", 1):
@@ -169,7 +360,7 @@ def _tessellate(
 
     # add global bounding box
     shapes["bb"] = bb
-    return instances, shapes, states, config, part_group.count_shapes()
+    return instances, shapes, states, params, part_group.count_shapes()
 
 
 def _convert(*cad_objs, names=None, colors=None, alphas=None, progress=None, **kwargs):
@@ -186,6 +377,17 @@ def _convert(*cad_objs, names=None, colors=None, alphas=None, progress=None, **k
         progress=progress,
         **kwargs,
     )
+    if config.get("dark") is not None:
+        config["theme"] = "dark"
+    elif config.get("orbit_control") is not None:
+        config["control"] = "orbit" if config["control"] else "trackball"
+    elif config.get("collapse") is not None:
+        mapping = {"1": 1, "E": 0, "C": 2}
+        config["collapse"] = mapping.get(config["collapse"], 1)
+
+    if config.get("debug") is not None and config["debug"]:
+        print("\nconfig:\n", config)
+
     with Timer(timeit, "", "create data obj", 1):
         data = {
             "data": numpy_to_buffer_json(
@@ -195,7 +397,20 @@ def _convert(*cad_objs, names=None, colors=None, alphas=None, progress=None, **k
             "config": config,
             "count": count_shapes,
         }
+
     return data
+
+
+class Progress:
+    def __init__(self, levels=None):
+        if levels is None:
+            self.levels = ["+", "c", "-"]
+        else:
+            self.levels = levels
+
+    def update(self, mark="+"):
+        if mark in self.levels:
+            print(mark, end="", flush=True)
 
 
 def show(
@@ -214,26 +429,52 @@ def show(
                          for object: "-": is reference, "+": gets tessellated, "c": from cache
 
     Valid keywords to configure the viewer (**kwargs):
-    - axes:              Show axes (default=False)
-    - axes0:             Show axes at (0,0,0) (default=False)
-    - grid:              Show grid (default=False)
-    - ticks:             Hint for the number of ticks in both directions (default=10)
-    - ortho:             Use orthographic projections (default=True)
-    - up:                Use z-axis ('Z') or y-axis ('Y') as up direction for the camera
-    - transparent:       Show objects transparent (default=False)
-    - default_color:     Default mesh color (default=(232, 176, 36))
-    - reset_camera:      Reset camera position, rotation and zoom to default (default=True)
-    - zoom:              Zoom factor of view (default=1.0)
-    - default_edgecolor: Default mesh color (default=(128, 128, 128))
-    - render_edges:      Render edges  (default=True)
-    - render_normals:    Render normals (default=False)
-    - render_mates:      Render mates (for MAssemblies)
-    - mate_scale:        Scale of rendered mates (for MAssemblies)
-    - deviation:         Shapes: Deviation from linear deflection value (default=0.1)
-    - angular_tolerance: Shapes: Angular deflection in radians for tessellation (default=0.2)
-    - edge_accuracy:     Edges: Precision of edge discretization (default: mesh quality / 100)
-    - ambient_intensity  Intensity of ambient ligth (default=1.0)
-    - direct_intensity   Intensity of direct lights (default=0.12)
+    - UI
+        glass:               Use glass mode where tree is an overlay over the cad object (default=False)
+        tools:               Show tools (default=True)
+        tree_width:          Width of the object tree (default=240)
+
+    - Viewer
+        - axes:              Show axes (default=False)
+        - axes0:             Show axes at (0,0,0) (default=False)
+        - grid:              Show grid (default=False)
+        - ortho:             Use orthographic projections (default=True)
+        - transparent:       Show objects transparent (default=False)
+        - default_opacity:   Opacity value for transparent objects (default=0.5)
+        - black_edges:       Show edges in black color (default=False)
+        - orbit_control:     Mouse control use "orbit" control instead of "trackball" control (default=False)
+        - collapse:          1: collapse all leaf nodes, C: collapse all nodes, E: expand all nodes (default=1)
+        - ticks:             Hint for the number of ticks in both directions (default=10)
+        - up:                Use z-axis ('Z') or y-axis ('Y') as up direction for the camera (default="Z")
+
+        - zoom:              Zoom factor of view (default=1.0)
+        - position:          Camera position
+        - quaternion:        Camera orientation as quaternion
+        - target:            Camera look at target
+        - reset_camera:      Reset camera position, rotation and zoom to default (default=True)
+
+        - pan_speed:         Speed of mouse panning (default=1)
+        - rotate_speed:      Speed of mouse rotate (default=1)
+        - zoom_speed:        Speed of mouse zoom (default=1)
+
+    - Renderer
+        - deviation:         Shapes: Deviation from linear deflection value (default=0.1)
+        - angular_tolerance: Shapes: Angular deflection in radians for tessellation (default=0.2)
+        - edge_accuracy:     Edges: Precision of edge discretization (default: mesh quality / 100)
+
+        - default_color:     Default mesh color (default=(232, 176, 36))
+        - default_edgecolor: Default mesh color (default=(128, 128, 128))
+        - ambient_intensity  Intensity of ambient ligth (default=1.0)
+        - direct_intensity   Intensity of direct lights (default=0.12)
+
+        - render_edges:      Render edges  (default=True)
+        - render_normals:    Render normals (default=False)
+        - render_mates:      Render mates for MAssemblies (default=False)
+        - mate_scale:        Scale of rendered mates for MAssemblies (default=1)
+
+    - Debug
+        - debug:          Show debug statements to the VS Code browser console (default=False)
+        - timeit:            Show timing information from level 0-3 (default=False)
     """
 
     timeit = preset("timeit", kwargs.get("timeit"))
@@ -299,26 +540,52 @@ def show_object(
                          for object: "-": is reference, "+": gets tessellated, "c": from cache
 
     Valid keywords to configure the viewer (**kwargs):
-    - axes:              Show axes (default=False)
-    - axes0:             Show axes at (0,0,0) (default=False)
-    - grid:              Show grid (default=False)
-    - ticks:             Hint for the number of ticks in both directions (default=10)
-    - ortho:             Use orthographic projections (default=True)
-    - up:                Use z-axis ('Z') or y-axis ('Y') as up direction for the camera
-    - transparent:       Show objects transparent (default=False)
-    - default_color:     Default mesh color (default=(232, 176, 36))
-    - reset_camera:      Reset camera position, rotation and zoom to default (default=True)
-    - zoom:              Zoom factor of view (default=1.0)
-    - default_edgecolor: Default mesh color (default=(128, 128, 128))
-    - render_edges:      Render edges  (default=True)
-    - render_normals:    Render normals (default=False)
-    - render_mates:      Render mates (for MAssemblies)
-    - mate_scale:        Scale of rendered mates (for MAssemblies)
-    - deviation:         Shapes: Deviation from linear deflection value (default=0.1)
-    - angular_tolerance: Shapes: Angular deflection in radians for tessellation (default=0.2)
-    - edge_accuracy:     Edges: Precision of edge discretization (default: mesh quality / 100)
-    - ambient_intensity  Intensity of ambient ligth (default=1.0)
-    - direct_intensity   Intensity of direct lights (default=0.12)
+    - UI
+        glass:               Use glass mode where tree is an overlay over the cad object (default=False)
+        tools:               Show tools (default=True)
+        tree_width:          Width of the object tree (default=240)
+
+    - Viewer
+        - axes:              Show axes (default=False)
+        - axes0:             Show axes at (0,0,0) (default=False)
+        - grid:              Show grid (default=False)
+        - ortho:             Use orthographic projections (default=True)
+        - transparent:       Show objects transparent (default=False)
+        - default_opacity:   Opacity value for transparent objects (default=0.5)
+        - black_edges:       Show edges in black color (default=False)
+        - orbit_control:     Mouse control use "orbit" control instead of "trackball" control (default=False)
+        - collapse:          1: collapse all leaf nodes, C: collapse all nodes, E: expand all nodes (default=1)
+        - ticks:             Hint for the number of ticks in both directions (default=10)
+        - up:                Use z-axis ('Z') or y-axis ('Y') as up direction for the camera (default="Z")
+
+        - zoom:              Zoom factor of view (default=1.0)
+        - position:          Camera position
+        - quaternion:        Camera orientation as quaternion
+        - target:            Camera look at target
+        - reset_camera:      Reset camera position, rotation and zoom to default (default=True)
+
+        - pan_speed:         Speed of mouse panning (default=1)
+        - rotate_speed:      Speed of mouse rotate (default=1)
+        - zoom_speed:        Speed of mouse zoom (default=1)
+
+    - Renderer
+        - deviation:         Shapes: Deviation from linear deflection value (default=0.1)
+        - angular_tolerance: Shapes: Angular deflection in radians for tessellation (default=0.2)
+        - edge_accuracy:     Edges: Precision of edge discretization (default: mesh quality / 100)
+
+        - default_color:     Default mesh color (default=(232, 176, 36))
+        - default_edgecolor: Default mesh color (default=(128, 128, 128))
+        - ambient_intensity  Intensity of ambient ligth (default=1.0)
+        - direct_intensity   Intensity of direct lights (default=0.12)
+
+        - render_edges:      Render edges  (default=True)
+        - render_normals:    Render normals (default=False)
+        - render_mates:      Render mates for MAssemblies (default=False)
+        - mate_scale:        Scale of rendered mates for MAssemblies (default=1)
+
+    - Debug
+        - debug:          Show debug statements to the VS Code browser console (default=False)
+        - timeit:            Show timing information from level 0-3 (default=False)
     """
 
     global OBJECTS

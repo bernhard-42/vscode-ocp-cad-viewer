@@ -209,31 +209,31 @@
                 "OcpCadViewer.view.tree_width": {
                     "type": "integer",
                     "default": 240,
-                    "description": "OCP CAD Viewer navigation tree width",
+                    "description": "OCP CAD Viewer navigation tree width (default: 240)",
                     "order": 0
                 },
                 "OcpCadViewer.view.glass": {
                     "type": "boolean",
                     "default": true,
-                    "description": "Use glass mode with transparent navigation tree",
+                    "description": "Use glass mode with transparent navigation tree (default: true)",
                     "order": 1
                 },
                 "OcpCadViewer.view.tools": {
                     "type": "boolean",
                     "default": true,
-                    "description": "Show toolbar",
+                    "description": "Show toolbar (default: true)",
                     "order": 2
                 },
                 "OcpCadViewer.view.dark": {
                     "type": "boolean",
                     "default": false,
-                    "description": "Use dark mode",
+                    "description": "Use dark mode (default: false)",
                     "order": 3
                 },
                 "OcpCadViewer.view.orbit_control": {
                     "type": "boolean",
                     "default": false,
-                    "description": "Use 'orbit' control mode instead of 'trackball'",
+                    "description": "Use 'orbit' control mode instead of 'trackball' (default: false)",
                     "order": 4
                 },
                 "OcpCadViewer.view.up": {
@@ -244,61 +244,61 @@
                         "L"
                     ],
                     "default": "Z",
-                    "description": "Provides up direction, 'Z', 'Y' or 'L' (legacy)",
+                    "description": "Provides up direction, 'Z', 'Y' or 'L' (legacy) (default: Z)",
                     "order": 5
                 },
                 "OcpCadViewer.view.rotate_speed": {
                     "type": "number",
                     "default": 1,
-                    "description": "Rotation speed",
+                    "description": "Rotation speed (default: 1)",
                     "order": 6
                 },
                 "OcpCadViewer.view.zoom_speed": {
                     "type": "number",
                     "default": 1,
-                    "description": "Zoom speed",
+                    "description": "Zoom speed (default: 1)",
                     "order": 7
                 },
                 "OcpCadViewer.view.pan_speed": {
                     "type": "number",
                     "default": 1,
-                    "description": "Pan speed",
+                    "description": "Pan speed (default: 1)",
                     "order": 8
                 },
                 "OcpCadViewer.view.axes": {
                     "type": "boolean",
                     "default": false,
-                    "description": "Show axes",
+                    "description": "Show axes (default: false)",
                     "order": 9
                 },
                 "OcpCadViewer.view.axes0": {
                     "type": "boolean",
                     "default": true,
-                    "description": "Show axes at the origin (0, 0, 0)",
+                    "description": "Show axes at the origin (0, 0, 0) (default: true)",
                     "order": 10
                 },
                 "OcpCadViewer.view.black_edges": {
                     "type": "boolean",
                     "default": false,
-                    "description": "Show edges in black",
+                    "description": "Show edges in black (default: false)",
                     "order": 11
                 },
                 "OcpCadViewer.view.grid_XY": {
                     "type": "boolean",
                     "default": false,
-                    "description": "Show grid on XY plane",
+                    "description": "Show grid on XY plane (default: false)",
                     "order": 12
                 },
                 "OcpCadViewer.view.grid_YZ": {
                     "type": "boolean",
                     "default": false,
-                    "description": "Show grid on YZ plane",
+                    "description": "Show grid on YZ plane (default: false)",
                     "order": 13
                 },
                 "OcpCadViewer.view.grid_XZ": {
                     "type": "boolean",
                     "default": false,
-                    "description": "Show grid on XZ plane",
+                    "description": "Show grid on XZ plane (default: false)",
                     "order": 14
                 },
                 "OcpCadViewer.view.collapse": {
@@ -309,67 +309,67 @@
                         "E"
                     ],
                     "default": "1",
-                    "description": "1: collapse all leaf nodes, C: collapse all nodes, E: expand all nodes",
+                    "description": "1: collapse all leaf nodes, C: collapse all nodes, E: expand all nodes (default: 1)",
                     "order": 15
                 },
                 "OcpCadViewer.view.ortho": {
                     "type": "boolean",
                     "default": true,
-                    "description": "Use orthographic camera",
+                    "description": "Use orthographic camera (default: true)",
                     "order": 16
                 },
                 "OcpCadViewer.view.ticks": {
                     "type": "number",
                     "default": 10,
-                    "description": "Default number of ticks",
+                    "description": "Default number of ticks (default: 10)",
                     "order": 17
                 },
-                "OcpCadViewer.render.transparent": {
+                "OcpCadViewer.view.transparent": {
                     "type": "boolean",
                     "default": false,
-                    "description": "Show objects transparent",
+                    "description": "Show objects transparent (default: false)",
                     "order": 30
                 },
-                "OcpCadViewer.render.default_opacity": {
+                "OcpCadViewer.view.default_opacity": {
                     "type": "number",
                     "default": 0.5,
-                    "description": "Default opacity for transparent objects",
+                    "description": "Default opacity for transparent objects (default: 0.5)",
                     "order": 31
                 },
                 "OcpCadViewer.render.angular_tolerance": {
                     "type": "number",
                     "default": 0.2,
-                    "description": "Angular tolerance for tessellation algorithm",
+                    "description": "Angular tolerance for tessellation algorithm (default: 0.2)",
                     "order": 32
                 },
                 "OcpCadViewer.render.deviation": {
                     "type": "number",
                     "default": 0.1,
-                    "description": "Deviation of for tessellation algorithm",
+                    "description": "Deviation of for tessellation algorithm (default: 0.1)",
                     "order": 33
                 },
                 "OcpCadViewer.render.default_color": {
                     "type": "string",
                     "default": "#e8b024",
-                    "description": "Default shape color",
+                    "description": "Default shape color (default: #e8b024)",
                     "order": 34
                 },
                 "OcpCadViewer.render.default_edgecolor": {
                     "type": "string",
                     "default": "#707070",
-                    "description": "",
+                    "description": " (default: #707070)",
                     "order": 35
                 },
                 "OcpCadViewer.render.ambient_intensity": {
                     "type": "number",
                     "default": 0.75,
-                    "description": "Intensity of ambient light",
+                    "description": "Intensity of ambient light (default: 0.75)",
                     "order": 36
                 },
                 "OcpCadViewer.render.direct_intensity": {
                     "type": "number",
                     "default": 0.15,
-                    "description": "Intensity of direct light",
+                    "description": "Intensity of direct light (default: 0.15)",
                     "order": 37
                 },
                 "OcpCadViewer.advanced.installCommands": {

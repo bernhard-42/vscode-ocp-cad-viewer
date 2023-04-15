@@ -54,6 +54,7 @@ export function template() {
             treeWidth: ${treeWidth},
             glass: ${glass},
             theme: '${theme}',
+            tools: ${tools},
             pinning: false,
         };   
 
@@ -80,10 +81,6 @@ export function template() {
             defaultColor: "#e8b024"
         };
         
-        // console.log("displayDefaultOptions", displayDefaultOptions);
-        // console.log("viewerDefaultOptions", viewerDefaultOptions);
-        // console.log("renderDefaultOptions", renderDefaultOptions);
-
         const MAP_HEX = {
             0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6,
             7: 7, 8: 8, 9: 9, a: 10, b: 11, c: 12, d: 13,
@@ -205,14 +202,18 @@ export function template() {
         }
 
         function getDisplayOptions() {
-            const size = getSize()
-            const glass = preset(_config.glass, displayDefaultOptions.glass)
+            const size = getSize();
+            const glass = preset(_config.glass, displayDefaultOptions.glass);
+            const theme = displayDefaultOptions.theme;
+            const tools = preset(_config.tools, displayDefaultOptions.tools);
             const treeWidth = glass ? 0: preset(_config.treeWidth, displayDefaultOptions.treeWidth);
             return {
                 glass: glass,
                 treeWidth: treeWidth,
                 cadWidth: normalizeWidth(size.width, glass),
-                height: normalizeHeight(size.height) 
+                height: normalizeHeight(size.height), 
+                theme: theme,
+                tools: tools
             }            
         }
 
@@ -222,6 +223,11 @@ export function template() {
             _config = config;
 
             const displayOptions = getDisplayOptions();
+
+            if (_config.debug){
+                console.log("_config", _config);
+                console.log("displayOptions", displayOptions);
+            }
 
             const container = document.getElementById("cad_viewer");
             container.innerHTML = ""
@@ -239,8 +245,11 @@ export function template() {
                 defaultOpacity: preset(_config.default_opacity, renderDefaultOptions.defaultOpacity),
                 normalLen: preset(_config.normal_len, renderDefaultOptions.normalLen),
             };
-            // console.log("renderOptions", renderOptions)
-            
+
+            if (_config.debug){
+                console.log("renderOptions", renderOptions);
+            }
+
             viewerOptions = {
                 axes: preset(_config.axes, viewerDefaultOptions.axes),
                 axes0: preset(_config.axes0, viewerDefaultOptions.axes0),
@@ -259,20 +268,19 @@ export function template() {
                 zoomSpeed: preset(_config.zoom_speed, viewerDefaultOptions.zoomSpeed),
                 rotateSpeed: preset(_config.rotate_speed, viewerDefaultOptions.rotateSpeed),
             };
-            // console.log("viewerOptions", viewerOptions)
             if (_config.zoom !== undefined) {
                 viewerOptions.zoom = _config.zoom;
             }
             if (_config.position !== undefined) {
                 viewerOptions.position = _config.position;
             }
-            if (viewerOptions.quaternion !== undefined) {
+            if (_config.quaternion !== undefined) {
                 viewerOptions.quaternion = _config.quaternion;
             }
-            if (viewerOptions.target !== undefined) {
+            if (_config.target !== undefined) {
                 viewerOptions.target = _config.target;
             }
-            
+
             var shapesAndTree = viewer.renderTessellatedShapes(_shapes, _states, renderOptions)
             
             if (preset(_config.reset_camera, true)) {
@@ -295,12 +303,19 @@ export function template() {
                 }
             }
             
+            if (_config.debug){
+                console.log("viewerOptions", viewerOptions);
+            }
+
             viewer.render(
                 ...shapesAndTree,
                 _states,
                 viewerOptions,
             );
-            console.log(viewer)
+
+            if (_config.debug){
+                console.log("viewer", viewer);
+            }
         }      
 
         window.addEventListener('resize', function(event) {         
@@ -320,6 +335,51 @@ export function template() {
                 let config = data.config;
                 showViewer(meshData.shapes, meshData.states, config);
 
+            } else if (data.type === "ui") {
+                if (data.config.debug){
+                    console.log(data.config)
+                }
+                Object.keys(data.config).forEach((key) => {
+                    if (key === "axes") {
+                        viewer.setAxes(data.config[key]);
+                    } else if (key === "axes0") {
+                        viewer.setAxes0(data.config[key]);
+                    } else if (key === "grid") {
+                        console.log(data.config[key])
+                        viewer.setGrids(data.config[key]);
+                    } else if (key === "ortho") {
+                        viewer.setOrtho(data.config[key]);
+                    } else if (key === "transparent") {
+                        viewer.setTransparent(data.config[key]);
+                    } else if (key === "black_edges") {
+                        viewer.setBlackEdges(data.config[key]);
+                    } else if (key === "zoom") {
+                        viewer.setCameraZoom(data.config[key]);
+                    } else if (key === "position") {
+                        viewer.setCameraPosition(data.config[key]);
+                    } else if (key === "quaternion") {
+                        viewer.setCameraQuaternion(data.config[key]);
+                    } else if (key === "up") {
+                        viewer.camera.up = data.config[key];
+                        viewer.camera.updateProjectionMatrix();
+                    } else if (key === "target") {
+                        viewer.setCameraTarget(data.config[key]);
+                    } else if (key === "default_edgecolor") {
+                        viewer.setEdgeColor(data.config[key]);
+                    } else if (key === "default_opacity") {
+                        viewer.setOpacity(data.config[key]);
+                    } else if (key === "ambient_light") {
+                        viewer.setAmbientLight(data.config[key]);
+                    } else if (key === "direct_light") {
+                        viewer.setDirectLight(data.config[key]);
+                    } else if (key === "zoom_speed") {
+                        viewer.setZoomSpeed(data.config[key]);
+                    } else if (key === "pan_speed") {
+                        viewer.setPanSpeed(data.config[key]);
+                    } else if (key === "rotate_speed") {
+                        viewer.setRotateSpeed(data.config[key]);
+                    }
+                })
             } else if (data.type === "animation") {
                 const tracks = data.data;
                 for (var track of tracks) {
