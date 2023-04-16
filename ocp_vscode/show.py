@@ -406,7 +406,6 @@ def _tessellate(
         in (
             "position",
             "rotation",
-            "zoom",
             "target",
             # controlled by VSCode panel size
             "cad_width",
