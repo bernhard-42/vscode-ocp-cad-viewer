@@ -288,7 +288,7 @@ set_defaults(
     grid=(True, True, False),
     ortho=False,
     transparent=True,
-    black_edges=True,
+    black_edges=False,
     zoom=0.5,
     default_edgecolor="red",
     default_opacity=0.2,
@@ -311,7 +311,17 @@ show(b, c, default_edgecolor="cyan", axes=False)
 reset_defaults()
 
 # %%
+set_defaults(reset_camera=False, timeit=True)
 
 show(b, c)
+transparent = False
 
+# %%
+transparent = not transparent
+show(b, c, transparent=transparent)
+
+# %%
+
+reset_defaults()
+show(b, c)
 # %%
