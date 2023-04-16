@@ -1,309 +1,386 @@
-from collections import OrderedDict as odict
-import numpy as np
-
-import cadquery as cq
-from cadquery_massembly import MAssembly, relocate
-from jupyter_cadquery import web_color
-from jupyter_cadquery.animation import Animation
-from ocp_vscode import show
-
-# Parts
+from build123d import *
+from ocp_vscode import show, set_defaults
+from ocp_vscode.animation import Animation
+import copy
 
 
-class Hexapod:
-    def __init__(self):
-        self.thickness = 2
-        self.height = 40
-        self.width = 65
-        self.length = 100
-        self.diam = 4
-        self.tol = 0.05
+# https://stackoverflow.com/a/6027615
 
-        self.base_holes_names = []
-        self.stand_names = []
-        self.leg_names = []
 
-    def create_base(self):
-        x1, x2 = 0.63, 0.87
-        base_holes = {
-            "right_back": (-x1 * self.length, -x1 * self.width),
-            "right_middle": (0, -x2 * self.width),
-            "right_front": (x1 * self.length, -x1 * self.width),
-            "left_back": (-x1 * self.length, x1 * self.width),
-            "left_middle": (0, x2 * self.width),
-            "left_front": (x1 * self.length, x1 * self.width),
-        }
-        stand_holes = {
-            "front_stand": (0.75 * self.length, 0),
-            "back_stand": (-0.8 * self.length, 0),
-        }
+def flatten(d, parent_key="", sep="."):
+    items = []
+    for k, v in d.items():
+        new_key = parent_key + sep + k if parent_key else k
+        if isinstance(v, dict):
+            items.extend(flatten(v, new_key, sep=sep).items())
+        else:
+            items.append((new_key, v))
+    return dict(items)
 
-        self.base_holes_names = list(base_holes.keys())
-        self.stand_names = list(stand_holes.keys())
 
-        workplane = cq.Workplane()
+def collect_joints(assembly, path=""):
+    result = {}
+    for child in assembly.children:
+        if len(child.joints) > 0:
+            result[child.label] = child.joints
+        if len(child.children) > 0:
+            result[child.label] = collect_joints(child)
+    return flatten(result)
 
-        base = (
-            workplane.ellipseArc(self.length, self.width, 25, -25, startAtCurrent=False)
-            .close()
-            .pushPoints(list(base_holes.values()))
-            .circle(self.diam / 2 + self.tol)
-            .moveTo(*stand_holes["back_stand"])
-            .rect(self.thickness + 2 * self.tol, self.width / 2 + 2 * self.tol)
-            .moveTo(*stand_holes["front_stand"])
-            .rect(self.thickness + 2 * self.tol, self.width / 2 + 2 * self.tol)
-            .extrude(self.thickness)
+
+def show_joints(part):
+    joints = []
+    if len(part.children) == 0:
+        show(
+            part,
+            *[j.symbol for j in part.joints.values()],
+            names=["part"] + list(part.joints.keys()),
+        )
+    else:
+        joints = []
+        for label, joint in collect_joints(part).items():
+            s = copy.deepcopy(joint.symbol)
+            s.label = label
+            joints.append(s)
+        j_group = Compound(label="joints")
+        j_group2 = Compound(label="joints")
+        j_group2.children = joints
+        j_group.children = [j_group2]
+        show(
+            part,
+            j_group,
         )
 
-        # tag mating points
 
-        base.faces("<Z").tag("bottom")
-        base.faces(">Z").tag("top")
+thickness = 2
+height = 40
+width = 65
+length = 100
+diam = 4
+tol = 0.05
 
-        for name, hole in base_holes.items():
-            base.faces("<Z").wires(cq.NearestToPointSelector(hole)).tag(name)
+# %%
 
-        for name, hole in stand_holes.items():
-            base.faces("<Z").wires(cq.NearestToPointSelector(hole)).tag(name)
+#
+# Base and top
+#
 
-        return base
 
-    def create_stand(self):
-        stand = cq.Workplane().box(self.height, self.width / 2 + 10, self.thickness)
-        inset = cq.Workplane().box(self.thickness, self.width / 2, self.thickness)
-        backing = (
-            cq.Workplane("ZX")
-            .polyline([(10, 0), (0, 0), (0, 10)])
-            .close()
-            .extrude(self.thickness)
-        )
+class Base(Part):
+    hinge_x1, hinge_x2 = 0.63, 0.87
 
-        stand = (
-            stand.union(inset.translate(((self.height + self.thickness) / 2, 0, 0)))
-            .union(inset.translate((-(self.height + self.thickness) / 2, 0, 0)))
-            .union(
-                backing.translate(
-                    (-self.height / 2, -self.thickness / 2, self.thickness / 2)
-                )
+    hinges_holes = {
+        "right_front": Location((-hinge_x1 * width, -hinge_x1 * length), (0, 0, 195)),
+        "right_middle": Location((-hinge_x2 * width, 0), (0, 0, 180)),
+        "right_back": Location((-hinge_x1 * width, hinge_x1 * length), (0, 0, 165)),
+        "left_front": Location((hinge_x1 * width, -hinge_x1 * length), (0, 0, -15)),
+        "left_middle": Location((hinge_x2 * width, 0), (0, 0, 0)),
+        "left_back": Location((hinge_x1 * width, hinge_x1 * length), (0, 0, 15)),
+    }
+
+    stand_holes = {
+        "front_stand": Location((0, -0.8 * length), (0, 0, 180)),
+        "back_stand": Location((0, 0.75 * length), (0, 0, 0)),
+    }
+
+    def __init__(self, label):
+        base = extrude(Ellipse(width, length), thickness)
+        base -= Pos(Y=-length + 5) * Box(2 * width, 20, 3 * thickness)
+
+        for pos in self.hinges_holes.values():
+            base -= pos * Cylinder(
+                diam / 2 + tol,
+                thickness,
+                align=(Align.CENTER, Align.CENTER, Align.MIN),
             )
-            .union(
-                backing.rotate((0, 0, 0), (0, 1, 0), -90).translate(
-                    (self.height / 2, -self.thickness / 2, self.thickness / 2)
-                )
+
+        for pos in self.stand_holes.values():
+            base -= pos * Box(width / 2 + 2 * tol, thickness + 2 * tol, 5 * thickness)
+
+        super().__init__(base.wrapped, label=label)
+
+        # Add joints
+
+        for name, edge in self.hinges_holes.items():
+            RigidJoint(f"j_{name}", self, edge)
+
+        for name, pos in self.stand_holes.items():
+            RigidJoint(f"j_{name}", self, pos * Rot(0, 0, 90))
+
+        center = self.faces().sort_by().last.center_location
+        RigidJoint("j_top", self, center * Pos(Z=height + thickness + 2 * tol))
+        RigidJoint("j_bottom", self, center)
+
+
+base = Base("base")
+show_joints(base)
+
+# %%
+
+#
+# Stands
+#
+
+
+class Stand(Part):
+    def __init__(self, label):
+        self.h = 5
+
+        stand = Box(width / 2 + 10, height + 2 * tol, thickness)
+        faces = stand.faces().sort_by(Axis.Y)
+
+        t2 = thickness / 2
+        w = height / 2 + tol - self.h / 2
+        for i in [-1, 1]:
+            rect = Pos(0, i * w, t2) * Rectangle(thickness, self.h)
+            block = extrude(rect, self.h)
+
+            m = block.edges().group_by()[-1]
+            block = chamfer(
+                m.sort_by(Axis.Y).first if i == 1 else m.sort_by(Axis.Y).last,
+                length=self.h - 2 * tol,
             )
-        )
-        return stand
 
-    def create_upper_leg(self):
-        l1, l2 = 50, 80
-        pts = [(0, 0), (0, self.height / 2), (l1, self.height / 2 - 5), (l2, 0)]
-        upper_leg_hole = (l2 - 10, 0)
+            stand += block
 
-        upper_leg = (
-            cq.Workplane()
-            .polyline(pts)
-            .mirrorX()
-            .pushPoints([upper_leg_hole])
-            .circle(self.diam / 2 + self.tol)
-            .extrude(self.thickness)
-            .edges("|Z and (not <X)")
-            .fillet(4)
-        )
-
-        axle = (
-            cq.Workplane(
-                "XZ",
-                origin=(
-                    0,
-                    self.height / 2 + self.thickness + self.tol,
-                    self.thickness / 2,
-                ),
+        for plane in [Plane(faces.first), Plane(faces.last)]:
+            stand += plane * Box(
+                thickness,
+                width / 2,
+                thickness,
+                align=(Align.CENTER, Align.CENTER, Align.MIN),
             )
-            .circle(self.diam / 2)
-            .extrude(2 * (self.height / 2 + self.thickness + self.tol))
+
+        super().__init__(stand.wrapped, label=label)
+
+        RigidJoint(
+            "j_bottom",
+            self,
+            self.faces().sort_by(Axis.Y).last.center_location * Rot(0, 180, 0),
         )
 
-        upper_leg = upper_leg.union(axle)
 
-        # tag mating points
-        upper_leg.faces(">Z").edges(cq.NearestToPointSelector(upper_leg_hole)).tag(
-            "top"
+stand = Stand("stand")
+show_joints(stand)
+
+# %%
+
+#
+# Legs
+#
+
+
+class UpperLeg(Part):
+    def __init__(self, label):
+        self.l1 = 50
+        self.l2 = 80
+
+        leg_hole = Location((self.l2 - 10, 0), (0, 0, 0))
+
+        line = Polyline(
+            (0, 0), (0, height / 2), (self.l1, height / 2 - 5), (self.l2, 0)
         )
-        upper_leg.faces("<Z").edges(cq.NearestToPointSelector(upper_leg_hole)).tag(
-            "bottom"
+        line += mirror(line, about=Plane.XZ)
+        face = make_face(line)
+        upper_leg = extrude(face, thickness / 2, both=True)
+        upper_leg = fillet(upper_leg.edges().group_by(Axis.X)[-1], radius=4)
+
+        last = upper_leg.edges()
+        upper_leg -= leg_hole * Hole(diam / 2 + tol, depth=thickness)
+        self.knee_hole = upper_leg.edges().filter_by(GeomType.CIRCLE) - last
+
+        upper_leg += Rot(90, 0, 0) * Cylinder(
+            diam / 2, 2 * (height / 2 + thickness + tol)
         )
 
-        return upper_leg
+        super().__init__(upper_leg.wrapped, label=label)
 
-    def create_lower_leg(self):
-        w, l1, l2 = 15, 20, 120
-        pts = [(0, 0), (l1, w), (l2, 0)]
-        lower_leg_hole = (l1 - 10, 0)
-
-        lower_leg = (
-            cq.Workplane()
-            .polyline(pts)
-            .mirrorX()
-            .pushPoints([lower_leg_hole])
-            .circle(self.diam / 2 + self.tol)
-            .extrude(self.thickness)
-            .edges("|Z")
-            .fillet(5)
+        RevoluteJoint(
+            "j_hinge",
+            self,
+            axis=-upper_leg.faces().sort_by(Axis.Y).last.center_location.z_axis,
+            angular_range=(0, 180),
+        )
+        RigidJoint(
+            "j_knee_front",
+            self,
+            leg_hole * Location((0, 0, -thickness / 2), (0, 0, 180)),
+        )
+        RigidJoint(
+            "j_knee_back",
+            self,
+            leg_hole * Location((0, 0, thickness / 2), (0, 0, 180)),
         )
 
-        # tag mating points
-        lower_leg.faces(">Z").edges(cq.NearestToPointSelector(lower_leg_hole)).tag(
-            "top"
+
+upper_leg = UpperLeg("upper_leg")
+show_joints(upper_leg)
+
+# %%
+
+
+class LowerLeg(Part):
+    def __init__(self, label):
+        self.w = 15
+        self.l1 = 20
+        self.l2 = 120
+
+        leg_hole = Location((self.l1 - 10, 0), (0, 0, 0))
+
+        line = Polyline((0, 0), (self.l1, self.w), (self.l2, 0))
+        line += mirror(line, about=Plane.XZ)
+        face = make_face(line)
+        lower_leg = extrude(face, amount=thickness / 2, both=True)
+        lower_leg = fillet(lower_leg.edges().filter_by(Axis.Z), radius=4)
+
+        lower_leg -= leg_hole * Hole(diam / 2 + tol, depth=thickness)
+
+        super().__init__(lower_leg.wrapped, label=label)
+
+        RevoluteJoint(
+            "j_front",
+            self,
+            axis=(leg_hole * Pos(0, 0, thickness / 2)).z_axis,
+            angular_range=(0, 180),
+        )
+        RevoluteJoint(
+            "j_back",
+            self,
+            axis=(leg_hole * Pos(0, 0, -thickness / 2) * Rot(0, 180, 0)).z_axis,
+            angular_range=(0, 180),
+        )
+
+
+lower_leg = LowerLeg("lower_leg")
+show_joints(lower_leg)
+
+# %%
+
+
+def reference(obj, label=None, color=None, location=None):
+    new_obj = copy.copy(obj)
+    if label is not None:
+        new_obj.label = label
+    if color is not None:
+        new_obj.color = color
+    if location is None:
+        return new_obj
+    else:
+        return new_obj.move(location)
+
+
+def assembly(children, label):
+    compound = Compound(label=label, children=[copy.copy(child) for child in children])
+    return compound
+
+
+def find_object(compound, path):
+    labels = [child.label for child in compound.children]
+    top, _, rest = path.lstrip("/").partition("/")
+
+    try:
+        ind = labels.index(top)
+    except:
+        return None
+
+    if rest == "":
+        return compound.children[ind]
+    else:
+        return find_object(compound.children[ind], rest)
+
+
+def assemble(assembly, path, joint, to_path, to_joint, **kwargs):
+    print(path, joint, to_path, to_joint)
+    j = find_object(assembly, path).joints[joint]
+    to_j = find_object(assembly, to_path).joints[to_joint]
+    to_j.connect_to(j, **kwargs)
+
+
+# %%
+
+
+a_legs = [
+    assembly(
+        [
+            reference(upper_leg, label="upper_leg"),
+            reference(lower_leg, label="lower_leg", location=Pos(0, 50, 0)),
+        ],
+        label=f"{side}_{loc}_leg",
+    )
+    for i, side in enumerate(["left", "right"])
+    for j, loc in enumerate(["front", "middle", "back"])
+]
+
+hexapod = assembly(
+    children=[
+        reference(base, label="bottom", color="grey", location=Pos(0, 100, 0)),
+        reference(base, label="top", color="lightgray", location=Pos(0, -100, 0)),
+        reference(
+            stand, label="front_stand", color="skyblue", location=Pos(-100, 100, 0)
         ),
-        lower_leg.faces("<Z").edges(cq.NearestToPointSelector(lower_leg_hole)).tag(
-            "bottom"
+        reference(
+            stand, label="back_stand", color="skyblue", location=Pos(-100, -100, 0)
+        ),
+    ]
+    + a_legs,
+    label="hexapod",
+)
+
+assemble(hexapod, "back_stand", "j_bottom", "bottom", "j_back_stand")
+assemble(hexapod, "front_stand", "j_bottom", "bottom", "j_front_stand")
+assemble(hexapod, "top", "j_bottom", "bottom", "j_top")
+for side in ["left", "right"]:
+    for loc in ["front", "middle", "back"]:
+        assemble(
+            hexapod,
+            f"{side}_{loc}_leg/upper_leg",
+            "j_hinge",
+            f"bottom",
+            f"j_{side}_{loc}",
+            angle=180,
+        )
+        assemble(
+            hexapod,
+            f"{side}_{loc}_leg/lower_leg",
+            "j_front" if side == "left" else "j_back",
+            f"{side}_{loc}_leg/upper_leg",
+            "j_knee_back" if side == "left" else "j_knee_front",
+            angle=105,
         )
 
-        return lower_leg
-
-    def create(self):
-        leg_angles = {
-            "right_back": -105,
-            "right_middle": -90,
-            "right_front": -75,
-            "left_back": 105,
-            "left_middle": 90,
-            "left_front": 75,
-        }
-        self.leg_names = list(leg_angles.keys())
-
-        base = self.create_base()
-        stand = self.create_stand()
-        upper_leg = self.create_upper_leg()
-        lower_leg = self.create_lower_leg()
-
-        # Some shortcuts
-        L = lambda *args: cq.Location(cq.Vector(*args))
-        C = lambda name: web_color(name)
-
-        # Leg assembly
-        leg = MAssembly(upper_leg, name="upper", color=C("orange")).add(
-            lower_leg, name="lower", color=C("orange"), loc=L(80, 0, 0)
-        )
-        # Hexapod assembly
-        hexapod = (
-            MAssembly(
-                base, name="bottom", color=C("silver"), loc=L(0, 1.1 * self.width, 0)
-            )
-            .add(base, name="top", color=C("gainsboro"), loc=L(0, -2.2 * self.width, 0))
-            .add(stand, name="front_stand", color=C("SkyBlue"), loc=L(40, 100, 0))
-            .add(stand, name="back_stand", color=C("SkyBlue"), loc=L(-40, 100, 0))
-        )
-
-        for i, name in enumerate(self.leg_names):
-            hexapod.add(leg, name=name, loc=L(100, -55 * (i - 1.7), 0))
-
-        hexapod.mate("bottom?top", name="bottom", origin=True)
-        hexapod.mate(
-            "top?bottom",
-            name="top",
-            origin=True,
-            transforms=odict(rx=180, tz=-(self.height + 2 * self.tol)),
-        )
-
-        for name in self.stand_names:
-            hexapod.mate(
-                f"bottom?{name}",
-                name=f"{name}_bottom",
-                transforms=odict(rz=-90 if "f" in name else 90),
-            )
-            hexapod.mate(
-                f"{name}@faces@<X", name=name, origin=True, transforms=odict(rx=180)
-            )
-
-        for name in self.base_holes_names:
-            hexapod.mate(
-                f"bottom?{name}",
-                name=f"{name}_hole",
-                transforms=odict(rz=leg_angles[name]),
-            )
-
-        for name in self.leg_names:
-            lower, upper, angle = (
-                ("top", "bottom", -75) if "left" in name else ("bottom", "top", -75)
-            )
-            hexapod.mate(
-                f"{name}?{upper}", name=f"leg_{name}_hole", transforms=odict(rz=angle)
-            )
-            hexapod.mate(
-                f"{name}@faces@<Y",
-                name=f"leg_{name}_hinge",
-                origin=True,
-                transforms=odict(rx=180, rz=-90),
-            )
-            hexapod.mate(
-                f"{name}/lower?{lower}", name=f"leg_{name}_lower_hole", origin=True
-            )
-        self.hexapod = hexapod
-
-    def assemble(self):
-        # show(hexapod, reset_camera=False)
-        self.hexapod.relocate()
-
-        # Assemble the parts
-        for leg in self.leg_names:
-            self.hexapod.assemble(f"leg_{leg}_lower_hole", f"leg_{leg}_hole")
-            self.hexapod.assemble(f"leg_{leg}_hinge", f"{leg}_hole")
-
-        self.hexapod.assemble("top", "bottom")
-
-        for stand_name in self.stand_names:
-            self.hexapod.assemble(f"{stand_name}", f"{stand_name}_bottom")
-
-    def animate(self, speed=3):
-        horizontal_angle = 25
-
-        def intervals(count):
-            r = [min(180, (90 + i * (360 // count)) % 360) for i in range(count)]
-            return r
-
-        def times(end, count):
-            return np.linspace(0, end, count + 1)
-
-        def vertical(count, end, offset, reverse):
-            ints = intervals(count)
-            heights = [round(35 * np.sin(np.deg2rad(x)) - 15, 1) for x in ints]
-            heights.append(heights[0])
-            return times(end, count), heights[offset:] + heights[1 : offset + 1]
-
-        def horizontal(end, reverse):
-            factor = 1 if reverse else -1
-            return times(end, 4), [
-                0,
-                factor * horizontal_angle,
-                0,
-                -factor * horizontal_angle,
-                0,
-            ]
-
-        leg_group = ("left_front", "right_middle", "left_back")
-
-        animation = Animation()
-
-        for name in self.leg_names:
-            # move upper leg
-            animation.add_track(
-                f"/bottom/{name}", "rz", *horizontal(4, "middle" in name)
-            )
-
-            # move lower leg
-            animation.add_track(
-                f"/bottom/{name}/lower",
-                "rz",
-                *vertical(8, 4, 0 if name in leg_group else 4, "left" in name),
-            )
-
-        animation.animate(speed=speed)
+print(hexapod.show_topology())
+show(hexapod)
 
 
-if __name__ == "__main__":
-    hexapod = Hexapod()
-    hexapod.create()
-    hexapod.assemble()
-    show(hexapod.hexapod, render_mates=True, mate_scale=5, reset_camera=True)
-    hexapod.animate()
+# #
+# # Animation
+# #
+
+
+# def time_range(end, count):
+#     return np.linspace(0, end, count + 1)
+
+
+# def vertical(count, end, offset):
+#     ints = [min(180, (90 + i * (360 // count)) % 360) for i in range(count)]
+#     heights = [round(20 * np.sin(np.deg2rad(x) - 15), 1) for x in ints]
+#     heights.append(heights[0])
+#     return time_range(end, count), heights[offset:] + heights[1 : offset + 1]
+
+
+# def horizontal(end, reverse):
+#     horizontal_angle = 25
+#     angle = horizontal_angle if reverse else -horizontal_angle
+#     return time_range(end, 4), [0, angle, 0, -angle, 0]
+
+
+# animation = Animation(hexapod)
+
+# leg_group = ("left_front", "right_middle", "left_back")
+
+# for name in Base.base_hinges.keys():
+#     times, values = horizontal(4, "middle" in name)
+#     animation.add_track(f"/base/{name}_leg", "rz", times, values)
+
+#     times, values = vertical(8, 4, 0 if name in leg_group else 4)
+#     animation.add_track(f"/base/{name}_leg/lower_leg", "rz", times, values)
