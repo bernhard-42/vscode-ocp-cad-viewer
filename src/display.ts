@@ -368,9 +368,9 @@ export function template() {
                         viewer.setEdgeColor(data.config[key]);
                     } else if (key === "default_opacity") {
                         viewer.setOpacity(data.config[key]);
-                    } else if (key === "ambient_light") {
+                    } else if (key === "ambient_intensity") {
                         viewer.setAmbientLight(data.config[key]);
-                    } else if (key === "direct_light") {
+                    } else if (key === "direct_intensity") {
                         viewer.setDirectLight(data.config[key]);
                     } else if (key === "zoom_speed") {
                         viewer.setZoomSpeed(data.config[key]);
@@ -378,6 +378,20 @@ export function template() {
                         viewer.setPanSpeed(data.config[key]);
                     } else if (key === "rotate_speed") {
                         viewer.setRotateSpeed(data.config[key]);
+                    } else if (key === "glass") {
+                        viewer.display.glassMode(data.config[key]);
+                    } else if (key === "tools") {
+                        viewer.display.showTools(data.config[key]);
+                    } else if (key === "collapse") {
+                        viewer.display.collapseNodes(data.config[key]);
+                    } else if (key === "tree_width") {
+                        const displayOptions = getDisplayOptions();
+                        const glass = (data.config.glass !== undefined) ? data.config.glass : displayOptions.glass;
+                        viewer.resizeCadView(displayOptions.cadWidth, data.config[key], displayOptions.height, glass);
+                    } else if (key === "reset_camera") {
+                        if (data.config[key]) {
+                            viewer.display.reset();
+                        }
                     }
                 })
             } else if (data.type === "animation") {

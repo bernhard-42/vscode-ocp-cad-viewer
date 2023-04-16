@@ -6,6 +6,7 @@ from .show import (
     status,
     workspace_config,
     combined_config,
+    set_viewer_config,
     set_defaults,
     reset_defaults,
     get_defaults,
