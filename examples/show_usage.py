@@ -2,10 +2,12 @@ from build123d import *
 from ocp_vscode import (
     show,
     set_defaults,
+    set_viewer_config,
     status,
     workspace_config,
     combined_config,
     get_defaults,
+    reset_defaults,
 )
 
 b = Box(1, 2, 3)
@@ -214,6 +216,102 @@ show(b, c, debug=True)
 show(b, c, timeit=3)
 
 # %%
+
 #
-# Use config defaults
+# Dynamically set values
 #
+
+show(b, c)
+
+# %%
+reset_defaults()
+
+set_viewer_config(
+    axes=True,
+    axes0=True,
+    grid=(True, True, False),
+    ortho=False,
+    transparent=True,
+    black_edges=True,
+    zoom=0.5,
+    position=[2, -12, 6],
+    quaternion=[0.46738, -0.02236, 0.16935, 0.86740],
+    target=[0.28, -0.66, -1.90],
+    default_edgecolor="red",
+    default_opacity=0.2,
+    zoom_speed=0.1,
+    pan_speed=0.1,
+    rotate_speed=0.1,
+)
+
+# %%
+
+reset_defaults()
+
+# %%
+show(b, c)
+set_viewer_config(ambient_intensity=0.1)
+
+# %%
+set_viewer_config(direct_intensity=1)
+
+# %%
+
+show(b, c)
+
+# %%
+
+set_viewer_config(tools=False)
+
+# %%
+
+set_viewer_config(tree_width=500, tools=True)
+
+# %%
+
+show(b, c)
+
+# %%
+
+# Dynamically set values
+#
+
+show(b, c)
+
+# %%
+
+reset_defaults()
+
+set_defaults(
+    axes=True,
+    axes0=True,
+    grid=(True, True, False),
+    ortho=False,
+    transparent=True,
+    black_edges=True,
+    zoom=0.5,
+    default_edgecolor="red",
+    default_opacity=0.2,
+    zoom_speed=0.1,
+    pan_speed=0.1,
+    rotate_speed=0.1,
+    glass=True,
+)
+
+# %%
+
+show(b, c, transparent=False, timeit=True)
+
+# %%
+
+show(b, c, default_edgecolor="cyan", axes=False)
+
+# %%
+
+reset_defaults()
+
+# %%
+
+show(b, c)
+
+# %%
