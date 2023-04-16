@@ -43,6 +43,9 @@ def _tessellate(
 ):
     timeit = preset("timeit", kwargs.get("timeit"))
 
+    if timeit is None:
+        timeit = False
+
     if progress is None:
         progress = Progress([c for c in "-+c"])
 
@@ -232,8 +235,8 @@ def show(
     render_normals=None,
     render_mates=None,
     mate_scale=None,
-    debug=False,
-    timeit=False,
+    debug=None,
+    timeit=None,
 ):
     """Show CAD objects in Visual Studio Code
     Parameters
@@ -314,7 +317,8 @@ def show(
         k: v
         for k, v in locals().items()
         if v is not None
-        and k not in ["cad_objs", "names", "colors", "alphas", "port", "progress"]
+        and k
+        not in ["cad_objs", "names", "colors", "alphas", "port", "progress", "timeit"]
     }
 
     progress = Progress([] if progress is None else [c for c in progress])
@@ -380,8 +384,8 @@ def show_object(
     render_normals=None,
     render_mates=None,
     mate_scale=None,
-    debug=False,
-    timeit=False,
+    debug=None,
+    timeit=None,
 ):
     """Incrementally show CAD objects in Visual Studio Code
 

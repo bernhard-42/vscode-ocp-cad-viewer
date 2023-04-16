@@ -90,7 +90,15 @@ CONFIG_SET_KEYS = [
     "collapse",
 ]
 
-DEFAULTS = {}
+DEFAULTS = {
+    "render_edges": True,
+    "render_normals": False,
+    "render_mates": False,
+    "mate_scale": 1.0,
+    "timeit": False,
+    "reset_camera": True,
+    "debug": False,
+}
 
 CMD_URL = "http://127.0.0.1"
 CMD_PORT = 3939
@@ -105,7 +113,7 @@ def set_port(port):
 def send(data, port=None, timeit=False):
     if data.get("config") is not None and data["config"].get("collapse") is not None:
         data["config"]["collapse"] = str(data["config"]["collapse"])
-    print(data["config"])
+
     if port is None:
         port = CMD_PORT
     try:
@@ -195,8 +203,8 @@ def set_defaults(
     render_normals=None,
     render_mates=None,
     mate_scale=None,
-    debug=False,
-    timeit=False,
+    debug=None,
+    timeit=None,
 ):
     """Set viewer defaults
     Keywords to configure the viewer:
@@ -332,7 +340,6 @@ def reset_defaults():
     }
     config["reset_camera"] = True
 
-    print(config)
     set_viewer_config(**config)
 
     if config.get("transparent") is not None:
