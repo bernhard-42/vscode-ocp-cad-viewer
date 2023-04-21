@@ -20,14 +20,26 @@ from ocp_tessellate.utils import numpy_to_json
 from .config import send
 
 
+def collect_paths(assembly, path=""):
+    result = []
+    new_path = f"{path}/{assembly.label}"
+    result.append(new_path)
+    for child in assembly.children:
+        result.extend(collect_paths(child, new_path))
+    return result
+
+
 class Animation:
     def __init__(self, assembly):
         self.tracks = []
         self.is_cadquery = hasattr(assembly, "mates") and not hasattr(
             assembly, "fq_name"
         )
-        self.is_alg123d = hasattr(assembly, "mates") and hasattr(assembly, "fq_name")
-        self.paths = list(assembly.objects.keys())
+        self.is_build123d = hasattr(assembly, "joints")
+        if self.is_cadquery:
+            self.paths = list(assembly.objects.keys())
+        else:
+            self.paths = collect_paths(assembly)
 
     def add_track(self, path, action, times, values):
         """
@@ -97,9 +109,10 @@ class Animation:
             if root not in self.paths or cq_path not in self.paths + [""]:
                 raise ValueError(f"Path '{path}' does not exist in assembly")
 
-        elif self.is_alg123d:
-            if path not in self.paths:
-                raise ValueError(f"Path '{path}' does not exist in assembly")
+        elif self.is_build123d:
+            ...
+            # if path not in self.paths:
+            #     raise ValueError(f"Path '{path}' does not exist in assembly")
 
         self.tracks.append((path, action, times, values))
 
