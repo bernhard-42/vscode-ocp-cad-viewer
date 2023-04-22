@@ -160,7 +160,6 @@ def set_viewer_config(
         "type": "ui",
         "config": config,
     }
-    print(data)
     send(data)
 
 
