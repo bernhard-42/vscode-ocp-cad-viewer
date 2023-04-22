@@ -207,15 +207,7 @@ class LowerLeg(Part):
 lower_leg = LowerLeg("lower_leg")
 show(lower_leg, render_joints=True)
 
-
 # %%
-def location_symbol(self, l=1) -> Compound:
-    axes = SVG.axes(axes_scale=l).locate(self)
-    return Compound.make_compound(axes)
-
-
-Location.symbol = location_symbol
-
 
 def reference(obj, label=None, color=None, location=None):
     new_obj = copy.copy(obj)
@@ -232,21 +224,31 @@ def reference(obj, label=None, color=None, location=None):
 class Assembly(Compound):
     def __init__(self, label, children, location=None):
         super().__init__(label=label, children=children)
+        # The assembly layer will not contain a part, it only needs a location
         self.location = Location() if location is None else location
 
     def find_object(self, path):
-        labels = [child.label for child in self.children]
-        top, _, rest = path.lstrip("/").partition("/")
+        def _find(obj, path):
+            labels = [child.label for child in obj.children]
+            top, _, rest = path.lstrip("/").partition("/")
 
-        try:
-            ind = labels.index(top)
-        except:
-            return None
+            try:
+                ind = labels.index(top)
+            except:
+                raise RuntimeError(f"Sub path '{path}' is not valid")
 
-        if rest == "":
-            return self.children[ind]
-        else:
-            return self.children[ind].find_object(rest)
+            if rest == "":
+                return obj.children[ind]
+            else:
+                return _find(obj.children[ind], rest)
+
+        name, _, rest = path.strip("/").partition("/")
+        if name != self.label:
+            raise ValueError(f"Path '{path}' not valid")
+        elif rest == "":
+            return self
+
+        return _find(self, rest)
 
     def joint_location(self, obj, joint, **kwargs):
         if isinstance(joint, RevoluteJoint):
@@ -261,7 +263,9 @@ class Assembly(Compound):
 
         return loc
 
-    def assemble(self, path, joint_name, to_path, to_joint_name, **kwargs):
+    def assemble(
+        self, path, joint_name, to_path, to_joint_name, animate=False, **kwargs
+    ):
         def _relocate(obj, loc):
             if not isinstance(obj, Assembly):
                 obj.location = loc.inverse() * obj.location
@@ -272,8 +276,6 @@ class Assembly(Compound):
         joint = obj.joints[joint_name]
         loc = self.joint_location(obj, joint, **kwargs)
 
-        _relocate(obj, loc)
-
         to_obj = self.find_object(to_path)
         to_joint = to_obj.joints[to_joint_name]
         to_loc = self.joint_location(to_obj, to_joint, **kwargs)
@@ -281,13 +283,28 @@ class Assembly(Compound):
         if kwargs.get("angle") is not None:
             to_loc = to_loc * Rot(0, 0, kwargs["angle"])
 
-        parent_path, _, _ = path.rpartition("/")
-        if parent_path != "":
+        if animate:
+            # relocate to ensure that the joint is used as origin for the animation
+            _relocate(obj, loc)
+
+            # Get the parent Assembly layer
+            parent_path, _, _ = path.rpartition("/")
+
+            # For sub assemblies, the location gets pushed one level up to the assembly layer
             parent_obj = self.find_object(parent_path)
             parent_obj.location = to_loc
         else:
+            # else just use connect_to for flat assemblies
             to_joint.connect_to(joint, **kwargs)
 
+
+# %%
+
+
+base = Base("base")
+stand = Stand("stand")
+upper_leg = UpperLeg("upper_leg")
+lower_leg = LowerLeg("lower_leg")
 
 legs = [
     Assembly(
@@ -329,31 +346,35 @@ print(hexapod.show_topology())
 show(hexapod, render_joints=True)
 
 # %%
-hexapod.assemble("back_stand", "j_bottom", "bottom", "j_back_stand")
-hexapod.assemble("front_stand", "j_bottom", "bottom", "j_front_stand")
-hexapod.assemble("top", "j_bottom", "bottom", "j_top")
+
+hexapod.assemble("/hexapod/back_stand", "j_bottom", "/hexapod/bottom", "j_back_stand")
+hexapod.assemble("/hexapod/front_stand", "j_bottom", "/hexapod/bottom", "j_front_stand")
+hexapod.assemble("/hexapod/top", "j_bottom", "/hexapod/bottom", "j_top")
 
 for side in ["left", "right"]:
     for loc in ["front", "middle", "back"]:
         hexapod.assemble(
-            f"{side}_{loc}_leg/upper_leg",
+            f"/hexapod/{side}_{loc}_leg/upper_leg",
             "j_hinge",
-            f"bottom",
+            f"/hexapod/bottom",
             f"j_{side}_{loc}",
             angle=-90,
+            animate=True,
         )
         hexapod.assemble(
-            f"{side}_{loc}_leg/{side}_{loc}_lower_leg/lower_leg",
+            f"/hexapod/{side}_{loc}_leg/{side}_{loc}_lower_leg/lower_leg",
             "j_front",
-            f"{side}_{loc}_leg/upper_leg",
+            f"/hexapod/{side}_{loc}_leg/upper_leg",
             "j_knee_back" if side == "left" else "j_knee_front",
             angle=-105 if side == "left" else 105,
+            animate=True,
         )
 
 print(hexapod.show_topology())
 show(hexapod, render_joints=False, debug=False)
 
 # %%
+
 #
 # Animation
 #
@@ -378,71 +399,13 @@ def horizontal(end, reverse):
 
 animation = Animation(hexapod)
 
-leg_group = ("left_front", "right_middle", "left_back")
-
 for name in Base.hinges_holes.keys():
-    times, values = horizontal(4, "middle" in name)
+    times, values = horizontal(4, "middle" not in name)
     animation.add_track(f"/hexapod/{name}_leg", "rz", times, values)
 
-    times, values = vertical(8, 4, 0 if name in leg_group else 4)
+    times, values = vertical(8, 4, 0 if "middle" in name else 4)
     animation.add_track(f"/hexapod/{name}_leg/{name}_lower_leg", "rz", times, values)
 
 animation.animate(2)
-
-# %%
-
-# # https://stackoverflow.com/a/6027615
-# def flatten(d, parent_key="", sep="."):
-#     items = []
-#     for k, v in d.items():
-#         new_key = parent_key + sep + k if parent_key else k
-#         if isinstance(v, dict):
-#             items.extend(flatten(v, new_key, sep=sep).items())
-#         else:
-#             items.append((new_key, v))
-#     return dict(items)
-
-
-# def collect_joints(assembly, path=""):
-#     result = {}
-#     for child in assembly.children:
-#         if len(child.joints) > 0:
-#             result[child.label] = child.joints
-#         if len(child.children) > 0:
-#             result[child.label] = collect_joints(child)
-#     return flatten(result)
-
-
-# def show_joints(part):
-#     joints = []
-#     if len(part.children) == 0:
-#         show(
-#             part,
-#             *[j.symbol for j in part.joints.values()],
-#             names=["part"] + list(part.joints.keys()),
-#         )
-#     else:
-#         joints = []
-#         for label, joint in collect_joints(part).items():
-#             s = copy.deepcopy(joint.symbol)
-#             s.label = label
-#             joints.append(s)
-#         j_group = Compound(label="joints")
-#         j_group2 = Compound(label="joints")
-#         j_group2.children = joints
-#         j_group.children = [j_group2]
-#         show(
-#             part,
-#             j_group,
-#         )
-#
-
-
-# def combine(compound):
-#     return Part(reduce(lambda a, b: a + b, compound).wrapped)
-
-
-# %%
-
 
 # %%
