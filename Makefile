@@ -20,7 +20,7 @@ bump:
 
 ifdef part
 ifdef version
-	bumpversion --new-version $(version) $(part) && grep current setup.cfg
+	bumpversion --allow-dirty --new-version $(version) $(part) && grep current setup.cfg
 else
 	bumpversion --allow-dirty $(part) && grep current setup.cfg
 endif
