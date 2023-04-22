@@ -27,7 +27,7 @@ eye_mask_face = make_face(l3) - make_face(l4)
 eye_mask = extrude(eye_mask_face, 2)
 
 logo_o = extrude(o, -depth)
-logo_cp = extrude(cp, -depth) @ Pos(22.5, 0, 0)
+logo_cp = Pos(22.5, 0, 0) * extrude(cp, -depth)
 logo = logo_o + (logo_cp - eye_mask)
 
 center_wire = Wire.make_wire(logo_o.faces().min(Axis.Z).edges()[16:])
@@ -35,8 +35,8 @@ center = extrude(make_face(center_wire), 2)
 
 eye = eye + center
 
-logo = logo @ (Plane.XZ * Pos(0, -20, 0))
-eye = eye @ (Plane.XZ * Pos(0, -20, 0))
+logo = Plane.XZ * Pos(0, -20, 0) * logo
+eye = Plane.XZ * Pos(0, -20, 0) * eye
 
 show(
     logo,
