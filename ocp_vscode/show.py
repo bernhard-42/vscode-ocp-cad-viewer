@@ -239,6 +239,7 @@ def show(
     render_mates=None,
     render_joints=None,
     show_parent=None,
+    parallel=None,
     mate_scale=None,
     debug=None,
     timeit=None,
@@ -298,6 +299,7 @@ def show(
         render_normals:    Render normals (default=False)
         render_mates:      Render mates for MAssemblies (default=False)
         render_joints:     Render build123d joints (default=False)
+        parallel:          Tessellate objects in parallel (default=False)
         show_parent:       Render parent of faces, edges or vertices as wireframe
         mate_scale:        Scale of rendered mates for MAssemblies (default=1)
 
@@ -324,8 +326,7 @@ def show(
         k: v
         for k, v in locals().items()
         if v is not None
-        and k
-        not in ["cad_objs", "names", "colors", "alphas", "port", "progress", "timeit"]
+        and k not in ["cad_objs", "names", "colors", "alphas", "port", "progress"]
     }
 
     progress = Progress([] if progress is None else [c for c in progress])
@@ -391,6 +392,7 @@ def show_object(
     render_normals=None,
     render_mates=None,
     render_joints=None,
+    parallel=None,
     show_parent=None,
     mate_scale=None,
     debug=None,
@@ -455,6 +457,7 @@ def show_object(
         render_normals:    Render normals (default=False)
         render_mates:      Render mates for MAssemblies (default=False)
         render_joints:     Render build123d joints (default=False)
+        parallel:          Tessellate objects in parallel (default=False)
         show_parent:       Render parent of faces, edges or vertices as wireframe
         mate_scale:        Scale of rendered mates for MAssemblies (default=1)
 
