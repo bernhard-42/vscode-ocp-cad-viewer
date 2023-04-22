@@ -238,6 +238,7 @@ def show(
     render_normals=None,
     render_mates=None,
     render_joints=None,
+    show_parent=None,
     mate_scale=None,
     debug=None,
     timeit=None,
@@ -297,6 +298,7 @@ def show(
         render_normals:    Render normals (default=False)
         render_mates:      Render mates for MAssemblies (default=False)
         render_joints:     Render build123d joints (default=False)
+        show_parent:       Render parent of faces, edges or vertices as wireframe
         mate_scale:        Scale of rendered mates for MAssemblies (default=1)
 
     - Debug
@@ -389,6 +391,7 @@ def show_object(
     render_normals=None,
     render_mates=None,
     render_joints=None,
+    show_parent=None,
     mate_scale=None,
     debug=None,
     timeit=None,
@@ -452,6 +455,7 @@ def show_object(
         render_normals:    Render normals (default=False)
         render_mates:      Render mates for MAssemblies (default=False)
         render_joints:     Render build123d joints (default=False)
+        show_parent:       Render parent of faces, edges or vertices as wireframe
         mate_scale:        Scale of rendered mates for MAssemblies (default=1)
 
     - Debug
@@ -489,9 +493,9 @@ def show_object(
     OBJECTS["colors"].append(color)
     OBJECTS["alphas"].append(alpha)
 
-    prefix = f"{name} " if name is not None else ""
+    # prefix = f"{name} " if name is not None else ""
 
-    print(f"\nshow_object {prefix}<{obj}>")
+    # print(f"\nshow_object {prefix}<{obj}>")
     show(
         *OBJECTS["objs"],
         names=OBJECTS["names"],
