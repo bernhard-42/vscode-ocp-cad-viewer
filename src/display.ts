@@ -31,10 +31,10 @@ export function template() {
 <head>
     <meta charset="utf-8" />
     <title>OCP CAD Viewer</title>
-    <link rel="stylesheet" href="https://unpkg.com/three-cad-viewer@1.7.5/dist/three-cad-viewer.css" /> <!-- 1.7.5 -->
+    <link rel="stylesheet" href="https://unpkg.com/three-cad-viewer@1.7.8/dist/three-cad-viewer.css" />
 
     <script type="module">
-        import { Viewer, Timer } from "https://unpkg.com/three-cad-viewer@1.7.5/dist/three-cad-viewer.esm.js";
+        import { Viewer, Timer } from "https://unpkg.com/three-cad-viewer@1.7.8/dist/three-cad-viewer.esm.js";
         var viewer = null;
         var _shapes = null;
         var _states = null;
