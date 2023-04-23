@@ -407,6 +407,14 @@
                                 "poetry add ocp_vscode=={ocp_vscode_version}"
                             ]
                         },
+                        "ocp_tessellate": {
+                            "pip": [
+                                "{python} -m pip install ocp_tessellate"
+                            ],
+                            "poetry": [
+                                "poetry add ocp_tessellate"
+                            ]
+                        },
                         "ipython": {
                             "pip": [
                                 "{python} -m pip install ipython"
