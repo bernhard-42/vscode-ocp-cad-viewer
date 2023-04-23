@@ -168,7 +168,7 @@ export function template() {
 
             var changed = false;
             Object.keys(change).forEach((k) => {
-                if(change[k].new !== undefined) {
+                if((k !== "states") & (change[k].new !== undefined)) {
                     message[k] = change[k].new;
                     changed = true;
                 }
