@@ -3,6 +3,7 @@
     "displayName": "OCP CAD Viewer",
     "description": "An integrated OCP CAD viewer for CadQuery and build123d",
     "version": "0.90.0",
+    "publisher": "bernhard-42",
     "icon": "resources/ocp-logo.png",
     "license": "Apache-2.0",
     "repository": "https://github.com/bernhard-42/vscode-ocp-cad-viewer",
