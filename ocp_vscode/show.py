@@ -198,6 +198,19 @@ class Progress:
             print(mark, end="", flush=True)
 
 
+def align_attrs(attr_list, length, default, tag):
+    if attr_list is None:
+        return None
+    elif len(attr_list) < length:
+        print(f"Too view {tag}, using defaults to fill")
+        return list(attr_list) + [default] * (length - len(attr_list))
+    elif len(attr_list) > length:
+        print(f"Too many {tag}, trimming to length {length}")
+        return attr_list[:length]
+    else:
+        return attr_list
+
+
 def show(
     *cad_objs,
     names=None,
@@ -310,14 +323,9 @@ def show(
 
     timeit = preset("timeit", timeit)
 
-    if names is not None and len(names) != len(cad_objs):
-        raise ValueError("Length of cad objects and names need to be the same")
-
-    if colors is not None and len(colors) != len(cad_objs):
-        raise ValueError("Length of cad objects and colors need to be the same")
-
-    if alphas is not None and len(alphas) != len(cad_objs):
-        raise ValueError("Length of cad objects and alphas need to be the same")
+    names = align_attrs(names, len(cad_objs), None, "names")
+    colors = align_attrs(colors, len(cad_objs), None, "colors")
+    alphas = align_attrs(alphas, len(cad_objs), 1.0, "alphas")
 
     if default_edgecolor is not None:
         default_edgecolor = Color(default_edgecolor).web_color
