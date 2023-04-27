@@ -31,4 +31,5 @@ from .config import (
     status,
     set_port,
 )
+from .colors import ColorMap, CM, get_colormap, set_colormap, unset_colormap
 from .animation import Animation

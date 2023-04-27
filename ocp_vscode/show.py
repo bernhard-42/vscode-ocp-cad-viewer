@@ -34,6 +34,7 @@ from .config import (
     get_default,
     send,
 )
+from .colors import *
 
 OBJECTS = {"objs": [], "names": [], "colors": [], "alphas": []}
 
@@ -198,9 +199,9 @@ class Progress:
             print(mark, end="", flush=True)
 
 
-def align_attrs(attr_list, length, default, tag):
+def align_attrs(attr_list, length, default, tag, explode=True):
     if attr_list is None:
-        return None
+        return [None] * length if explode else None
     elif len(attr_list) < length:
         print(f"Too view {tag}, using defaults to fill")
         return list(attr_list) + [default] * (length - len(attr_list))
@@ -323,9 +324,27 @@ def show(
 
     timeit = preset("timeit", timeit)
 
-    names = align_attrs(names, len(cad_objs), None, "names")
-    colors = align_attrs(colors, len(cad_objs), None, "colors")
-    alphas = align_attrs(alphas, len(cad_objs), 1.0, "alphas")
+    names = align_attrs(names, len(cad_objs), None, "names", explode=False)
+
+    # Handle colormaps
+
+    if isinstance(colors, ColorMap):
+        colors = [next(colors) for _ in range(len(cad_objs))]
+        alphas = [None] * len(cad_objs)  # alpha is encoded in colors
+    else:
+        colors = align_attrs(colors, len(cad_objs), None, "colors")
+        alphas = align_attrs(alphas, len(cad_objs), None, "alphas")
+
+    map_colors = None
+    colormap = get_colormap()
+    if colormap is not None:
+        map_colors = [next(colormap) for _ in range(len(cad_objs))]
+
+    for i in range(len(cad_objs)):
+        if map_colors is not None and colors[i] is None:
+            colors[i] = map_colors[i][:3]
+        if alphas[i] is None:
+            alphas[i] = 1.0 if map_colors is None else map_colors[i][3]
 
     if default_edgecolor is not None:
         default_edgecolor = Color(default_edgecolor).web_color
@@ -334,7 +353,16 @@ def show(
         k: v
         for k, v in locals().items()
         if v is not None
-        and k not in ["cad_objs", "names", "colors", "alphas", "port", "progress"]
+        and k
+        not in [
+            "cad_objs",
+            "names",
+            "colormap",
+            "colors",
+            "alphas",
+            "port",
+            "progress",
+        ]
     }
 
     progress = Progress([] if progress is None else [c for c in progress])
@@ -489,12 +517,16 @@ def show_object(
     if parent is not None:
         OBJECTS["objs"].append(parent)
         OBJECTS["names"].append("parent")
-        OBJECTS["colors"].append(get_default("default_color"))
-        OBJECTS["alphas"].append(0.25)
+        OBJECTS["colors"].append(None)
+        OBJECTS["alphas"].append(None)
 
+    color = None
+    alpha = None
     if options is None:
-        color = None
-        alpha = 1.0
+        colormap = get_colormap()
+        if colormap is not None:
+            for _ in range(len(OBJECTS["names"]) + 1):
+                *color, alpha = next(colormap)
     else:
         color = options.get("color")
         alpha = options.get("alpha", 1.0)
@@ -504,9 +536,6 @@ def show_object(
     OBJECTS["colors"].append(color)
     OBJECTS["alphas"].append(alpha)
 
-    # prefix = f"{name} " if name is not None else ""
-
-    # print(f"\nshow_object {prefix}<{obj}>")
     show(
         *OBJECTS["objs"],
         names=OBJECTS["names"],
