@@ -54420,7 +54420,7 @@ class NestedGroup {
     return group;
   }
 
-  renderShape(shape, color, alpha, renderback, name, states) {
+  renderShape(shape, color, alpha, renderback, path, name, states) {
     const positions =
       shape.vertices instanceof Float32Array
         ? shape.vertices
@@ -54440,6 +54440,10 @@ class NestedGroup {
       this.edgeColor,
       renderback,
     );
+
+    path = path + this.delim + name;
+    this.groups[path.replaceAll(this.delim, "/")] = group;
+    group.name = path;
 
     if (alpha == null) {
       alpha = 1.0;
@@ -54554,6 +54558,7 @@ class NestedGroup {
             shape.color,
             shape.alpha,
             shape.renderback == null ? false : shape.renderback,
+            path,
             shape.name,
             states[shape.id],
           );
@@ -57649,15 +57654,13 @@ class Camera {
     this.pCamera.lookAt(this.target);
 
     // define the orthographic camera
-
-    const w = distance * 1.35;
-    const h = (distance * 1.35) / aspect;
+    const pSize = this.projectSize(distance, aspect);
 
     this.oCamera = new OrthographicCamera(
-      -w,
-      w,
-      h,
-      -h,
+      -pSize[0],
+      pSize[0],
+      pSize[1],
+      -pSize[1],
       0.1,
       100 * distance,
     );
@@ -57720,6 +57723,23 @@ class Camera {
     this.setQuaternion(q0);
 
     this.updateProjectionMatrix();
+  }
+
+  /**
+   * Calculate projected size for orthographic ca,era
+   * @param {number} frustum - view frustum.
+   * @param {number} aspect - viewer aspect (width / height).
+   **/
+  projectSize(frustum, aspect) {
+    var w, h;
+    if (aspect < 1) {
+      w = frustum;
+      h = w / aspect;
+    } else {
+      h = frustum;
+      w = h * aspect;
+    }
+    return [w, h];
   }
 
   /**
@@ -57863,13 +57883,12 @@ class Camera {
 
   changeDimensions(distance, width, height) {
     const aspect = width / height;
-    const w = distance * 1.35;
-    const h = (distance * 1.35) / aspect;
+    const pSize = this.projectSize(distance, aspect);
 
-    this.oCamera.left = -w;
-    this.oCamera.right = w;
-    this.oCamera.top = h;
-    this.oCamera.bottom = -h;
+    this.oCamera.left = -pSize[0];
+    this.oCamera.right = pSize[0];
+    this.oCamera.top = pSize[1];
+    this.oCamera.bottom = -pSize[1];
 
     this.pCamera.aspect = aspect;
 
@@ -57877,7 +57896,7 @@ class Camera {
   }
 }
 
-const version="1.7.3";
+const version="1.7.8";
 
 class Viewer {
   /**
@@ -58050,10 +58069,7 @@ class Viewer {
     this.quaternion = null;
     this.target = null;
 
-    this.zoom = 4 / 3;
-    if (this.cadWidth >= this.height) {
-      this.zoom *= this.height / this.cadWidth;
-    }
+    this.zoom = 1;
 
     this.panSpeed = 0.5;
     this.rotateSpeed = 1.0;
@@ -59713,45 +59729,36 @@ class Viewer {
       var bb = new Box3().setFromObject(this.nestedGroup.rootGroup);
       bb.getCenter(worldCenterOrOrigin);
     }
-
     for (var id in this.nestedGroup.groups) {
       // Loop over all Group elements
-      if (!(this.nestedGroup.groups[id] instanceof ObjectGroup)) {
-        var group = this.nestedGroup.groups[id];
+      var group = this.nestedGroup.groups[id];
 
-        // Get and combine all bounding boxes of ObjectGroups
-        // Do not use the Group, since it returns the bounding box of the underlying
-        // group hierarchy instead of the object(s)
-        var b = new Box3();
-        group.children.forEach((child) => {
-          if (child instanceof ObjectGroup) {
-            b.expandByObject(child);
-          }
-        });
-        if (b.isEmpty()) {
-          continue;
-        }
-        b.getCenter(worldObjectCenter);
-
-        // Explode around global center or origin
-        worldDirection = worldObjectCenter.sub(worldCenterOrOrigin);
-        localDirection = group.parent.worldToLocal(worldDirection.clone());
-
-        // Use the parent to calculate the local directions
-        scaledLocalDirection = group.parent.worldToLocal(
-          worldDirection.clone().multiplyScalar(multiplier),
-        );
-        // and ensure to shift objects at its center and not at its position
-        scaledLocalDirection.sub(localDirection);
-
-        // build an animation track for the group with this direction
-        this.addAnimationTrack(
-          id,
-          "t",
-          [0, duration],
-          [[0, 0, 0], scaledLocalDirection.toArray()],
-        );
+      var b = new Box3();
+      if (group instanceof ObjectGroup) {
+        b.expandByObject(group);
       }
+      if (b.isEmpty()) {
+        continue;
+      }
+      b.getCenter(worldObjectCenter);
+      // Explode around global center or origin
+      worldDirection = worldObjectCenter.sub(worldCenterOrOrigin);
+      localDirection = group.parent.worldToLocal(worldDirection.clone());
+
+      // Use the parent to calculate the local directions
+      scaledLocalDirection = group.parent.worldToLocal(
+        worldDirection.clone().multiplyScalar(multiplier),
+      );
+      // and ensure to shift objects at its center and not at its position
+      scaledLocalDirection.sub(localDirection);
+
+      // build an animation track for the group with this direction
+      this.addAnimationTrack(
+        id,
+        "t",
+        [0, duration],
+        [[0, 0, 0], scaledLocalDirection.toArray()],
+      );
     }
     this.initAnimation(duration, speed, "E", false);
   }
