@@ -3,10 +3,6 @@ from build123d import *
 from ocp_vscode import show, CM, set_colormap, unset_colormap, reset_show, show_object
 
 # %%
-from ocp_vscode import get_defaults, set_defaults, get_default
-
-
-# %%
 def reference(obj, loc):
     return copy.copy(obj).move(loc)
 

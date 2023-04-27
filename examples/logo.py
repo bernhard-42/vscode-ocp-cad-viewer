@@ -1,9 +1,7 @@
-from alg123d import *
+from build123d import *
 from ocp_vscode import show, set_port
 from ocp_vscode.show import _convert
 import json
-
-set_port(3940)
 
 # %%
 a, b, thickness, distance, fontsize, depth = 13.6, 8.0, 1.0, 0.3, 20, 2
@@ -30,7 +28,7 @@ logo_o = extrude(o, -depth)
 logo_cp = Pos(22.5, 0, 0) * extrude(cp, -depth)
 logo = logo_o + (logo_cp - eye_mask)
 
-center_wire = Wire.make_wire(logo_o.faces().min(Axis.Z).edges()[16:])
+center_wire = Wire.make_wire(logo_o.faces().sort_by(Axis.Z).first.edges()[16:])
 center = extrude(make_face(center_wire), 2)
 
 eye = eye + center
