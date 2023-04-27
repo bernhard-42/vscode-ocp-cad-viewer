@@ -12,7 +12,7 @@ _OCP CAD Viewer for VS Code_ is an extension to show [CadQuery](https://github.c
 
 **Steps**:
 
--   Download [ocp-cad-viewer-0.91.0.vsix](https://github.com/bernhard-42/vscode-ocp-cad-viewer/releases/download/v0.91.0/ocp-cad-viewer-0.91.0.vsix)
+-   Download [ocp-cad-viewer-0.92.0.vsix](https://github.com/bernhard-42/vscode-ocp-cad-viewer/releases/download/v0.92.0/ocp-cad-viewer-0.92.0.vsix)
 -   Install it locally in VS Code (_Extensions -> "..." menu -> Install from VSIX..._)
 -   Use the OCP CAD Viewer sidebar to manage both OCP CAD Viewer and python libraries:
     -   Install ocp_vscode via the blue button in the welcome screen of the "Viewer Manager" or by pressing the green down-arrow in the "Library Manager" section of the OCP CAD Viewer sidebar
