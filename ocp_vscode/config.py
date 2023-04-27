@@ -125,6 +125,7 @@ def send(data, port=None, timeit=False):
 
     except Exception as ex:
         print("Cannot connect to viewer, is it running and the right port provided?")
+        print(ex)
         return
 
     if r.status_code != 201:
