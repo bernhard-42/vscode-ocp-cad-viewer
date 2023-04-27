@@ -305,7 +305,7 @@ def show(
         edge_accuracy:     Edges: Precision of edge discretization (default: mesh quality / 100)
 
         default_color:     Default mesh color (default=(232, 176, 36))
-        default_edgecolor: Default mesh color (default=(128, 128, 128))
+        default_edgecolor: Default color of the edges of a mesh (default=(128, 128, 128))
         ambient_intensity  Intensity of ambient ligth (default=1.0)
         direct_intensity   Intensity of direct lights (default=0.12)
 
@@ -485,7 +485,7 @@ def show_object(
         edge_accuracy:     Edges: Precision of edge discretization (default: mesh quality / 100)
 
         default_color:     Default mesh color (default=(232, 176, 36))
-        default_edgecolor: Default mesh color (default=(128, 128, 128))
+        default_edgecolor: Default color of the edges of a mesh (default=(128, 128, 128))
         ambient_intensity  Intensity of ambient ligth (default=1.0)
         direct_intensity   Intensity of direct lights (default=0.12)
 
