@@ -409,7 +409,7 @@
                         },
                         "ocp_tessellate": {
                             "pip": [
-                                "{python} -m pip install ocp_tessellate"
+                                "{python} -m pip install --update ocp_tessellate"
                             ],
                             "poetry": [
                                 "poetry add ocp_tessellate"
@@ -417,7 +417,7 @@
                         },
                         "ipython": {
                             "pip": [
-                                "{python} -m pip install ipython"
+                                "{python} -m pip install --update ipython"
                             ],
                             "conda": [
                                 "conda install -y -n {conda_env} -c conda-forge ipython"
