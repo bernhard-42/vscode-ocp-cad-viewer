@@ -16,7 +16,7 @@
 
 import * as vscode from "vscode";
 
-export function template() {
+export function template(styleSrc: vscode.Uri, scriptSrc: vscode.Uri) {
     let options = vscode.workspace.getConfiguration("OcpCadViewer.view");
     let theme = options.get("dark") ? "dark" : "light";
     let treeWidth = options.get("tree_width");
@@ -31,10 +31,10 @@ export function template() {
 <head>
     <meta charset="utf-8" />
     <title>OCP CAD Viewer</title>
-    <link rel="stylesheet" href="https://unpkg.com/three-cad-viewer@1.7.8/dist/three-cad-viewer.css" />
+    <link rel="stylesheet" href="${styleSrc}" />
 
     <script type="module">
-        import { Viewer, Timer } from "https://unpkg.com/three-cad-viewer@1.7.8/dist/three-cad-viewer.esm.js";
+        import { Viewer, Timer } from "${scriptSrc}";
         var viewer = null;
         var _shapes = null;
         var _states = null;

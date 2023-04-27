@@ -46,11 +46,15 @@ export class CadqueryController {
                 output.info("Starting web server ...");
                 serverStarted = true;
                 CadqueryViewer.createOrShow(this.context.extensionUri, this);
-                CadqueryViewer.currentPanel?.update(template());
-
                 let panel = CadqueryViewer.currentPanel;
                 this.view = panel?.getView();
-                if (this.view) {
+                if (this.view !== undefined) {
+                    const stylePath = vscode.Uri.joinPath(this.context.extensionUri, "media", "css", "three-cad-viewer.css");
+                    const scriptPath = vscode.Uri.joinPath(this.context.extensionUri, "media", "js", "three-cad-viewer.esm.js");
+                    const styleSrc = this.view.asWebviewUri(stylePath);
+                    const scriptSrc = this.view.asWebviewUri(scriptPath);
+                    CadqueryViewer.currentPanel?.update(template(styleSrc, scriptSrc));
+
                     this.view.onDidReceiveMessage(
                         message => {
                             this.viewer_message = message;
