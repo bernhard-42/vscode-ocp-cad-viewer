@@ -341,10 +341,14 @@ def show(
         map_colors = [next(colormap) for _ in range(len(cad_objs))]
 
     for i in range(len(cad_objs)):
-        if map_colors is not None and colors[i] is None:
+        if colors[i] is None and map_colors is not None:
             colors[i] = map_colors[i][:3]
-        if alphas[i] is None:
-            alphas[i] = 1.0 if map_colors is None else map_colors[i][3]
+            if alphas[i] is None and len(map_colors[i]) == 4:
+                alphas[i] = map_colors[i][3]
+        else:
+            if alphas[i] is None and len(colors[i]) == 4:
+                alphas[i] = colors[i][3]
+            colors[i] = colors[i][:3]
 
     if default_edgecolor is not None:
         default_edgecolor = Color(default_edgecolor).web_color
