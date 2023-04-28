@@ -341,6 +341,8 @@ def show(
         map_colors = [next(colormap) for _ in range(len(cad_objs))]
 
     for i in range(len(cad_objs)):
+        if isinstance(colors[i], str):
+            colors[i] = web_to_rgb(colors[i])
         if colors[i] is None and map_colors is not None:
             colors[i] = map_colors[i][:3]
             if alphas[i] is None and len(map_colors[i]) == 4:

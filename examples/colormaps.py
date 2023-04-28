@@ -47,16 +47,16 @@ show(
 )
 # %%
 
-set_colormap(CM.golden_ratio, colormap="mpl:Greens", alpha=0.8)
+set_colormap(CM.golden_ratio, "mpl:Blues", alpha=0.8)
 show(*spheres)
 # %%
 set_colormap(CM.tab20, alpha=0.8)
 show(*spheres)
 # %%
-set_colormap(CM.seeded, seed_value=42, colormap="hsv", alpha=0.8)
+set_colormap(CM.seeded, 42, "hsv", alpha=0.8)
 show(*spheres)
 # %%
-set_colormap(CM.segmented, length=20, colormap="hsv")
+set_colormap(CM.segmented, 20, "hsv")
 show(*spheres)
 # %%
 reset_show()
@@ -64,9 +64,13 @@ reset_show()
 show_object(spheres[0])
 show_object(spheres[1])
 show_object(spheres[2])
-show_object(spheres[3], options={"color": (0, 0, 0), "alpha": 1.0})
+show_object(spheres[3], options={"color": "black", "alpha": 1.0})
 show_object(spheres[4])
 show_object(spheres[5])
 show_object(spheres[6])
 
+# %%
+
+set_colormap(ListedColorMap, ["red", "green", "blue"])
+show(*spheres, colors=[None, "yellow"])
 # %%

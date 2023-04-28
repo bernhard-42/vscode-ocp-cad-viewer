@@ -1,5 +1,6 @@
 from colorsys import hsv_to_rgb, rgb_to_hsv
 from random import randrange, seed, random
+from webcolors import name_to_rgb
 
 try:
     import matplotlib as mpl
@@ -18,12 +19,12 @@ def get_colormap():
     if COLORMAP is None:
         return None
     else:
-        return COLORMAP[0](**COLORMAP[1])
+        return COLORMAP[0](*COLORMAP[1], **COLORMAP[2])
 
 
-def set_colormap(colormap_func, **params):
+def set_colormap(colormap_func, *args, **kwargs):
     global COLORMAP
-    COLORMAP = (colormap_func, params)
+    COLORMAP = (colormap_func, args, kwargs)
 
 
 def unset_colormap():
@@ -237,6 +238,11 @@ def random_rgb_mapper(lower=0, upper=255, brightness=1):
     return (r, g, b)
 
 
+def web_to_rgb(name):
+    rgb = name_to_rgb(name)
+    return (rgb.red / 255, rgb.green / 255, rgb.blue / 255)
+
+
 class ColorMap:
     def __init__(self):
         self.index = 0
@@ -250,7 +256,15 @@ class ListedColorMap(ColorMap):
     def __init__(self, colors, alpha=1.0, reverse=False):
         super().__init__()
 
-        self.colors = list(reversed(colors)) if reverse else colors
+        self.colors = []
+        for i in range(len(colors)):
+            if isinstance(colors[i], str):
+                self.colors.append(web_to_rgb(colors[i]))
+            else:
+                self.colors.append(colors[i])
+        if reverse:
+            self.colors = list(reversed(self.colors))
+
         self.alpha = alpha
         self.n = len(self.colors)
 
