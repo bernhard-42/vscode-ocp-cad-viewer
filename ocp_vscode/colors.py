@@ -1,5 +1,14 @@
 from colorsys import hsv_to_rgb, rgb_to_hsv
-from random import randrange, seed
+from random import randrange, seed, random
+
+try:
+    import matplotlib as mpl
+    import numpy as np
+
+    HAS_MATPLOTLIB = True
+
+except:
+    HAS_MATPLOTLIB = False
 
 
 COLORMAP = None
@@ -23,7 +32,7 @@ def unset_colormap():
 
 
 #
-# Source: matplotlib
+# Source: matplotlib. This is the minimum set of colormaps without installing matplotlib
 #
 
 colormaps = {
@@ -198,196 +207,200 @@ colormaps = {
 }
 
 
+def hsv_mapper(t, saturation=0.6, value=0.95):
+    return hsv_to_rgb(t, saturation, value)
+
+
+def matplotlib_mapper(t, name):
+    if not HAS_MATPLOTLIB:
+        raise RuntimeError("matplotlib is not installed")
+
+    colormap = mpl.colormaps.get(name)
+
+    if name is None:
+        raise ValueError(f"No colormap named '{name}' in matplotlib")
+    if not isinstance(colormap, mpl.colors.LinearSegmentedColormap):
+        raise ValueError(
+            f"The colormap named '{name}' is not a linear segemented colormap"
+        )
+
+    color = colormap(t)[:3]
+    return (color[0].item(), color[1].item(), color[2].item())
+
+
+def random_rgb_mapper(lower=0, upper=255, brightness=1):
+    r = randrange(lower, upper) / 255
+    g = randrange(lower, upper) / 255
+    b = randrange(lower, upper) / 255
+    h, s, v = rgb_to_hsv(r, g, b)
+    r, g, b = hsv_to_rgb(h, s, min(1, brightness * v))
+    return (r, g, b)
+
+
 class ColorMap:
     def __init__(self):
         self.index = 0
         self.alpha = 1.0
-        self.n = None
 
     def __iter__(self):
         return self
 
-    @property
-    def length(self):
-        return self.n
 
-    def get(self, length):
-        return [next(self) for i in range(length)]
-
-
-class QualitativeColorMap(ColorMap):
-    def __init__(self, cmaps, alpha=1.0, reverse=False):
+class ListedColorMap(ColorMap):
+    def __init__(self, colors, alpha=1.0, reverse=False):
         super().__init__()
 
-        if not isinstance(cmaps, (list, tuple)):
-            cmaps = [cmaps]
-        self.colormap = []
-        for cmap in cmaps:
-            colormap = colormaps.get(cmap)
-            if colormap is None:
-                raise ValueError(
-                    f"Unknown colormap name {cmap}. Use {list(colormaps.keys())}"
-                )
-            else:
-                self.colormap.extend(colormap)
-
-        if reverse:
-            self.colormap = list(reversed(self.colormap))
-
+        self.colors = list(reversed(colors)) if reverse else colors
         self.alpha = alpha
-
-        self.n = len(self.colormap)
+        self.n = len(self.colors)
 
     def __next__(self):
         if self.index >= self.n:
             self.index = 0
-        elem = self.colormap[self.index]
+        elem = self.colors[self.index]
         self.index += 1
         return (*elem, self.alpha)
 
 
-class GoldenRatioColormap(ColorMap):
-    def __init__(self, saturation, value, alpha=1.0):
+class SegmentedColorMap(ColorMap):
+    def __init__(self, length, mapper, alpha=1.0, reverse=False, **params):
         super().__init__()
 
-        self.saturation = saturation
-        self.value = value
-        self.phi_inv = 2 / (1 + 5**0.5)
-        self.index = 0
-
+        self.mapper = mapper
+        self.length = length
+        self.params = params
         self.alpha = alpha
-
-        self.n = -1
+        self.reverse = reverse
 
     def __next__(self):
-        golden_ratio_hue = (self.phi_inv * self.index) % 1
-        color = hsv_to_rgb(golden_ratio_hue, self.saturation, self.value)
+        if self.index >= self.length:
+            self.index = 0
+        t = self.index / self.length
+        if self.reverse:
+            t = 1 - t
+        color = self.mapper(t, **self.params)
         self.index += 1
         return (*color, self.alpha)
 
 
-class SeededRandomColormap(ColorMap):
-    def __init__(
-        self, seed_value=4, lower=0, upper=255, brightness=2, alpha=1.0, cfloat=True
-    ):
+class GoldenRatioColormap(ColorMap):
+    def __init__(self, mapper, alpha=1.0, reverse=False, **params):
         super().__init__()
 
-        seed(seed_value)
-        self.seed_value = seed_value
-        self.cfloat = cfloat
-        self.index = 0
-        self.lower = lower
-        self.upper = upper
-        self.brightness = brightness
+        self.mapper = mapper
+        self.params = params
         self.alpha = alpha
-        self.n = -1
+        self.reverse = reverse
 
     def __next__(self):
-        col = (
-            randrange(self.lower, self.upper) / 255,
-            randrange(self.lower, self.upper) / 255,
-            randrange(self.lower, self.upper) / 255,
-        )
-        col = rgb_to_hsv(*col)
-        # double the brightness
-        col = hsv_to_rgb(col[0], col[1], min(1, self.brightness * col[2]))
+        phi_inv = 2 / (1 + 5**0.5)
+        t = (phi_inv * self.index) % 1
+        if self.reverse:
+            t = 1 - t
+        color = self.mapper(t, **self.params)
 
-        if self.cfloat:
-            return (*col, self.alpha)
+        self.index += 1
+        return (*color, self.alpha)
+
+
+class SeededColormap(ColorMap):
+    def __init__(self, seed_value, mapper, alpha=1.0, no_param=False, **params):
+        super().__init__()
+
+        self.mapper = mapper
+        self.params = params
+        self.seed_value = seed_value
+        self.alpha = alpha
+        self.no_param = no_param
+
+        seed(seed_value)
+
+    def __next__(self):
+        if self.no_param:
+            color = self.mapper(**self.params)
         else:
-            return (int(col[0] * 255), int(col[3] * 255), int(col[2] * 255), self.alpha)
-
-
-try:
-    import matplotlib as mpl
-    import numpy as np
-
-    class MatplotlibColorMap(ColorMap):
-        def __init__(self, name, length, alpha=1.0):
-            super().__init__()
-            colormap = mpl.colormaps[name]
-            self.colormap = [colormap(x) for x in np.linspace(0, 1, length)]
-
-            self.alpha = alpha
-
-            self.n = length
-
-        def __next__(self):
-            if self.index >= self.n:
-                self.index = 0
-            elem = self.colormap[self.index]
-            self.index += 1
-            return (*(e.item() for e in elem[:3]), self.alpha)
-
-    HAS_MATPLOTLIB = True
-
-except:
-    HAS_MATPLOTLIB = False
+            t = random()
+            color = self.mapper(t, **self.params)
+        return (*color, self.alpha)
 
 
 class CM:
     @staticmethod
     def accent(alpha=1.0, reverse=False):
-        return QualitativeColorMap("Accent", alpha=alpha, reverse=reverse)
+        return ListedColorMap(colormaps["Accent"], alpha=alpha, reverse=reverse)
 
     @staticmethod
     def dark2(alpha=1.0, reverse=False):
-        return QualitativeColorMap("Dark2", alpha=alpha, reverse=reverse)
+        return ListedColorMap(colormaps["Dark2"], alpha=alpha, reverse=reverse)
 
     @staticmethod
     def paired(alpha=1.0, reverse=False):
-        return QualitativeColorMap("Paired", alpha=alpha, reverse=reverse)
+        return ListedColorMap(colormaps["Paired"], alpha=alpha, reverse=reverse)
 
     @staticmethod
     def pastel1(alpha=1.0, reverse=False):
-        return QualitativeColorMap("Pastel1", alpha=alpha, reverse=reverse)
+        return ListedColorMap(colormaps["Pastel1"], alpha=alpha, reverse=reverse)
 
     @staticmethod
     def pastel2(alpha=1.0, reverse=False):
-        return QualitativeColorMap("Pastel2", alpha=alpha, reverse=reverse)
+        return ListedColorMap(colormaps["Pastel2"], alpha=alpha, reverse=reverse)
 
     @staticmethod
     def set1(alpha=1.0, reverse=False):
-        return QualitativeColorMap("Set1", alpha=alpha, reverse=reverse)
+        return ListedColorMap(colormaps["Set1"], alpha=alpha, reverse=reverse)
 
     @staticmethod
     def set2(alpha=1.0, reverse=False):
-        return QualitativeColorMap("Set2", alpha=alpha, reverse=reverse)
+        return ListedColorMap(colormaps["Set2"], alpha=alpha, reverse=reverse)
 
     @staticmethod
     def set3(alpha=1.0, reverse=False):
-        return QualitativeColorMap("Set3", alpha=alpha, reverse=reverse)
+        return ListedColorMap(colormaps["Set3"], alpha=alpha, reverse=reverse)
 
     @staticmethod
     def tab10(alpha=1.0, reverse=False):
-        return QualitativeColorMap("tab10", alpha=alpha, reverse=reverse)
+        return ListedColorMap(colormaps["tab10"], alpha=alpha, reverse=reverse)
 
     @staticmethod
     def tab20(alpha=1.0, reverse=False):
-        return QualitativeColorMap("tab20", alpha=alpha, reverse=reverse)
+        return ListedColorMap(colormaps["tab20"], alpha=alpha, reverse=reverse)
 
     @staticmethod
     def tab20b(alpha=1.0, reverse=False):
-        return QualitativeColorMap("tab20b", alpha=alpha, reverse=reverse)
+        return ListedColorMap(colormaps["tab20b"], alpha=alpha, reverse=reverse)
 
     @staticmethod
     def tab20c(alpha=1.0, reverse=False):
-        return QualitativeColorMap("tab20c", alpha=alpha, reverse=reverse)
+        return ListedColorMap(colormaps["tab20c"], alpha=alpha, reverse=reverse)
 
     @staticmethod
-    def golden_ratio(alpha=1.0, saturation=0.6, value=0.95):
-        return GoldenRatioColormap(saturation, value, alpha=alpha)
+    def golden_ratio(colormap="hsv", alpha=1.0, reverse=False):
+        if colormap == "hsv":
+            return GoldenRatioColormap(hsv_mapper, alpha=alpha, reverse=reverse)
+        elif colormap.startswith("mpl"):
+            _, name = colormap.split(":")
+            return GoldenRatioColormap(
+                matplotlib_mapper, alpha=alpha, reverse=reverse, name=name
+            )
 
     @staticmethod
-    def seeded(seed_value=4, alpha=1.0, lower=0, upper=255, brightness=1.4):
-        return SeededRandomColormap(
-            seed_value, alpha=alpha, lower=lower, upper=upper, brightness=brightness
-        )
+    def seeded(seed_value=42, colormap="hsv", alpha=1.0, **params):
+        if colormap == "hsv":
+            return SeededColormap(seed_value, hsv_mapper, alpha=alpha)
+        elif colormap == "rgb":
+            return SeededColormap(
+                seed_value, random_rgb_mapper, alpha=alpha, no_param=True, **params
+            )
+        elif colormap.startswith("mpl"):
+            _, name = colormap.split(":")
+            return SeededColormap(seed_value, matplotlib_mapper, alpha=alpha, name=name)
 
     @staticmethod
-    def matplotlib(name, length, alpha=1.0):
-        if HAS_MATPLOTLIB:
-            return MatplotlibColorMap(name, length, alpha=alpha)
-        else:
-            print("matplotlib not installed")
-            return None
+    def segmented(length=10, colormap="hsv", alpha=1.0, reverse=False):
+        if colormap == "hsv":
+            return SegmentedColorMap(length, hsv_mapper, alpha=alpha, reverse=reverse)
+        elif colormap.startswith("mpl"):
+            _, name = colormap.split(":")
+            return SegmentedColorMap(
+                length, matplotlib_mapper, alpha=alpha, name=name, reverse=reverse
+            )
