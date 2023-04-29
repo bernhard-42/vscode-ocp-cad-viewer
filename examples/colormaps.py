@@ -25,21 +25,27 @@ show(*spheres, colors=CM.tab20(alpha=0.8))
 # %%
 show(*spheres, colors=CM.tab20(reverse=True))
 # %%
+show(*spheres, colors=CM.segmented(20, "mpl:Greens", alpha=0.8))
+# %%
+show(*spheres, colors=CM.segmented(10, "mpl:Greens", alpha=0.8))
+# %%
 show(*spheres, colors=CM.golden_ratio("mpl:Greens", alpha=0.8))
 # %%
 show(*spheres, colors=CM.golden_ratio("mpl:Greens", reverse=True))
-# %%
-show(*spheres, colors=CM.segmented(10, "mpl:Greens", alpha=0.8))
 # %%
 show(*spheres, colors=CM.segmented(10, "mpl:summer", reverse=True))
 # %%
 show(*spheres, colors=CM.seeded(42, "mpl:summer"))
 # %%
+show(*spheres, colors=CM.seeded(4242, "mpl:summer"))
+# %%
+show(*spheres, colors=CM.segmented(20, "hsv", reverse=False))
+# %%
+show(*spheres, colors=CM.segmented(10, "hsv", reverse=False))
+# %%
 show(*spheres, colors=CM.golden_ratio("hsv", alpha=0.8))
 # %%
 show(*spheres, colors=CM.seeded(42, "hsv"))
-# %%
-show(*spheres, colors=CM.segmented(20, "hsv", reverse=False))
 # %%
 show(
     *spheres,
