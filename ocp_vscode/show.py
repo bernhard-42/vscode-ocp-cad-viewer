@@ -347,7 +347,7 @@ def show(
             colors[i] = map_colors[i][:3]
             if alphas[i] is None and len(map_colors[i]) == 4:
                 alphas[i] = map_colors[i][3]
-        else:
+        elif colors[i] is not None:
             if alphas[i] is None and len(colors[i]) == 4:
                 alphas[i] = colors[i][3]
             colors[i] = colors[i][:3]
