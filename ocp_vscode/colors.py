@@ -16,15 +16,14 @@ COLORMAP = None
 
 
 def get_colormap():
-    if COLORMAP is None:
-        return None
-    else:
-        return COLORMAP[0](*COLORMAP[1], **COLORMAP[2])
+    if COLORMAP is not None:
+        COLORMAP.reset()
+    return COLORMAP
 
 
-def set_colormap(colormap_func, *args, **kwargs):
+def set_colormap(colormap):
     global COLORMAP
-    COLORMAP = (colormap_func, args, kwargs)
+    COLORMAP = colormap
 
 
 def unset_colormap():
@@ -251,6 +250,9 @@ class ColorMap:
     def __iter__(self):
         return self
 
+    def reset(self):
+        self.index = 0
+
 
 class ListedColorMap(ColorMap):
     def __init__(self, colors, alpha=1.0, reverse=False):
@@ -327,7 +329,7 @@ class SeededColormap(ColorMap):
         self.alpha = alpha
         self.no_param = no_param
 
-        seed(seed_value)
+        self.reset()
 
     def __next__(self):
         if self.no_param:
@@ -336,6 +338,9 @@ class SeededColormap(ColorMap):
             t = random()
             color = self.mapper(t, **self.params)
         return (*color, self.alpha)
+
+    def reset(self):
+        seed(self.seed_value)
 
 
 class CM:
