@@ -575,7 +575,7 @@
                                     "with {prefix}BuildSketch() as ${1:sketchname}:",
                                     "    with {prefix}BuildLine() as ${2:linename}:",
                                     "        {prefix}${3:class}(${4:params})",
-                                    "    MakeFace()",
+                                    "    make_face()",
                                     "    $0"
                                 ]
                             },
@@ -587,8 +587,8 @@
                                     "    with {prefix}BuildSketch() as ${2:sketchname}:",
                                     "        with {prefix}BuildLine() as ${3:linename}:",
                                     "            {prefix}${4:class}(${5:params})",
-                                    "        {prefix}MakeFace()",
-                                    "    {prefix}Extrude(amount=${6:amount})",
+                                    "        {prefix}make_face()",
+                                    "    {prefix}extrude(amount=${6:amount})",
                                     "    $0"
                                 ]
                             },
@@ -599,7 +599,7 @@
                                     "with {prefix}BuildPart() as ${1:partname}:",
                                     "    with {prefix}BuildSketch() as ${2:sketchname}:",
                                     "        {prefix}${3:class}(${4:params}, align=({prefix}Align.CENTER, {prefix}Align.CENTER))",
-                                    "    {prefix}Extrude(amount=${5:amount})",
+                                    "    {prefix}extrude(amount=${5:amount})",
                                     "    $0"
                                 ]
                             }
