@@ -8,7 +8,7 @@ _OCP CAD Viewer for VS Code_ is an extension to show [CadQuery](https://github.c
 
 -   A fairly recent version of VS Code, e.g. 1.76.0 or newer
 -   [Python extension](https://marketplace.visualstudio.com/items?itemName=ms-python.python) installed in VS Code
--   `pip` available in the Python enviroment that will be used for CAD development
+-   `python` and `pip` available in the Python enviroment that will be used for CAD development (with `conda` the minimum is `conda create -n ocp python=3.9`)
 
 **Steps**:
 
