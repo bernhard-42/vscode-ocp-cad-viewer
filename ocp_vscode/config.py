@@ -292,7 +292,9 @@ def status(port=None):
         return conf
 
     except Exception as ex:
-        print("Error: Cannot access viewer status:", ex)
+        raise RuntimeError(
+            "Cannot access viewer status. Is the viewer running?\n" + str(ex.args)
+        )
 
 
 def workspace_config(port=None):
@@ -302,7 +304,9 @@ def workspace_config(port=None):
         return requests.get(f"{CMD_URL}:{port}/config").json()
 
     except Exception as ex:
-        print("Error: Cannot access viewer config:", ex)
+        raise RuntimeError(
+            "Cannot access viewer config. Is the viewer running?\n" + str(ex.args)
+        )
 
 
 def combined_config(port=None, use_status=True):
@@ -314,7 +318,9 @@ def combined_config(port=None, use_status=True):
         wspace_status = status(port)
 
     except Exception as ex:
-        print("Error: Cannot access viewer config:", ex)
+        raise RuntimeError(
+            "Cannot access viewer config. Is the viewer running?\n" + str(ex.args)
+        )
 
     if use_status and wspace_config["_splash"]:
         del wspace_config["_splash"]
