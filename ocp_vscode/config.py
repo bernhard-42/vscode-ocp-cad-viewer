@@ -26,6 +26,7 @@ CONFIG_UI_KEYS = [
     "grid",
     "ortho",
     "transparent",
+    "explode",
 ]
 
 CONFIG_WORKSPACE_KEYS = CONFIG_UI_KEYS + [
@@ -141,6 +142,7 @@ def set_viewer_config(
     ortho=None,
     transparent=None,
     black_edges=None,
+    explode=None,
     zoom=None,
     position=None,
     quaternion=None,
@@ -189,6 +191,7 @@ def set_defaults(
     collapse=None,
     ticks=None,
     up=None,
+    explode=None,
     zoom=None,
     reset_camera=None,
     pan_speed=None,
@@ -228,6 +231,7 @@ def set_defaults(
         collapse:          1: collapse all leaf nodes, C: collapse all nodes, E: expand all nodes (default=1)
         ticks:             Hint for the number of ticks in both directions (default=10)
         up:                Use z-axis ('Z') or y-axis ('Y') as up direction for the camera (default="Z")
+        explode:           Turn on explode mode (default=False)
 
         zoom:              Zoom factor of view (default=1.0)
         position:          Camera position

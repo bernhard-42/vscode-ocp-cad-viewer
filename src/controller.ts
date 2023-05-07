@@ -94,6 +94,7 @@ export class CadqueryController {
             "ticks": options.get("ticks"),
             "default_opacity": options.get("default_opacity"),
             "transparent": options.get("transparent"),
+            "explode": options.get("explode"),
         }
         options = vscode.workspace.getConfiguration("OcpCadViewer.render");
         c["angular_tolerance"] = options.get("angular_tolerance");

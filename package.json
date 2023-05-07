@@ -337,41 +337,47 @@
                     "description": "Default opacity for transparent objects (default: 0.5)",
                     "order": 31
                 },
+                "OcpCadViewer.view.explode": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Turn explode mode on (default: false)",
+                    "order": 32
+                },
                 "OcpCadViewer.render.angular_tolerance": {
                     "type": "number",
                     "default": 0.2,
                     "description": "Angular tolerance for tessellation algorithm (default: 0.2)",
-                    "order": 32
+                    "order": 33
                 },
                 "OcpCadViewer.render.deviation": {
                     "type": "number",
                     "default": 0.1,
                     "description": "Deviation of for tessellation algorithm (default: 0.1)",
-                    "order": 33
+                    "order": 34
                 },
                 "OcpCadViewer.render.default_color": {
                     "type": "string",
                     "default": "#e8b024",
                     "description": "Default shape color (default: #e8b024)",
-                    "order": 34
+                    "order": 35
                 },
                 "OcpCadViewer.render.default_edgecolor": {
                     "type": "string",
                     "default": "#707070",
                     "description": " (default: #707070)",
-                    "order": 35
+                    "order": 36
                 },
                 "OcpCadViewer.render.ambient_intensity": {
                     "type": "number",
                     "default": 0.75,
                     "description": "Intensity of ambient light (default: 0.75)",
-                    "order": 36
+                    "order": 37
                 },
                 "OcpCadViewer.render.direct_intensity": {
                     "type": "number",
                     "default": 0.15,
                     "description": "Intensity of direct light (default: 0.15)",
-                    "order": 37
+                    "order": 38
                 },
                 "OcpCadViewer.advanced.installCommands": {
                     "type": "object",

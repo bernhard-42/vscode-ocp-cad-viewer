@@ -397,6 +397,9 @@ export function template(styleSrc: vscode.Uri, scriptSrc: vscode.Uri) {
                         if (data.config[key]) {
                             viewer.display.reset();
                         }
+                    } else if (key === "explode") {
+                        viewer.display.setExplode({target:{checked:data.config[key]}})
+                        viewer.display.setExplodeCheck(data.config[key])
                     }
                 })
             } else if (data.type === "animation") {
