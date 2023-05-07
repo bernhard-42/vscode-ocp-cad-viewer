@@ -174,6 +174,9 @@ def _convert(*cad_objs, names=None, colors=None, alphas=None, progress=None, **k
     if config.get("debug") is not None and config["debug"]:
         print("\nconfig:\n", config)
 
+    if kwargs.get("explode") is not None:
+        config["explode"] = kwargs["explode"]
+
     with Timer(timeit, "", "create data obj", 1):
         data = {
             "data": numpy_to_buffer_json(
@@ -231,6 +234,7 @@ def show(
     black_edges=None,
     orbit_control=None,
     collapse=None,
+    explode=None,
     ticks=None,
     up=None,
     zoom=None,
@@ -288,6 +292,7 @@ def show(
         collapse:          1: collapse all leaf nodes, C: collapse all nodes, E: expand all nodes (default=1)
         ticks:             Hint for the number of ticks in both directions (default=10)
         up:                Use z-axis ('Z') or y-axis ('Y') as up direction for the camera (default="Z")
+        explode:           Turn on explode mode (default=False)
 
         zoom:              Zoom factor of view (default=1.0)
         position:          Camera position
@@ -370,6 +375,9 @@ def show(
             "progress",
         ]
     }
+
+    if explode is not None:
+        kwargs["explode"] = explode
 
     progress = Progress([] if progress is None else [c for c in progress])
 
