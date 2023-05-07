@@ -101,6 +101,9 @@ export class CadqueryController {
         c["deviation"] = options.get("deviation");
         c["default_color"] = options.get("default_color");
         c["default_edgecolor"] = options.get("default_edgecolor");
+        c["default_facecolor"] = options.get("default_facecolor");
+        c["default_thickedgecolor"] = options.get("default_thickedgecolor");
+        c["default_vertexcolor"] = options.get("default_vertexcolor");
         c["ambient_intensity"] = options.get("ambient_intensity");
         c["direct_intensity"] = options.get("direct_intensity");
         c["_splash"] = this.splash;
