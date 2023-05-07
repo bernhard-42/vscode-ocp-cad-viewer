@@ -58,6 +58,7 @@ CONFIG_CONTROL_KEYS = [
     "mate_scale",
     "render_edges",
     "render_mates",
+    "render_joints",
     "render_normals",
     "reset_camera",
     "timeit",
@@ -94,6 +95,7 @@ DEFAULTS = {
     "render_edges": True,
     "render_normals": False,
     "render_mates": False,
+    "render_joints": False,
     "mate_scale": 1.0,
     "timeit": False,
     "reset_camera": True,
@@ -202,6 +204,7 @@ def set_defaults(
     render_edges=None,
     render_normals=None,
     render_mates=None,
+    render_joints=None,
     mate_scale=None,
     debug=None,
     timeit=None,
@@ -249,6 +252,7 @@ def set_defaults(
         render_edges:      Render edges  (default=True)
         render_normals:    Render normals (default=False)
         render_mates:      Render mates for MAssemblies (default=False)
+        render_joints:      Render mates for MAssemblies (default=False)
         mate_scale:        Scale of rendered mates for MAssemblies (default=1)
 
     - Debug
@@ -349,6 +353,7 @@ def reset_defaults():
         "render_edges": True,
         "render_normals": False,
         "render_mates": False,
+        "render_joints": False,
         "mate_scale": 1.0,
         "timeit": False,
         "reset_camera": True,
