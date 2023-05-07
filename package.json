@@ -358,26 +358,44 @@
                 "OcpCadViewer.render.default_color": {
                     "type": "string",
                     "default": "#e8b024",
-                    "description": "Default shape color (default: #e8b024)",
+                    "description": "Default shape color, CSS3 color names are allowed (default: #e8b024)",
                     "order": 35
                 },
                 "OcpCadViewer.render.default_edgecolor": {
                     "type": "string",
                     "default": "#707070",
-                    "description": " (default: #707070)",
+                    "description": "Default color of the edges of shapes, CSS3 color names are allowed (default: #707070)",
                     "order": 36
+                },
+                "OcpCadViewer.render.default_thickedgecolor": {
+                    "type": "string",
+                    "default": "MediumOrchid",
+                    "description": "Default color of lines, CSS3 color names are allowed (default: MediumOrchid)",
+                    "order": 37
+                },
+                "OcpCadViewer.render.default_facecolor": {
+                    "type": "string",
+                    "default": "Violet",
+                    "description": "Default color of faces, CSS3 color names are allowed (default: Violet)",
+                    "order": 38
+                },
+                "OcpCadViewer.render.default_vertexcolor": {
+                    "type": "string",
+                    "default": "MediumOrchid",
+                    "description": "Default color of vertices, CSS3 color names are allowed (default: MediumOrchid)",
+                    "order": 39
                 },
                 "OcpCadViewer.render.ambient_intensity": {
                     "type": "number",
                     "default": 0.75,
                     "description": "Intensity of ambient light (default: 0.75)",
-                    "order": 37
+                    "order": 40
                 },
                 "OcpCadViewer.render.direct_intensity": {
                     "type": "number",
                     "default": 0.15,
                     "description": "Intensity of direct light (default: 0.15)",
-                    "order": 38
+                    "order": 41
                 },
                 "OcpCadViewer.advanced.installCommands": {
                     "type": "object",
