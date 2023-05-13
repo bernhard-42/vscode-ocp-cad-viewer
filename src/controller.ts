@@ -18,15 +18,22 @@
 import * as vscode from "vscode";
 import { CadqueryViewer } from "./viewer";
 import { template } from "./display";
-import { createServer, IncomingMessage, Server, ServerResponse } from "http";
+import { WebSocket, Server } from "ws";
 import * as output from "./output";
 import { logo } from "./logo";
 import { StatusManagerProvider } from "./statusManager";
 
 var serverStarted = false;
 
+interface Message {
+    type: string;
+    action: string;
+    data: string | undefined;
+}
+
 export class CadqueryController {
     server: Server | undefined;
+    pythonListener: WebSocket | undefined;
     statusController: StatusManagerProvider;
     view: vscode.Webview | undefined;
     port: number;
@@ -42,9 +49,9 @@ export class CadqueryController {
         this.statusController = statusController;
 
         if (!serverStarted) {
-            if (this.startCommandServer(this.port)) {
-                output.info("Starting web server ...");
-                serverStarted = true;
+            serverStarted = this.startCommandServer(this.port);
+            if (serverStarted) {
+                output.info("Starting websocket server ...");
                 CadqueryViewer.createOrShow(this.context.extensionUri, this);
                 let panel = CadqueryViewer.currentPanel;
                 this.view = panel?.getView();
@@ -107,68 +114,131 @@ export class CadqueryController {
     }
 
     public startCommandServer(port: number): boolean {
-        this.server = createServer(
-            (req: IncomingMessage, res: ServerResponse) => {
-                let response = "";
-                if (req.method === "GET") {
-                    if (req.url == "/status") {
-                        response = this.viewer_message;
-                        res.writeHead(200, {
-                            "Content-Length": response.length,
-                            "Content-Type": "text/plain"
-                        });
-                        res.end(response);
-                    } else if (req.url == "/config") {
-                        response = JSON.stringify(this.config());
-                        res.writeHead(200, {
-                            "Content-Length": response.length,
-                            "Content-Type": "text/plain"
-                        });
-                        res.end(response);
-                    }
-                } else if (req.method === "POST") {
-                    var json = "";
-                    req.on("data", (chunk: string) => {
-                        json += chunk;
-                    });
 
-                    req.on("end", () => {
+        this.server = new WebSocket.Server({ port: port });
+        const server = this.server;
+        try {
+            server.on('connection', (socket) => {
+                console.log('Client connected');
+
+                socket.on('message', (message) => {
+                    console.log(`Received message: ${message}`);
+                    const data = JSON.parse(message.toString()) as Message;
+                    if (data.type === "get") {
+                        if (data.action === "status") {
+                            socket.send(this.viewer_message);
+                        } else if (data.action === "config") {
+                            socket.send(JSON.stringify(this.config()));
+                        }
+                    } else if (data.type === "put") {
                         output.debug("Received a new model");
-                        this.view?.postMessage(json);
+                        this.view?.postMessage(data.data);
                         output.debug("Posted model to view");
-                        response = "done";
-                        res.writeHead(201, { "Content-Type": "text/plain" });
-                        res.end(response);
                         if (this.splash) { this.splash = false }
-                    });
+                    } else if (data.type === "listen") {
+                        this.pythonListener = socket;
+                    }
+                });
+
+                socket.on('close', () => {
+                    output.info('Client disconnected');
+                    // if socket is pythonListener, set to undefined
+                    if (this.pythonListener === socket) {
+                        this.pythonListener = undefined;
+                    }
+                });
+            });
+        } catch (error: any) {
+            output.error(`Server error: ${error.message}`);
+        }
+
+        this.server.on('error', (error) => {
+            output.error(`Server error: ${error.message}`);
+        });
+
+        return true;
+    }
+
+    public stopCommandServer() {
+        if (this.server !== undefined) {
+            this.server.close((error) => {
+                if (error) {
+                    output.error(`Server error: ${error.message}`);
                 }
-            }
-        );
-        this.server.on("error", (error) => {
-            let msg = "";
-            if (error.message.indexOf("EADDRINUSE") > 0) {
-                output.info(
-                    `Port ${this.port} alread in use, please choose another port`
-                );
-            } else {
-                vscode.window.showErrorMessage(`${error}`);
-            }
-        });
-        this.server.on("listening", () => {
-            output.info(
-                `OCP CAD Viewer is initialized, command server is running on port ${this.port}`
-            );
-        });
-        this.server.listen(port);
-        return this.server.address() !== null;
+            });
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public dispose() {
         output.debug("CadqueryController dispose");
 
-        this.server?.close();
+        this.stopCommandServer();
         serverStarted = false;
         output.info("Server is shut down");
         this.statusController.refresh("<none>");
     }
 }
+
+
+
+
+// import { createServer, IncomingMessage, Server, ServerResponse } from "http";
+
+
+        // this.server = createServer(
+        //     (req: IncomingMessage, res: ServerResponse) => {
+        //         let response = "";
+        //         if (req.method === "GET") {
+        //             if (req.url == "/status") {
+        //                 response = this.viewer_message;
+        //                 res.writeHead(200, {
+        //                     "Content-Length": response.length,
+        //                     "Content-Type": "text/plain"
+        //                 });
+        //                 res.end(response);
+        //             } else if (req.url == "/config") {
+        //                 response = JSON.stringify(this.config());
+        //                 res.writeHead(200, {
+        //                     "Content-Length": response.length,
+        //                     "Content-Type": "text/plain"
+        //                 });
+        //                 res.end(response);
+        //             }
+        //         } else if (req.method === "POST") {
+        //             var json = "";
+        //             req.on("data", (chunk: string) => {
+        //                 json += chunk;
+        //             });
+
+        //             req.on("end", () => {
+        //                 output.debug("Received a new model");
+        //                 this.view?.postMessage(json);
+        //                 output.debug("Posted model to view");
+        //                 response = "done";
+        //                 res.writeHead(201, { "Content-Type": "text/plain" });
+        //                 res.end(response);
+        //                 if (this.splash) { this.splash = false }
+        //             });
+        //         }
+        //     }
+        // );
+        // this.server.on("error", (error) => {
+        //     let msg = "";
+        //     if (error.message.indexOf("EADDRINUSE") > 0) {
+        //         output.info(
+        //             `Port ${this.port} alread in use, please choose another port`
+        //         );
+        //     } else {
+        //         vscode.window.showErrorMessage(`${error}`);
+        //     }
+        // });
+        // this.server.on("listening", () => {
+        //     output.info(
+        //         `OCP CAD Viewer is initialized, command server is running on port ${this.port}`
+        //     );
+        // });
+        // this.server.listen(port);
+        // return this.server.address() !== null;
