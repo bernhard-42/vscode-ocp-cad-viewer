@@ -127,19 +127,25 @@ export class CadqueryController {
 
                 socket.on('message', (message) => {
                     console.log(`Received message: ${message}`);
-                    const data = JSON.parse(message.toString()) as Message;
-                    if (data.type === "get") {
-                        if (data.action === "status") {
+
+                    const raw_data = message.toString()
+                    const messageType = raw_data.substring(0, 1)
+                    var data = message.toString().substring(2);
+                    if (messageType === "C") {
+                        data = JSON.parse(data);
+                        if (data === "status") {
                             socket.send(this.viewer_message);
-                        } else if (data.action === "config") {
+                        } else if (data === "config") {
                             socket.send(JSON.stringify(this.config()));
                         }
-                    } else if (data.type === "put") {
+
+                    } else if (messageType === "D") {
                         output.debug("Received a new model");
-                        this.view?.postMessage(data.data);
+                        this.view?.postMessage(data);
                         output.debug("Posted model to view");
                         if (this.splash) { this.splash = false }
-                    } else if (data.type === "listen") {
+
+                    } else if (messageType === "L") {
                         this.pythonListener = socket;
                     }
                 });
@@ -154,6 +160,7 @@ export class CadqueryController {
             });
         } catch (error: any) {
             output.error(`Server error: ${error.message}`);
+            return false;
         }
 
         this.server.on('error', (error) => {

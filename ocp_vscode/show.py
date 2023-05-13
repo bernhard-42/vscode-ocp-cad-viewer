@@ -34,6 +34,7 @@ from .config import (
     combined_config,
     get_default,
     send,
+    MessageType,
 )
 from .colors import *
 
@@ -416,7 +417,7 @@ def show(
         )
 
     with Timer(timeit, "", "send"):
-        return send(data, port=port, timeit=timeit)
+        return send(data, MessageType.data, port=port, timeit=timeit)
 
 
 def reset_show():

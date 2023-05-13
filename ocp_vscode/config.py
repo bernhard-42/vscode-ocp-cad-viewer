@@ -14,9 +14,15 @@
 # limitations under the License.
 #
 
-import requests
+from websockets.sync.client import connect
 import orjson as json
 from ocp_tessellate.utils import Timer
+import enum
+
+
+class MessageType(enum.IntEnum):
+    data = 1
+    command = 2
 
 
 CONFIG_UI_KEYS = [
@@ -107,9 +113,8 @@ DEFAULTS = {
     "debug": False,
 }
 
-CMD_URL = "http://127.0.0.1"
+CMD_URL = "ws://127.0.0.1"
 CMD_PORT = 3939
-REQUEST_TIMEOUT = 2000
 
 
 def set_port(port):
@@ -117,26 +122,38 @@ def set_port(port):
     CMD_PORT = port
 
 
-def send(data, port=None, timeit=False):
-    if data.get("config") is not None and data["config"].get("collapse") is not None:
-        data["config"]["collapse"] = str(data["config"]["collapse"])
-
+def send(data, message_type, port=None, timeit=False):
     if port is None:
         port = CMD_PORT
     try:
         with Timer(timeit, "", "json dumps", 1):
             j = json.dumps(data)
+            if message_type == MessageType.command:
+                j = b"C:" + j
+            elif message_type == MessageType.data:
+                j = b"D:" + j
 
-        with Timer(timeit, "", "http send", 1):
-            r = requests.post(f"{CMD_URL}:{port}", data=j)
+        with Timer(timeit, "", "websocket send", 1):
+            ws = connect(f"{CMD_URL}:{port}")
+            ws.send(j)
+
+            result = None
+            if message_type == MessageType.command:
+                try:
+                    result = json.loads(ws.recv())
+                except Exception as ex:
+                    print(ex)
+            try:
+                ws.close()
+            except:
+                pass
+
+            return result
 
     except Exception as ex:
         print("Cannot connect to viewer, is it running and the right port provided?")
         print(ex)
         return
-
-    if r.status_code != 201:
-        print("Error", r.text)
 
 
 def set_viewer_config(
@@ -169,7 +186,7 @@ def set_viewer_config(
         "type": "ui",
         "config": config,
     }
-    send(data)
+    send(data, MessageType.data)
 
 
 def get_default(key):
@@ -292,8 +309,7 @@ def status(port=None):
     if port is None:
         port = CMD_PORT
     try:
-        conf = requests.get(f"{CMD_URL}:{port}/status").json()["text"]
-        return conf
+        return send("status", MessageType.command, port=port)
 
     except Exception as ex:
         raise RuntimeError(
@@ -305,7 +321,7 @@ def workspace_config(port=None):
     if port is None:
         port = CMD_PORT
     try:
-        return requests.get(f"{CMD_URL}:{port}/config").json()
+        return send("config", MessageType.command, port=port)
 
     except Exception as ex:
         raise RuntimeError(
