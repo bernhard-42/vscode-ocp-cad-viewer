@@ -9,7 +9,7 @@ import { https } from 'follow-redirects';
 export async function download(library: string, destination: string) {
     const timeout = 10000;
     const exampleDownloads =
-        vscode.workspace.getConfiguration("OcpCadViewer")["exampleDownloads"];
+        vscode.workspace.getConfiguration("OcpCadViewer.advanced")["exampleDownloads"];
 
     const archiveUrl = exampleDownloads[library]["zip"];
     const examplePath = exampleDownloads[library]["example_path"];

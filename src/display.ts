@@ -312,6 +312,11 @@ export function template(styleSrc: vscode.Uri, scriptSrc: vscode.Uri) {
                 _states,
                 viewerOptions,
             );
+            
+            if(_config.explode) {
+                viewer.display.setExplode({target:{checked:true}});
+                viewer.display.setExplodeCheck(true);
+            }
 
             if (_config.debug){
                 console.log("viewer", viewer);
@@ -392,9 +397,15 @@ export function template(styleSrc: vscode.Uri, scriptSrc: vscode.Uri) {
                         if (data.config[key]) {
                             viewer.display.reset();
                         }
+                    } else if (key === "explode") {
+                        viewer.display.setExplode({target:{checked:data.config[key]}})
+                        viewer.display.setExplodeCheck(data.config[key])
                     }
                 })
             } else if (data.type === "animation") {
+                // turn off explode 
+                viewer.display.setExplode({target:{checked:false}});
+                viewer.display.setExplodeCheck(false);
                 const tracks = data.data;
                 for (var track of tracks) {
                     viewer.addAnimationTrack(...track);

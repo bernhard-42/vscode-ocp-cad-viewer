@@ -26,6 +26,7 @@ CONFIG_UI_KEYS = [
     "grid",
     "ortho",
     "transparent",
+    "explode",
 ]
 
 CONFIG_WORKSPACE_KEYS = CONFIG_UI_KEYS + [
@@ -47,6 +48,9 @@ CONFIG_WORKSPACE_KEYS = CONFIG_UI_KEYS + [
     "angular_tolerance",
     "default_color",
     "default_edgecolor",
+    "default_facecolor",
+    "default_thickedgecolor",
+    "default_vertexcolor",
     "default_opacity",
     "deviation",
     "direct_intensity",
@@ -58,6 +62,7 @@ CONFIG_CONTROL_KEYS = [
     "mate_scale",
     "render_edges",
     "render_mates",
+    "render_joints",
     "render_normals",
     "reset_camera",
     "timeit",
@@ -72,6 +77,7 @@ CONFIG_SET_KEYS = [
     "ortho",
     "transparent",
     "black_edges",
+    "explode",
     "zoom",
     "position",
     "quaternion",
@@ -94,6 +100,7 @@ DEFAULTS = {
     "render_edges": True,
     "render_normals": False,
     "render_mates": False,
+    "render_joints": False,
     "mate_scale": 1.0,
     "timeit": False,
     "reset_camera": True,
@@ -139,6 +146,7 @@ def set_viewer_config(
     ortho=None,
     transparent=None,
     black_edges=None,
+    explode=None,
     zoom=None,
     position=None,
     quaternion=None,
@@ -187,6 +195,7 @@ def set_defaults(
     collapse=None,
     ticks=None,
     up=None,
+    explode=None,
     zoom=None,
     reset_camera=None,
     pan_speed=None,
@@ -202,6 +211,7 @@ def set_defaults(
     render_edges=None,
     render_normals=None,
     render_mates=None,
+    render_joints=None,
     mate_scale=None,
     debug=None,
     timeit=None,
@@ -225,6 +235,7 @@ def set_defaults(
         collapse:          1: collapse all leaf nodes, C: collapse all nodes, E: expand all nodes (default=1)
         ticks:             Hint for the number of ticks in both directions (default=10)
         up:                Use z-axis ('Z') or y-axis ('Y') as up direction for the camera (default="Z")
+        explode:           Turn on explode mode (default=False)
 
         zoom:              Zoom factor of view (default=1.0)
         position:          Camera position
@@ -249,6 +260,7 @@ def set_defaults(
         render_edges:      Render edges  (default=True)
         render_normals:    Render normals (default=False)
         render_mates:      Render mates for MAssemblies (default=False)
+        render_joints:      Render mates for MAssemblies (default=False)
         mate_scale:        Scale of rendered mates for MAssemblies (default=1)
 
     - Debug
@@ -284,7 +296,9 @@ def status(port=None):
         return conf
 
     except Exception as ex:
-        print("Error: Cannot access viewer status:", ex)
+        raise RuntimeError(
+            "Cannot access viewer status. Is the viewer running?\n" + str(ex.args)
+        )
 
 
 def workspace_config(port=None):
@@ -294,7 +308,9 @@ def workspace_config(port=None):
         return requests.get(f"{CMD_URL}:{port}/config").json()
 
     except Exception as ex:
-        print("Error: Cannot access viewer config:", ex)
+        raise RuntimeError(
+            "Cannot access viewer config. Is the viewer running?\n" + str(ex.args)
+        )
 
 
 def combined_config(port=None, use_status=True):
@@ -306,7 +322,9 @@ def combined_config(port=None, use_status=True):
         wspace_status = status(port)
 
     except Exception as ex:
-        print("Error: Cannot access viewer config:", ex)
+        raise RuntimeError(
+            "Cannot access viewer config. Is the viewer running?\n" + str(ex.args)
+        )
 
     if use_status and wspace_config["_splash"]:
         del wspace_config["_splash"]
@@ -349,6 +367,7 @@ def reset_defaults():
         "render_edges": True,
         "render_normals": False,
         "render_mates": False,
+        "render_joints": False,
         "mate_scale": 1.0,
         "timeit": False,
         "reset_camera": True,

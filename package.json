@@ -2,7 +2,7 @@
     "name": "ocp-cad-viewer",
     "displayName": "OCP CAD Viewer",
     "description": "An integrated OCP CAD viewer for CadQuery and build123d",
-    "version": "0.93.0",
+    "version": "1.0.0",
     "publisher": "bernhard-42",
     "icon": "resources/ocp-logo.png",
     "license": "Apache-2.0",
@@ -337,41 +337,65 @@
                     "description": "Default opacity for transparent objects (default: 0.5)",
                     "order": 31
                 },
+                "OcpCadViewer.view.explode": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Turn explode mode on (default: false)",
+                    "order": 32
+                },
                 "OcpCadViewer.render.angular_tolerance": {
                     "type": "number",
                     "default": 0.2,
                     "description": "Angular tolerance for tessellation algorithm (default: 0.2)",
-                    "order": 32
+                    "order": 33
                 },
                 "OcpCadViewer.render.deviation": {
                     "type": "number",
                     "default": 0.1,
                     "description": "Deviation of for tessellation algorithm (default: 0.1)",
-                    "order": 33
+                    "order": 34
                 },
                 "OcpCadViewer.render.default_color": {
                     "type": "string",
                     "default": "#e8b024",
-                    "description": "Default shape color (default: #e8b024)",
-                    "order": 34
+                    "description": "Default shape color, CSS3 color names are allowed (default: #e8b024)",
+                    "order": 35
                 },
                 "OcpCadViewer.render.default_edgecolor": {
                     "type": "string",
                     "default": "#707070",
-                    "description": " (default: #707070)",
-                    "order": 35
+                    "description": "Default color of the edges of shapes, CSS3 color names are allowed (default: #707070)",
+                    "order": 36
+                },
+                "OcpCadViewer.render.default_thickedgecolor": {
+                    "type": "string",
+                    "default": "MediumOrchid",
+                    "description": "Default color of lines, CSS3 color names are allowed (default: MediumOrchid)",
+                    "order": 37
+                },
+                "OcpCadViewer.render.default_facecolor": {
+                    "type": "string",
+                    "default": "Violet",
+                    "description": "Default color of faces, CSS3 color names are allowed (default: Violet)",
+                    "order": 38
+                },
+                "OcpCadViewer.render.default_vertexcolor": {
+                    "type": "string",
+                    "default": "MediumOrchid",
+                    "description": "Default color of vertices, CSS3 color names are allowed (default: MediumOrchid)",
+                    "order": 39
                 },
                 "OcpCadViewer.render.ambient_intensity": {
                     "type": "number",
                     "default": 0.75,
                     "description": "Intensity of ambient light (default: 0.75)",
-                    "order": 36
+                    "order": 40
                 },
                 "OcpCadViewer.render.direct_intensity": {
                     "type": "number",
                     "default": 0.15,
                     "description": "Intensity of direct light (default: 0.15)",
-                    "order": 37
+                    "order": 41
                 },
                 "OcpCadViewer.advanced.installCommands": {
                     "type": "object",
@@ -551,7 +575,7 @@
                                     "with {prefix}BuildSketch() as ${1:sketchname}:",
                                     "    with {prefix}BuildLine() as ${2:linename}:",
                                     "        {prefix}${3:class}(${4:params})",
-                                    "    MakeFace()",
+                                    "    make_face()",
                                     "    $0"
                                 ]
                             },
@@ -563,8 +587,8 @@
                                     "    with {prefix}BuildSketch() as ${2:sketchname}:",
                                     "        with {prefix}BuildLine() as ${3:linename}:",
                                     "            {prefix}${4:class}(${5:params})",
-                                    "        {prefix}MakeFace()",
-                                    "    {prefix}Extrude(amount=${6:amount})",
+                                    "        {prefix}make_face()",
+                                    "    {prefix}extrude(amount=${6:amount})",
                                     "    $0"
                                 ]
                             },
@@ -575,7 +599,7 @@
                                     "with {prefix}BuildPart() as ${1:partname}:",
                                     "    with {prefix}BuildSketch() as ${2:sketchname}:",
                                     "        {prefix}${3:class}(${4:params}, align=({prefix}Align.CENTER, {prefix}Align.CENTER))",
-                                    "    {prefix}Extrude(amount=${5:amount})",
+                                    "    {prefix}extrude(amount=${5:amount})",
                                     "    $0"
                                 ]
                             }
