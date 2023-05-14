@@ -12,7 +12,7 @@ _OCP CAD Viewer for VS Code_ is an extension to show [CadQuery](https://github.c
 
 **Steps**:
 
--   Open the VS Code Marketplace, and search and install OCP CAD Viewer 1.0.0. 
+-   Open the VS Code Marketplace, and search and install OCP CAD Viewer 1.1.0. 
 
     Afterwards the OCP viewer is available in the VS Code sidebar:
     
