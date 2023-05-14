@@ -19,11 +19,16 @@ import orjson as json
 from ocp_tessellate.utils import Timer
 import enum
 
-
-class MessageType(enum.IntEnum):
-    data = 1
-    command = 2
-
+__all__ = [
+    "workspace_config",
+    "combined_config",
+    "set_viewer_config",
+    "set_defaults",
+    "reset_defaults",
+    "get_default",
+    "get_defaults",
+    "status",
+]
 
 CONFIG_UI_KEYS = [
     "axes",

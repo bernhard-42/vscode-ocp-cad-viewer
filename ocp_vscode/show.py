@@ -38,6 +38,12 @@ from .config import (
 )
 from .colors import *
 
+__all__ = [
+    "show",
+    "show_object",
+    "reset_show",
+]
+
 OBJECTS = {"objs": [], "names": [], "colors": [], "alphas": []}
 
 

@@ -2,6 +2,15 @@ from colorsys import hsv_to_rgb, rgb_to_hsv
 from random import randrange, seed, random
 from webcolors import name_to_rgb
 
+__all__ = [
+    "ColorMap",
+    "CM",
+    "get_colormap",
+    "set_colormap",
+    "unset_colormap",
+    "web_to_rgb",
+]
+
 try:
     import matplotlib as mpl
     import numpy as np

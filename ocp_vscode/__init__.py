@@ -14,22 +14,9 @@
 # limitations under the License.
 #
 
-from .show import (
-    show,
-    show_object,
-    reset_show,
-)
+from .show import *
+from .config import *
+from .comms import *
 
-from .config import (
-    workspace_config,
-    combined_config,
-    set_viewer_config,
-    set_defaults,
-    reset_defaults,
-    get_default,
-    get_defaults,
-    status,
-    set_port,
-)
-from .colors import ColorMap, CM, get_colormap, set_colormap, unset_colormap
+from .colors import *
 from .animation import Animation
