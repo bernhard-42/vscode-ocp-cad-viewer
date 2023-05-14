@@ -17,7 +17,7 @@
 import json
 
 from ocp_tessellate.utils import numpy_to_json
-from .config import send
+from .comms import send_data
 
 
 def collect_paths(assembly, path=""):
@@ -118,4 +118,4 @@ class Animation:
 
     def animate(self, speed):
         data = {"data": self.tracks, "type": "animation", "config": {"speed": speed}}
-        send(json.loads(numpy_to_json(data)))
+        send_data(json.loads(numpy_to_json(data)))

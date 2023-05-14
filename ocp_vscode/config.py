@@ -14,10 +14,7 @@
 # limitations under the License.
 #
 
-from websockets.sync.client import connect
-import orjson as json
-from ocp_tessellate.utils import Timer
-import enum
+from .comms import send_command, send_data, get_port
 
 __all__ = [
     "workspace_config",
@@ -118,48 +115,6 @@ DEFAULTS = {
     "debug": False,
 }
 
-CMD_URL = "ws://127.0.0.1"
-CMD_PORT = 3939
-
-
-def set_port(port):
-    global CMD_PORT
-    CMD_PORT = port
-
-
-def send(data, message_type, port=None, timeit=False):
-    if port is None:
-        port = CMD_PORT
-    try:
-        with Timer(timeit, "", "json dumps", 1):
-            j = json.dumps(data)
-            if message_type == MessageType.command:
-                j = b"C:" + j
-            elif message_type == MessageType.data:
-                j = b"D:" + j
-
-        with Timer(timeit, "", "websocket send", 1):
-            ws = connect(f"{CMD_URL}:{port}")
-            ws.send(j)
-
-            result = None
-            if message_type == MessageType.command:
-                try:
-                    result = json.loads(ws.recv())
-                except Exception as ex:
-                    print(ex)
-            try:
-                ws.close()
-            except:
-                pass
-
-            return result
-
-    except Exception as ex:
-        print("Cannot connect to viewer, is it running and the right port provided?")
-        print(ex)
-        return
-
 
 def set_viewer_config(
     axes=None,
@@ -191,7 +146,7 @@ def set_viewer_config(
         "type": "ui",
         "config": config,
     }
-    send(data, MessageType.data)
+    send_data(data)
 
 
 def get_default(key):
@@ -312,9 +267,9 @@ def ui_filter(conf):
 
 def status(port=None):
     if port is None:
-        port = CMD_PORT
+        port = get_port()
     try:
-        return send("status", MessageType.command, port=port)
+        return send_command("status", port=port)
 
     except Exception as ex:
         raise RuntimeError(
@@ -324,9 +279,9 @@ def status(port=None):
 
 def workspace_config(port=None):
     if port is None:
-        port = CMD_PORT
+        port = get_port()
     try:
-        return send("config", MessageType.command, port=port)
+        return send_command("config", port=port)
 
     except Exception as ex:
         raise RuntimeError(
@@ -336,7 +291,7 @@ def workspace_config(port=None):
 
 def combined_config(port=None, use_status=True):
     if port is None:
-        port = CMD_PORT
+        port = get_port()
 
     try:
         wspace_config = workspace_config(port)

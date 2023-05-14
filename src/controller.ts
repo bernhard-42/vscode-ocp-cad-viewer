@@ -65,6 +65,10 @@ export class CadqueryController {
                     this.view.onDidReceiveMessage(
                         message => {
                             this.viewer_message = message;
+                            if (this.pythonListener !== undefined) {
+                                output.debug("Sending message to python: " + message);
+                                this.pythonListener.send(message);
+                            }
                         });
 
                 }
@@ -147,14 +151,15 @@ export class CadqueryController {
 
                     } else if (messageType === "L") {
                         this.pythonListener = socket;
+                        output.debug("Listener registered");
                     }
                 });
 
                 socket.on('close', () => {
                     output.info('Client disconnected');
-                    // if socket is pythonListener, set to undefined
                     if (this.pythonListener === socket) {
                         this.pythonListener = undefined;
+                        output.debug("Listener deregistered");
                     }
                 });
             });

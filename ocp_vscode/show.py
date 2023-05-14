@@ -33,9 +33,8 @@ from .config import (
     workspace_config,
     combined_config,
     get_default,
-    send,
-    MessageType,
 )
+from .comms import send_data, MessageType
 from .colors import *
 
 __all__ = [
@@ -423,7 +422,7 @@ def show(
         )
 
     with Timer(timeit, "", "send"):
-        return send(data, MessageType.data, port=port, timeit=timeit)
+        return send_data(data, port=port, timeit=timeit)
 
 
 def reset_show():
