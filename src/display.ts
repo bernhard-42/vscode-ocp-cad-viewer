@@ -168,7 +168,10 @@ export function template(styleSrc: vscode.Uri, scriptSrc: vscode.Uri) {
 
             var changed = false;
             Object.keys(change).forEach((k) => {
-                if((k !== "states") & (change[k].new !== undefined)) {
+                if(
+                    // (k !== "states") &&
+                    (change[k].new !== undefined)
+                ) {
                     message[k] = change[k].new;
                     changed = true;
                 }
@@ -400,6 +403,15 @@ export function template(styleSrc: vscode.Uri, scriptSrc: vscode.Uri) {
                     } else if (key === "explode") {
                         viewer.display.setExplode({target:{checked:data.config[key]}})
                         viewer.display.setExplodeCheck(data.config[key])
+                    } else if (key === "states") {
+                        const states = Object.keys(viewer.treeview.states);
+                        console.log(states);
+                        Object.keys(data.config[key]).forEach((key2) => {
+                            if (states.includes(key2)) {
+                                console.log("setting", key2, data.config[key][key2]);
+                                viewer.setState(key2, data.config[key][key2]);
+                            }
+                        });
                     }
                 })
             } else if (data.type === "animation") {

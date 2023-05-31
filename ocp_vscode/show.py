@@ -33,6 +33,8 @@ from .config import (
     workspace_config,
     combined_config,
     get_default,
+    status,
+    set_viewer_config,
 )
 from .comms import send_data, MessageType
 from .colors import *

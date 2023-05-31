@@ -140,6 +140,7 @@ def set_viewer_config(
     tree_width=None,
     collapse=None,
     reset_camera=None,
+    states=None,
 ):
     config = {k: v for k, v in locals().items() if v is not None}
     data = {
