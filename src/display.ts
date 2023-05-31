@@ -321,6 +321,16 @@ export function template(styleSrc: vscode.Uri, scriptSrc: vscode.Uri) {
                 viewer.display.setExplodeCheck(true);
             }
 
+            // The former _position might be wrong. 
+            // After rendering the distance of the camera can be set correctly.
+            if (!_config.reset_camera) {
+                viewer.camera.camera_distance = 5 * viewer.bb_radius;
+                if (viewer.camera.getPosition() !== undefined) {
+                    var p = viewer.camera.getPosition().normalize().multiplyScalar(viewer.camera.camera_distance);
+                    viewer.camera.setPosition(p, false);
+                }
+            }
+
             if (_config.debug){
                 console.log("viewer", viewer);
             }
