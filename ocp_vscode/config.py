@@ -266,11 +266,15 @@ def ui_filter(conf):
     return {k: v for k, v in conf.items() if k in CONFIG_UI_KEYS}
 
 
-def status(port=None):
+def status(port=None, debug=False):
     if port is None:
         port = get_port()
     try:
-        return send_command("status", port=port)
+        response = send_command("status", port=port)
+        if debug:
+            return response.get("_debugStarted", False)
+        else:
+            return response["text"]
 
     except Exception as ex:
         raise RuntimeError(
