@@ -21,10 +21,14 @@ from ocp_tessellate.convert import (
     combined_bb,
     to_assembly,
     mp_get_results,
+    is_topods_shape,
+    is_vector,
 )
 from ocp_tessellate.utils import numpy_to_buffer_json, Timer, Color
+from ocp_tessellate.ocp_utils import is_vector, is_topods_shape
 from ocp_tessellate.mp_tessellator import init_pool, keymap, close_pool
 from ocp_tessellate.cad_objects import OCP_PartGroup
+from ocp_tessellate.convert import to_assembly, conv
 import ocp_tessellate.convert as oc
 
 from .config import (
@@ -39,11 +43,7 @@ from .config import (
 from .comms import send_data, MessageType
 from .colors import *
 
-__all__ = [
-    "show",
-    "show_object",
-    "reset_show",
-]
+__all__ = ["show", "show_object", "reset_show", "show_all", "show_clear"]
 
 OBJECTS = {"objs": [], "names": [], "colors": [], "alphas": []}
 
@@ -597,3 +597,71 @@ def show_object(
         progress=progress,
         **kwargs,
     )
+
+
+first_call = True
+
+
+def show_clear():
+    data = {
+        "type": "clear",
+    }
+    send_data(data)
+
+
+def show_all(variables=None, include=None, exclude=None, **kwargs):
+    import inspect
+
+    global first_call
+
+    if include is not None and exclude is not None:
+        raise ValueError("Cannot specify both include and exclude")
+
+    if variables is None:
+        cf = inspect.currentframe()
+        variables = cf.f_back.f_locals
+
+    states = status().get("states")
+    objects = []
+    names = []
+    for name, obj in variables.items():
+        if (
+            (include is None and exclude is None)
+            or (include is not None and name in include)
+            or (exclude is not None and name not in exclude)
+        ):
+            if hasattr(obj, "part"):
+                obj = obj.part
+            elif hasattr(obj, "sketch"):
+                obj = obj.sketch
+            elif hasattr(obj, "line"):
+                obj = obj.line
+
+            if (
+                hasattr(obj, "wrapped")
+                and not hasattr(obj, "__name__")
+                and is_topods_shape(obj.wrapped)
+            ) or (is_vector(obj)):
+                objects.append(obj)
+                names.append(name)
+            elif (
+                isinstance(obj, (list, tuple))
+                and len(obj) > 0
+                and hasattr(obj[0], "wrapped")
+            ):
+                pg = OCP_PartGroup(
+                    [conv(o, obj_name=f"{name}[{i}]") for i, o in enumerate(obj)],
+                    name=name,
+                )
+                objects.append(pg)
+                names.append(name)
+
+    kwargs["reset_camera"] = first_call
+
+    if len(objects) > 0:
+        show(*objects, names=names, **kwargs)
+        if states is not None:
+            set_viewer_config(states=states)
+        first_call = False
+    else:
+        show_clear()

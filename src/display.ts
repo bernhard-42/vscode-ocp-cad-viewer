@@ -353,6 +353,8 @@ export function template(styleSrc: vscode.Uri, scriptSrc: vscode.Uri) {
                 let config = data.config;
                 showViewer(meshData.shapes, meshData.states, config);
 
+            } else if (data.type === "clear") {
+                viewer.clear();
             } else if (data.type === "ui") {
                 if (data.config.debug){
                     console.log(data.config)
