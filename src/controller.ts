@@ -127,11 +127,9 @@ export class CadqueryController {
         const server = this.server;
         try {
             server.on('connection', (socket) => {
-                console.log('Client connected');
+                output.info('Client connected');
 
                 socket.on('message', (message) => {
-                    console.log(`Received message: ${message}`);
-
                     const raw_data = message.toString()
                     const messageType = raw_data.substring(0, 1)
                     var data = message.toString().substring(2);
