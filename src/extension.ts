@@ -27,14 +27,46 @@ import { getCurrentFolder } from "./utils";
 
 export async function activate(context: vscode.ExtensionContext) {
     let controller: CadqueryController;
-
+    let isWatching = false;
     let statusManager = createStatusManager();
     statusManager.refresh("");
 
     let libraryManager = createLibraryManager(statusManager);
     libraryManager.refresh();
 
+    const statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
+
+    const default_watch = vscode.workspace.getConfiguration("OcpCadViewer.advanced")[
+        "watchByDefault"
+    ];
+    if (default_watch) {
+        isWatching = true;
+        statusBarItem.text = 'OCP:on';
+        statusBarItem.tooltip = 'OCP CAD Viewer: Visual watch on';
+    } else {
+        isWatching = false;
+        statusBarItem.text = 'OCP:off';
+        statusBarItem.tooltip = 'OCP CAD Viewer: Visual watch off';
+    }
+    statusBarItem.show();
+
     //	Commands
+    context.subscriptions.push(
+        vscode.commands.registerCommand('ocpCadViewer.toggleWatch', () => {
+            if (statusBarItem.text === 'OCP:on') {
+                isWatching = false;
+                statusBarItem.text = 'OCP:off';
+                statusBarItem.tooltip = 'OCP CAD Viewer: Visual watch off';
+            } else {
+                isWatching = true;
+                statusBarItem.text = 'OCP:on';
+                statusBarItem.tooltip = 'OCP CAD Viewer: Visual watch on';
+            }
+        })
+    );
+
+    context.subscriptions.push(statusBarItem);
+
     context.subscriptions.push(
         vscode.commands.registerCommand(
             "ocpCadViewer.ocpCadViewer",
@@ -282,6 +314,63 @@ export async function activate(context: vscode.ExtensionContext) {
             }
         )
     );
+
+    vscode.debug.registerDebugAdapterTrackerFactory('*', {
+        async createDebugAdapterTracker(session) {
+            var expr = "";
+            output.info("Debug session started");
+
+            // load the whole code once
+            const editor = vscode.window.activeTextEditor;
+            let filter = "";
+            if (editor !== undefined) {
+                const doc = editor.document;
+                const text = doc.getText(new vscode.Range(0, 0, doc.lineCount, 0));
+                const lines = text.split("\n");
+                if (lines[0].startsWith("# exclude:")) {
+                    filter = lines[0].substring(10).trim();
+                }
+            }
+
+            return {
+                async onDidSendMessage(message) {
+                    if (message.event === 'stopped' && isWatching) {
+                        // load the watch commands from the settings
+                        expr = vscode.workspace.getConfiguration("OcpCadViewer.advanced")[
+                            "watchCommands"
+                        ];
+
+                        // get the current stack trace, line number and frame id
+                        const trace = await session.customRequest('stackTrace', { threadId: 1 });
+                        const frameId = trace.stackFrames[0].id;
+                        // const scope = await session.customRequest('scopes', { frameId: frameId });
+                        // const variablesReference = scope.scopes[0].variablesReference;
+                        // const variables = await session.customRequest('variables', { variablesReference: variablesReference });
+
+                        var expr_r = "";
+
+                        const parts = filter.split(/[,;]/).map((s) => s.trim());
+                        const pyArray = parts[0] != ""
+                            ? "[" + parts.map((s) => "'" + s + "'").join(", ") + "]"
+                            : "None";
+                        expr_r = expr.replace("{filter}", `exclude=${pyArray}`);
+
+                        // call the visual debug command
+                        await session.customRequest('evaluate', {
+                            expression: expr_r,
+                            context: 'repl',
+                            frameId: frameId
+                        });
+
+                        // lastDebugLine = lineNo;
+
+                    } else if (message.event === 'terminated') {
+                        output.info("Debug session terminated");
+                    }
+                },
+            };
+        },
+    });
 
     //	Register Web view
 
