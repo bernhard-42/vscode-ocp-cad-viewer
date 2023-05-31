@@ -359,6 +359,21 @@ def show(
         timeit:                  Show timing information from level 0-3 (default=False)
     """
 
+    kwargs = {
+        k: v
+        for k, v in locals().items()
+        if v is not None
+        and k
+        not in [
+            "cad_objs",
+            "names",
+            "colors",
+            "alphas",
+            "port",
+            "progress",
+        ]
+    }
+
     timeit = preset("timeit", timeit)
 
     names = align_attrs(names, len(cad_objs), None, "names", explode=False)
