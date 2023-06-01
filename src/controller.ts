@@ -58,9 +58,11 @@ export class CadqueryController {
                 if (this.view !== undefined) {
                     const stylePath = vscode.Uri.joinPath(this.context.extensionUri, "node_modules", "three-cad-viewer", "dist", "three-cad-viewer.css");
                     const scriptPath = vscode.Uri.joinPath(this.context.extensionUri, "node_modules", "three-cad-viewer", "dist", "three-cad-viewer.esm.js");
+                    const htmlPath = vscode.Uri.joinPath(this.context.extensionUri, "resources", "webview.html");
                     const styleSrc = this.view.asWebviewUri(stylePath);
                     const scriptSrc = this.view.asWebviewUri(scriptPath);
-                    CadqueryViewer.currentPanel?.update(template(styleSrc, scriptSrc));
+                    const htmlSrc = this.view.asWebviewUri(htmlPath);
+                    CadqueryViewer.currentPanel?.update(template(styleSrc, scriptSrc, htmlSrc));
 
                     this.view.onDidReceiveMessage(
                         message => {
