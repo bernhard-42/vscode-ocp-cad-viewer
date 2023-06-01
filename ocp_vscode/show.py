@@ -407,25 +407,6 @@ def show(
     if default_edgecolor is not None:
         default_edgecolor = Color(default_edgecolor).web_color
 
-    kwargs = {
-        k: v
-        for k, v in locals().items()
-        if v is not None
-        and k
-        not in [
-            "cad_objs",
-            "names",
-            "colormap",
-            "colors",
-            "alphas",
-            "port",
-            "progress",
-        ]
-    }
-
-    if explode is not None:
-        kwargs["explode"] = explode
-
     progress = Progress([] if progress is None else [c for c in progress])
 
     with Timer(timeit, "", "overall"):
