@@ -435,6 +435,7 @@ export function template(styleSrc: vscode.Uri, scriptSrc: vscode.Uri) {
                         });
                     }
                 })
+
             } else if (data.type === "animation") {
                 // turn off explode 
                 viewer.display.setExplode({target:{checked:false}});
