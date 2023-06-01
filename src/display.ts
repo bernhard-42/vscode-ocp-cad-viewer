@@ -349,9 +349,18 @@ export function template(styleSrc: vscode.Uri, scriptSrc: vscode.Uri) {
             if (data.type === "data") {
                 decode(data);
 
+                const old_states = (viewer == null) ? {} : viewer.treeview.states;
+
                 let meshData = data.data;
                 let config = data.config;
                 showViewer(meshData.shapes, meshData.states, config);
+                const new_states = Object.keys(meshData.states);
+
+                Object.keys(old_states).forEach((key) => {
+                    if (new_states.includes(key)) {
+                        viewer.setState(key, old_states[key]);
+                    }
+                });
 
             } else if (data.type === "clear") {
                 viewer.clear();

@@ -636,7 +636,6 @@ def show_all(variables=None, include=None, exclude=None, **kwargs):
         cf = inspect.currentframe()
         variables = cf.f_back.f_locals
 
-    states = status().get("states")
     objects = []
     names = []
     for name, obj in variables.items():
@@ -675,8 +674,6 @@ def show_all(variables=None, include=None, exclude=None, **kwargs):
 
     if len(objects) > 0:
         show(*objects, names=names, **kwargs)
-        if states is not None:
-            set_viewer_config(states=states)
         first_call = False
     else:
         show_clear()
