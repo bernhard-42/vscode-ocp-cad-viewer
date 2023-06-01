@@ -20,6 +20,10 @@
     "contributes": {
         "commands": [
             {
+                "command": "ocpCadViewer.toggleWatch",
+                "title": "OCP CAD Viewer: Toggle visually watching the CAD model"
+            },
+            {
                 "command": "ocpCadViewer.ocpCadViewer",
                 "title": "OCP CAD Viewer: Open viewer"
             },
@@ -396,6 +400,18 @@
                     "default": 0.15,
                     "description": "Intensity of direct light (default: 0.15)",
                     "order": 41
+                },
+                "OcpCadViewer.advanced.watchCommands": {
+                    "type": "string",
+                    "default": "from ocp_vscode import show_all; show_all(locals(), {filter})",
+                    "description": "Command to be executed when debugger halts. Needs to include locals()",
+                    "order": 42
+                },
+                "OcpCadViewer.advanced.watchByDefault": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Whether to have visual debugging (OCP: on) as the default or not",
+                    "order": 43
                 },
                 "OcpCadViewer.advanced.installCommands": {
                     "type": "object",
