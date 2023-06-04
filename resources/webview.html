@@ -296,12 +296,30 @@
 
             // The former _position might be wrong. 
             // After rendering the distance of the camera can be set correctly.
+
             if (!_config.reset_camera) {
+                // viewer.recenterCamera();  TODO: doesn't work when using viewer method
+                
+                const camera = viewer.camera.getCamera();
+
+                const center = camera.position.clone();  // just get some THREE.Vector3
+                const c = viewer.bbox.center()
+                center.fromArray(c);
+
+                const target = camera.position.clone();  // just get some THREE.Vector3
+                const t = viewer.controls.target;
+                target.fromArray(t);
+
                 viewer.camera.camera_distance = 5 * viewer.bb_radius;
-                if (viewer.camera.getPosition() !== undefined) {
-                    var p = viewer.camera.getPosition().normalize().multiplyScalar(viewer.camera.camera_distance);
-                    viewer.camera.setPosition(p, false);
-                }
+                camera.position.sub(target).add(center)
+                viewer.controls.controls.target = center;
+
+                let cameraDir = camera.position.clone();  // just get some THREE.Vector3
+                camera.getWorldDirection(cameraDir);
+
+                let p = center.clone().add(cameraDir.normalize().multiplyScalar(-viewer.camera.camera_distance));
+                camera.position.set(p.x, p.y, p.z);
+                viewer.update(true, notify);
             }
 
             if (_config.debug) {
