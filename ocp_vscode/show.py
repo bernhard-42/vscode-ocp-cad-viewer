@@ -632,8 +632,28 @@ def show_all(variables=None, include=None, exclude=None, **kwargs):
 
             if hasattr(obj, "part"):
                 obj = obj.part
+
+            elif hasattr(obj, "sketch_local"):
+                pg = (
+                    OCP_PartGroup(
+                        [
+                            conv(obj.sketch.faces(), obj_name="sketch"),
+                            conv(
+                                obj.sketch_local.faces(),
+                                obj_name="sketch_local",
+                                obj_alpha=0.2,
+                            ),
+                        ],
+                        name=name,
+                    ),
+                )
+                objects.append(pg)
+                names.append(name)
+                continue
+
             elif hasattr(obj, "sketch"):
                 obj = obj.sketch
+
             elif hasattr(obj, "line"):
                 obj = obj.line
 
