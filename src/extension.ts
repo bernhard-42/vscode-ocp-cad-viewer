@@ -24,6 +24,9 @@ import { createLibraryManager, installLib, Library } from "./libraryManager";
 import { createStatusManager } from "./statusManager";
 import { download } from "./examples";
 import { getCurrentFolder } from "./utils";
+import { version } from "./version";
+import * as semver from "semver";
+
 
 export async function activate(context: vscode.ExtensionContext) {
     let controller: CadqueryController;
@@ -32,7 +35,29 @@ export async function activate(context: vscode.ExtensionContext) {
     statusManager.refresh("");
 
     let libraryManager = createLibraryManager(statusManager);
-    libraryManager.refresh();
+    await libraryManager.refresh();
+
+    const ocp_vscode_lib = libraryManager.installed["ocp_vscode"];
+
+    if (ocp_vscode_lib) {
+        if (semver.eq(ocp_vscode_lib[0], version)) {
+            output.info(`ocp_vscode library version ${ocp_vscode_lib[0]} matches extension version ${version}`);
+        } else if (semver.gt(ocp_vscode_lib[0], version)) {
+            vscode.window.showErrorMessage(
+                `ocp_vscode library version ${ocp_vscode_lib[0]} is newer than extension version ${version} ` +
+                `- update your OCP CAD Viewer extension`);
+        } else {
+            vscode.window.showInformationMessage(
+                `ocp_vscode library version ${ocp_vscode_lib[0]} is older than extension version ${version} ` +
+                `- update your ocp_vscode library in the Library Manager`, "Cancel", "Install").then(async (selection) => {
+                    if (selection === "Install") {
+                        await installLib(libraryManager, "ocp_vscode");
+                    }
+                })
+        }
+    } else {
+        output.info(`ocp_vscode library not installed`);
+    }
 
     const statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
 

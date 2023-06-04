@@ -654,7 +654,7 @@
         "@vscode/vsce": "^2.11.0",
         "adm-zip": "^0.5.10",
         "follow-redirects": "^1.15.2",
-        "three-cad-viewer": "1.7.9",
+        "semver": "^7.5.1",
         "ws": "^8.13.0"
     }
 }
