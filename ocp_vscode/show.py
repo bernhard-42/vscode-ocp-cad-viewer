@@ -627,6 +627,9 @@ def show_all(variables=None, include=None, exclude=None, **kwargs):
             or (include is not None and name in include)
             or (exclude is not None and name not in exclude)
         ):
+            if hasattr(obj, "_obj") and obj._obj is None:
+                continue
+
             if hasattr(obj, "part"):
                 obj = obj.part
             elif hasattr(obj, "sketch"):
