@@ -275,7 +275,7 @@ def status(port=None, debug=False):
         if debug:
             return response.get("_debugStarted", False)
         else:
-            return response["text"]
+            return response.get("text", {})
 
     except Exception as ex:
         raise RuntimeError(
