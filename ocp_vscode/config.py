@@ -210,7 +210,8 @@ def set_defaults(
         default_opacity:   Opacity value for transparent objects (default=0.5)
         black_edges:       Show edges in black color (default=False)
         orbit_control:     Mouse control use "orbit" control instead of "trackball" control (default=False)
-        collapse:          1: collapse all leaf nodes, C: collapse all nodes, E: expand all nodes (default=1)
+        collapse:          1: collapse all single leaf nodes, R: expand root only,
+                           C: collapse all nodes, E: expand all nodes (default=1)
         ticks:             Hint for the number of ticks in both directions (default=10)
         up:                Use z-axis ('Z') or y-axis ('Y') as up direction for the camera (default="Z")
         explode:           Turn on explode mode (default=False)

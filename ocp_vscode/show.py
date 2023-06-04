@@ -194,7 +194,7 @@ def _convert(*cad_objs, names=None, colors=None, alphas=None, progress=None, **k
     elif config.get("orbit_control") is not None:
         config["control"] = "orbit" if config["control"] else "trackball"
     elif config.get("collapse") is not None:
-        mapping = {"1": 1, "E": 0, "C": 2}
+        mapping = {"1": 1, "E": 0, "C": 2, "R": 3}
         config["collapse"] = mapping.get(config["collapse"], 1)
 
     if config.get("debug") is not None and config["debug"]:
@@ -318,7 +318,8 @@ def show(
         default_opacity:         Opacity value for transparent objects (default=0.5)
         black_edges:             Show edges in black color (default=False)
         orbit_control:           Mouse control use "orbit" control instead of "trackball" control (default=False)
-        collapse:                1: collapse all leaf nodes, C: collapse all nodes, E: expand all nodes (default=1)
+        collapse:                1: collapse all single leaf nodes, R: expand root only,
+                                 C: collapse all nodes, E: expand all nodes (default=1)
         ticks:                   Hint for the number of ticks in both directions (default=10)
         up:                      Use z-axis ('Z') or y-axis ('Y') as up direction for the camera (default="Z")
         explode:                 Turn on explode mode (default=False)
@@ -510,7 +511,8 @@ def show_object(
         default_opacity:         Opacity value for transparent objects (default=0.5)
         black_edges:             Show edges in black color (default=False)
         orbit_control:           Mouse control use "orbit" control instead of "trackball" control (default=False)
-        collapse:                1: collapse all leaf nodes, C: collapse all nodes, E: expand all nodes (default=1)
+        collapse:                1: collapse all single leaf nodes, R: expand root only,
+                                 C: collapse all nodes, E: expand all nodes (default=1)
         ticks:                   Hint for the number of ticks in both directions (default=10)
         up:                      Use z-axis ('Z') or y-axis ('Y') as up direction for the camera (default="Z")
 
@@ -654,7 +656,7 @@ def show_all(variables=None, include=None, exclude=None, **kwargs):
     kwargs["reset_camera"] = first_call
 
     if len(objects) > 0:
-        show(*objects, names=names, **kwargs)
+        show(*objects, names=names, collapse="R", **kwargs)
         first_call = False
     else:
         show_clear()

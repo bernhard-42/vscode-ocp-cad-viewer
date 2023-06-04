@@ -56,6 +56,9 @@ show(a1, collapse="1")
 show(a1, collapse="C")
 
 # %%
+show(a1, collapse="R")
+
+# %%
 show(a1, collapse="E")
 
 # %%

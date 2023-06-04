@@ -13,7 +13,7 @@ set_port(3939)
 set_defaults(
     axes=True,
     transparent=False,
-    collapse=1,
+    collapse="1",
     grid=(True, True, True),
 )
 # %%
