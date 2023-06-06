@@ -110,7 +110,18 @@
                     "light": "resources/settings.png",
                     "dark": "resources/settings.png"
                 }
-            }
+            },
+            {
+                "command": "ocpCadViewer.quickstart",
+                "title": "OCP CAD Viewer: Quickstart installation",
+                "args": [
+                    {
+                        "name": "app",
+                        "type": "string",
+                        "description": "cadquery or build123d"
+                    }
+                ]
+            }            
         ],
         "viewsContainers": {
             "activitybar": [
@@ -136,7 +147,19 @@
         "viewsWelcome": [
             {
                 "view": "ocpCadStatus",
-                "contents": "In order to use OCP CAD Viewer, the Python library ocp_vscode needs to be installed.\n[Install ocp_vscode from pypi](command:ocpCadViewer.installPythonModule)\nFurther libraries can be installed or re-installed in the Library Manager below.\n\nAvailable libraries and their install (and import) commands can be found in the 'OCP CAD Viewer' preferences of VS Code.\n[Open OCP CAD Viewer Preferences](command:workbench.action.openSettings?%5B%22OCP%20CAD%20Viewer%22%5D)\n"
+                "contents": "Install all libraries for build123d:\n[Quickstart build123d](command:ocpCadViewer.quickstart?%5B%22build123d%22%5D)"
+            },
+            {
+                "view": "ocpCadStatus",
+                "contents": "Install all libraries for CadQuery:\n[Quickstart CadQuery](command:ocpCadViewer.quickstart?%5B%22cadquery%22%5D)"
+            },
+            {
+                "view": "ocpCadStatus",
+                "contents": "Further libraries can be installed or re-installed in the Library Manager below.\n\nAvailable libraries and their install (and import) commands can be found in the 'OCP CAD Viewer' preferences of VS Code."
+            },
+            {
+                "view": "ocpCadStatus",
+                "contents": "[Open OCP CAD Viewer Preferences](command:workbench.action.openSettings?%5B%22OCP%20CAD%20Viewer%22%5D)"
             }
         ],
         "menus": {
@@ -412,6 +435,31 @@
                     "default": false,
                     "description": "Whether to have visual debugging (OCP: on) as the default or not",
                     "order": 43
+                },
+                "OcpCadViewer.advanced.quickstartCommands": {
+                    "type": "object",
+                    "description": "Shell commands to install the quickstart recipes. The values for placeholders {python}, {conda_env}, {ocp_vscode_version} will be replaced accordingly during execution",
+                    "default": {
+                        "cadquery": {
+                            "appleSilicon": [
+                                "conda install -y -n {conda_env} -c conda-forge -c cadquery cadquery=master",
+                                "{python} -m pip install ocp_vscode ipython"
+                            ],
+                            "others": [
+                                "{unset_conda} {python} -m pip install ocp_vscode ipython git+https://github.com/cadquery/cadquery.git"
+                            ]
+                        },
+                        "build123d": {
+                            "appleSilicon": [
+                                "conda install -y -n {conda_env} -c conda-forge -c cadquery cadquery=master",
+                                "{python} -m pip install --no-deps git+https://github.com/gumyr/build123d svgwrite svgpathtools anytree scipy",
+                                "{python} -m pip install ocp_vscode ipython"
+                            ],
+                            "others": [
+                                "{python} -m pip install ocp_vscode ipython git+https://github.com/gumyr/build123d"
+                            ]
+                        }                        
+                    }
                 },
                 "OcpCadViewer.advanced.installCommands": {
                     "type": "object",

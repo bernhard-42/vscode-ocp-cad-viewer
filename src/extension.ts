@@ -18,6 +18,7 @@ import * as vscode from "vscode";
 import * as output from "./output";
 import * as path from "path";
 import * as fs from "fs";
+import * as os from "os";
 import { CadqueryController } from "./controller";
 import { CadqueryViewer } from "./viewer";
 import { createLibraryManager, installLib, Library } from "./libraryManager";
@@ -336,6 +337,26 @@ export async function activate(context: vscode.ExtensionContext) {
                 } else {
                     vscode.commands.executeCommand("ipython.createTerminal");
                 }
+            }
+        )
+    );
+
+    context.subscriptions.push(
+        vscode.commands.registerCommand(
+            "ocpCadViewer.quickstart",
+            async (arg) => {
+                const conf = vscode.workspace.getConfiguration("OcpCadViewer.advanced")
+                let commands = conf["quickstartCommands"][arg];
+                let requiredPythonVersion = "";
+                let requireConda = false;
+                if (os.platform() === "darwin" && os.arch() === "arm64") {
+                    commands = commands["appleSilicon"];
+                    requiredPythonVersion = "3.10";
+                    requireConda = true;
+                } else {
+                    commands = commands["others"];
+                }
+                installLib(libraryManager, "", commands, requiredPythonVersion, requireConda);
             }
         )
     );

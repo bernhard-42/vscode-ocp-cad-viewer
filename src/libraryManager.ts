@@ -32,28 +32,61 @@ function sanitize(lib: string) {
     return lib.replace("-", "_");
 }
 
+export function isCondaAvailable(python: string) {
+    return python.includes("/envs/");
+}
+
+export function isPipAvailable(python: string) {
+    try {
+        execute(`${python} -m pip --version`);
+        return true;
+    } catch (error) {
+        return false;
+    }
+}
+
+export function isPythonVersion(python: string, version: string) {
+    try {
+        let result = execute(`${python} --version`);
+        return result.split(" ")[1].startsWith(version);
+    } catch (error) {
+        return false;
+    }
+}
+
+
 export async function installLib(
     libraryManager: LibraryManagerProvider,
-    library: string
+    library: string = "",
+    cmds: string[] = [],
+    requiredPythonVersion: string = "",
+    condaRequired: boolean = false
 ) {
-    let managers = libraryManager.getInstallLibMgrs(library);
-    let manager: string;
-    if (managers.length > 1) {
-        manager = await inquiry(
-            `Select package manager to install "${library}"`,
-            managers
-        );
-        if (manager === "") {
-            return;
+    let commands: string[] = [];
+
+    if (library !== "") {
+        let managers = libraryManager.getInstallLibMgrs(library);
+        let manager: string;
+        if (managers.length > 1) {
+            manager = await inquiry(
+                `Select package manager to install "${library}"`,
+                managers
+            );
+            if (manager === "") {
+                return;
+            }
+        } else {
+            manager = managers[0];
         }
+        commands = await libraryManager.getInstallLibCmds(library, manager);
     } else {
-        manager = managers[0];
+        commands = await libraryManager.getInstallLibCmds(library, "", cmds);
     }
 
     let python = await getPythonPath();
     let reply =
         (await vscode.window.showQuickPick(["yes", "no"], {
-            placeHolder: `Use python interpreter "${python}"?`
+            placeHolder: `For the installation, use the python interpreter "${python}"?`
         })) || "";
     if (reply === "" || reply === "no") {
         return;
@@ -66,13 +99,22 @@ export async function installLib(
         return;
     }
 
-    let commands = await libraryManager.getInstallLibCmds(library, manager);
+    if (condaRequired && !isCondaAvailable(python)) {
+        vscode.window.showErrorMessage("Conda required!");
+        return
+    }
+
+    if (requiredPythonVersion !== "" && !isPythonVersion(python, requiredPythonVersion)) {
+        vscode.window.showErrorMessage(`Python version ${requiredPythonVersion} required!`);
+        return
+    }
 
     if (libraryManager.terminal?.terminal === undefined) {
         libraryManager.terminal = new TerminalExecute(
             `Installing ${commands.join(";")} ... `
         );
     }
+
     await libraryManager.terminal.execute(commands);
     libraryManager.refresh();
     if (["cadquery", "build123d"].includes(library)) {
@@ -148,8 +190,13 @@ export class LibraryManagerProvider
         return filteredManagers;
     }
 
-    async getInstallLibCmds(lib: string, manager: string) {
-        let commands: string[] = this.installCommands[lib][manager];
+    async getInstallLibCmds(lib: string, manager: string, cmds: string[] = []) {
+        let commands: string[] = []
+        if (cmds.length === 0) {
+            commands = this.installCommands[lib][manager];
+        } else {
+            commands = cmds;
+        }
         let python = await getPythonPath();
         let substCmds: string[] = [];
         commands.forEach((command: string) => {
@@ -157,6 +204,9 @@ export class LibraryManagerProvider
                 command = command.replace("{ocp_vscode_version}", ocp_vscode_version);
             };
             command = command.replace("{python}", python);
+            if (manager === "") {
+                manager = command.startsWith("conda") ? "conda" : "pip";
+            }
 
             if (manager === "pip" && command.indexOf("{unset_conda}") >= 0) {
                 command = command.replace("{unset_conda}", "");
