@@ -7,7 +7,12 @@ setup_args = {
     "long_description": "An extension to show OCP cad CAD objects (CadQuery, build123d) in VS Code via pythreejs",
     "include_package_data": True,
     "python_requires": ">=3.9",
-    "install_requires": ["ocp-tessellate>=1.0.2", "requests", "orjson"],
+    "install_requires": [
+        "ocp-tessellate>=1.0.4",
+        "requests",
+        "orjson",
+        "websockets>=11.0, <11.1",
+    ],
     "packages": find_packages(),
     "zip_safe": False,
     "author": "Bernhard Walter",
