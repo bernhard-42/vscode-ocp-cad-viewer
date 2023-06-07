@@ -1676,6 +1676,13 @@ semver@^7.3.5, semver@^7.3.7, semver@^7.3.8:
   dependencies:
     lru-cache "^6.0.0"
 
+semver@^7.5.1:
+  version "7.5.1"
+  resolved "https://registry.yarnpkg.com/semver/-/semver-7.5.1.tgz#c90c4d631cf74720e46b21c1d37ea07edfab91ec"
+  integrity sha512-Wvss5ivl8TMRZXXESstBA4uR5iXgEN/VC5/sOcuXdVLzcdkz4HWetIoRfG5gb5X+ij/G9rw9YoGn3QoQ8OCSpw==
+  dependencies:
+    lru-cache "^6.0.0"
+
 serialize-javascript@6.0.0:
   version "6.0.0"
   resolved "https://registry.yarnpkg.com/serialize-javascript/-/serialize-javascript-6.0.0.tgz#efae5d88f45d7924141da8b5c3a7a7e663fefeb8"
@@ -1815,10 +1822,10 @@ text-table@^0.2.0:
   resolved "https://registry.yarnpkg.com/text-table/-/text-table-0.2.0.tgz#7f5ee823ae805207c00af2df4a84ec3fcfa570b4"
   integrity sha512-N+8UisAXDGk8PFXP4HAzVR9nbfmVJ3zYLAWiTIoqC5v5isinhr+r5uaO8+7r3BMfuNIufIsA7RdpVgacC2cSpw==
 
-three-cad-viewer@1.7.9:
-  version "1.7.9"
-  resolved "https://registry.yarnpkg.com/three-cad-viewer/-/three-cad-viewer-1.7.9.tgz#ca099e3c4c0451ea7c5b13550cc3647a0821e52e"
-  integrity sha512-7KpsAGQayweerOZGJW+7az+i8gQg1TfOZso+soPSceHsytibWA1quXgFiWpW5FKEA/pM6tjAZhxOe1oOZMirKQ==
+three-cad-viewer@1.7.10:
+  version "1.7.10"
+  resolved "https://registry.yarnpkg.com/three-cad-viewer/-/three-cad-viewer-1.7.10.tgz#de9fd37c32c24d21365fb103dd897bd4587173d1"
+  integrity sha512-4+nA9dfyqZ6xYbp3w2fA9Nb5i+v//1OfQYxouy2WoCClA+q/tAp7kXsobMT05QRE1yb5w1iJwicRjPu1jTzxjQ==
   dependencies:
     three "^0.151.3"
 

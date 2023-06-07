@@ -121,7 +121,7 @@
                         "description": "cadquery or build123d"
                     }
                 ]
-            }            
+            }
         ],
         "viewsContainers": {
             "activitybar": [
@@ -458,7 +458,7 @@
                             "others": [
                                 "{python} -m pip install ocp_vscode ipython git+https://github.com/gumyr/build123d"
                             ]
-                        }                        
+                        }
                     }
                 },
                 "OcpCadViewer.advanced.installCommands": {
@@ -703,6 +703,7 @@
         "adm-zip": "^0.5.10",
         "follow-redirects": "^1.15.2",
         "semver": "^7.5.1",
+        "three-cad-viewer": "1.7.10",
         "ws": "^8.13.0"
     }
 }
