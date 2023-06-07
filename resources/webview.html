@@ -198,6 +198,10 @@
             _states = states;
             _config = config;
 
+            if (_config == null) {
+                console.log("OCP CAD Viewer: config is null");
+                _config = {}
+            }
             const displayOptions = getDisplayOptions();
 
             if (_config.debug) {
