@@ -32,8 +32,9 @@ import * as semver from "semver";
 export async function activate(context: vscode.ExtensionContext) {
     let controller: CadqueryController;
     let isWatching = false;
+
     let statusManager = createStatusManager();
-    statusManager.refresh("");
+    await statusManager.refresh("");
 
     let libraryManager = createLibraryManager(statusManager);
     await libraryManager.refresh();
