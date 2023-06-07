@@ -1,5 +1,10 @@
-- Re-create all screenshots and gifs
+ocp_vscode
+
+-   P2: understand why Viewer.recenterCamera() doesn't work as expected
+
+ocp_tessellate
 
 Extension
-- Test poetry
-- How to install private git repo with pip
+
+-   P2: Test poetry
+-   P2: How to install private git repo with pip
