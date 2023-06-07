@@ -61,6 +61,8 @@ export async function activate(context: vscode.ExtensionContext) {
         output.info(`ocp_vscode library not installed`);
     }
 
+    //	Statusbar
+
     const statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
 
     const default_watch = vscode.workspace.getConfiguration("OcpCadViewer.advanced")[
@@ -75,24 +77,25 @@ export async function activate(context: vscode.ExtensionContext) {
         statusBarItem.text = 'OCP:off';
         statusBarItem.tooltip = 'OCP CAD Viewer: Visual watch off';
     }
+    statusBarItem.command = 'ocpCadViewer.toggleWatch';
+    context.subscriptions.push(statusBarItem);
     statusBarItem.show();
 
     //	Commands
+
     context.subscriptions.push(
         vscode.commands.registerCommand('ocpCadViewer.toggleWatch', () => {
             if (statusBarItem.text === 'OCP:on') {
                 isWatching = false;
                 statusBarItem.text = 'OCP:off';
-                statusBarItem.tooltip = 'OCP CAD Viewer: Visual watch off';
+                statusBarItem.tooltip = 'OCP CAD Viewer: Visual debug off';
             } else {
                 isWatching = true;
                 statusBarItem.text = 'OCP:on';
-                statusBarItem.tooltip = 'OCP CAD Viewer: Visual watch on';
+                statusBarItem.tooltip = 'OCP CAD Viewer: Visual debug on';
             }
         })
     );
-
-    context.subscriptions.push(statusBarItem);
 
     context.subscriptions.push(
         vscode.commands.registerCommand(
