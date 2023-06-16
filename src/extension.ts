@@ -368,19 +368,8 @@ export async function activate(context: vscode.ExtensionContext) {
     vscode.debug.registerDebugAdapterTrackerFactory('*', {
         async createDebugAdapterTracker(session) {
             var expr = "";
-            output.info("Debug session started");
 
-            // load the whole code once
-            const editor = vscode.window.activeTextEditor;
-            let filter = "";
-            if (editor !== undefined) {
-                const doc = editor.document;
-                const text = doc.getText(new vscode.Range(0, 0, doc.lineCount, 0));
-                const lines = text.split("\n");
-                if (lines[0].startsWith("# exclude:")) {
-                    filter = lines[0].substring(10).trim();
-                }
-            }
+            output.info("Debug session started");
 
             return {
                 async onDidSendMessage(message) {
@@ -393,21 +382,10 @@ export async function activate(context: vscode.ExtensionContext) {
                         // get the current stack trace, line number and frame id
                         const trace = await session.customRequest('stackTrace', { threadId: 1 });
                         const frameId = trace.stackFrames[0].id;
-                        // const scope = await session.customRequest('scopes', { frameId: frameId });
-                        // const variablesReference = scope.scopes[0].variablesReference;
-                        // const variables = await session.customRequest('variables', { variablesReference: variablesReference });
-
-                        var expr_r = "";
-
-                        const parts = filter.split(/[,;]/).map((s) => s.trim());
-                        const pyArray = parts[0] != ""
-                            ? "[" + parts.map((s) => "'" + s + "'").join(", ") + "]"
-                            : "None";
-                        expr_r = expr.replace("{filter}", `exclude=${pyArray}`);
 
                         // call the visual debug command
                         await session.customRequest('evaluate', {
-                            expression: expr_r,
+                            expression: expr,
                             context: 'repl',
                             frameId: frameId
                         });
