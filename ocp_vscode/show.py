@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
+import sys
 from ocp_tessellate import PartGroup
 from ocp_tessellate.convert import (
     tessellate_group,
@@ -290,6 +290,7 @@ def show(
     mate_scale=None,
     debug=None,
     timeit=None,
+    _force_in_debug=False,
 ):
     """Show CAD objects in Visual Studio Code
     Parameters
@@ -359,6 +360,9 @@ def show(
         debug:                   Show debug statements to the VS Code browser console (default=False)
         timeit:                  Show timing information from level 0-3 (default=False)
     """
+    if sys.gettrace() is not None and not _force_in_debug:
+        print("\nshow and show_object are ignored in debugging sessions\n")
+        return
 
     kwargs = {
         k: v
