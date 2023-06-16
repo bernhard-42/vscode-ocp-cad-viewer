@@ -71,7 +71,7 @@ Valid keywords to configure the viewer:
     render_joints:           Render build123d joints (default=False)
     parallel:                Tessellate objects in parallel (default=False)
     show_parent:             Render parent of faces, edges or vertices as wireframe
-    mate_scale:              Scale of rendered mates for MAssemblies (default=1)
+    helper_scale:            Scale of rendered helpers (locations, axis, mates for MAssemblies) (default=1)
 
 - Debug
     debug:                   Show debug statements to the VS Code browser console (default=False)
@@ -80,47 +80,46 @@ Valid keywords to configure the viewer:
 
 ### Typically useful parameters
 
-- Provide maximum space for the CAD object with *glass* mode
+-   Provide maximum space for the CAD object with _glass_ mode
 
-    `show(b, c, glass=False)` 
+    `show(b, c, glass=False)`
 
     ![](../screenshots/glass.png)
 
-- Hide the tree in glass mode by collapsing the it
+-   Hide the tree in glass mode by collapsing the it
 
     `show(b, c, glass=True, collapse="C")`
 
     ![](../screenshots/glass-collapsed.png)
-    
+
     Other valid parameters are "1" (collapse leafs) and "E" (explode tree)
 
-- Names, colors and alpha values
+-   Names, colors and alpha values
 
     `show(b, c, colors=["red", "green"], names=["red box", "green cylinder"], alphas=[1.0, 0.2])`
-    
+
     ![](../screenshots/named-objects.png)
 
-- Axes and grids
+-   Axes and grids
 
     `show(b, c, axes=True, axes0=False, grid=(True, True, False), ticks=40)`
 
     ![](../screenshots/axes-and-grids.png)
 
-- Keeping the camera position between `show` commands
+-   Keeping the camera position between `show` commands
 
     `show(b, c, reset_camera=False)`
 
-- Show parent object for edges, faces and vertices (build123d syntax)
+-   Show parent object for edges, faces and vertices (build123d syntax)
 
     `show(b.vertices(), show_parent=True)`
-    
+
     ![](../screenshots/vertices-parent.png)
 
     `show(b.edges().filter_by(Axis.Y), show_parent=True)`
 
     ![](../screenshots/edges-parent.png)
-    
-    `show(b.faces().filter_by(Axis.Y), show_parent=True)`
-    
-    ![](../screenshots/faces-parent.png)
 
+    `show(b.faces().filter_by(Axis.Y), show_parent=True)`
+
+    ![](../screenshots/faces-parent.png)

@@ -67,7 +67,7 @@ CONFIG_WORKSPACE_KEYS = CONFIG_UI_KEYS + [
 CONFIG_CONTROL_KEYS = [
     "edge_accuracy",
     "debug",
-    "mate_scale",
+    "helper_scale",
     "render_edges",
     "render_mates",
     "render_joints",
@@ -109,7 +109,7 @@ DEFAULTS = {
     "render_normals": False,
     "render_mates": False,
     "render_joints": False,
-    "mate_scale": 1.0,
+    "helper_scale": 1.0,
     "timeit": False,
     "reset_camera": True,
     "debug": False,
@@ -190,7 +190,8 @@ def set_defaults(
     render_normals=None,
     render_mates=None,
     render_joints=None,
-    mate_scale=None,
+    helper_scale=None,
+    mate_scale=None,  # DEPRECATED
     debug=None,
     timeit=None,
 ):
@@ -239,8 +240,8 @@ def set_defaults(
         render_edges:      Render edges  (default=True)
         render_normals:    Render normals (default=False)
         render_mates:      Render mates for MAssemblies (default=False)
-        render_joints:      Render mates for MAssemblies (default=False)
-        mate_scale:        Scale of rendered mates for MAssemblies (default=1)
+        render_joints:     Render mates for MAssemblies (default=False)
+        helper_scale:      Scale of rendered helpers (locations, axis, mates for MAssemblies) (default=1)
 
     - Debug
         debug:             Show debug statements to the VS Code browser console (default=False)
@@ -248,6 +249,11 @@ def set_defaults(
     """
 
     kwargs = {k: v for k, v in locals().items() if v is not None}
+
+    if kwargs.get("mate_scale") is not None:
+        print("\nmate_scale is deprecated, use helper_scale instead\n")
+        kwargs["helper_scale"] = kwargs["mate_scale"]
+        del kwargs["mate_scale"]
 
     global DEFAULTS
     for key, value in kwargs.items():
@@ -350,7 +356,7 @@ def reset_defaults():
         "render_normals": False,
         "render_mates": False,
         "render_joints": False,
-        "mate_scale": 1.0,
+        "helper_scale": 1.0,
         "timeit": False,
         "reset_camera": True,
         "debug": False,

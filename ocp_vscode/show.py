@@ -109,7 +109,7 @@ def _tessellate(
             render_joints=kwargs.get(
                 "render_joints", get_changed_config("render_joints")
             ),
-            mate_scale=kwargs.get("mate_scale", get_changed_config("mate_scale")),
+            helper_scale=kwargs.get("helper_scale", get_changed_config("helper_scale")),
             default_color=kwargs.get(
                 "default_color", get_changed_config("default_color")
             ),
@@ -304,7 +304,8 @@ def show(
     render_joints=None,
     show_parent=None,
     parallel=None,
-    mate_scale=None,
+    helper_scale=None,
+    mate_scale=None,  # DEPRECATED
     debug=None,
     timeit=None,
     _force_in_debug=False,
@@ -371,7 +372,7 @@ def show(
         render_joints:           Render build123d joints (default=False)
         parallel:                Tessellate objects in parallel (default=False)
         show_parent:             Render parent of faces, edges or vertices as wireframe
-        mate_scale:              Scale of rendered mates for MAssemblies (default=1)
+        helper_scale:              Scale of rendered helpers (locations, axis, mates for MAssemblies) (default=1)
 
     - Debug
         debug:                   Show debug statements to the VS Code browser console (default=False)
@@ -395,6 +396,11 @@ def show(
             "progress",
         ]
     }
+
+    if kwargs.get("mate_scale") is not None:
+        print("\nmate_scale is deprecated, use helper_scale instead\n")
+        kwargs["helper_scale"] = kwargs["mate_scale"]
+        del kwargs["mate_scale"]
 
     timeit = preset("timeit", timeit)
 
@@ -497,7 +503,8 @@ def show_object(
     render_joints=None,
     parallel=None,
     show_parent=None,
-    mate_scale=None,
+    helper_scale=None,
+    mate_scale=None,  # DEPRECATED
     debug=None,
     timeit=None,
 ):
@@ -566,7 +573,7 @@ def show_object(
         render_joints:           Render build123d joints (default=False)
         parallel:                Tessellate objects in parallel (default=False)
         show_parent:             Render parent of faces, edges or vertices as wireframe
-        mate_scale:              Scale of rendered mates for MAssemblies (default=1)
+        helper_scale:            Scale of rendered helpers (locations, axis, mates for MAssemblies) (default=1)
 
     - Debug
         debug:                   Show debug statements to the VS Code browser console (default=False)

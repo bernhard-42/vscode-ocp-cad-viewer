@@ -74,7 +74,7 @@ show_object(obj, name=None, options=None, port=None, <keyword arguments>)
         render_joints:           Render build123d joints (default=False)
         parallel:                Tessellate objects in parallel (default=False)
         show_parent:             Render parent of faces, edges or vertices as wireframe
-        mate_scale:              Scale of rendered mates for MAssemblies (default=1)
+        helper_scale:            Scale of rendered helpers (locations, axis, mates for MAssemblies) (default=1)
 
     - Debug
         debug:                   Show debug statements to the VS Code browser console (default=False)
@@ -83,11 +83,11 @@ show_object(obj, name=None, options=None, port=None, <keyword arguments>)
 
 ### Typically useful parameters
 
-- Reset the object stack:
+-   Reset the object stack:
 
     `reset_show()`
 
-- Restart a new objects stack
+-   Restart a new objects stack
 
     `show_object(obj, clear=True)`
 
