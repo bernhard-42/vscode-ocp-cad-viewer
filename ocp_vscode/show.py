@@ -25,9 +25,26 @@ from ocp_tessellate.convert import (
     is_vector,
 )
 from ocp_tessellate.utils import numpy_to_buffer_json, Timer, Color
-from ocp_tessellate.ocp_utils import is_vector, is_topods_shape
+from ocp_tessellate.ocp_utils import (
+    is_vector,
+    is_topods_shape,
+    is_topods_compound,
+    is_cadquery,
+    is_cadquery_assembly,
+    is_cadquery_sketch,
+    is_build123d,
+    is_build123d_assembly,
+    is_toploc_location,
+)
+
 from ocp_tessellate.mp_tessellator import init_pool, keymap, close_pool
-from ocp_tessellate.cad_objects import OCP_PartGroup
+from ocp_tessellate.cad_objects import (
+    OCP_PartGroup,
+    OCP_Edges,
+    OCP_Faces,
+    OCP_Part,
+    OCP_Vertices,
+)
 from ocp_tessellate.convert import to_assembly, conv
 import ocp_tessellate.convert as oc
 
@@ -611,79 +628,73 @@ def show_clear():
     send_data(data)
 
 
-def show_all(variables=None, include=None, exclude=None, **kwargs):
+def show_all(variables=None, exclude=None, **kwargs):
     import inspect
 
     global first_call
-
-    if include is not None and exclude is not None:
-        raise ValueError("Cannot specify both include and exclude")
 
     if variables is None:
         cf = inspect.currentframe()
         variables = cf.f_back.f_locals
 
+    if exclude is None:
+        exclude = []
+
     objects = []
     names = []
     for name, obj in variables.items():
-        if (
-            (include is None and exclude is None)
-            or (include is not None and name in include)
-            or (exclude is not None and name not in exclude)
-        ):
+        if isinstance(obj, type):
+            continue  # ignore classes
+
+        if name not in exclude:
             if hasattr(obj, "_obj") and obj._obj is None:
                 continue
 
-            if hasattr(obj, "part"):
-                obj = obj.part
+            if hasattr(obj, "locations") and hasattr(obj, "local_locations"):
+                obj = obj.locations
 
-            elif hasattr(obj, "sketch_local"):
-                pg = (
-                    OCP_PartGroup(
-                        [
-                            conv(obj.sketch.faces(), obj_name="sketch"),
-                            conv(
-                                obj.sketch_local.faces(),
-                                obj_name="sketch_local",
-                                obj_alpha=0.2,
-                            ),
-                        ],
-                        name=name,
-                    ),
-                )
-                objects.append(pg)
-                names.append(name)
-                continue
-
-            elif hasattr(obj, "sketch"):
-                obj = obj.sketch
-
-            elif hasattr(obj, "line"):
-                obj = obj.line
+            if hasattr(obj, "to_location"):
+                obj = obj.to_location()
 
             if (
-                hasattr(obj, "wrapped")
-                and not hasattr(obj, "__name__")
-                and is_topods_shape(obj.wrapped)
-            ) or (is_vector(obj)):
+                (
+                    hasattr(obj, "wrapped")
+                    and (
+                        is_topods_shape(obj.wrapped)
+                        or is_topods_compound(obj.wrapped)
+                        or is_toploc_location(obj.wrapped)
+                    )
+                )
+                or is_vector(obj)  # Vector
+                or is_cadquery(obj)
+                or is_build123d(obj)
+                or is_cadquery_assembly(obj)
+                or (
+                    isinstance(obj, (list, tuple))
+                    and len(obj) > 0
+                    and hasattr(obj[0], "wrapped")
+                )
+            ):
                 objects.append(obj)
                 names.append(name)
-            elif (
-                isinstance(obj, (list, tuple))
-                and len(obj) > 0
-                and hasattr(obj[0], "wrapped")
+
+            elif isinstance(
+                obj, (OCP_PartGroup, OCP_Edges, OCP_Faces, OCP_Part, OCP_Vertices)
             ):
-                pg = OCP_PartGroup(
-                    [conv(o, obj_name=f"{name}[{i}]") for i, o in enumerate(obj)],
-                    name=name,
-                )
+                objects.append(obj)
+                obj.name = name
+                names.append(name)
+
+            elif is_cadquery_sketch(obj):
+                pg = to_assembly([obj], names=[name])
+                pg.name = name
                 objects.append(pg)
                 names.append(name)
 
     kwargs["reset_camera"] = first_call
 
     if len(objects) > 0:
-        show(*objects, names=names, collapse="R", **kwargs)
+        show(*objects, names=names, collapse="R", _force_in_debug=True, **kwargs)
         first_call = False
     else:
         show_clear()
