@@ -426,7 +426,7 @@
                 },
                 "OcpCadViewer.advanced.watchCommands": {
                     "type": "string",
-                    "default": "from ocp_vscode import show_all; show_all(locals(), {filter})",
+                    "default": "from ocp_vscode import show_all; show_all(locals())",
                     "description": "Command to be executed when debugger halts. Needs to include locals()",
                     "order": 42
                 },
@@ -703,7 +703,7 @@
         "adm-zip": "^0.5.10",
         "follow-redirects": "^1.15.2",
         "semver": "^7.5.1",
-        "three-cad-viewer": "1.7.10",
+        "three-cad-viewer": "1.7.12",
         "ws": "^8.13.0"
     }
 }
