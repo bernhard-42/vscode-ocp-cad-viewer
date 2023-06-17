@@ -369,7 +369,6 @@
                     } else if (key === "axes0") {
                         viewer.setAxes0(data.config[key]);
                     } else if (key === "grid") {
-                        console.log(data.config[key])
                         viewer.setGrids(data.config[key]);
                     } else if (key === "ortho") {
                         viewer.setOrtho(data.config[key]);
@@ -421,10 +420,8 @@
                         viewer.display.setExplodeCheck(data.config[key])
                     } else if (key === "states") {
                         const states = Object.keys(viewer.treeview.states);
-                        console.log(states);
                         Object.keys(data.config[key]).forEach((key2) => {
                             if (states.includes(key2)) {
-                                console.log("setting", key2, data.config[key][key2]);
                                 viewer.setState(key2, data.config[key][key2]);
                             }
                         });
