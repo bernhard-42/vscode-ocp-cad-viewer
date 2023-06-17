@@ -17,7 +17,7 @@
 import * as vscode from "vscode";
 import { version as ocp_vscode_version } from "./version";
 import * as output from "./output";
-import { ipythonExtensionInstalled } from "./utils";
+import { jupyterExtensionInstalled } from "./utils";
 
 const URL =
     "https://github.com/bernhard-42/vscode-ocp-cad-viewer/releases/download";
@@ -28,11 +28,11 @@ export class StatusManagerProvider implements vscode.TreeDataProvider<Status> {
     running: boolean = false;
     port: string = "";
     version: string = "";
-    hasIpythonExtension: boolean = false;
+    hasJupyterExtension: boolean = false;
 
     constructor() {
         this.version = ocp_vscode_version;
-        this.hasIpythonExtension = ipythonExtensionInstalled();
+        this.hasJupyterExtension = jupyterExtensionInstalled();
     }
 
     private _onDidChangeTreeData: vscode.EventEmitter<
@@ -59,7 +59,11 @@ export class StatusManagerProvider implements vscode.TreeDataProvider<Status> {
     }
 
     setLibraries(libraries: string[]) {
-        this.libraries = Object.assign([], libraries);
+        this.libraries = [];
+        libraries.forEach((library) => {
+            // map ipykernel as library ro jupyter extension
+            this.libraries.push(library == "ipykernel" ? "jupyter" : library)
+        })
     }
 
     getTreeItem(element: Status): vscode.TreeItem {
@@ -86,13 +90,13 @@ export class StatusManagerProvider implements vscode.TreeDataProvider<Status> {
                         )
                     );
                 }
-            } else if (element.label === "ipython") {
+            } else if (element.label === "jupyter") {
                 status.push(
                     new Status(
                         "extension",
                         {
-                            "extension": (this.hasIpythonExtension) ? "installed" : "not installed",
-                            "ipython": this.hasIpythonExtension
+                            "extension": (this.hasJupyterExtension) ? "installed" : "not installed",
+                            "jupyter": this.hasJupyterExtension
                         },
                         vscode.TreeItemCollapsibleState.None
                     )
@@ -115,8 +119,8 @@ export class StatusManagerProvider implements vscode.TreeDataProvider<Status> {
                         status.push(
                             new Status(
                                 lib,
-                                { "ipython": this.hasIpythonExtension },
-                                (lib === "ipython")
+                                { "jupyter": this.hasJupyterExtension },
+                                (lib === "jupyter")
                                     ? vscode.TreeItemCollapsibleState.Expanded
                                     : vscode.TreeItemCollapsibleState.None
                             )
@@ -143,8 +147,9 @@ export class Status extends vscode.TreeItem {
         if (label === "ocp_vscode") {
             this.contextValue = "status";
 
-        } else if (label === "ipython") {
-            this.contextValue = options.ipython ? "open" : "missing";
+        } else if (label === "ipykernel") {
+            label = "jupyter";
+            this.contextValue = options.jupyter ? "open" : "missing";
 
         } else {
             this.contextValue = "library";
@@ -163,9 +168,9 @@ export class Status extends vscode.TreeItem {
             this.tooltip = `OCP CAD Viewer is listening on port ${options.port}`;
 
         } else if (options.extension !== undefined) {
-            this.contextValue = options.ipython ? "ipythonExtInstalled" : "ipythonExtMissing";
+            this.contextValue = options.jupyter ? "jupyterExtInstalled" : "jupyterExtMissing";
             this.description = options.extension;
-            this.tooltip = `IPython extension is ${options.extension}`;
+            this.tooltip = `Jupyter extension is ${options.extension}`;
 
         } else if (options.version !== undefined) {
             this.contextValue = "version";

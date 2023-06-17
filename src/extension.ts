@@ -24,10 +24,10 @@ import { CadqueryViewer } from "./viewer";
 import { createLibraryManager, installLib, Library } from "./libraryManager";
 import { createStatusManager } from "./statusManager";
 import { download } from "./examples";
-import { getCurrentFolder } from "./utils";
+import { getCurrentFolder, jupyterExtensionInstalled } from "./utils";
 import { version } from "./version";
 import * as semver from "semver";
-
+import { createDemoFile } from "./demo"
 
 export async function activate(context: vscode.ExtensionContext) {
     let controller: CadqueryController;
@@ -242,29 +242,29 @@ export async function activate(context: vscode.ExtensionContext) {
 
     context.subscriptions.push(
         vscode.commands.registerCommand(
-            "ocpCadViewer.installIPythonExtension",
+            "ocpCadViewer.installJupyterExtension",
             async (library: Library) => {
                 let reply =
                     (await vscode.window.showQuickPick(["yes", "no"], {
-                        placeHolder: `Install the VS Code extension "HoangKimLai.ipython"?`
+                        placeHolder: `Install the VS Code extension "ms-toolsai.jupyter"?`
                     })) || "";
                 if (reply === "" || reply === "no") {
                     return;
                 }
 
                 vscode.window.showInformationMessage(
-                    "Installing VS Code extension 'HoangKimLai.ipython' ..."
+                    "Installing VS Code extension 'ms-toolsai.jupyter' ..."
                 );
 
                 await vscode.commands.executeCommand(
                     "workbench.extensions.installExtension",
-                    "HoangKimLai.ipython"
+                    "ms-toolsai.jupyter"
                 );
 
                 vscode.window.showInformationMessage(
-                    "VS Code extension 'HoangKimLai.ipython' installed"
+                    "VS Code extension 'ms-toolsai.jupyter' installed"
                 );
-                statusManager.hasIpythonExtension = true;
+                statusManager.hasJupyterExtension = true;
                 statusManager.refresh(statusManager.port);
             }
         )
@@ -284,15 +284,6 @@ export async function activate(context: vscode.ExtensionContext) {
             "ocpCadViewer.pasteSnippet",
             (library: Library) => {
                 libraryManager.pasteImport(library.label);
-            }
-        )
-    );
-
-    context.subscriptions.push(
-        vscode.commands.registerCommand(
-            "ocpCadViewer.ipythonRunCell",
-            () => {
-                vscode.commands.executeCommand("ipython.runCellAndMoveToNext");
             }
         )
     );
@@ -325,28 +316,6 @@ export async function activate(context: vscode.ExtensionContext) {
 
     context.subscriptions.push(
         vscode.commands.registerCommand(
-            "ocpCadViewer.restartIpython",
-            async () => {
-                let terminals = vscode.window.terminals;
-                terminals.forEach((terminal: any) => {
-                    if (terminal.name === "IPython") {
-                        terminal.dispose();
-                    }
-                });
-
-                if (!statusManager.hasIpythonExtension) {
-                    vscode.window.showErrorMessage(
-                        "Extension 'HoangKimLai.ipython' not installed"
-                    );
-                } else {
-                    vscode.commands.executeCommand("ipython.createTerminal");
-                }
-            }
-        )
-    );
-
-    context.subscriptions.push(
-        vscode.commands.registerCommand(
             "ocpCadViewer.quickstart",
             async (arg) => {
                 const conf = vscode.workspace.getConfiguration("OcpCadViewer.advanced")
@@ -360,7 +329,19 @@ export async function activate(context: vscode.ExtensionContext) {
                 } else {
                     commands = commands["others"];
                 }
-                installLib(libraryManager, "", commands, requiredPythonVersion, requireConda);
+                await installLib(libraryManager, "", commands, requiredPythonVersion, requireConda);
+
+                if (!jupyterExtensionInstalled()) {
+                    await vscode.commands.executeCommand("ocpCadViewer.installJupyterExtension");
+                }
+                let reply =
+                    (await vscode.window.showQuickPick(["yes", "no"], {
+                        placeHolder: `Create a demo file ocp_vscode_demo.py?`
+                    })) || "";
+                if (reply === "yes") {
+                    createDemoFile(arg);
+                    await vscode.commands.executeCommand("ocpCadViewer.ocpCadViewer");
+                }
             }
         )
     );
@@ -389,8 +370,6 @@ export async function activate(context: vscode.ExtensionContext) {
                             context: 'repl',
                             frameId: frameId
                         });
-
-                        // lastDebugLine = lineNo;
 
                     } else if (message.event === 'terminated') {
                         output.info("Debug session terminated");

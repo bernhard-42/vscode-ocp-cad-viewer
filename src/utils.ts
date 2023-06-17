@@ -50,8 +50,8 @@ export async function inquiry(placeholder: string, options: string[]) {
     return answer || "";
 }
 
-export function ipythonExtensionInstalled() {
-    return vscode.extensions.getExtension("HoangKimLai.ipython") !== undefined;
+export function jupyterExtensionInstalled() {
+    return vscode.extensions.getExtension("ms-toolsai.jupyter") !== undefined;
 }
 
 class PythonPath {
