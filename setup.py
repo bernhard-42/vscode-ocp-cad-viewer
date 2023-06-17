@@ -8,7 +8,7 @@ setup_args = {
     "include_package_data": True,
     "python_requires": ">=3.9",
     "install_requires": [
-        "ocp-tessellate>=1.0.4",
+        "ocp-tessellate>=1.1.0",
         "requests",
         "orjson",
         "websockets>=11.0, <11.1",
