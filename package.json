@@ -36,22 +36,6 @@
                 }
             },
             {
-                "command": "ocpCadViewer.restartIpython",
-                "title": "OCP CAD Viewer: Restart IPython terminal",
-                "icon": {
-                    "light": "resources/restart.png",
-                    "dark": "resources/restart.png"
-                }
-            },
-            {
-                "command": "ocpCadViewer.ipythonRunCell",
-                "title": "OCP CAD Viewer: Run IPython cell (delimited by '# %%')",
-                "icon": {
-                    "light": "resources/start.png",
-                    "dark": "resources/start.png"
-                }
-            },
-            {
                 "command": "ocpCadViewer.installLibrary",
                 "title": "OCP CAD Viewer: Install library",
                 "icon": {
@@ -68,8 +52,8 @@
                 }
             },
             {
-                "command": "ocpCadViewer.installIPythonExtension",
-                "title": "OCP CAD Viewer: Install IPython extension 'HoangKimLai.ipython'",
+                "command": "ocpCadViewer.installJupyterExtension",
+                "title": "OCP CAD Viewer: Install Jupyter extension 'ms-toolsai.jupyter'",
                 "icon": {
                     "light": "resources/install.png",
                     "dark": "resources/install.png"
@@ -182,8 +166,8 @@
                     "group": "inline@0"
                 },
                 {
-                    "command": "ocpCadViewer.installIPythonExtension",
-                    "when": "view == ocpCadStatus && viewItem == ipythonExtMissing",
+                    "command": "ocpCadViewer.installJupyterExtension",
+                    "when": "view == ocpCadStatus && viewItem == jupyterExtMissing",
                     "group": "inline@0"
                 },
                 {
@@ -209,16 +193,6 @@
                 {
                     "command": "ocpCadViewer.openViewer",
                     "when": "view == ocpCadStatus && viewItem == status",
-                    "group": "inline@0"
-                },
-                {
-                    "command": "ocpCadViewer.ipythonRunCell",
-                    "when": "view == ocpCadStatus && viewItem == open",
-                    "group": "inline@2"
-                },
-                {
-                    "command": "ocpCadViewer.restartIpython",
-                    "when": "view == ocpCadStatus && viewItem == open",
                     "group": "inline@0"
                 }
             ]
@@ -443,20 +417,20 @@
                         "cadquery": {
                             "appleSilicon": [
                                 "conda install -y -n {conda_env} -c conda-forge -c cadquery cadquery=master",
-                                "{python} -m pip install ocp_vscode ipython"
+                                "{python} -m pip install ocp_vscode ipykernel"
                             ],
                             "others": [
-                                "{unset_conda} {python} -m pip install ocp_vscode ipython git+https://github.com/cadquery/cadquery.git"
+                                "{unset_conda} {python} -m pip install ocp_vscode ipykernel git+https://github.com/cadquery/cadquery.git"
                             ]
                         },
                         "build123d": {
                             "appleSilicon": [
                                 "conda install -y -n {conda_env} -c conda-forge -c cadquery cadquery=master",
                                 "{python} -m pip install --no-deps git+https://github.com/gumyr/build123d svgwrite svgpathtools anytree scipy",
-                                "{python} -m pip install ocp_vscode ipython"
+                                "{python} -m pip install ocp_vscode ipykernel"
                             ],
                             "others": [
-                                "{python} -m pip install ocp_vscode ipython git+https://github.com/gumyr/build123d"
+                                "{python} -m pip install ocp_vscode ipykernel git+https://github.com/gumyr/build123d"
                             ]
                         }
                     }
@@ -503,18 +477,18 @@
                                 "poetry add ocp_tessellate"
                             ]
                         },
-                        "ipython": {
+                        "ipykernel": {
                             "pip": [
-                                "{python} -m pip install --update ipython"
+                                "{python} -m pip install --update ipykernel"
                             ],
                             "conda": [
-                                "conda install -y -n {conda_env} -c conda-forge ipython"
+                                "conda install -y -n {conda_env} -c conda-forge ipykernel"
                             ],
                             "mamba": [
-                                "mamba install -y -n {conda_env} -c conda-forge ipython"
+                                "mamba install -y -n {conda_env} -c conda-forge ipykernel"
                             ],
                             "poetry": [
-                                "poetry add ipython"
+                                "poetry add ipykernel"
                             ]
                         }
                     },
@@ -533,7 +507,7 @@
                         "ocp_vscode": [
                             "from ocp_vscode import show, show_object, reset_show, set_port, set_defaults, get_defaults"
                         ],
-                        "ipython": [
+                        "jupyter": [
                             "\n# %%\n"
                         ]
                     },
