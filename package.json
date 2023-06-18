@@ -416,7 +416,7 @@
                     "default": {
                         "cadquery": {
                             "appleSilicon": [
-                                "conda install -y -n {conda_env} -c conda-forge -c cadquery cadquery=master",
+                                "mamba install -y -n {conda_env} -c cadquery -c conda-forge cadquery=master",
                                 "{python} -m pip install ocp_vscode ipykernel"
                             ],
                             "others": [
@@ -425,8 +425,8 @@
                         },
                         "build123d": {
                             "appleSilicon": [
-                                "conda install -y -n {conda_env} -c conda-forge -c cadquery cadquery=master",
-                                "{python} -m pip install --no-deps git+https://github.com/gumyr/build123d svgwrite svgpathtools anytree scipy",
+                                "mamba install -y -n {conda_env} -c cadquery -c conda-forge cadquery=master",
+                                "{python} -m pip install --no-deps git+https://github.com/gumyr/build123d svgwrite svgpathtools anytree scipy typing_extensions",
                                 "{python} -m pip install ocp_vscode ipykernel"
                             ],
                             "others": [
