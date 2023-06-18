@@ -385,6 +385,30 @@ export async function activate(context: vscode.ExtensionContext) {
         },
     });
 
+    vscode.workspace.onDidOpenTextDocument(async (e: vscode.TextDocument) => {
+        let current = vscode.window.activeTextEditor;
+        if (e.uri.scheme === 'vscode-interactive-input' && e.languageId === "python") {
+            let visibleEditors = vscode.window.visibleTextEditors;
+            let interactive = undefined;
+            for (var i = 0; i < visibleEditors.length; i++) {
+                interactive = visibleEditors[i];
+                if (interactive.document.fileName === e.fileName) {
+                    break;
+                }
+            }
+            if (interactive) {
+                vscode.window.showTextDocument(interactive.document, vscode.ViewColumn.Two, false);
+                await new Promise(resolve => setTimeout(resolve, 100));
+                vscode.commands.executeCommand("workbench.action.moveEditorToBelowGroup");
+                await new Promise(resolve => setTimeout(resolve, 100));
+                if (current) {
+                    vscode.window.showTextDocument(current.document, vscode.ViewColumn.One);
+                    vscode.commands.executeCommand("workbench.action.closePanel");
+                }
+            }
+        }
+    });
+
     //	Register Web view
 
     vscode.window.registerWebviewPanelSerializer(CadqueryViewer.viewType, {
