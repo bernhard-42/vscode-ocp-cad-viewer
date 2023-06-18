@@ -25,6 +25,7 @@ import { execute } from "./system/shell";
 import { StatusManagerProvider } from "./statusManager";
 import { TerminalExecute } from "./system/terminal";
 
+
 const URL =
     "https://github.com/bernhard-42/vscode-cop-cad-viewer/releases/download";
 
@@ -60,7 +61,8 @@ export async function installLib(
     library: string = "",
     cmds: string[] = [],
     requiredPythonVersion: string = "",
-    condaRequired: boolean = false
+    condaRequired: boolean = false,
+    callback: CallableFunction = () => null
 ) {
     let commands: string[] = [];
 
@@ -104,23 +106,36 @@ export async function installLib(
         return
     }
 
-    if (requiredPythonVersion !== "" && !isPythonVersion(python, requiredPythonVersion)) {
-        vscode.window.showErrorMessage(`Python version ${requiredPythonVersion} required!`);
-        return
+    if (requiredPythonVersion !== "") {
+        var valid = false;
+        requiredPythonVersion.split(",").forEach((version) => {
+            if (!valid) {
+                valid = isPythonVersion(python, version);
+            }
+        })
+        if (!valid) {
+            vscode.window.showErrorMessage(`Python version(s) ${requiredPythonVersion} required!`);
+            return
+        }
     }
 
-    if (libraryManager.terminal?.terminal === undefined) {
-        libraryManager.terminal = new TerminalExecute(
-            `Installing ${commands.join(";")} ... `
-        );
-    }
+    let term = vscode.window.createTerminal("Library Installations");
+    vscode.window.onDidCloseTerminal((e) => {
+        console.log(e.exitStatus)
+        libraryManager.refresh();
 
-    await libraryManager.terminal.execute(commands);
-    libraryManager.refresh();
-    if (["cadquery", "build123d"].includes(library)) {
-        vscode.window.showInformationMessage(`Depending on your os, the first import of ${library} can take several seconds`);
-    }
+        if (["cadquery", "build123d"].includes(library)) {
+            vscode.window.showInformationMessage(`Depending on your os, the first import of ${library} can take several seconds`);
+        }
+
+        callback();
+    })
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    commands.push("exit")
+    const command = commands.join(" && ");
+    term.sendText(command, true);
 }
+
 
 export class LibraryManagerProvider
     implements vscode.TreeDataProvider<Library>
@@ -205,7 +220,7 @@ export class LibraryManagerProvider
             };
             command = command.replace("{python}", python);
             if (manager === "") {
-                manager = command.startsWith("conda") ? "conda" : "pip";
+                manager = (command.startsWith("conda") || command.startsWith("mamba")) ? command.split(" ")[0] : "pip";
             }
 
             if (manager === "pip" && command.indexOf("{unset_conda}") >= 0) {

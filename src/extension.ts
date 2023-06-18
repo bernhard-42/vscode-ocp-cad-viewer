@@ -324,24 +324,30 @@ export async function activate(context: vscode.ExtensionContext) {
                 let requireConda = false;
                 if (os.platform() === "darwin" && os.arch() === "arm64") {
                     commands = commands["appleSilicon"];
-                    requiredPythonVersion = "3.10";
+                    requiredPythonVersion = "3.9,3.10";
                     requireConda = true;
                 } else {
                     commands = commands["others"];
                 }
-                await installLib(libraryManager, "", commands, requiredPythonVersion, requireConda);
-
-                if (!jupyterExtensionInstalled()) {
-                    await vscode.commands.executeCommand("ocpCadViewer.installJupyterExtension");
-                }
-                let reply =
-                    (await vscode.window.showQuickPick(["yes", "no"], {
-                        placeHolder: `Create a demo file ocp_vscode_demo.py?`
-                    })) || "";
-                if (reply === "yes") {
-                    createDemoFile(arg);
-                    await vscode.commands.executeCommand("ocpCadViewer.ocpCadViewer");
-                }
+                await installLib(libraryManager, "", commands, requiredPythonVersion, requireConda,
+                    async () => {
+                        if (!jupyterExtensionInstalled()) {
+                            await vscode.commands.executeCommand("ocpCadViewer.installJupyterExtension");
+                        }
+                        let reply =
+                            (await vscode.window.showQuickPick(["yes", "no"], {
+                                placeHolder: `Create a demo file ocp_vscode_demo.py?`
+                            })) || "";
+                        if (reply === "yes") {
+                            createDemoFile(arg).then(async (b) => {
+                                if (b) {
+                                    await new Promise(resolve => setTimeout(resolve, 200));
+                                    await vscode.commands.executeCommand("ocpCadViewer.ocpCadViewer");
+                                }
+                            })
+                        }
+                    }
+                )
             }
         )
     );

@@ -1,13 +1,14 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
+import * as os from 'os';
 
-const build123d_demo = `
-# %%
+const build123d_demo = `# %%
 
-# the markers "# %%" separate code blocks for execution (cells) 
+# The markers "# %%" separate code blocks for execution (cells) 
 # Press shift-enter to exectute a cell and move to next cell
 # Press ctrl-enter to exectute a cell and keep cursor at the position
+# For more details, see https://marketplace.visualstudio.com/items?itemName=ms-toolsai.jupyter
 
 # %%
 
@@ -29,18 +30,18 @@ show(bp)
 b2 = Box(1,2,3)
 b2 = fillet(b2.edges(), 0.1)
 
-show(b2, axes=True, axes0=True, grid=(True, True, True))
+show(b2, axes=True, axes0=True, grid=(True, True, True), transparent=True)
 
 # %%
 
 `
 
-const cadquery_demo = `
-# %%
+const cadquery_demo = `# %%
 
-# the markers "# %%" separate code blocks for execution (cells) 
+# The markers "# %%" separate code blocks for execution (cells) 
 # Press shift-enter to exectute a cell and move to next cell
 # Press ctrl-enter to exectute a cell and keep cursor at the position
+# For more details, see https://marketplace.visualstudio.com/items?itemName=ms-toolsai.jupyter
 
 # %%
 
@@ -55,22 +56,21 @@ show(b)
 `
 
 export function createDemoFile(lib: string) {
-    let editor = vscode.window.activeTextEditor;
-    if (!editor) {
-        vscode.commands.executeCommand('vscode.open');
-    }
-    editor = vscode.window.activeTextEditor;
-    if (editor) {
-        const currentFilePath = editor.document.uri.fsPath;
-        const currentDir = path.dirname(currentFilePath);
-        const demoFilePath = path.join(currentDir, 'ocp_vscode_demo.py');
+    return new Promise((resolve, reject) => {
+        const tempDir = os.tmpdir();
+        const demoFilePath = path.join(tempDir, "ocp_vscode_demo.py");
         if (lib === "build123d") {
             fs.writeFileSync(demoFilePath, build123d_demo);
         } else {
             fs.writeFileSync(demoFilePath, cadquery_demo);
         }
-        vscode.workspace.openTextDocument(demoFilePath).then(doc => {
-            vscode.window.showTextDocument(doc);
-        });
-    }
+        try {
+            vscode.workspace.openTextDocument(demoFilePath).then(doc => {
+                vscode.window.showTextDocument(doc);
+                resolve(true);
+            });
+        } catch {
+            reject(false);
+        }
+    });
 }
