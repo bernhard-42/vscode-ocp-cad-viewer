@@ -15,6 +15,7 @@
 */
 
 import * as fs from "fs";
+import * as os from "os";
 import * as process from "process";
 import * as path from "path";
 import * as vscode from "vscode";
@@ -119,8 +120,8 @@ export async function installLib(
         }
     }
 
-    let term = vscode.window.createTerminal("Library Installations");
-    vscode.window.onDidCloseTerminal((e) => {
+    let term = vscode.window.createTerminal("Library Installations", (os.platform() === "win32") ? process.env.COMSPEC : undefined);
+    let listener = vscode.window.onDidCloseTerminal((e) => {
         console.log(e.exitStatus)
         libraryManager.refresh();
 
