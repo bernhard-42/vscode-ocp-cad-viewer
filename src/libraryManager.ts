@@ -122,7 +122,6 @@ export async function installLib(
 
     let term = vscode.window.createTerminal("Library Installations", (os.platform() === "win32") ? process.env.COMSPEC : undefined);
     let listener = vscode.window.onDidCloseTerminal((e) => {
-        console.log(e.exitStatus)
         libraryManager.refresh();
 
         if (["cadquery", "build123d"].includes(library)) {
@@ -130,6 +129,7 @@ export async function installLib(
         }
 
         callback();
+        listener.dispose();
     })
     await new Promise(resolve => setTimeout(resolve, 1000));
     commands.push("exit")
