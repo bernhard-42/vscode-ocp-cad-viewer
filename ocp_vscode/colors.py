@@ -3,8 +3,8 @@ from random import randrange, seed, random
 from webcolors import name_to_rgb
 
 __all__ = [
+    "BaseColorMap",
     "ColorMap",
-    "CM",
     "get_colormap",
     "set_colormap",
     "unset_colormap",
@@ -251,7 +251,7 @@ def web_to_rgb(name):
     return (rgb.red / 255, rgb.green / 255, rgb.blue / 255)
 
 
-class ColorMap:
+class BaseColorMap:
     def __init__(self):
         self.index = 0
         self.alpha = 1.0
@@ -263,7 +263,7 @@ class ColorMap:
         self.index = 0
 
 
-class ListedColorMap(ColorMap):
+class ListedColorMap(BaseColorMap):
     def __init__(self, colors, alpha=1.0, reverse=False):
         super().__init__()
 
@@ -287,7 +287,7 @@ class ListedColorMap(ColorMap):
         return (*elem, self.alpha)
 
 
-class SegmentedColorMap(ColorMap):
+class SegmentedColorMap(BaseColorMap):
     def __init__(self, length, mapper, alpha=1.0, reverse=False, **params):
         super().__init__()
 
@@ -308,7 +308,7 @@ class SegmentedColorMap(ColorMap):
         return (*color, self.alpha)
 
 
-class GoldenRatioColormap(ColorMap):
+class GoldenRatioColormap(BaseColorMap):
     def __init__(self, mapper, alpha=1.0, reverse=False, **params):
         super().__init__()
 
@@ -328,7 +328,7 @@ class GoldenRatioColormap(ColorMap):
         return (*color, self.alpha)
 
 
-class SeededColormap(ColorMap):
+class SeededColormap(BaseColorMap):
     def __init__(self, seed_value, mapper, alpha=1.0, no_param=False, **params):
         super().__init__()
 
@@ -352,7 +352,7 @@ class SeededColormap(ColorMap):
         seed(self.seed_value)
 
 
-class CM:
+class ColorMap:
     @staticmethod
     def accent(alpha=1.0, reverse=False):
         return ListedColorMap(colormaps["Accent"], alpha=alpha, reverse=reverse)
@@ -429,6 +429,33 @@ class CM:
             return SegmentedColorMap(length, hsv_mapper, alpha=alpha, reverse=reverse)
         elif colormap.startswith("mpl"):
             _, name = colormap.split(":")
+            if not isinstance(mpl.colormaps[name], mpl.colors.LinearSegmentedColormap):
+                raise ValueError(
+                    f"{name} is not a segemented matplotlib colormap, use ColorMap.listed({length}, {colormap}))"
+                )
+                name = default
             return SegmentedColorMap(
                 length, matplotlib_mapper, alpha=alpha, name=name, reverse=reverse
+            )
+
+    @staticmethod
+    def listed(length=10, colormap="mpl:plasma", colors=None, alpha=1.0, reverse=False):
+        if colors is not None:
+            return ListedColorMap(
+                colors,
+                alpha=alpha,
+                reverse=reverse,
+            )
+        else:
+            _, name = colormap.split(":")
+            colormap = mpl.colormaps[name]
+            if not isinstance(colormap, mpl.colors.ListedColormap):
+                f"{name} is not a listed matplotlib colormap, use ColorMap.segmented({length}, {colormap}))"
+
+            interval = len(colormap.colors) // (length - 1)
+
+            return ListedColorMap(
+                [colormap.colors[i] for i in range(0, len(colormap.colors), interval)],
+                alpha=alpha,
+                reverse=reverse,
             )

@@ -408,7 +408,7 @@ def show(
 
     # Handle colormaps
 
-    if isinstance(colors, ColorMap):
+    if isinstance(colors, BaseColorMap):
         colors = [next(colors) for _ in range(len(cad_objs))]
         alphas = [None] * len(cad_objs)  # alpha is encoded in colors
     else:
