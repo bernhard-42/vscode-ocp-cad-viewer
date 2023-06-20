@@ -35,6 +35,7 @@ export class CadqueryController {
     server: Server | undefined;
     pythonListener: WebSocket | undefined;
     statusController: StatusManagerProvider;
+    statusBarItem: vscode.StatusBarItem;
     view: vscode.Webview | undefined;
     port: number;
     viewer_message = "{}";
@@ -43,10 +44,12 @@ export class CadqueryController {
     constructor(
         private context: vscode.ExtensionContext,
         port: number,
-        statusController: StatusManagerProvider
+        statusController: StatusManagerProvider,
+        statusBarItem: vscode.StatusBarItem
     ) {
         this.port = port;
         this.statusController = statusController;
+        this.statusBarItem = statusBarItem;
 
         if (!serverStarted) {
             serverStarted = this.startCommandServer(this.port);
@@ -195,5 +198,6 @@ export class CadqueryController {
         serverStarted = false;
         output.info("Server is shut down");
         this.statusController.refresh("<none>");
+        this.statusBarItem.hide();
     }
 }

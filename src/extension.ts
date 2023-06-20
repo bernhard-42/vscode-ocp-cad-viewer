@@ -79,7 +79,6 @@ export async function activate(context: vscode.ExtensionContext) {
     }
     statusBarItem.command = 'ocpCadViewer.toggleWatch';
     context.subscriptions.push(statusBarItem);
-    statusBarItem.show();
 
     //	Commands
 
@@ -103,6 +102,7 @@ export async function activate(context: vscode.ExtensionContext) {
             async () => {
                 output.show();
 
+                statusBarItem.show();
                 let useDefault = true;
                 let port = 3939;
 
@@ -140,7 +140,8 @@ export async function activate(context: vscode.ExtensionContext) {
                     controller = new CadqueryController(
                         context,
                         port,
-                        statusManager
+                        statusManager, 
+                        statusBarItem,
                     );
 
                     if (controller.isStarted()) {
@@ -442,6 +443,7 @@ export async function activate(context: vscode.ExtensionContext) {
         libraryManager.refresh(pythonPath);
         controller.dispose();
         CadqueryViewer.currentPanel?.dispose();
+        statusBarItem.hide();
     });
 }
 
