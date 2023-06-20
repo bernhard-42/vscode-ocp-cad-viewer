@@ -21,7 +21,7 @@ import * as fs from "fs";
 import * as os from "os";
 import { CadqueryController } from "./controller";
 import { CadqueryViewer } from "./viewer";
-import { createLibraryManager, installLib, Library } from "./libraryManager";
+import { createLibraryManager, installLib, Library, LibraryManagerProvider } from "./libraryManager";
 import { createStatusManager } from "./statusManager";
 import { download } from "./examples";
 import { getCurrentFolder, jupyterExtensionInstalled } from "./utils";
@@ -29,16 +29,8 @@ import { version } from "./version";
 import * as semver from "semver";
 import { createDemoFile } from "./demo"
 
-export async function activate(context: vscode.ExtensionContext) {
-    let controller: CadqueryController;
-    let isWatching = false;
 
-    let statusManager = createStatusManager();
-    await statusManager.refresh("");
-
-    let libraryManager = createLibraryManager(statusManager);
-    await libraryManager.refresh();
-
+function check_upgrade(libraryManager: LibraryManagerProvider) {
     const ocp_vscode_lib = libraryManager.installed["ocp_vscode"];
 
     if (ocp_vscode_lib) {
@@ -60,6 +52,18 @@ export async function activate(context: vscode.ExtensionContext) {
     } else {
         output.info(`ocp_vscode library not installed`);
     }
+}
+
+
+export async function activate(context: vscode.ExtensionContext) {
+    let controller: CadqueryController;
+    let isWatching = false;
+
+    let statusManager = createStatusManager();
+    await statusManager.refresh("");
+
+    let libraryManager = createLibraryManager(statusManager);
+    await libraryManager.refresh();
 
     //	Statusbar
 
@@ -103,6 +107,8 @@ export async function activate(context: vscode.ExtensionContext) {
                 output.show();
 
                 statusBarItem.show();
+                check_upgrade(libraryManager);
+
                 let useDefault = true;
                 let port = 3939;
 
@@ -140,7 +146,7 @@ export async function activate(context: vscode.ExtensionContext) {
                     controller = new CadqueryController(
                         context,
                         port,
-                        statusManager, 
+                        statusManager,
                         statusBarItem,
                     );
 
