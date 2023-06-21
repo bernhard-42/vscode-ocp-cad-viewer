@@ -10,3 +10,4 @@ ocp_vscode/__pycache__
 build
 dist
 .DS_Store
+lego.py
