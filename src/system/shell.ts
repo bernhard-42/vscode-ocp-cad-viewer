@@ -14,7 +14,7 @@ function parsePipLibs(jsonData: string) {
 export function pipList(python: string): Map<string, string> {
     let workspaceFolder = getCurrentFolder();
     try {
-        let result = execSync(`${python} -m pip list --format json`, { cwd: workspaceFolder }).toString();
+        let result = execSync(`"${python}" -m pip list --format json`, { cwd: workspaceFolder }).toString();
         return parsePipLibs(result);
     } catch (error: any) {
         output.error(error.stderr.toString());
@@ -24,7 +24,7 @@ export function pipList(python: string): Map<string, string> {
 
 export function execute(cmd: string) {
     let currentFolder = getCurrentFolder();
-    if(currentFolder === "") {
+    if (currentFolder === "") {
         currentFolder = ".";
     }
     try {
@@ -38,7 +38,7 @@ export function execute(cmd: string) {
 
 export function pythonVersion(python: string): string {
     try {
-        return execSync(`${python} --version`).toString();
+        return execSync(`"${python}" --version`).toString();
     } catch (error: any) {
         output.error(error.stderr.toString());
         return "";

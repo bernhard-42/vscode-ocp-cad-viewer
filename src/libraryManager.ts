@@ -219,7 +219,7 @@ export class LibraryManagerProvider
             if (lib === "ocp_vscode") {
                 command = command.replace("{ocp_vscode_version}", ocp_vscode_version);
             };
-            command = command.replace("{python}", python);
+            command = command.replace("{python}", '"' + python + '"');
             if (manager === "") {
                 manager = (command.startsWith("conda") || command.startsWith("mamba")) ? command.split(" ")[0] : "pip";
             }
