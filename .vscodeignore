@@ -1,1 +1,13 @@
+screenshots/build123d_snippet.gif
 screenshots/debug.gif
+screenshots/install-libraries.gif
+screenshots/ocp_vscode-examples.gif
+screenshots/run-code.gif
+screenshots/quickstart.gif
+node_modules/three/examples/jsm/libs/rhino3dm/rhino3dm.wasm
+node_modules/three-cad-viewer/dist/three-cad-viewer.esm.css
+node_modules/three-cad-viewer/dist/three-cad-viewer.esm.min.css
+node_modules/three-cad-viewer/dist/three-cad-viewer.esm.min.js
+node_modules/three-cad-viewer/dist/three-cad-viewer.js
+node_modules/three-cad-viewer/dist/three-cad-viewer.min.css
+node_modules/three-cad-viewer/dist/three-cad-viewer.min.js
