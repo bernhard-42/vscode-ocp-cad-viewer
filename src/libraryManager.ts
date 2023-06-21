@@ -271,7 +271,7 @@ export class LibraryManagerProvider
         this.installed = {};
 
         try {
-            let command = `${python} -m pip list -v --format json`;
+            let command = `"${python}" -m pip list -v --format json`;
             let allLibs = execute(command);
             let libs = JSON.parse(allLibs);
             libs.forEach((lib: any) => {
