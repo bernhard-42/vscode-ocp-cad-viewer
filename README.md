@@ -9,6 +9,7 @@ _OCP CAD Viewer_ for VS Code is an extension to show [CadQuery](https://github.c
 -   A fairly recent version of Microsoft VS Code, e.g. 1.76.0 or newer
 -   The [Python extension](https://marketplace.visualstudio.com/items?itemName=ms-python.python) installed in VS Code
 -   `python` and `pip` available in the Python enviroment that will be used for CAD development
+-   The command `git` needs to be available
 -   On a Silicon Apple computer `mamba`
 
 **Notes**:
@@ -21,7 +22,7 @@ _OCP CAD Viewer_ for VS Code is an extension to show [CadQuery](https://github.c
 
 ### Installation
 
-1. Open the VS Code Marketplace, and search and install _OCP CAD Viewer 1.1.1_.
+1. Open the VS Code Marketplace, and search and install _OCP CAD Viewer 1.1.2_.
 
     Afterwards the OCP viewer is available in the VS Code sidebar:
 
@@ -92,7 +93,7 @@ You can also use "Library Manager" in the _OCP CAD Viewer_ sidebar to manage the
 
 ## Changes
 
-v1.1.1
+v1.1.2
 
 -   Added Visual debugging (including a toggle switch in the status bar)
 -   Added function `show_all` and `show_clear` for the visual debugging
