@@ -348,7 +348,7 @@ export async function activate(context: vscode.ExtensionContext) {
                         if (reply === "yes") {
                             createDemoFile(arg).then(async (b) => {
                                 if (b) {
-                                    await new Promise(resolve => setTimeout(resolve, 200));
+                                    await new Promise(resolve => setTimeout(resolve, 400));
                                     await vscode.commands.executeCommand("ocpCadViewer.ocpCadViewer");
                                 }
                             })
