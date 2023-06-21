@@ -1,6 +1,6 @@
 # _OCP CAD Viewer_ for VS Code
 
-_OCP CAD Viewer_ for VS Code is an extension to show [CadQuery](https://github.com/cadquery/cadquery) and [build123d](https://github.com/gumyr/build123d) objects in VS Code via the[three-cad-viewer](https://github.com/bernhard-42/three-cad-viewer) viewer component.
+_OCP CAD Viewer_ for VS Code is an extension to show [CadQuery](https://github.com/cadquery/cadquery) and [build123d](https://github.com/gumyr/build123d) objects in VS Code via the [three-cad-viewer](https://github.com/bernhard-42/three-cad-viewer) viewer component.
 
 ## Installation
 
@@ -53,6 +53,7 @@ _OCP CAD Viewer_ for VS Code is an extension to show [CadQuery](https://github.c
     -   start the OCP viewer
     -   create a demo file in a temporary folder to quickly see a simple usage example
 
+
 ## Usage
 
 ### Running code using Jupyter
@@ -81,6 +82,7 @@ You can also use "Library Manager" in the _OCP CAD Viewer_ sidebar to manage the
 
 ### Extra topics
 
+-   [Quickstart experience on Windows](docs/quickstart.md)
 -   [Use Jupyter to execute code](docs/run.md)
 -   [Debug code with visual debugging](docs/debug.md)
 -   [Use the `show` command](docs/show.md)
