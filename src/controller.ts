@@ -186,6 +186,7 @@ export class CadqueryController {
 
             httpServer.listen(port, () => {
                 output.info(`Server started on port ${port}`);
+                this.server = httpServer;
                 resolve(true);
             });
 
