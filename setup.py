@@ -2,13 +2,13 @@ from setuptools import setup, find_packages
 
 setup_args = {
     "name": "ocp_vscode",
-    "version": "1.1.2",
+    "version": "1.1.3",
     "description": "OCP CAD Viewer for VSCode",
     "long_description": "An extension to show OCP cad CAD objects (CadQuery, build123d) in VS Code via pythreejs",
     "include_package_data": True,
     "python_requires": ">=3.9",
     "install_requires": [
-        "ocp-tessellate>=1.1.0,<1.2.0",
+        "ocp-tessellate>=1.1.1,<1.2.0",
         "requests",
         "ipykernel",
         "orjson",
