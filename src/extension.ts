@@ -109,31 +109,9 @@ export async function activate(context: vscode.ExtensionContext) {
                 statusBarItem.show();
                 check_upgrade(libraryManager);
 
-                let useDefault = true;
                 let port = 3939;
 
-                while (true) {
-                    if (!useDefault) {
-                        let value = await vscode.window.showInputBox({
-                            prompt: `Port ${port} in use, select another port`,
-                            placeHolder: "1024 .. 49152",
-                            validateInput: (text: string) => {
-                                let port = Number(text);
-                                if (Number.isNaN(port)) {
-                                    return "Not a valid number";
-                                } else if (port < 1024 || port > 49151) {
-                                    return "Number out of range";
-                                }
-                                return null;
-                            }
-                        });
-                        if (value === undefined) {
-                            output.error("Cancelling");
-                            break;
-                        }
-
-                        port = Number(value);
-                    }
+                while (true && (port < 49152)) {
                     const editor = vscode.window?.activeTextEditor?.document;
                     if (editor === undefined) {
                         output.error("No editor open");
@@ -150,6 +128,8 @@ export async function activate(context: vscode.ExtensionContext) {
                         statusBarItem,
                     );
 
+                    await controller.start();
+
                     if (controller.isStarted()) {
                         vscode.window.showTextDocument(editor, column);
 
@@ -165,8 +145,8 @@ export async function activate(context: vscode.ExtensionContext) {
                         controller.logo();
                         break;
                     } else {
-                        output.info(`Restarting ...`);
-                        useDefault = false;
+                        port++;
+                        output.info(`Trying port ${port} ...`);
                     }
                 }
             }

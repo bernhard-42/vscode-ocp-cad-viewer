@@ -18,7 +18,8 @@
 import * as vscode from "vscode";
 import { CadqueryViewer } from "./viewer";
 import { template } from "./display";
-import { WebSocket, Server } from "ws";
+import { createServer, Server } from 'http';
+import { WebSocket, WebSocketServer } from 'ws';
 import * as output from "./output";
 import { logo } from "./logo";
 import { StatusManagerProvider } from "./statusManager";
@@ -50,35 +51,6 @@ export class CadqueryController {
         this.port = port;
         this.statusController = statusController;
         this.statusBarItem = statusBarItem;
-
-        if (!serverStarted) {
-            serverStarted = this.startCommandServer(this.port);
-            if (serverStarted) {
-                output.info("Starting websocket server ...");
-                CadqueryViewer.createOrShow(this.context.extensionUri, this);
-                let panel = CadqueryViewer.currentPanel;
-                this.view = panel?.getView();
-                if (this.view !== undefined) {
-                    const stylePath = vscode.Uri.joinPath(this.context.extensionUri, "node_modules", "three-cad-viewer", "dist", "three-cad-viewer.css");
-                    const scriptPath = vscode.Uri.joinPath(this.context.extensionUri, "node_modules", "three-cad-viewer", "dist", "three-cad-viewer.esm.js");
-                    const htmlPath = vscode.Uri.joinPath(this.context.extensionUri, "resources", "webview.html");
-                    const styleSrc = this.view.asWebviewUri(stylePath);
-                    const scriptSrc = this.view.asWebviewUri(scriptPath);
-                    const htmlSrc = this.view.asWebviewUri(htmlPath);
-                    CadqueryViewer.currentPanel?.update(template(styleSrc, scriptSrc, htmlSrc));
-
-                    this.view.onDidReceiveMessage(
-                        message => {
-                            this.viewer_message = message;
-                            if (this.pythonListener !== undefined) {
-                                output.debug("Sending message to python: " + message);
-                                this.pythonListener.send(message);
-                            }
-                        });
-
-                }
-            }
-        }
     }
 
     public isStarted(): boolean {
@@ -126,35 +98,70 @@ export class CadqueryController {
         return c
     }
 
-    public startCommandServer(port: number): boolean {
+    async start() {
+        if (!serverStarted) {
+            serverStarted = await this.startCommandServer(this.port);
+            if (serverStarted) {
+                output.info("Starting websocket server ...");
+                CadqueryViewer.createOrShow(this.context.extensionUri, this);
+                let panel = CadqueryViewer.currentPanel;
+                this.view = panel?.getView();
+                if (this.view !== undefined) {
+                    const stylePath = vscode.Uri.joinPath(this.context.extensionUri, "node_modules", "three-cad-viewer", "dist", "three-cad-viewer.css");
+                    const scriptPath = vscode.Uri.joinPath(this.context.extensionUri, "node_modules", "three-cad-viewer", "dist", "three-cad-viewer.esm.js");
+                    const htmlPath = vscode.Uri.joinPath(this.context.extensionUri, "resources", "webview.html");
+                    const styleSrc = this.view.asWebviewUri(stylePath);
+                    const scriptSrc = this.view.asWebviewUri(scriptPath);
+                    const htmlSrc = this.view.asWebviewUri(htmlPath);
+                    CadqueryViewer.currentPanel?.update(template(styleSrc, scriptSrc, htmlSrc));
 
-        this.server = new WebSocket.Server({ port: port });
-        const server = this.server;
-        try {
-            server.on('connection', (socket) => {
+                    this.view.onDidReceiveMessage(
+                        message => {
+                            this.viewer_message = message;
+                            if (this.pythonListener !== undefined) {
+                                output.debug("Sending message to python: " + message);
+                                this.pythonListener.send(message);
+                            }
+                        });
+
+                }
+            }
+        }
+    }
+
+    public startCommandServer(port: number): Promise<boolean> {
+        return new Promise<boolean>((resolve, reject) => {
+            const httpServer = createServer();
+            const wss = new WebSocketServer({ server: httpServer });
+
+            wss.on('connection', (socket) => {
                 output.info('Client connected');
 
                 socket.on('message', (message) => {
-                    const raw_data = message.toString()
-                    const messageType = raw_data.substring(0, 1)
-                    var data = message.toString().substring(2);
-                    if (messageType === "C") {
-                        data = JSON.parse(data);
-                        if (data === "status") {
-                            socket.send(this.viewer_message);
-                        } else if (data === "config") {
-                            socket.send(JSON.stringify(this.config()));
+                    try {
+                        const raw_data = message.toString()
+                        const messageType = raw_data.substring(0, 1)
+                        var data = message.toString().substring(2);
+                        if (messageType === "C") {
+                            data = JSON.parse(data);
+                            if (data === "status") {
+                                socket.send(this.viewer_message);
+                            } else if (data === "config") {
+                                socket.send(JSON.stringify(this.config()));
+                            }
+
+                        } else if (messageType === "D") {
+                            output.debug("Received a new model");
+                            this.view?.postMessage(data);
+                            output.debug("Posted model to view");
+                            if (this.splash) { this.splash = false }
+
+                        } else if (messageType === "L") {
+                            this.pythonListener = socket;
+                            output.debug("Listener registered");
                         }
-
-                    } else if (messageType === "D") {
-                        output.debug("Received a new model");
-                        this.view?.postMessage(data);
-                        output.debug("Posted model to view");
-                        if (this.splash) { this.splash = false }
-
-                    } else if (messageType === "L") {
-                        this.pythonListener = socket;
-                        output.debug("Listener registered");
+                    } catch (error: any) {
+                        output.error(`Server error: ${error.message}`);
                     }
                 });
 
@@ -165,17 +172,24 @@ export class CadqueryController {
                         output.debug("Listener deregistered");
                     }
                 });
+
             });
-        } catch (error: any) {
-            output.error(`Server error: ${error.message}`);
-            return false;
-        }
 
-        this.server.on('error', (error) => {
-            output.error(`Server error: ${error.message}`);
+            wss.on('error', (error) => {
+                output.error(`Server error: ${error.message}`);
+            });
+
+            httpServer.on('error', (error) => {
+                output.error(`Server error: ${error.message}`);
+                resolve(false);
+            });
+
+            httpServer.listen(port, () => {
+                output.info(`Server started on port ${port}`);
+                resolve(true);
+            });
+
         });
-
-        return true;
     }
 
     public stopCommandServer() {
