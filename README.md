@@ -26,7 +26,7 @@ _OCP CAD Viewer_ for VS Code is an extension to show [CadQuery](https://github.c
 
 ### Installation
 
-1. Open the VS Code Marketplace, and search and install _OCP CAD Viewer 1.1.2_.
+1. Open the VS Code Marketplace, and search and install _OCP CAD Viewer 1.1.3_.
 
     Afterwards the OCP viewer is available in the VS Code sidebar:
 
@@ -167,6 +167,12 @@ You can also use "Library Manager" in the _OCP CAD Viewer_ sidebar to manage the
         ![named contexts](./screenshots/context_vars.png)
 
 ## Changes
+
+v1.1.3
+
+-   Fix racing conditions that prevented having more than one viewer window
+-   No need to add port for next viewer any more. The default port 3939 will be incremented until a free port is found
+-   Use ocp-tessellate 1.1.1 (fixes axis helper scale)
 
 v1.1.2
 
