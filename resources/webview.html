@@ -44,8 +44,10 @@
         };
 
         const renderDefaultOptions = {
-            ambientIntensity: 0.75,
-            directIntensity: 0.15,
+            ambientIntensity: 1.00,
+            directIntensity: 1.10,
+            metalness: 0.30,
+            roughness: 0.65,
             edgeColor: 0x707070,
             defaultOpacity: 0.5,
             normalLen: 0,
@@ -221,6 +223,8 @@
             const renderOptions = {
                 ambientIntensity: preset(_config.ambient_intensity, renderDefaultOptions.ambientIntensity),
                 directIntensity: preset(_config.direct_intensity, renderDefaultOptions.directIntensity),
+                metalness: preset(_config.metalness, renderDefaultOptions.metalness),
+                roughness: preset(_config.roughness, renderDefaultOptions.roughness),
                 edgeColor: preset(_config.default_edgecolor, renderDefaultOptions.defaultEdgecolor),
                 defaultOpacity: preset(_config.default_opacity, renderDefaultOptions.defaultOpacity),
                 normalLen: preset(_config.normal_len, renderDefaultOptions.normalLen),
@@ -392,9 +396,13 @@
                     } else if (key === "default_opacity") {
                         viewer.setOpacity(data.config[key]);
                     } else if (key === "ambient_intensity") {
-                        viewer.setAmbientLight(data.config[key]);
+                        viewer.display.setAmbientLight(data.config[key]);
                     } else if (key === "direct_intensity") {
-                        viewer.setDirectLight(data.config[key]);
+                        viewer.display.setDirectLight(data.config[key]);
+                    } else if (key === "metalness") {
+                        viewer.display.setMetalness(data.config[key]);
+                    } else if (key === "roughness") {
+                        viewer.display.setRoughness(data.config[key]);
                     } else if (key === "zoom_speed") {
                         viewer.setZoomSpeed(data.config[key]);
                     } else if (key === "pan_speed") {

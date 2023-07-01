@@ -62,8 +62,11 @@ Valid keywords to configure the viewer:
     default_facecolor:       Default color of the edges of a mesh (default=#ee82ee)
     default_thickedgecolor:  Default color of the edges of a mesh (default=#ba55d3)
     default_vertexcolor:     Default color of the edges of a mesh (default=#ba55d3)
-    ambient_intensity        Intensity of ambient ligth (default=1.0)
-    direct_intensity         Intensity of direct lights (default=0.12)
+    ambient_intensity:       Intensity of ambient light (default=1.00)
+    direct_intensity:        Intensity of direct light (default=1.10)
+    metalness:               Metalness property of the default material (default=0.30)
+    roughness:               Roughness property of the default material (default=0.65)
+
 
     render_edges:            Render edges  (default=True)
     render_normals:          Render normals (default=False)

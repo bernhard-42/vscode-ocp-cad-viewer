@@ -388,15 +388,27 @@
                 },
                 "OcpCadViewer.render.ambient_intensity": {
                     "type": "number",
-                    "default": 0.75,
-                    "description": "Intensity of ambient light (default: 0.75)",
+                    "default": 1,
+                    "description": "Intensity of ambient light (default: 1.00)",
                     "order": 40
                 },
                 "OcpCadViewer.render.direct_intensity": {
                     "type": "number",
-                    "default": 0.15,
-                    "description": "Intensity of direct light (default: 0.15)",
+                    "default": 1.1,
+                    "description": "Intensity of direct light (default: 1.10)",
                     "order": 41
+                },
+                "OcpCadViewer.render.metalness": {
+                    "type": "number",
+                    "default": 0.3,
+                    "description": "Metalness property of material (default: 0.30)",
+                    "order": 42
+                },
+                "OcpCadViewer.render.roughness": {
+                    "type": "number",
+                    "default": 0.65,
+                    "description": "Roughness property of material (default: 0.65)",
+                    "order": 43
                 },
                 "OcpCadViewer.advanced.watchCommands": {
                     "type": "string",

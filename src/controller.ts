@@ -94,6 +94,8 @@ export class CadqueryController {
         c["default_vertexcolor"] = options.get("default_vertexcolor");
         c["ambient_intensity"] = options.get("ambient_intensity");
         c["direct_intensity"] = options.get("direct_intensity");
+        c["metalness"] = options.get("metalness");
+        c["roughness"] = options.get("roughness");
         c["_splash"] = this.splash;
         return c
     }

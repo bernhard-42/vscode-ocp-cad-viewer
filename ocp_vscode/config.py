@@ -35,6 +35,10 @@ CONFIG_UI_KEYS = [
     "ortho",
     "transparent",
     "explode",
+    "ambient_intensity",
+    "direct_intensity",
+    "metalness",
+    "roughness",
 ]
 
 CONFIG_WORKSPACE_KEYS = CONFIG_UI_KEYS + [
@@ -53,6 +57,9 @@ CONFIG_WORKSPACE_KEYS = CONFIG_UI_KEYS + [
     "zoom_speed",
     # render settings
     "ambient_intensity",
+    "direct_intensity",
+    "metalness",
+    "roughness",
     "angular_tolerance",
     "default_color",
     "default_edgecolor",
@@ -61,7 +68,6 @@ CONFIG_WORKSPACE_KEYS = CONFIG_UI_KEYS + [
     "default_vertexcolor",
     "default_opacity",
     "deviation",
-    "direct_intensity",
 ]
 
 CONFIG_CONTROL_KEYS = [
@@ -94,6 +100,8 @@ CONFIG_SET_KEYS = [
     "default_opacity",
     "ambient_intensity",
     "direct_intensity",
+    "metalness",
+    "roughness",
     "zoom_speed",
     "pan_speed",
     "rotate_speed",
@@ -132,6 +140,8 @@ def set_viewer_config(
     default_opacity=None,
     ambient_intensity=None,
     direct_intensity=None,
+    metalness=None,
+    roughness=None,
     zoom_speed=None,
     pan_speed=None,
     rotate_speed=None,
@@ -186,6 +196,8 @@ def set_defaults(
     default_edgecolor=None,
     ambient_intensity=None,
     direct_intensity=None,
+    metalness=None,
+    roughness=None,
     render_edges=None,
     render_normals=None,
     render_mates=None,
@@ -234,8 +246,10 @@ def set_defaults(
 
         default_color:     Default mesh color (default=(232, 176, 36))
         default_edgecolor: Default mesh color (default=(128, 128, 128))
-        ambient_intensity  Intensity of ambient ligth (default=1.0)
-        direct_intensity   Intensity of direct lights (default=0.12)
+        ambient_intensity: Intensity of ambient light (default=1.00)
+        direct_intensity:  Intensity of direct light (default=1.10)
+        metalness:         Metalness property of the default material (default=0.30)
+        roughness:         Roughness property of the default material (default=0.65)
 
         render_edges:      Render edges  (default=True)
         render_normals:    Render normals (default=False)

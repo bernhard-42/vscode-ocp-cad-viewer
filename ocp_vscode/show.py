@@ -298,6 +298,8 @@ def show(
     default_vertexcolor=None,
     ambient_intensity=None,
     direct_intensity=None,
+    metalness=None,
+    roughness=None,
     render_edges=None,
     render_normals=None,
     render_mates=None,
@@ -363,8 +365,10 @@ def show(
         default_facecolor:       Default color of the edges of a mesh (default=#ee82ee)
         default_thickedgecolor:  Default color of the edges of a mesh (default=#ba55d3)
         default_vertexcolor:     Default color of the edges of a mesh (default=#ba55d3)
-        ambient_intensity        Intensity of ambient ligth (default=1.0)
-        direct_intensity         Intensity of direct lights (default=0.12)
+        ambient_intensity:       Intensity of ambient light (default=1.00)
+        direct_intensity:        Intensity of direct light (default=1.10)
+        metalness:               Metalness property of the default material (default=0.30)
+        roughness:               Roughness property of the default material (default=0.65)
 
         render_edges:            Render edges  (default=True)
         render_normals:          Render normals (default=False)
@@ -496,6 +500,8 @@ def show_object(
     default_vertexcolor=None,
     default_edgecolor=None,
     ambient_intensity=None,
+    metalness=None,
+    roughness=None,
     direct_intensity=None,
     render_edges=None,
     render_normals=None,
@@ -564,8 +570,11 @@ def show_object(
         default_facecolor:       Default color of the edges of a mesh (default=#ee82ee / Violet)
         default_thickedgecolor:  Default color of the edges of a mesh (default=#ba55d3 / MediumOrchid)
         default_vertexcolor:     Default color of the edges of a mesh (default=#ba55d3 / MediumOrchid)
-                                 ambient_intensity  Intensity of ambient ligth (default=1.0)
-        direct_intensity         Intensity of direct lights (default=0.12)
+        ambient_intensity:       Intensity of ambient light (default=1.00)
+        direct_intensity:        Intensity of direct light (default=1.10)
+        metalness:               Metalness property of the default material (default=0.30)
+        roughness:               Roughness property of the default material (default=0.65)
+
 
         render_edges:            Render edges  (default=True)
         render_normals:          Render normals (default=False)
