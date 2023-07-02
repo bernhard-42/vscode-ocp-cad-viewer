@@ -142,6 +142,9 @@
         }
 
         function nc(change) {
+            if(_config.debug) {
+                console.log(change);
+            }
             if (change.zoom !== undefined) {
                 _zoom = change.zoom.new;
             }
