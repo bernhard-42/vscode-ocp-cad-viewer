@@ -126,6 +126,20 @@
 
             data.data.instances = []
         }
+        
+        function vector3(initArray) {
+            if (viewer){
+                let v = viewer.camera.getCamera().position.clone() // just get some THREE.Vector3
+                if (initArray) {
+                    v.fromArray(initArray);
+                } else {
+                    v.fromArray([0, 0, 0]);
+                }
+                return v;
+            } else {
+                
+            }
+        }
 
         function nc(change) {
             if (change.zoom !== undefined) {
@@ -307,29 +321,23 @@
 
             if (!_config.reset_camera) {
                 // viewer.recenterCamera();  TODO: doesn't work when using viewer method
-                
                 const camera = viewer.camera.getCamera();
 
-                const center = camera.position.clone();  // just get some THREE.Vector3
-                const c = viewer.bbox.center()
-                center.fromArray(c);
+                const center = vector3(viewer.bbox.center());
+                const target = vector3(viewer.controls.target);
 
-                const target = camera.position.clone();  // just get some THREE.Vector3
-                const t = viewer.controls.target;
-                target.fromArray(t);
-
-                viewer.camera.camera_distance = 5 * viewer.bb_radius;
                 camera.position.sub(target).add(center)
-                viewer.controls.controls.target = center;
-
-                let cameraDir = camera.position.clone();  // just get some THREE.Vector3
+                
+                let cameraDir = vector3();
                 camera.getWorldDirection(cameraDir);
-
-                let p = center.clone().add(cameraDir.normalize().multiplyScalar(-viewer.camera.camera_distance));
+                
+                viewer.camera.camera_distance = 5 * viewer.bb_radius;
+                let p = target.add(cameraDir.clone().normalize().multiplyScalar(-viewer.camera.camera_distance));
                 camera.position.set(p.x, p.y, p.z);
+
                 viewer.update(true, true);
             }
-
+            
             if (_config.debug) {
                 console.log("viewer", viewer);
             }
