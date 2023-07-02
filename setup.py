@@ -8,7 +8,7 @@ setup_args = {
     "include_package_data": True,
     "python_requires": ">=3.9",
     "install_requires": [
-        "ocp-tessellate>=1.1.1,<1.2.0",
+        "ocp-tessellate>=1.1.2,<1.2.0",
         "requests",
         "ipykernel",
         "orjson",
