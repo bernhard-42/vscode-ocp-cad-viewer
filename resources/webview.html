@@ -160,7 +160,7 @@
         }
 
         function normalizeWidth(width, glass) {
-            const treeWidth = glass ? 0 : preset(_config.treeWidth, displayDefaultOptions.treeWidth);
+            const treeWidth = glass ? 0 : preset(_config, "treeWidth", displayDefaultOptions.treeWidth);
             return Math.max(minWidth, width - treeWidth - 42);
         }
 
@@ -175,16 +175,16 @@
             }
         }
 
-        function preset(config, val) {
-            return (config === undefined) ? val : config;
+        function preset(config, key, val) {
+            return ((config === undefined) || (config[key] === undefined)) ? val : config[key];
         }
 
         function getDisplayOptions() {
             const size = getSize();
-            const glass = preset(_config.glass, displayDefaultOptions.glass);
+            const glass = preset(_config, "glass", displayDefaultOptions.glass);
             const theme = displayDefaultOptions.theme;
-            const tools = preset(_config.tools, displayDefaultOptions.tools);
-            const treeWidth = glass ? 0 : preset(_config.treeWidth, displayDefaultOptions.treeWidth);
+            const tools = preset(_config, "tools", displayDefaultOptions.tools);
+            const treeWidth = glass ? 0 : preset(_config, "treeWidth", displayDefaultOptions.treeWidth);
             return {
                 glass: glass,
                 treeWidth: treeWidth,
@@ -221,13 +221,13 @@
 
         function render() {
             const renderOptions = {
-                ambientIntensity: preset(_config.ambient_intensity, renderDefaultOptions.ambientIntensity),
-                directIntensity: preset(_config.direct_intensity, renderDefaultOptions.directIntensity),
-                metalness: preset(_config.metalness, renderDefaultOptions.metalness),
-                roughness: preset(_config.roughness, renderDefaultOptions.roughness),
-                edgeColor: preset(_config.default_edgecolor, renderDefaultOptions.defaultEdgecolor),
-                defaultOpacity: preset(_config.default_opacity, renderDefaultOptions.defaultOpacity),
-                normalLen: preset(_config.normal_len, renderDefaultOptions.normalLen),
+                ambientIntensity: preset(_config, "ambient_intensity", renderDefaultOptions.ambientIntensity),
+                directIntensity: preset(_config, "direct_intensity", renderDefaultOptions.directIntensity),
+                metalness: preset(_config, "metalness", renderDefaultOptions.metalness),
+                roughness: preset(_config, "roughness", renderDefaultOptions.roughness),
+                edgeColor: preset(_config, "default_edgecolor", renderDefaultOptions.defaultEdgecolor),
+                defaultOpacity: preset(_config, "default_opacity", renderDefaultOptions.defaultOpacity),
+                normalLen: preset(_config, "normal_len", renderDefaultOptions.normalLen),
             };
 
             if (_config.debug) {
@@ -235,22 +235,22 @@
             }
 
             viewerOptions = {
-                axes: preset(_config.axes, viewerDefaultOptions.axes),
-                axes0: preset(_config.axes0, viewerDefaultOptions.axes0),
-                blackEdges: preset(_config.black_edges, viewerDefaultOptions.black_edges),
-                grid: preset(_config.grid, viewerDefaultOptions.grid),
-                collapse: preset(_config.collapse, viewerDefaultOptions.collapse),
-                ortho: preset(_config.ortho, viewerDefaultOptions.ortho),
-                ticks: preset(_config.ticks, viewerDefaultOptions.ticks),
-                timeit: preset(_config.timeit, viewerDefaultOptions.timeit),
-                tools: preset(_config.tools, viewerDefaultOptions.tools),
-                glass: preset(_config.glass, viewerDefaultOptions.glass),
-                up: preset(_config.up, viewerDefaultOptions.up),
-                transparent: preset(_config.transparent, viewerDefaultOptions.transparent),
-                control: preset(_config.control, viewerDefaultOptions.control),
-                panSpeed: preset(_config.pan_speed, viewerDefaultOptions.panSpeed),
-                zoomSpeed: preset(_config.zoom_speed, viewerDefaultOptions.zoomSpeed),
-                rotateSpeed: preset(_config.rotate_speed, viewerDefaultOptions.rotateSpeed),
+                axes: preset(_config, "axes", viewerDefaultOptions.axes),
+                axes0: preset(_config, "axes0", viewerDefaultOptions.axes0),
+                blackEdges: preset(_config, "black_edges", viewerDefaultOptions.black_edges),
+                grid: preset(_config, "grid", viewerDefaultOptions.grid),
+                collapse: preset(_config, "collapse", viewerDefaultOptions.collapse),
+                ortho: preset(_config, "ortho", viewerDefaultOptions.ortho),
+                ticks: preset(_config, "ticks", viewerDefaultOptions.ticks),
+                timeit: preset(_config, "timeit", viewerDefaultOptions.timeit),
+                tools: preset(_config, "tools", viewerDefaultOptions.tools),
+                glass: preset(_config, "glass", viewerDefaultOptions.glass),
+                up: preset(_config, "up", viewerDefaultOptions.up),
+                transparent: preset(_config, "transparent", viewerDefaultOptions.transparent),
+                control: preset(_config, "control", viewerDefaultOptions.control),
+                panSpeed: preset(_config, "pan_speed", viewerDefaultOptions.panSpeed),
+                zoomSpeed: preset(_config, "zoom_speed", viewerDefaultOptions.zoomSpeed),
+                rotateSpeed: preset(_config, "rotate_speed", viewerDefaultOptions.rotateSpeed),
             };
             if (_config.zoom !== undefined) {
                 viewerOptions.zoom = _config.zoom;
@@ -267,7 +267,7 @@
 
             var shapesAndTree = viewer.renderTessellatedShapes(_shapes, _states, renderOptions)
 
-            if (preset(_config.reset_camera, true)) {
+            if (preset(_config, "reset_camera", true)) {
                 _zoom = null;
                 _position = null;
                 _quaternion = null;
