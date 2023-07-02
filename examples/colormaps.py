@@ -1,3 +1,5 @@
+# %%
+
 import copy
 from build123d import *
 from ocp_vscode import (
@@ -104,3 +106,5 @@ show(*boxes, colors=colors)
 
 sphere = Sphere(1)
 show(*spheres, colors=ColorMap.segmented(20, "mpl:hot"))
+
+# %%

@@ -1,3 +1,4 @@
+# %%
 import cadquery as cq
 from ocp_vscode import (
     show,
@@ -42,3 +43,5 @@ show_object(
     # Clear stack of objects
     clear=True,
 )
+
+# %%

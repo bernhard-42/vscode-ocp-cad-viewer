@@ -1,3 +1,4 @@
+# %%
 import copy
 from functools import reduce
 
@@ -208,6 +209,7 @@ lower_leg = LowerLeg("lower_leg")
 show(lower_leg, render_joints=True)
 
 # %%
+
 
 def reference(obj, label=None, color=None, location=None):
     new_obj = copy.copy(obj)
