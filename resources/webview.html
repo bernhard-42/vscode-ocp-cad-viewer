@@ -1,13 +1,14 @@
 <!DOCTYPE html>
 <!-- {var} are template variables and will be resolved in display.js-->
 <html>
+
 <head>
     <meta charset="utf-8" />
     <title>OCP CAD Viewer</title>
-    <link rel="stylesheet" href="{styleSrc}" />
+    <link rel="stylesheet" href="{ styleSrc }" />
 
     <script type="module">
-        import { Viewer, Timer } from "{scriptSrc}";
+        import { Viewer, Timer } from "{ scriptSrc }";
         var viewer = null;
         var _shapes = null;
         var _states = null;
@@ -20,27 +21,27 @@
         const minWidth = 665;
         const vscode = acquireVsCodeApi();
         var message = {};
-        
+
         const displayDefaultOptions = {
             cadWidth: 730,
             height: 525,
-            treeWidth: {treeWidth},
-            glass: {glass},
-            theme: '{theme}',
-            tools: {tools},
+            treeWidth: { treeWidth },
+            glass: { glass },
+            theme: '{ theme }',
+            tools: { tools },
             pinning: false,
         };
 
         const viewerDefaultOptions = {
             timeit: false,
-            tools: {tools},
-            glass: {glass},
-            up: '{up}',
+            tools: { tools },
+            glass: { glass },
+            up: '{ up }',
             zoom: 1.0,
             position: null,
             quaternion: null,
             target: null,
-            control: '{control}',
+            control: '{ control }',
         };
 
         const renderDefaultOptions = {
@@ -126,9 +127,9 @@
 
             data.data.instances = []
         }
-        
+
         function vector3(initArray) {
-            if (viewer){
+            if (viewer) {
                 let v = viewer.camera.getCamera().position.clone() // just get some THREE.Vector3
                 if (initArray) {
                     v.fromArray(initArray);
@@ -137,12 +138,12 @@
                 }
                 return v;
             } else {
-                
+
             }
         }
 
         function nc(change) {
-            if(_config.debug) {
+            if (_config.debug) {
                 console.log(change);
             }
             if (change.zoom !== undefined) {
