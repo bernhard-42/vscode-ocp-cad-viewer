@@ -689,7 +689,7 @@
         "adm-zip": "^0.5.10",
         "follow-redirects": "^1.15.2",
         "semver": "^7.5.1",
-        "three-cad-viewer": "1.8.3",
+        "three-cad-viewer": "1.8.5",
         "ws": "^8.13.0"
     }
 }
