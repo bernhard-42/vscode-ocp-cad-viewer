@@ -37,7 +37,11 @@ Valid keywords to configure the viewer:
     default_opacity:         Opacity value for transparent objects (default=0.5)
     black_edges:             Show edges in black color (default=False)
     orbit_control:           Mouse control use "orbit" control instead of "trackball" control (default=False)
-    collapse:                1: collapse all leaf nodes, C: collapse all nodes, E: expand all nodes (default=1)
+    collapse:                CollapseTree.LEAVES (or "1"): collapse all single leaf nodes, 
+                             CollapseTree.ROOT (or "R"): expand root only,
+                             CollapseTree.ALL (or "C"): collapse all nodes, 
+                             CollapseTree.NONE (or "E"): expand all nodes 
+                             (default="1" / CollapseTree.LEAVES)
     ticks:                   Hint for the number of ticks in both directions (default=10)
     up:                      Use z-axis ('Z') or y-axis ('Y') as up direction for the camera (default="Z")
     explode:                 Turn on explode mode (default=False)
@@ -46,7 +50,10 @@ Valid keywords to configure the viewer:
     position:                Camera position
     quaternion:              Camera orientation as quaternion
     target:                  Camera look at target
-    reset_camera:            Reset camera position, rotation and zoom to default (default=True)
+    reset_camera:            Camera.RESET (or True) Reset camera position, rotation, toom and target
+                             Camera.CENTER (or False) Keep camera position, rotation, toom, but look at center
+                             Camera.KEEP (or "keep") Keep camera position, rotation, toom, and target
+                             (default=Camera.RESET / True)
 
     pan_speed:               Speed of mouse panning (default=1)
     rotate_speed:            Speed of mouse rotate (default=1)

@@ -56,6 +56,7 @@ from .config import (
     get_default,
     status,
     set_viewer_config,
+    get_enum_or_value,
 )
 from .comms import send_data, MessageType
 from .colors import *
@@ -64,14 +65,33 @@ __all__ = ["show", "show_object", "reset_show", "show_all", "show_clear"]
 
 OBJECTS = {"objs": [], "names": [], "colors": [], "alphas": []}
 
+first_call = True
+
 
 def _tessellate(
     *cad_objs, names=None, colors=None, alphas=None, progress=None, **kwargs
 ):
+    global first_call
+
     if workspace_config().get("_splash"):
         conf = combined_config(use_status=False)
     else:
         conf = combined_config(use_status=True)
+        if first_call:
+            conf["reset_camera"] = "reset"
+            first_call = False
+
+    # translate enums
+    mapping = {
+        True: "reset",
+        "reset": "reset",
+        False: "center",
+        "center": "center",
+        "keep": "keep",
+    }
+    conf["reset_camera"] = mapping.get(get_enum_or_value(conf.get("reset_camera")))
+    mapping = {"1": 1, "E": 0, "C": 2, "R": 3}
+    conf["collapse"] = mapping.get(get_enum_or_value(conf.get("collapse")))
 
     if kwargs.get("default_facecolor") is not None:
         oc.FACE_COLOR = Color(kwargs["default_facecolor"]).percentage
@@ -210,9 +230,6 @@ def _convert(*cad_objs, names=None, colors=None, alphas=None, progress=None, **k
         config["theme"] = "dark"
     elif config.get("orbit_control") is not None:
         config["control"] = "orbit" if config["control"] else "trackball"
-    elif config.get("collapse") is not None:
-        mapping = {"1": 1, "E": 0, "C": 2, "R": 3}
-        config["collapse"] = mapping.get(config["collapse"], 1)
 
     if config.get("debug") is not None and config["debug"]:
         print("\nconfig:\n", config)
@@ -339,8 +356,11 @@ def show(
         default_opacity:         Opacity value for transparent objects (default=0.5)
         black_edges:             Show edges in black color (default=False)
         orbit_control:           Mouse control use "orbit" control instead of "trackball" control (default=False)
-        collapse:                1: collapse all single leaf nodes, R: expand root only,
-                                 C: collapse all nodes, E: expand all nodes (default=1)
+        collapse:                CollapseTree.LEAVES (or "1"): collapse all single leaf nodes,
+                                 CollapseTree.ROOT (or "R"): expand root only,
+                                 CollapseTree.ALL (or "C"): collapse all nodes,
+                                 CollapseTree.NONE (or "E"): expand all nodes
+                                 (default="1" / CollapseTree.LEAVES)
         ticks:                   Hint for the number of ticks in both directions (default=10)
         up:                      Use z-axis ('Z') or y-axis ('Y') as up direction for the camera (default="Z")
         explode:                 Turn on explode mode (default=False)
@@ -349,7 +369,10 @@ def show(
         position:                Camera position
         quaternion:              Camera orientation as quaternion
         target:                  Camera look at target
-        reset_camera:            Reset camera position, rotation and zoom to default (default=True)
+        reset_camera:            Camera.RESET (or True) Reset camera position, rotation, toom and target
+                                 Camera.CENTER (or False) Keep camera position, rotation, toom, but look at center
+                                 Camera.KEEP (or "keep") Keep camera position, rotation, toom, and target
+                                 (default=Camera.RESET / True)
 
         pan_speed:               Speed of mouse panning (default=1)
         rotate_speed:            Speed of mouse rotate (default=1)
@@ -545,8 +568,11 @@ def show_object(
         default_opacity:         Opacity value for transparent objects (default=0.5)
         black_edges:             Show edges in black color (default=False)
         orbit_control:           Mouse control use "orbit" control instead of "trackball" control (default=False)
-        collapse:                1: collapse all single leaf nodes, R: expand root only,
-                                 C: collapse all nodes, E: expand all nodes (default=1)
+        collapse:                CollapseTree.LEAVES (or "1"): collapse all single leaf nodes,
+                                 CollapseTree.ROOT (or "R"): expand root only,
+                                 CollapseTree.ALL (or "C"): collapse all nodes,
+                                 CollapseTree.NONE (or "E"): expand all nodes
+                                 (default="1" / CollapseTree.LEAVES)
         ticks:                   Hint for the number of ticks in both directions (default=10)
         up:                      Use z-axis ('Z') or y-axis ('Y') as up direction for the camera (default="Z")
 
@@ -554,7 +580,10 @@ def show_object(
         position:                Camera position
         quaternion:              Camera orientation as quaternion
         target:                  Camera look at target
-        reset_camera:            Reset camera position, rotation and zoom to default (default=True)
+        reset_camera:            Camera.RESET (or True) Reset camera position, rotation, toom and target
+                                 Camera.CENTER (or False) Keep camera position, rotation, toom, but look at center
+                                 Camera.KEEP (or "keep") Keep camera position, rotation, toom, and target
+                                 (default=Camera.RESET / True)
 
         pan_speed:               Speed of mouse panning (default=1)
         rotate_speed:            Speed of mouse rotate (default=1)
@@ -632,9 +661,6 @@ def show_object(
         progress=progress,
         **kwargs,
     )
-
-
-first_call = True
 
 
 def show_clear():

@@ -14,6 +14,8 @@
 # limitations under the License.
 #
 
+from enum import Enum
+
 from .comms import send_command, send_data, get_port
 
 __all__ = [
@@ -25,6 +27,9 @@ __all__ = [
     "get_default",
     "get_defaults",
     "status",
+    "Camera",
+    "CollapseTree",
+    "get_enum_or_value",
 ]
 
 CONFIG_UI_KEYS = [
@@ -122,6 +127,26 @@ DEFAULTS = {
     "reset_camera": True,
     "debug": False,
 }
+
+
+class Camera(Enum):
+    RESET = "reset"
+    CENTER = "center"
+    KEEP = "keep"
+
+
+class CollapseTree(Enum):
+    ALL = "C"
+    LEAVES = "1"
+    ROOT = "R"
+    NONE = "E"
+
+
+def get_enum_or_value(val):
+    if isinstance(val, Enum):
+        return val.value
+    else:
+        return val
 
 
 def set_viewer_config(
@@ -223,8 +248,11 @@ def set_defaults(
         default_opacity:   Opacity value for transparent objects (default=0.5)
         black_edges:       Show edges in black color (default=False)
         orbit_control:     Mouse control use "orbit" control instead of "trackball" control (default=False)
-        collapse:          1: collapse all single leaf nodes, R: expand root only,
-                           C: collapse all nodes, E: expand all nodes (default=1)
+        collapse:          CollapseTree.LEAVES (or "1"): collapse all single leaf nodes,
+                           CollapseTree.ROOT (or "R"): expand root only,
+                           CollapseTree.ALL (or "C"): collapse all nodes,
+                           CollapseTree.NONE (or "E"): expand all nodes
+                           (default="1" / CollapseTree.LEAVES)
         ticks:             Hint for the number of ticks in both directions (default=10)
         up:                Use z-axis ('Z') or y-axis ('Y') as up direction for the camera (default="Z")
         explode:           Turn on explode mode (default=False)
@@ -233,8 +261,10 @@ def set_defaults(
         position:          Camera position
         quaternion:        Camera orientation as quaternion
         target:            Camera look at target
-        reset_camera:      Reset camera position, rotation and zoom to default (default=True)
-
+        reset_camera:      Camera.RESET (or True) Reset camera position, rotation, toom and target
+                           Camera.CENTER (or False) Keep camera position, rotation, toom, but look at center
+                           Camera.KEEP (or "keep") Keep camera position, rotation, toom, and target
+                           (default=Camera.RESET / True)
         pan_speed:         Speed of mouse panning (default=1)
         rotate_speed:      Speed of mouse rotate (default=1)
         zoom_speed:        Speed of mouse zoom (default=1)
@@ -263,6 +293,10 @@ def set_defaults(
     """
 
     kwargs = {k: v for k, v in locals().items() if v is not None}
+
+    # translate enums
+    kwargs["reset_camera"] = get_enum_or_value(kwargs.get("reset_camera"))
+    kwargs["collapse"] = get_enum_or_value(kwargs.get("collapse"))
 
     if kwargs.get("mate_scale") is not None:
         print("\nmate_scale is deprecated, use helper_scale instead\n")
