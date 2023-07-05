@@ -18,6 +18,8 @@
         var _quaternion = null;
         var _target = null;
         var viewerOptions = {};
+        var last_bb_radius = null;
+
         const minWidth = 665;
         const vscode = acquireVsCodeApi();
         var message = {};
@@ -141,6 +143,21 @@
 
             }
         }
+        function length(v) {
+            return Math.sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
+        }
+
+        function normalize(v) {
+            let n = length(v);
+            return [v[0] / n, v[1] / n, v[2] / n];
+        }
+
+        function send(message) {
+            vscode.postMessage(JSON.stringify({
+                command: 'status',
+                text: message
+            }));
+        }
 
         function nc(change) {
             if (_config.debug) {
@@ -170,10 +187,7 @@
                 }
             });
             if (changed) {
-                vscode.postMessage(JSON.stringify({
-                    command: 'status',
-                    text: message
-                }))
+                send(message);
             }
         }
 
@@ -248,10 +262,6 @@
                 normalLen: preset(_config, "normal_len", renderDefaultOptions.normalLen),
             };
 
-            if (_config.debug) {
-                console.log("renderOptions", renderOptions);
-            }
-
             viewerOptions = {
                 axes: preset(_config, "axes", viewerDefaultOptions.axes),
                 axes0: preset(_config, "axes0", viewerDefaultOptions.axes0),
@@ -270,40 +280,77 @@
                 zoomSpeed: preset(_config, "zoom_speed", viewerDefaultOptions.zoomSpeed),
                 rotateSpeed: preset(_config, "rotate_speed", viewerDefaultOptions.rotateSpeed),
             };
-            if (_config.zoom !== undefined) {
-                viewerOptions.zoom = _config.zoom;
-            }
-            if (_config.position !== undefined) {
-                viewerOptions.position = _config.position;
-            }
-            if (_config.quaternion !== undefined) {
-                viewerOptions.quaternion = _config.quaternion;
-            }
-            if (_config.target !== undefined) {
-                viewerOptions.target = _config.target;
+
+            if (_config.debug) {
+                console.log("renderOptions", renderOptions);
             }
 
             var shapesAndTree = viewer.renderTessellatedShapes(_shapes, _states, renderOptions)
+            const bbox = shapesAndTree[0].boundingBox();
+            const center = bbox.center();
+            let bb_radius = Math.max(
+                bbox.boundingSphere().radius,
+                length(center)
+            );
 
-            if (preset(_config, "reset_camera", true)) {
+            var reset_camera = preset(_config, "reset_camera", "reset");
+
+            if ((reset_camera === "keep") && (last_bb_radius != null) && ((bb_radius < last_bb_radius / 2) || (bb_radius > last_bb_radius * 2))) {
+                reset_camera = "center";
+            }
+            last_bb_radius = bb_radius;
+
+
+            if (reset_camera === "reset") {
+                // even if reset is requested, respect the positino settings from the object
+                if (_config.zoom !== undefined) {
+                    viewerOptions.zoom = _config.zoom;
+                }
+                if (_config.position !== undefined) {
+                    viewerOptions.position = _config.position;
+                }
+                if (_config.quaternion !== undefined) {
+                    viewerOptions.quaternion = _config.quaternion;
+                }
+                if (_config.target !== undefined) {
+                    viewerOptions.target = _config.target;
+                }
+                // and set the state back to null
                 _zoom = null;
                 _position = null;
                 _quaternion = null;
                 _target = null;
+
             } else {
-                if (_zoom !== null) {
-                    viewerOptions["zoom"] = _zoom;
+                if (_position) {
+                    const camera_distance = 5 * bb_radius;
+
+                    var p = [0, 0, 0];
+                    for (var i = 0; i < 3; i++) {
+                        p[i] = _position[i] - _target[i];
+                    }
+                    p = normalize(p);
+                    var offset = (reset_camera === "keep") ? _target : center;
+                    for (var i = 0; i < 3; i++) {
+                        p[i] = p[i] * camera_distance + offset[i];
+                    }
+
+                    viewerOptions.position = p;
+
+                    _target = (reset_camera === "keep") ? _target : center;
+                    _position = p;
                 }
-                if (_position !== null) {
-                    viewerOptions["position"] = _position;
+                if (_quaternion) {
+                    viewerOptions.quaternion = _quaternion;
                 }
-                if (_quaternion !== null) {
-                    viewerOptions["quaternion"] = _quaternion;
+                if (_target) {
+                    viewerOptions.target = _target;
                 }
-                if (_target !== null) {
-                    viewerOptions["target"] = _target;
+                if (_zoom) {
+                    viewerOptions.zoom = _zoom;
                 }
             }
+
 
             if (_config.debug) {
                 console.log("viewerOptions", viewerOptions);
@@ -315,33 +362,18 @@
                 viewerOptions,
             );
 
+            message["position"] = viewer.getCameraPosition();
+            message["quaternion"] = viewer.getCameraQuaternion();
+            message["target"] = viewer.controls.getTarget();
+            message["zoom"] = viewer.getCameraZoom();
+
+            send(message);
+
             if (_config.explode) {
                 viewer.display.setExplode({ target: { checked: true } });
                 viewer.display.setExplodeCheck(true);
             }
 
-            // The former _position might be wrong. 
-            // After rendering the distance of the camera can be set correctly.
-
-            if (!_config.reset_camera) {
-                // viewer.recenterCamera();  TODO: doesn't work when using viewer method
-                const camera = viewer.camera.getCamera();
-
-                const center = vector3(viewer.bbox.center());
-                const target = vector3(viewer.controls.target);
-
-                camera.position.sub(target).add(center)
-                
-                let cameraDir = vector3();
-                camera.getWorldDirection(cameraDir);
-                
-                viewer.camera.camera_distance = 5 * viewer.bb_radius;
-                let p = target.add(cameraDir.clone().normalize().multiplyScalar(-viewer.camera.camera_distance));
-                camera.position.set(p.x, p.y, p.z);
-
-                viewer.update(true, true);
-            }
-            
             if (_config.debug) {
                 console.log("viewer", viewer);
             }
