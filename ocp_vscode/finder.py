@@ -1,3 +1,4 @@
+import time
 from build123d import *
 from ocp_vscode import *
 
@@ -54,7 +55,7 @@ class Finder:
             colors=self.colormap,
             default_opacity=0.9,
             progress="",
-            collapse="C",
+            collapse=CadTree.ALL,
             show_parent=False,
         )
         while True:
@@ -90,8 +91,7 @@ class Finder:
 
 
 # %%
-if __name__ =0 "__main__":
-
+if __name__ == "__main__":
     a = 55 / 2
     c100 = Circle(100).edges()[0]
     c85 = Circle(85).edges()[0]
