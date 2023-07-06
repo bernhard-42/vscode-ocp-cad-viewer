@@ -152,9 +152,9 @@
             return [v[0] / n, v[1] / n, v[2] / n];
         }
 
-        function send(message) {
+        function send(command, message) {
             vscode.postMessage(JSON.stringify({
-                command: 'status',
+                command: command,
                 text: message
             }));
         }
@@ -187,7 +187,7 @@
                 }
             });
             if (changed) {
-                send(message);
+                send('status', message);
             }
         }
 
@@ -299,7 +299,9 @@
             if ((reset_camera === "keep") && (last_bb_radius != null) && ((bb_radius < last_bb_radius / 2) || (bb_radius > last_bb_radius * 2))) {
                 reset_camera = "center";
                 if (_config.debug) {
-                    console.log("Changed reset_camera to", reset_camera);
+                    const message = `Changed reset_camera to ${reset_camera}`;
+                    console.log(message);
+                    send("info", message)
                 }
             }
             last_bb_radius = bb_radius;
@@ -370,7 +372,7 @@
             message["target"] = viewer.controls.getTarget();
             message["zoom"] = viewer.getCameraZoom();
 
-            send(message);
+            send('status', message);
 
             if (_config.explode) {
                 viewer.display.setExplode({ target: { checked: true } });

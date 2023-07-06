@@ -119,7 +119,12 @@ export class CadqueryController {
 
                     this.view.onDidReceiveMessage(
                         message => {
-                            this.viewer_message = message;
+                            const msg = JSON.parse(message);
+                            if (msg.command === "status") {
+                                this.viewer_message = message;
+                            } else {
+                                output.info(msg.text)
+                            }
                             if (this.pythonListener !== undefined) {
                                 output.debug("Sending message to python: " + message);
                                 this.pythonListener.send(message);
