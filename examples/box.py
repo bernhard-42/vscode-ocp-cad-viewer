@@ -7,6 +7,7 @@ from ocp_vscode import (
     set_port,
     set_defaults,
     get_defaults,
+    CadTree,
 )
 
 set_port(3939)
@@ -14,7 +15,7 @@ set_port(3939)
 set_defaults(
     axes=True,
     transparent=False,
-    collapse="1",
+    collapse=CadTree.LEAVES,
     grid=(True, True, True),
 )
 # %%
@@ -32,7 +33,7 @@ show_object(
     "sphere",
     {"color": (10, 100, 110)},
     # three-cad-viewer args
-    collapse="1",
+    collapse=CadTree.LEAVES,
     reset_camera=False,
     ortho=False,
 )

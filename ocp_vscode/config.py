@@ -28,9 +28,23 @@ __all__ = [
     "get_defaults",
     "status",
     "Camera",
-    "CollapseTree",
-    "get_enum_or_value",
+    "CadTree",
+    "check_deprecated",
 ]
+
+
+class Camera(Enum):
+    RESET = "reset"
+    CENTER = "center"
+    KEEP = "keep"
+
+
+class CadTree(Enum):
+    NONE = 0
+    LEAVES = 1
+    ALL = 2
+    ROOT = 3
+
 
 CONFIG_UI_KEYS = [
     "axes",
@@ -124,29 +138,9 @@ DEFAULTS = {
     "render_joints": False,
     "helper_scale": 1.0,
     "timeit": False,
-    "reset_camera": True,
+    "reset_camera": Camera.RESET,
     "debug": False,
 }
-
-
-class Camera(Enum):
-    RESET = "reset"
-    CENTER = "center"
-    KEEP = "keep"
-
-
-class CollapseTree(Enum):
-    ALL = "C"
-    LEAVES = "1"
-    ROOT = "R"
-    NONE = "E"
-
-
-def get_enum_or_value(val):
-    if isinstance(val, Enum):
-        return val.value
-    else:
-        return val
 
 
 def set_viewer_config(
@@ -248,11 +242,11 @@ def set_defaults(
         default_opacity:   Opacity value for transparent objects (default=0.5)
         black_edges:       Show edges in black color (default=False)
         orbit_control:     Mouse control use "orbit" control instead of "trackball" control (default=False)
-        collapse:          CollapseTree.LEAVES (or "1"): collapse all single leaf nodes,
-                           CollapseTree.ROOT (or "R"): expand root only,
-                           CollapseTree.ALL (or "C"): collapse all nodes,
-                           CollapseTree.NONE (or "E"): expand all nodes
-                           (default="1" / CollapseTree.LEAVES)
+        collapse:          CadTree.LEAVES: collapse all single leaf nodes,
+                           CadTree.ROOT: expand root only,
+                           CadTree.ALL: collapse all nodes,
+                           CadTree.NONE: expand all nodes
+                           (default=CadTree.LEAVES)
         ticks:             Hint for the number of ticks in both directions (default=10)
         up:                Use z-axis ('Z') or y-axis ('Y') as up direction for the camera (default="Z")
         explode:           Turn on explode mode (default=False)
@@ -261,10 +255,10 @@ def set_defaults(
         position:          Camera position
         quaternion:        Camera orientation as quaternion
         target:            Camera look at target
-        reset_camera:      Camera.RESET (or True) Reset camera position, rotation, toom and target
-                           Camera.CENTER (or False) Keep camera position, rotation, toom, but look at center
-                           Camera.KEEP (or "keep") Keep camera position, rotation, toom, and target
-                           (default=Camera.RESET / True)
+        reset_camera:      Camera.RESET: Reset camera position, rotation, toom and target
+                           Camera.CENTER: Keep camera position, rotation, toom, but look at center
+                           Camera.KEEP: Keep camera position, rotation, toom, and target
+                           (default=Camera.RESET)
         pan_speed:         Speed of mouse panning (default=1)
         rotate_speed:      Speed of mouse rotate (default=1)
         zoom_speed:        Speed of mouse zoom (default=1)
@@ -294,14 +288,7 @@ def set_defaults(
 
     kwargs = {k: v for k, v in locals().items() if v is not None}
 
-    # translate enums
-    kwargs["reset_camera"] = get_enum_or_value(kwargs.get("reset_camera"))
-    kwargs["collapse"] = get_enum_or_value(kwargs.get("collapse"))
-
-    if kwargs.get("mate_scale") is not None:
-        print("\nmate_scale is deprecated, use helper_scale instead\n")
-        kwargs["helper_scale"] = kwargs["mate_scale"]
-        del kwargs["mate_scale"]
+    kwargs = check_deprecated(kwargs)
 
     global DEFAULTS
     for key, value in kwargs.items():
@@ -341,7 +328,19 @@ def workspace_config(port=None):
     if port is None:
         port = get_port()
     try:
-        return send_command("config", port=port)
+        conf = send_command("config", port=port)
+        mapping = {
+            "none": CadTree.NONE,
+            "leaves": CadTree.LEAVES,
+            "all": CadTree.ALL,
+            "root": CadTree.ROOT,
+            "E": CadTree.NONE,
+            "1": CadTree.LEAVES,
+            "C": CadTree.ALL,
+            "R": CadTree.ROOT,
+        }
+        conf["collapse"] = mapping[conf["collapse"]]
+        return conf
 
     except Exception as ex:
         raise RuntimeError(
@@ -377,10 +376,13 @@ def combined_config(port=None, use_status=True):
     return wspace_config
 
 
-def get_changed_config(key):
+def get_changed_config(key=None):
     wspace_config = workspace_config()
     wspace_config.update(DEFAULTS)
-    return wspace_config.get(key)
+    if key is None:
+        return wspace_config
+    else:
+        return wspace_config.get(key)
 
 
 def reset_defaults():
@@ -392,7 +394,7 @@ def reset_defaults():
         for key, value in workspace_config().items()
         if key in CONFIG_SET_KEYS
     }
-    config["reset_camera"] = True
+    config["reset_camera"] = Camera.RESET
 
     set_viewer_config(**config)
 
@@ -406,6 +408,45 @@ def reset_defaults():
         "render_joints": False,
         "helper_scale": 1.0,
         "timeit": False,
-        "reset_camera": True,
+        "reset_camera": Camera.RESET,
         "debug": False,
     }
+
+
+def check_deprecated(kwargs):
+    if kwargs.get("mate_scale") is not None:
+        print("\nmate_scale is deprecated, use helper_scale instead\n")
+        kwargs["helper_scale"] = kwargs["mate_scale"]
+        del kwargs["mate_scale"]
+
+    if kwargs.get("reset_camera") == True:
+        print(
+            "\n'reset_camera=True' is deprecated, use 'reset_camera=Camera.RESET' instead\n"
+        )
+        kwargs["reset_camera"] = Camera.RESET
+
+    if kwargs.get("reset_camera") == False:
+        print(
+            "\n'reset_camera=False' is deprecated, use 'reset_camera=Camera.CENTER' instead\n"
+        )
+        kwargs["reset_camera"] = Camera.CENTER
+
+    if kwargs.get("collapse") == "C":
+        print("\n'collapse=\"C\"' is deprecated, use 'collapse=CadTree.ALL' instead\n")
+        kwargs["collapse"] = CadTree.ALL
+
+    if kwargs.get("collapse") == "1" or kwargs.get("collapse") == 1:
+        print(
+            "\n'collapse=\"1\"' is deprecated, use 'collapse=CadTree.LEAVES' instead\n"
+        )
+        kwargs["collapse"] = CadTree.LEAVES
+
+    if kwargs.get("collapse") == "R":
+        print("\n'collapse=\"R\"' is deprecated, use 'collapse=CadTree.ROOT' instead\n")
+        kwargs["collapse"] = CadTree.ROOT
+
+    if kwargs.get("collapse") == "E":
+        print("\n'collapse=\"E\"' is deprecated, use 'collapse=CadTree.NONE' instead\n")
+        kwargs["collapse"] = CadTree.NONE
+
+    return kwargs

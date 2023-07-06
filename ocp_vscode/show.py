@@ -56,7 +56,9 @@ from .config import (
     get_default,
     status,
     set_viewer_config,
-    get_enum_or_value,
+    Camera,
+    CadTree,
+    check_deprecated,
 )
 from .comms import send_data, MessageType
 from .colors import *
@@ -78,20 +80,14 @@ def _tessellate(
     else:
         conf = combined_config(use_status=True)
         if first_call:
-            conf["reset_camera"] = "reset"
+            conf["reset_camera"] = Camera.RESET.value
             first_call = False
+        else:
+            reset_camera = conf.get("reset_camera", Camera.RESET)
+            conf["reset_camera"] = reset_camera.value
 
-    # translate enums
-    mapping = {
-        True: "reset",
-        "reset": "reset",
-        False: "center",
-        "center": "center",
-        "keep": "keep",
-    }
-    conf["reset_camera"] = mapping.get(get_enum_or_value(conf.get("reset_camera")))
-    mapping = {"1": 1, "E": 0, "C": 2, "R": 3}
-    conf["collapse"] = mapping.get(get_enum_or_value(conf.get("collapse")))
+    collapse = conf.get("collapse", CadTree.LEAVES)
+    conf["collapse"] = collapse.value
 
     if kwargs.get("default_facecolor") is not None:
         oc.FACE_COLOR = Color(kwargs["default_facecolor"]).percentage
@@ -120,20 +116,21 @@ def _tessellate(
         progress = Progress([c for c in "-+c"])
 
     with Timer(timeit, "", "to_assembly", 1):
+        changed_config = get_changed_config()
         part_group = to_assembly(
             *cad_objs,
             names=names,
             colors=colors,
             alphas=alphas,
-            render_mates=kwargs.get("render_mates", get_changed_config("render_mates")),
+            render_mates=kwargs.get("render_mates", changed_config.get("render_mates")),
             render_joints=kwargs.get(
-                "render_joints", get_changed_config("render_joints")
+                "render_joints", changed_config.get("render_joints")
             ),
-            helper_scale=kwargs.get("helper_scale", get_changed_config("helper_scale")),
+            helper_scale=kwargs.get("helper_scale", changed_config.get("helper_scale")),
             default_color=kwargs.get(
-                "default_color", get_changed_config("default_color")
+                "default_color", changed_config.get("default_color")
             ),
-            show_parent=kwargs.get("show_parent", get_changed_config("show_parent")),
+            show_parent=kwargs.get("show_parent", changed_config.get("show_parent")),
             progress=progress,
         )
 
@@ -356,11 +353,11 @@ def show(
         default_opacity:         Opacity value for transparent objects (default=0.5)
         black_edges:             Show edges in black color (default=False)
         orbit_control:           Mouse control use "orbit" control instead of "trackball" control (default=False)
-        collapse:                CollapseTree.LEAVES (or "1"): collapse all single leaf nodes,
-                                 CollapseTree.ROOT (or "R"): expand root only,
-                                 CollapseTree.ALL (or "C"): collapse all nodes,
-                                 CollapseTree.NONE (or "E"): expand all nodes
-                                 (default="1" / CollapseTree.LEAVES)
+        collapse:                CadTree.LEAVES: collapse all single leaf nodes,
+                                 CadTree.ROOT: expand root only,
+                                 CadTree.ALL: collapse all nodes,
+                                 CadTree.NONE: expand all nodes
+                                 (default=CadTree.LEAVES)
         ticks:                   Hint for the number of ticks in both directions (default=10)
         up:                      Use z-axis ('Z') or y-axis ('Y') as up direction for the camera (default="Z")
         explode:                 Turn on explode mode (default=False)
@@ -369,10 +366,10 @@ def show(
         position:                Camera position
         quaternion:              Camera orientation as quaternion
         target:                  Camera look at target
-        reset_camera:            Camera.RESET (or True) Reset camera position, rotation, toom and target
-                                 Camera.CENTER (or False) Keep camera position, rotation, toom, but look at center
-                                 Camera.KEEP (or "keep") Keep camera position, rotation, toom, and target
-                                 (default=Camera.RESET / True)
+        reset_camera:            Camera.RESET: Reset camera position, rotation, toom and target
+                                 Camera.CENTER: Keep camera position, rotation, toom, but look at center
+                                 Camera.KEEP: Keep camera position, rotation, toom, and target
+                                 (default=Camera.RESET)
 
         pan_speed:               Speed of mouse panning (default=1)
         rotate_speed:            Speed of mouse rotate (default=1)
@@ -424,10 +421,7 @@ def show(
         ]
     }
 
-    if kwargs.get("mate_scale") is not None:
-        print("\nmate_scale is deprecated, use helper_scale instead\n")
-        kwargs["helper_scale"] = kwargs["mate_scale"]
-        del kwargs["mate_scale"]
+    kwargs = check_deprecated(kwargs)
 
     timeit = preset("timeit", timeit)
 
@@ -568,11 +562,11 @@ def show_object(
         default_opacity:         Opacity value for transparent objects (default=0.5)
         black_edges:             Show edges in black color (default=False)
         orbit_control:           Mouse control use "orbit" control instead of "trackball" control (default=False)
-        collapse:                CollapseTree.LEAVES (or "1"): collapse all single leaf nodes,
-                                 CollapseTree.ROOT (or "R"): expand root only,
-                                 CollapseTree.ALL (or "C"): collapse all nodes,
-                                 CollapseTree.NONE (or "E"): expand all nodes
-                                 (default="1" / CollapseTree.LEAVES)
+        collapse:                CadTree.LEAVES: collapse all single leaf nodes,
+                                 CadTree.ROOT: expand root only,
+                                 CadTree.ALL: collapse all nodes,
+                                 CadTree.NONE: expand all nodes
+                                 (default=CadTree.LEAVES)
         ticks:                   Hint for the number of ticks in both directions (default=10)
         up:                      Use z-axis ('Z') or y-axis ('Y') as up direction for the camera (default="Z")
 
@@ -580,10 +574,10 @@ def show_object(
         position:                Camera position
         quaternion:              Camera orientation as quaternion
         target:                  Camera look at target
-        reset_camera:            Camera.RESET (or True) Reset camera position, rotation, toom and target
-                                 Camera.CENTER (or False) Keep camera position, rotation, toom, but look at center
-                                 Camera.KEEP (or "keep") Keep camera position, rotation, toom, and target
-                                 (default=Camera.RESET / True)
+        reset_camera:            Camera.RESET: Reset camera position, rotation, toom and target
+                                 Camera.CENTER: Keep camera position, rotation, toom, but look at center
+                                 Camera.KEEP: Keep camera position, rotation, toom, and target
+                                 (default=Camera.RESET)
 
         pan_speed:               Speed of mouse panning (default=1)
         rotate_speed:            Speed of mouse rotate (default=1)
@@ -733,10 +727,13 @@ def show_all(variables=None, exclude=None, **kwargs):
                 objects.append(pg)
                 names.append(name)
 
-    kwargs["reset_camera"] = first_call
+    if first_call:
+        kwargs["reset_camera"] = Camera.RESET
 
     if len(objects) > 0:
-        show(*objects, names=names, collapse="R", _force_in_debug=True, **kwargs)
+        show(
+            *objects, names=names, collapse=CadTree.ROOT, _force_in_debug=True, **kwargs
+        )
         first_call = False
     else:
         show_clear()

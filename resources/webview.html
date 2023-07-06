@@ -281,8 +281,11 @@
                 rotateSpeed: preset(_config, "rotate_speed", viewerDefaultOptions.rotateSpeed),
             };
 
+            var reset_camera = preset(_config, "reset_camera", "reset");
+
             if (_config.debug) {
                 console.log("renderOptions", renderOptions);
+                console.log("reset_camera", reset_camera);
             }
 
             var shapesAndTree = viewer.renderTessellatedShapes(_shapes, _states, renderOptions)
@@ -293,13 +296,13 @@
                 length(center)
             );
 
-            var reset_camera = preset(_config, "reset_camera", "reset");
-
             if ((reset_camera === "keep") && (last_bb_radius != null) && ((bb_radius < last_bb_radius / 2) || (bb_radius > last_bb_radius * 2))) {
                 reset_camera = "center";
+                if (_config.debug) {
+                    console.log("Changed reset_camera to", reset_camera);
+                }
             }
             last_bb_radius = bb_radius;
-
 
             if (reset_camera === "reset") {
                 // even if reset is requested, respect the positino settings from the object

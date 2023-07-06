@@ -1,14 +1,5 @@
 from build123d import *
-from ocp_vscode import (
-    show,
-    set_defaults,
-    set_viewer_config,
-    status,
-    workspace_config,
-    combined_config,
-    get_defaults,
-    reset_defaults,
-)
+from ocp_vscode import *
 
 b = Box(1, 2, 3)
 b = fillet(b.edges(), 0.2)
@@ -50,16 +41,16 @@ b4.add(b3, name="b3", loc=Location((3, 3, 3)))
 a1.add(b4)
 a1.add(b1, name="b1")
 
-show(a1, collapse="1")
+show(a1, collapse=CadTree.LEAVES)
 
 # %%
-show(a1, collapse="C")
+show(a1, collapse=CadTree.ALL)
 
 # %%
-show(a1, collapse="R")
+show(a1, collapse=CadTree.ROOT)
 
 # %%
-show(a1, collapse="E")
+show(a1, collapse=CadTree.NONE)
 
 # %%
 # Provide names to objects
