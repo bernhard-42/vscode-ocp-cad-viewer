@@ -55,7 +55,7 @@ class Finder:
             colors=self.colormap,
             default_opacity=0.9,
             progress="",
-            collapse=CadTree.ALL,
+            collapse=Collapse.ALL,
             show_parent=False,
         )
         while True:

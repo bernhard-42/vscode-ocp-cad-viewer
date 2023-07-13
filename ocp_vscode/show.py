@@ -57,7 +57,7 @@ from .config import (
     status,
     set_viewer_config,
     Camera,
-    CadTree,
+    Collapse,
     check_deprecated,
 )
 from .comms import send_data, MessageType
@@ -86,7 +86,7 @@ def _tessellate(
             reset_camera = conf.get("reset_camera", Camera.RESET)
             conf["reset_camera"] = reset_camera.value
 
-    collapse = conf.get("collapse", CadTree.LEAVES)
+    collapse = conf.get("collapse", Collapse.LEAVES)
     conf["collapse"] = collapse.value
 
     if kwargs.get("default_facecolor") is not None:
@@ -353,11 +353,11 @@ def show(
         default_opacity:         Opacity value for transparent objects (default=0.5)
         black_edges:             Show edges in black color (default=False)
         orbit_control:           Mouse control use "orbit" control instead of "trackball" control (default=False)
-        collapse:                CadTree.LEAVES: collapse all single leaf nodes,
-                                 CadTree.ROOT: expand root only,
-                                 CadTree.ALL: collapse all nodes,
-                                 CadTree.NONE: expand all nodes
-                                 (default=CadTree.LEAVES)
+        collapse:                Collapse.LEAVES: collapse all single leaf nodes,
+                                 Collapse.ROOT: expand root only,
+                                 Collapse.ALL: collapse all nodes,
+                                 Collapse.NONE: expand all nodes
+                                 (default=Collapse.LEAVES)
         ticks:                   Hint for the number of ticks in both directions (default=10)
         up:                      Use z-axis ('Z') or y-axis ('Y') as up direction for the camera (default="Z")
         explode:                 Turn on explode mode (default=False)
@@ -562,11 +562,11 @@ def show_object(
         default_opacity:         Opacity value for transparent objects (default=0.5)
         black_edges:             Show edges in black color (default=False)
         orbit_control:           Mouse control use "orbit" control instead of "trackball" control (default=False)
-        collapse:                CadTree.LEAVES: collapse all single leaf nodes,
-                                 CadTree.ROOT: expand root only,
-                                 CadTree.ALL: collapse all nodes,
-                                 CadTree.NONE: expand all nodes
-                                 (default=CadTree.LEAVES)
+        collapse:                Collapse.LEAVES: collapse all single leaf nodes,
+                                 Collapse.ROOT: expand root only,
+                                 Collapse.ALL: collapse all nodes,
+                                 Collapse.NONE: expand all nodes
+                                 (default=Collapse.LEAVES)
         ticks:                   Hint for the number of ticks in both directions (default=10)
         up:                      Use z-axis ('Z') or y-axis ('Y') as up direction for the camera (default="Z")
 
@@ -732,7 +732,7 @@ def show_all(variables=None, exclude=None, **kwargs):
 
     if len(objects) > 0:
         show(
-            *objects, names=names, collapse=CadTree.ROOT, _force_in_debug=True, **kwargs
+            *objects, names=names, collapse=Collapse.ROOT, _force_in_debug=True, **kwargs
         )
         first_call = False
     else:

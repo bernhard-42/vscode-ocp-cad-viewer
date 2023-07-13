@@ -37,11 +37,11 @@ Valid keywords to configure the viewer:
     default_opacity:         Opacity value for transparent objects (default=0.5)
     black_edges:             Show edges in black color (default=False)
     orbit_control:           Mouse control use "orbit" control instead of "trackball" control (default=False)
-    collapse:                CadTree.LEAVES: collapse all single leaf nodes, 
-                             CadTree.ROOT: expand root only,
-                             CadTree.ALL: collapse all nodes, 
-                             CadTree.NONE: expand all nodes 
-                             (default=CadTree.LEAVES)
+    collapse:                Collapse.LEAVES: collapse all single leaf nodes,
+                             Collapse.ROOT: expand root only,
+                             Collapse.ALL: collapse all nodes,
+                             Collapse.NONE: expand all nodes
+                             (default=Collapse.LEAVES)
     ticks:                   Hint for the number of ticks in both directions (default=10)
     up:                      Use z-axis ('Z') or y-axis ('Y') as up direction for the camera (default="Z")
     explode:                 Turn on explode mode (default=False)

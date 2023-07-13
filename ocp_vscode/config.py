@@ -28,7 +28,7 @@ __all__ = [
     "get_defaults",
     "status",
     "Camera",
-    "CadTree",
+    "Collapse",
     "check_deprecated",
 ]
 
@@ -39,7 +39,7 @@ class Camera(Enum):
     KEEP = "keep"
 
 
-class CadTree(Enum):
+class Collapse(Enum):
     NONE = 0
     LEAVES = 1
     ALL = 2
@@ -242,11 +242,11 @@ def set_defaults(
         default_opacity:   Opacity value for transparent objects (default=0.5)
         black_edges:       Show edges in black color (default=False)
         orbit_control:     Mouse control use "orbit" control instead of "trackball" control (default=False)
-        collapse:          CadTree.LEAVES: collapse all single leaf nodes,
-                           CadTree.ROOT: expand root only,
-                           CadTree.ALL: collapse all nodes,
-                           CadTree.NONE: expand all nodes
-                           (default=CadTree.LEAVES)
+        collapse:          Collapse.LEAVES: collapse all single leaf nodes,
+                           Collapse.ROOT: expand root only,
+                           Collapse.ALL: collapse all nodes,
+                           Collapse.NONE: expand all nodes
+                           (default=Collapse.LEAVES)
         ticks:             Hint for the number of ticks in both directions (default=10)
         up:                Use z-axis ('Z') or y-axis ('Y') as up direction for the camera (default="Z")
         explode:           Turn on explode mode (default=False)
@@ -330,14 +330,14 @@ def workspace_config(port=None):
     try:
         conf = send_command("config", port=port)
         mapping = {
-            "none": CadTree.NONE,
-            "leaves": CadTree.LEAVES,
-            "all": CadTree.ALL,
-            "root": CadTree.ROOT,
-            "E": CadTree.NONE,
-            "1": CadTree.LEAVES,
-            "C": CadTree.ALL,
-            "R": CadTree.ROOT,
+            "none": Collapse.NONE,
+            "leaves": Collapse.LEAVES,
+            "all": Collapse.ALL,
+            "root": Collapse.ROOT,
+            "E": Collapse.NONE,
+            "1": Collapse.LEAVES,
+            "C": Collapse.ALL,
+            "R": Collapse.ROOT,
         }
         conf["collapse"] = mapping[conf["collapse"]]
         return conf
@@ -432,21 +432,25 @@ def check_deprecated(kwargs):
         kwargs["reset_camera"] = Camera.CENTER
 
     if kwargs.get("collapse") == "C":
-        print("\n'collapse=\"C\"' is deprecated, use 'collapse=CadTree.ALL' instead\n")
-        kwargs["collapse"] = CadTree.ALL
+        print("\n'collapse=\"C\"' is deprecated, use 'collapse=Collapse.ALL' instead\n")
+        kwargs["collapse"] = Collapse.ALL
 
     if kwargs.get("collapse") == "1" or kwargs.get("collapse") == 1:
         print(
-            "\n'collapse=\"1\"' is deprecated, use 'collapse=CadTree.LEAVES' instead\n"
+            "\n'collapse=\"1\"' is deprecated, use 'collapse=Collapse.LEAVES' instead\n"
         )
-        kwargs["collapse"] = CadTree.LEAVES
+        kwargs["collapse"] = Collapse.LEAVES
 
     if kwargs.get("collapse") == "R":
-        print("\n'collapse=\"R\"' is deprecated, use 'collapse=CadTree.ROOT' instead\n")
-        kwargs["collapse"] = CadTree.ROOT
+        print(
+            "\n'collapse=\"R\"' is deprecated, use 'collapse=Collapse.ROOT' instead\n"
+        )
+        kwargs["collapse"] = Collapse.ROOT
 
     if kwargs.get("collapse") == "E":
-        print("\n'collapse=\"E\"' is deprecated, use 'collapse=CadTree.NONE' instead\n")
-        kwargs["collapse"] = CadTree.NONE
+        print(
+            "\n'collapse=\"E\"' is deprecated, use 'collapse=Collapse.NONE' instead\n"
+        )
+        kwargs["collapse"] = Collapse.NONE
 
     return kwargs

@@ -41,16 +41,16 @@ b4.add(b3, name="b3", loc=Location((3, 3, 3)))
 a1.add(b4)
 a1.add(b1, name="b1")
 
-show(a1, collapse=CadTree.LEAVES)
+show(a1, collapse=Collapse.LEAVES)
 
 # %%
-show(a1, collapse=CadTree.ALL)
+show(a1, collapse=Collapse.ALL)
 
 # %%
-show(a1, collapse=CadTree.ROOT)
+show(a1, collapse=Collapse.ROOT)
 
 # %%
-show(a1, collapse=CadTree.NONE)
+show(a1, collapse=Collapse.NONE)
 
 # %%
 # Provide names to objects
