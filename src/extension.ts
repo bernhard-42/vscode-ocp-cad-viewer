@@ -28,6 +28,7 @@ import { getCurrentFolder, jupyterExtensionInstalled } from "./utils";
 import { version } from "./version";
 import * as semver from "semver";
 import { createDemoFile } from "./demo"
+import { show as showLog } from "./output";
 
 
 function check_upgrade(libraryManager: LibraryManagerProvider) {
@@ -286,6 +287,13 @@ export async function activate(context: vscode.ExtensionContext) {
         vscode.commands.registerCommand(
             "ocpCadViewer.preferences",
             () => vscode.commands.executeCommand("workbench.action.openSettings", "OCP CAD Viewer")
+        )
+    );
+
+    context.subscriptions.push(
+        vscode.commands.registerCommand(
+            "ocpCadViewer.output",
+            () => showLog()
         )
     );
 

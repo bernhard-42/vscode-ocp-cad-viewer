@@ -96,6 +96,14 @@
                 }
             },
             {
+                "command": "ocpCadViewer.output",
+                "title": "OCP CAD Viewer: Open output panel",
+                "icon": {
+                    "light": "resources/output.png",
+                    "dark": "resources/output.png"
+                }
+            },
+            {
                 "command": "ocpCadViewer.quickstart",
                 "title": "OCP CAD Viewer: Quickstart installation",
                 "args": [
@@ -155,6 +163,11 @@
                 },
                 {
                     "command": "ocpCadViewer.preferences",
+                    "when": "view == ocpCadStatus",
+                    "group": "navigation@2"
+                },
+                {
+                    "command": "ocpCadViewer.output",
                     "when": "view == ocpCadStatus",
                     "group": "navigation@1"
                 }
