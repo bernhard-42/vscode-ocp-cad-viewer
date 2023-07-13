@@ -298,10 +298,10 @@
 
             if ((reset_camera === "keep") && (last_bb_radius != null) && ((bb_radius < last_bb_radius / 2) || (bb_radius > last_bb_radius * 2))) {
                 reset_camera = "center";
+                const msg = `Bounding box 2 times smaller/larger than before, changed reset_camera to Camera.CENTER`;
+                send("info", msg);
                 if (_config.debug) {
-                    const message = `Changed reset_camera to ${reset_camera}`;
-                    console.log(message);
-                    send("info", message)
+                    console.log(msg);
                 }
             }
             last_bb_radius = bb_radius;
