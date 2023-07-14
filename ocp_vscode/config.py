@@ -124,7 +124,6 @@ CONFIG_SET_KEYS = [
     "zoom_speed",
     "pan_speed",
     "rotate_speed",
-    "reset_camera",
     "glass",
     "tools",
     "tree_width",
