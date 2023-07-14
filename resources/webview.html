@@ -307,27 +307,24 @@
             last_bb_radius = bb_radius;
 
             if (reset_camera === "reset") {
-                // even if reset is requested, respect the positino settings from the object
+                // even if reset is requested, respect the position settings from the object
                 if (_config.zoom !== undefined) {
-                    viewerOptions.zoom = _config.zoom;
+                    _zoom = viewerOptions.zoom = _config.zoom;
                 }
                 if (_config.position !== undefined) {
-                    viewerOptions.position = _config.position;
+                    _position = viewerOptions.position = _config.position;
                 }
                 if (_config.quaternion !== undefined) {
-                    viewerOptions.quaternion = _config.quaternion;
+                    _quaternion = viewerOptions.quaternion = _config.quaternion;
                 }
                 if (_config.target !== undefined) {
-                    viewerOptions.target = _config.target;
+                    _target = viewerOptions.target = _config.target;
                 }
-                // and set the state back to null
-                _zoom = null;
-                _position = null;
-                _quaternion = null;
-                _target = null;
 
             } else {
-                if (_position) {
+                if (_config.position){
+                    _position = viewerOptions.position = _config.position;
+                } else if (_position) {
                     const camera_distance = 5 * bb_radius;
 
                     var p = [0, 0, 0];
@@ -343,19 +340,27 @@
                     viewerOptions.position = p;
 
                     _target = (reset_camera === "keep") ? _target : center;
-                    _position = p;
                 }
-                if (_quaternion) {
+                _position = viewerOptions.position;
+
+                if (_config.quaternion){
+                    _quaternion = viewerOptions.quaternion = _config.quaternion;
+                } else if (_quaternion) {
                     viewerOptions.quaternion = _quaternion;
                 }
-                if (_target) {
+
+                if (_config.target){
+                    _target = viewerOptions.target = _config.target;
+                } else if (_target) {
                     viewerOptions.target = _target;
                 }
-                if (_zoom) {
+
+                if (_config.zoom){
+                    _zoom = viewerOptions.zoom = _config.zoom;
+                } else if (_zoom) {
                     viewerOptions.zoom = _zoom;
                 }
             }
-
 
             if (_config.debug) {
                 console.log("viewerOptions", viewerOptions);
