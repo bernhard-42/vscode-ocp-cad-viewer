@@ -309,21 +309,21 @@
             if (reset_camera === "reset") {
                 // even if reset is requested, respect the position settings from the object
                 if (_config.zoom !== undefined) {
-                    _zoom = viewerOptions.zoom = _config.zoom;
+                    viewerOptions.zoom = _config.zoom;
                 }
                 if (_config.position !== undefined) {
-                    _position = viewerOptions.position = _config.position;
+                    viewerOptions.position = _config.position;
                 }
                 if (_config.quaternion !== undefined) {
-                    _quaternion = viewerOptions.quaternion = _config.quaternion;
+                    viewerOptions.quaternion = _config.quaternion;
                 }
                 if (_config.target !== undefined) {
-                    _target = viewerOptions.target = _config.target;
+                    viewerOptions.target = _config.target;
                 }
 
             } else {
                 if (_config.position){
-                    _position = viewerOptions.position = _config.position;
+                    viewerOptions.position = _config.position;
                 } else if (_position) {
                     const camera_distance = 5 * bb_radius;
 
@@ -344,19 +344,19 @@
                 _position = viewerOptions.position;
 
                 if (_config.quaternion){
-                    _quaternion = viewerOptions.quaternion = _config.quaternion;
+                    viewerOptions.quaternion = _config.quaternion;
                 } else if (_quaternion) {
                     viewerOptions.quaternion = _quaternion;
                 }
 
                 if (_config.target){
-                    _target = viewerOptions.target = _config.target;
+                    viewerOptions.target = _config.target;
                 } else if (_target) {
                     viewerOptions.target = _target;
                 }
 
                 if (_config.zoom){
-                    _zoom = viewerOptions.zoom = _config.zoom;
+                    viewerOptions.zoom = _config.zoom;
                 } else if (_zoom) {
                     viewerOptions.zoom = _zoom;
                 }
@@ -372,10 +372,10 @@
                 viewerOptions,
             );
 
-            message["position"] = viewer.getCameraPosition();
-            message["quaternion"] = viewer.getCameraQuaternion();
-            message["target"] = viewer.controls.getTarget();
-            message["zoom"] = viewer.getCameraZoom();
+            _position = message["position"] = viewer.getCameraPosition();
+            _quaternion = message["quaternion"] = viewer.getCameraQuaternion();
+            _target = message["target"] = viewer.controls.getTarget().toArray();
+            _zoom = message["zoom"] = viewer.getCameraZoom();
 
             send('status', message);
 
