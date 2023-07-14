@@ -28,7 +28,7 @@ import { getCurrentFolder, jupyterExtensionInstalled } from "./utils";
 import { version } from "./version";
 import * as semver from "semver";
 import { createDemoFile } from "./demo"
-import { show as showLog } from "./output";
+import { set_open, show as showLog } from "./output";
 
 
 function check_upgrade(libraryManager: LibraryManagerProvider) {
@@ -382,25 +382,23 @@ export async function activate(context: vscode.ExtensionContext) {
 
     vscode.workspace.onDidOpenTextDocument(async (e: vscode.TextDocument) => {
         let current = vscode.window.activeTextEditor;
-        if (e.uri.scheme === 'vscode-interactive-input' && e.languageId === "python") {
-            let visibleEditors = vscode.window.visibleTextEditors;
-            let interactive = undefined;
-            for (var i = 0; i < visibleEditors.length; i++) {
-                interactive = visibleEditors[i];
-                if (interactive.document.fileName === e.fileName) {
-                    break;
-                }
+        if (e.uri.scheme === 'vscode-interactive-input') {
+            vscode.window.showTextDocument(e, vscode.ViewColumn.Two, false);
+            await new Promise(resolve => setTimeout(resolve, 100));
+            vscode.commands.executeCommand("workbench.action.moveEditorToBelowGroup");
+            await new Promise(resolve => setTimeout(resolve, 100));
+            if (current) {
+                vscode.window.showTextDocument(current.document, vscode.ViewColumn.One);
+                vscode.commands.executeCommand("workbench.action.closePanel");
             }
-            if (interactive) {
-                vscode.window.showTextDocument(interactive.document, vscode.ViewColumn.Two, false);
-                await new Promise(resolve => setTimeout(resolve, 100));
-                vscode.commands.executeCommand("workbench.action.moveEditorToBelowGroup");
-                await new Promise(resolve => setTimeout(resolve, 100));
-                if (current) {
-                    vscode.window.showTextDocument(current.document, vscode.ViewColumn.One);
-                    vscode.commands.executeCommand("workbench.action.closePanel");
-                }
-            }
+        } else if ((e.uri.scheme === 'output') && (e.uri.path.endsWith("OCP CAD Viewer Log"))) {
+            set_open(true);
+        }
+    });
+
+    vscode.workspace.onDidCloseTextDocument(async (e: vscode.TextDocument) => {
+        if (e.uri.scheme === "output" && e.uri.path.endsWith("OCP CAD Viewer Log")) {
+            set_open(false);
         }
     });
 

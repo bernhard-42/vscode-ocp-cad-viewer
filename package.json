@@ -97,7 +97,7 @@
             },
             {
                 "command": "ocpCadViewer.output",
-                "title": "OCP CAD Viewer: Open output panel",
+                "title": "OCP CAD Viewer: Toggle OCP CAD Viewer output panel",
                 "icon": {
                     "light": "resources/output.png",
                     "dark": "resources/output.png"
