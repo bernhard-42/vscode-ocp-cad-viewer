@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+import re
 import sys
 from ocp_tessellate import PartGroup
 from ocp_tessellate.convert import (
@@ -679,8 +680,12 @@ def show_all(variables=None, exclude=None, **kwargs):
     objects = []
     names = []
     for name, obj in variables.items():
-        if isinstance(obj, type):
-            continue  # ignore classes
+        if (
+            isinstance(obj, type)
+            or name in ["_", "__", "___"]
+            or re.search("_\d+", name) is not None
+        ):
+            continue  # ignore classes and jupyter variables
 
         if name not in exclude:
             if hasattr(obj, "_obj") and obj._obj is None:
