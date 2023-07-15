@@ -42,16 +42,16 @@ b4.add(b3, name="b3", loc=Location((3, 3, 3)))
 a1.add(b4)
 a1.add(b1, name="b1")
 
-show(a1, collapse=Collapse.LEAVES)
+show(a1, collapse=Collapse.LEAVES, debug=True)
 
 # %%
-show(a1, collapse=Collapse.ALL)
+show(a1, collapse=Collapse.ALL, debug=True)
 
 # %%
-show(a1, collapse=Collapse.ROOT)
+show(a1, collapse=Collapse.ROOT, debug=True)
 
 # %%
-show(a1, collapse=Collapse.NONE)
+show(a1, collapse=Collapse.NONE, debug=True)
 
 # %%
 # Provide names to objects
@@ -246,7 +246,7 @@ show(b, c)
 set_viewer_config(ambient_intensity=0.1)
 
 # %%
-set_viewer_config(direct_intensity=1)
+set_viewer_config(direct_intensity=10)
 
 # %%
 
