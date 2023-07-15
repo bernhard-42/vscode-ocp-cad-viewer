@@ -26,7 +26,7 @@ _OCP CAD Viewer_ for VS Code is an extension to show [CadQuery](https://github.c
 
 ### Installation
 
-1. Open the VS Code Marketplace, and search and install _OCP CAD Viewer 1.2.1_.
+1. Open the VS Code Marketplace, and search and install _OCP CAD Viewer 1.2.2_.
 
     Afterwards the OCP viewer is available in the VS Code sidebar:
 
@@ -166,35 +166,24 @@ You can also use "Library Manager" in the _OCP CAD Viewer_ sidebar to manage the
 
         ![named contexts](./screenshots/context_vars.png)
 
+-   **Keep camera orientation** of an object with `reset_camera`
+
+    Sometimes it is helpful to keep the orientation of an object across code changes. This is what `reset_camera` does:
+
+    -   `reset_camera=Camera.Center` will keep position and rotation, but ignore panning. This means the new object will be repositioned to the center (most robust approach)
+    -   `reset_camera=Camera.KEEP` will keep position, rotation and panning. However, panning can be problematic. When the next object to be shown is much larger or smaller and the object before was panned, it can happen that nothing is visible (the new object at the pan location is outside of the viewer frustum). OCP CAD Viewer checks whether the bounding box of an object is 2x smaller or larger than the one of the last shown object. If so, it falls back to `Camera.CENTER`. A notification is written to the OCP CAD Viewer output panel.
+    -   `reset_camera=Camera.RESET` will ensure that position, rotation and panning will be reset to the initial default
+
 ## Changes
 
-v1.2.1
+v1.2.2
 
--   XYZ labels for orientation marker ([vscode-ocp-cad-viewer issue #13](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/13))
--   Support for metalness and roughness ([three-cad-viewer issue #9](https://github.com/bernhard-42/three-cad-viewer/issues/9))
--   New "Material" configurator tab in the viewer UI
--   Port 3939 will automatically incremented by 1 for 2nd, 3rd, ... viewer
--   Fix: OCP_Part can be shown now ([vscode-ocp-cad-viewer issue #20](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/20))
--   Fix: reset_camera respects panning ([vscode-ocp-cad-viewer issue #19](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/19))
--   Fix: `collapse="C"` also collapses single item trees ([vscode-ocp-cad-viewer issue #18](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/18))
--   Fix: Show_all supports having a sketch that uses face as a workplane ([vscode-ocp-cad-viewer issue #17](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/17))
--   Fix: `_config==undefined` is handled properly ([vscode-ocp-cad-viewer issue #12](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/12))
+-   Replace the boolean values for `reset_camera` with the `Camera` enum; `reset_camera` now supports `Camera.RESET` (works like `True` before), `Camera.CENTER` (works like `False` before) and `Camera.KEEP` (additionally keeps the pan location). See best practices for details.
+-   Replace the values for `collapse` with the `Collapse` enum: `Collapse.ALL` (was `"C"`), `Collapse.None` (was `"E"`), `Collapse.LEAVES` (was `"1"` or `1`) and `Collapse.Root` (was `"R"`)
+-   Added a button to toggle the output panel for OCP CAD Viewer
+-   Visual debug is on by default now (workspace setting `WatchByDefault` to `true`)
+-   Changed behavior of ` show` during debug session: `show` will be executed, however, visual debug step omitted
+-   Do not show Jupyter variables `_`, `__`, `_1`, `_2`, ... in `show_all`
+-   Fix an error where the orientation marker was partly or fully moved outside its view due to panning of the object ([vscode-ocp-cad-viewer issue #22](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/22))
 
-v1.1.3
-
--   Fix racing conditions that prevented having more than one viewer window
--   No need to add port for next viewer any more. The default port 3939 will be incremented until a free port is found
--   Use ocp-tessellate 1.1.1 (fixes axis helper scale)
-
-v1.1.2
-
--   Added Visual debugging (including a toggle switch in the status bar)
--   Added function `show_all` and `show_clear` for the visual debugging
--   New (opinonated) Quickstart modes to install ever for build123d or CadQury with one click
--   Websocket communication between Python and the VS Code extension
--   Remove IPython support and introduce Jupyter / ipykernel support
--   Rename ColorMap to BaseColorMap and CM to ColorMap
--   Check versions of the viewer and the Pyhton module ocp_vscode are the same at OCP Viewer start
--   Support OCCT Shells
--   Bump three-cad-viewer 1.7.12
--   Fix two race conditions at viewer start (missing awaits)
+full change log see [Changes.md](./Changes.md)
