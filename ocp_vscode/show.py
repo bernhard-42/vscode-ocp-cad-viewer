@@ -68,21 +68,22 @@ __all__ = ["show", "show_object", "reset_show", "show_all", "show_clear"]
 
 OBJECTS = {"objs": [], "names": [], "colors": [], "alphas": []}
 
-first_call = True
+FIRST_CALL = True
+LAST_CALL = "other"
 
 
 def _tessellate(
     *cad_objs, names=None, colors=None, alphas=None, progress=None, **kwargs
 ):
-    global first_call
+    global FIRST_CALL
 
     if workspace_config().get("_splash"):
         conf = combined_config(use_status=False)
     else:
         conf = combined_config(use_status=True)
-        if first_call:
+        if FIRST_CALL:
             conf["reset_camera"] = Camera.RESET.value
-            first_call = False
+            FIRST_CALL = False
         else:
             reset_camera = conf.get("reset_camera", Camera.RESET)
             conf["reset_camera"] = reset_camera.value
@@ -403,9 +404,11 @@ def show(
         debug:                   Show debug statements to the VS Code browser console (default=False)
         timeit:                  Show timing information from level 0-3 (default=False)
     """
-    if sys.gettrace() is not None and not _force_in_debug:
-        print("\nshow and show_object are ignored in debugging sessions\n")
-        return
+    global LAST_CALL
+
+    # if sys.gettrace() is not None and not _force_in_debug:
+    #     print("\nshow and show_object are ignored in debugging sessions\n")
+    #     return
 
     kwargs = {
         k: v
@@ -419,6 +422,7 @@ def show(
             "alphas",
             "port",
             "progress",
+            "LAST_CALL",
         ]
     }
 
@@ -468,6 +472,11 @@ def show(
             progress=progress,
             **kwargs,
         )
+
+    if not _force_in_debug:
+        LAST_CALL = "show"
+    else:
+        LAST_CALL = "other"
 
     with Timer(timeit, "", "send"):
         return send_data(data, port=port, timeit=timeit)
@@ -668,7 +677,12 @@ def show_clear():
 def show_all(variables=None, exclude=None, **kwargs):
     import inspect
 
-    global first_call
+    global FIRST_CALL, LAST_CALL
+
+    if LAST_CALL == "show":
+        LAST_CALL = "other"
+        print("\nSkip visual debug step after a show() command")
+        return
 
     if variables is None:
         cf = inspect.currentframe()
@@ -732,13 +746,17 @@ def show_all(variables=None, exclude=None, **kwargs):
                 objects.append(pg)
                 names.append(name)
 
-    if first_call:
+    if FIRST_CALL:
         kwargs["reset_camera"] = Camera.RESET
 
     if len(objects) > 0:
         show(
-            *objects, names=names, collapse=Collapse.ROOT, _force_in_debug=True, **kwargs
+            *objects,
+            names=names,
+            collapse=Collapse.ROOT,
+            _force_in_debug=True,
+            **kwargs,
         )
-        first_call = False
+        FIRST_CALL = False
     else:
         show_clear()
