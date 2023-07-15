@@ -1,3 +1,4 @@
+# %%
 from build123d import *
 from ocp_vscode import *
 
@@ -135,21 +136,19 @@ show(b, c, default_edgecolor="red")
 show(
     b,
     c,
-    zoom=0.5,
-    position=[9.698604277066465, 7.541399465537116, -9.653647529954416],
-    quaternion=[
-        0.572480622757492,
-        0.5644006736361671,
-        0.594707074888687,
-        0.006427382326782352,
-    ],
-    target=[0.4643458377039448, -0.4267553835514652, -3.9303273888943013],
+    zoom=0.3,
+    position=[15.4, -7.4, 4.3],
+    quaternion=[0.3301, 0.2803, 0.7015, 0.5658],
+    target=[4.7, -7.7, -4.3],
 )
 
 # %%
 # Do not reset the camera
 
-show(b, c, reset_camera=False, colors=["red", "green"], alphas=[0.3, 0.7])
+show(b, c, reset_camera=Camera.KEEP, colors=["red", "green"], alphas=[0.3, 0.7])
+
+# %%
+show(b, c, reset_camera=Camera.CENTER, colors=["blue", "yellow"], alphas=[0.3, 0.7])
 
 # %%
 # Suppress rendering edges
@@ -305,7 +304,7 @@ show(b, c, default_edgecolor="cyan", axes=False)
 reset_defaults()
 
 # %%
-set_defaults(reset_camera=False, timeit=True)
+set_defaults(reset_camera=Camera.KEEP, timeit=True)
 
 show(b, c)
 transparent = False

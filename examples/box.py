@@ -1,28 +1,19 @@
 # %%
 import cadquery as cq
-from ocp_vscode import (
-    show,
-    show_object,
-    reset_show,
-    set_port,
-    set_defaults,
-    get_defaults,
-    Collapse,
-)
-
-set_port(3939)
+from ocp_vscode import *
 
 set_defaults(
     axes=True,
     transparent=False,
     collapse=Collapse.LEAVES,
+    reset_camera=Camera.KEEP,
     grid=(True, True, True),
 )
 # %%
 box = cq.Workplane().box(1, 2, 1).edges().chamfer(0.4)
 
 reset_show()
-show_object(box, name="box", options={"alpha": 0.5})
+show_object(box, name="Box", options={"alpha": 0.5})
 
 # %%
 sphere = cq.Workplane().sphere(0.6)
@@ -33,8 +24,6 @@ show_object(
     "sphere",
     {"color": (10, 100, 110)},
     # three-cad-viewer args
-    collapse=Collapse.LEAVES,
-    reset_camera=False,
     ortho=False,
 )
 

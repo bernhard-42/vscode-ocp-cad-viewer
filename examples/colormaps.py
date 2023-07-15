@@ -2,23 +2,8 @@
 
 import copy
 from build123d import *
-from ocp_vscode import (
-    show,
-    ColorMap,
-    set_colormap,
-    unset_colormap,
-    reset_show,
-    show_object,
-)
-from ocp_vscode.colors import (
-    hsv_mapper,
-    matplotlib_mapper,
-    ListedColorMap,
-    SegmentedColorMap,
-    SeededColormap,
-    GoldenRatioColormap,
-)
-import matplotlib as mpl
+from ocp_vscode import *
+from ocp_vscode.colors import ListedColorMap
 
 
 def reference(obj, loc):
