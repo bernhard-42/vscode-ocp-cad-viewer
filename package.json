@@ -683,12 +683,12 @@
         "test": "node ./out/test/runTest.js"
     },
     "devDependencies": {
+        "@types/adm-zip": "^0.5.0",
+        "@types/follow-redirects": "^1.14.1",
         "@types/glob": "^8.1.0",
         "@types/mocha": "^10.0.1",
         "@types/node": "^18.14.6",
         "@types/vscode": "^1.71.0",
-        "@types/adm-zip": "^0.5.0",
-        "@types/follow-redirects": "^1.14.1",
         "@types/ws": "^8.5.4",
         "@typescript-eslint/eslint-plugin": "^5.31.0",
         "@typescript-eslint/parser": "^5.31.0",
@@ -703,7 +703,7 @@
         "adm-zip": "^0.5.10",
         "follow-redirects": "^1.15.2",
         "semver": "^7.5.1",
-        "three-cad-viewer": "1.8.6",
+        "three-cad-viewer": "D:\\Projets\\three-cad-viewer\\three-cad-viewer-v2.0.0.tgz",
         "ws": "^8.13.0"
     }
 }
