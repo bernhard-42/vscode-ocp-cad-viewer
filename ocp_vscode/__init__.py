@@ -13,7 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
+__version__ = "2.0.0"
+from ocp_vscode.show import show2
 from .show import *
 from .config import *
 from .comms import *

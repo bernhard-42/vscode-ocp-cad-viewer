@@ -1,25 +1,39 @@
-import multiprocessing
+import pickle
+from asyncio import StreamWriter, StreamReader
+import asyncio
+
+BUFFER_SIZE_HEADER = 4  # Length of the header that contains the length of the message
 
 
-class TestObj:
-    def __init__(self, value):
-        self.value = value
+class AsyncServer:
+    def __init__(self, host, port):
+        self.host = host
+        self.port = port
 
+    async def handle_client(self, reader: StreamReader, writer: StreamWriter):
+        header = await reader.read(BUFFER_SIZE_HEADER)
+        buffer = await reader.read(int.from_bytes(header))
 
-def read_data(conn):
-    # Receive the custom object from the Pipe
-    custom_obj = conn.recv()
+        addr = writer.get_extra_info("peername")
+        print(f"Received data from {addr!r}")
 
-    print("Script2 received:", custom_obj.value)
+        self.handle_data(buffer)
+
+        print("Closing the connection")
+        writer.close()
+
+    async def serve(self):
+        print(f"Serving on {self.host}:{self.port}")
+        server = await asyncio.start_server(self.handle_client, self.host, self.port)
+
+        async with server:
+            await server.serve_forever()
+
+    def handle_data(self, data):
+        obj = pickle.loads(data)
+        print(obj)
 
 
 if __name__ == "__main__":
-    parent_conn, child_conn = multiprocessing.Pipe()
-
-    p = multiprocessing.Process(target=read_data, args=(parent_conn,))
-    p.start()
-
-    try:
-        p.join()  # Keep script2 running until explicitly terminated
-    except KeyboardInterrupt:
-        print("Script2 has been terminated.")
+    server = AsyncServer("localhost", 9999)
+    asyncio.run(server.serve())

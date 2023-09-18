@@ -46,6 +46,8 @@ class Collapse(Enum):
     ROOT = 3
 
 
+SHARED_MEMORY_BLOCK_SIZE = int(1e6)
+
 CONFIG_UI_KEYS = [
     "axes",
     "axes0",

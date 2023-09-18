@@ -15,6 +15,7 @@
 #
 import re
 import sys
+from build123d import Shape
 from ocp_tessellate import PartGroup
 from ocp_tessellate.convert import (
     tessellate_group,
@@ -760,3 +761,82 @@ def show_all(variables=None, exclude=None, **kwargs):
         FIRST_CALL = False
     else:
         show_clear()
+
+
+def show2(obj, name="obj", **kwargs):
+    from multiprocessing.shared_memory import SharedMemory
+    from ocp_vscode.comms import CMD_PORT
+    import pickle
+    from ocp_vscode.persistence import modify_copyreg
+    from ocp_vscode.backend import HEADER_SIZE
+    import struct
+
+    modify_copyreg()
+
+    def to_occ(obj):
+        if isinstance(obj, (list, tuple)):
+            return [o.wrapped for o in obj]
+        else:
+            return obj.wrapped
+
+    default_color = workspace_config()["default_color"]
+    default_edgecolor = workspace_config()["default_edgecolor"]
+
+    pg_e = OCP_PartGroup([], name="edges")
+    pg_f = OCP_PartGroup([], name="faces")
+    pg_v = OCP_PartGroup([], name="vertices")
+
+    # Edges
+    pg_e.add_list(
+        [
+            OCP_Edges([edge], name=f"edges_{i}", color=default_edgecolor)
+            for i, edge in enumerate(obj.edges())
+        ]
+    )
+
+    # Faces
+    faces = []
+    for i, face in enumerate(obj.faces()):
+        face = OCP_Faces(
+            [face], name=f"faces_{i}", color=default_color, show_edges=False
+        )
+        # Ensure back is not rendered
+        face.renderback = False
+        faces.append(face)
+
+    pg_f.add_list(faces)
+
+    # Vertices
+    pg_v.add_list(
+        OCP_Vertices([vertex], name=f"vertices_{i}", size=5, color=default_edgecolor)
+        for i, vertex in enumerate(obj.vertices())
+    )
+
+    pg = OCP_PartGroup([pg_f, pg_e, pg_v], name=name)
+    map = pg.get_id_ocp_mapping()
+
+    shm = SharedMemory(name=f"ocp-viewer-{CMD_PORT}")
+    data = pickle.dumps(map)
+    length = HEADER_SIZE + len(data)
+    shm.buf[:length] = struct.pack("I", len(data)) + data
+    shm.close()
+
+    def reduce_to_occ(partgroup):
+        for obj in partgroup.objects:
+            if isinstance(obj, OCP_PartGroup):
+                reduce_to_occ(obj)
+            else:
+                obj.shape = [to_occ(obj.shape[0])]
+
+    reduce_to_occ(pg)
+    t = _convert(pg, names=[name])
+
+    # remove edges of faces
+    for k, v in t["data"]["states"].items():
+        if "/faces/" in k:
+            t["data"]["states"][k][1] = 3
+
+    # collapse faces, edges, vertices
+    t["config"]["collapse"] = 3
+
+    send_data(t)

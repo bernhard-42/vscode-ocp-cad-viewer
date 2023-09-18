@@ -16,41 +16,41 @@
 
 import * as vscode from "vscode";
 import { template } from "./display";
-import { CadqueryController } from "./controller";
+import { OCPCADController } from "./controller";
 import * as output from "./output";
 
-export class CadqueryViewer {
+export class OCPCADViewer {
     /**
      * Track the currently panel. Only allow a single panel to exist at a time.
      */
 
-    public static currentPanel: CadqueryViewer | undefined;
-    public static controller: CadqueryController | undefined;
+    public static currentPanel: OCPCADViewer | undefined;
+    public static controller: OCPCADController | undefined;
 
-    public static readonly viewType = "cadqueryViewer";
+    public static readonly viewType = "OCPCADViewer";
 
     private readonly _panel: vscode.WebviewPanel;
     private _disposables: vscode.Disposable[] = [];
 
     public static createOrShow(
         extensionUri: vscode.Uri,
-        _controller: CadqueryController
+        _controller: OCPCADController
     ) {
         this.controller = _controller;
 
-        if (CadqueryViewer.currentPanel) {
+        if (OCPCADViewer.currentPanel) {
             // If we already have a panel, show it.
 
             output.debug("Revealing existing webview panel");
 
-            CadqueryViewer.currentPanel._panel.reveal(vscode.ViewColumn.Two);
+            OCPCADViewer.currentPanel._panel.reveal(vscode.ViewColumn.Two);
         } else {
             // Otherwise, create a new panel.
 
             output.debug("Creating new webview panel");
 
             const panel = vscode.window.createWebviewPanel(
-                CadqueryViewer.viewType,
+                OCPCADViewer.viewType,
                 "OCP CAD Viewer",
                 vscode.ViewColumn.Two,
                 {
@@ -58,7 +58,7 @@ export class CadqueryViewer {
                     retainContextWhenHidden: true
                 }
             );
-            CadqueryViewer.currentPanel = new CadqueryViewer(
+            OCPCADViewer.currentPanel = new OCPCADViewer(
                 panel,
                 extensionUri
             );
@@ -68,7 +68,7 @@ export class CadqueryViewer {
     public static revive(panel: vscode.WebviewPanel, extensionUri: vscode.Uri) {
         output.debug("Reviving webview panel");
 
-        CadqueryViewer.currentPanel = new CadqueryViewer(panel, extensionUri);
+        OCPCADViewer.currentPanel = new OCPCADViewer(panel, extensionUri);
     }
 
     private constructor(panel: vscode.WebviewPanel, extensionUri: vscode.Uri) {
@@ -106,8 +106,8 @@ export class CadqueryViewer {
     }
 
     public dispose() {
-        output.debug("CadqueryViewer dispose");
-        CadqueryViewer.currentPanel = undefined;
+        output.debug("OCP CAD Viewer dispose");
+        OCPCADViewer.currentPanel = undefined;
 
         this._panel.dispose();
 
@@ -117,7 +117,7 @@ export class CadqueryViewer {
                 x.dispose();
             }
         }
-        CadqueryViewer.controller?.dispose();
+        OCPCADViewer.controller?.dispose();
     }
 
     public update(div: string) {

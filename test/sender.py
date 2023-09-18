@@ -1,36 +1,35 @@
-# SuperFastPython.com
-# example of parent terminating itself and child remains running
-from time import sleep
-from multiprocessing import Process
-from multiprocessing import parent_process
-import os
-import signal
+from persistence import modify_copyreg
+from build123d import *
+import pickle
+from backend import BUFFER_SIZE_HEADER
+import asyncio
+
+modify_copyreg()
+
+box = Box(10, 10, 10).solid()
 
 
-# task executed in a child process
-def task():
-    os.kill(os.getppid(), signal.SIGTERM)
+class AsyncSender:
+    def __init__(self, host, port):
+        self.host = host
+        self.port = port
 
-    for i in range(10):
-        # report a message
-        # print("Task is running...", flush=True)
-        # block for a moment
-        sleep(1)
-        # get the parent process
-    parent = parent_process()
+    async def send(self, obj):
+        try:
+            data = pickle.dumps(obj)
+            reader, writer = await asyncio.open_connection(self.host, self.port)
 
-    # check if the main process is still running
-    print(f"Parent alive: {parent.is_alive()}")
+            header = len(data).to_bytes(BUFFER_SIZE_HEADER)
+            writer.write(header + data)
+            await writer.drain()
+
+            writer.close()
+            await writer.wait_closed()
+
+        except Exception as e:
+            print(f"Error sending/receiving message: {e}")
 
 
-# protect the entry point
 if __name__ == "__main__":
-    # create and configure a child process
-    process = Process(target=task)
-    process.deamon = True
-    # start the child process
-    process.start()
-
-    # report a final message
-    print("Main is done")
-    # terminate self
+    sender = AsyncSender("localhost", 9999)
+    asyncio.run(sender.send(box))

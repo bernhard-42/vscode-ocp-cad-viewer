@@ -19,8 +19,8 @@ import * as output from "./output";
 import * as path from "path";
 import * as fs from "fs";
 import * as os from "os";
-import { CadqueryController } from "./controller";
-import { CadqueryViewer } from "./viewer";
+import { OCPCADController } from "./controller";
+import { OCPCADViewer } from "./viewer";
 import { createLibraryManager, installLib, Library, LibraryManagerProvider } from "./libraryManager";
 import { createStatusManager } from "./statusManager";
 import { download } from "./examples";
@@ -57,7 +57,7 @@ function check_upgrade(libraryManager: LibraryManagerProvider) {
 
 
 export async function activate(context: vscode.ExtensionContext) {
-    let controller: CadqueryController;
+    let controller: OCPCADController;
     let isWatching = false;
 
     let statusManager = createStatusManager();
@@ -122,7 +122,7 @@ export async function activate(context: vscode.ExtensionContext) {
                     }
                     const column = vscode.window?.activeTextEditor?.viewColumn;
 
-                    controller = new CadqueryController(
+                    controller = new OCPCADController(
                         context,
                         port,
                         statusManager,
@@ -142,7 +142,7 @@ export async function activate(context: vscode.ExtensionContext) {
                         statusManager.refresh(port.toString());
 
                         output.show();
-                        output.debug("Command cadqueryViewer registered");
+                        output.debug("Command OCP CAD Viewer registered");
                         controller.logo();
                         break;
                     } else {
@@ -404,12 +404,12 @@ export async function activate(context: vscode.ExtensionContext) {
 
     //	Register Web view
 
-    vscode.window.registerWebviewPanelSerializer(CadqueryViewer.viewType, {
+    vscode.window.registerWebviewPanelSerializer(OCPCADViewer.viewType, {
         async deserializeWebviewPanel(
             webviewPanel: vscode.WebviewPanel,
             state: any
         ) {
-            CadqueryViewer.revive(webviewPanel, context.extensionUri);
+            OCPCADViewer.revive(webviewPanel, context.extensionUri);
         }
     });
 
@@ -424,7 +424,7 @@ export async function activate(context: vscode.ExtensionContext) {
                 ];
             libraryManager.refresh(pythonPath);
             controller.dispose();
-            CadqueryViewer.currentPanel?.dispose();
+            OCPCADViewer.currentPanel?.dispose();
         }
     });
 
@@ -434,12 +434,12 @@ export async function activate(context: vscode.ExtensionContext) {
         let pythonPath = extension.exports.settings.getExecutionDetails().execCommand[0];
         libraryManager.refresh(pythonPath);
         controller.dispose();
-        CadqueryViewer.currentPanel?.dispose();
+        OCPCADViewer.currentPanel?.dispose();
         statusBarItem.hide();
     });
 }
 
 export function deactivate() {
     output.debug("OCP CAD Viewer extension deactivated");
-    CadqueryViewer.currentPanel?.dispose();
+    OCPCADViewer.currentPanel?.dispose();
 }

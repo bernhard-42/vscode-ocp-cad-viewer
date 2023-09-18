@@ -16,13 +16,15 @@
 */
 
 import * as vscode from "vscode";
-import { CadqueryViewer } from "./viewer";
+import { OCPCADViewer } from "./viewer";
 import { template } from "./display";
 import { createServer, Server } from 'http';
 import { WebSocket, WebSocketServer } from 'ws';
 import * as output from "./output";
 import { logo } from "./logo";
 import { StatusManagerProvider } from "./statusManager";
+import { ChildProcessWithoutNullStreams, spawn } from "child_process";
+import { getPythonPath } from "./utils";
 
 var serverStarted = false;
 
@@ -32,9 +34,10 @@ interface Message {
     data: string | undefined;
 }
 
-export class CadqueryController {
+export class OCPCADController {
     server: Server | undefined;
     pythonListener: WebSocket | undefined;
+    pythonBackendProcess : ChildProcessWithoutNullStreams | undefined;
     statusController: StatusManagerProvider;
     statusBarItem: vscode.StatusBarItem;
     view: vscode.Webview | undefined;
@@ -101,12 +104,13 @@ export class CadqueryController {
     }
 
     async start() {
+        await this.startBackend();
         if (!serverStarted) {
-            serverStarted = await this.startCommandServer(this.port);
+            serverStarted = await this.startCommandServer();
             if (serverStarted) {
                 output.info("Starting websocket server ...");
-                CadqueryViewer.createOrShow(this.context.extensionUri, this);
-                let panel = CadqueryViewer.currentPanel;
+                OCPCADViewer.createOrShow(this.context.extensionUri, this);
+                let panel = OCPCADViewer.currentPanel;
                 this.view = panel?.getView();
                 if (this.view !== undefined) {
                     const stylePath = vscode.Uri.joinPath(this.context.extensionUri, "node_modules", "three-cad-viewer", "dist", "three-cad-viewer.css");
@@ -115,7 +119,7 @@ export class CadqueryController {
                     const styleSrc = this.view.asWebviewUri(stylePath);
                     const scriptSrc = this.view.asWebviewUri(scriptPath);
                     const htmlSrc = this.view.asWebviewUri(htmlPath);
-                    CadqueryViewer.currentPanel?.update(template(styleSrc, scriptSrc, htmlSrc));
+                    OCPCADViewer.currentPanel?.update(template(styleSrc, scriptSrc, htmlSrc));
 
                     this.view.onDidReceiveMessage(
                         message => {
@@ -126,7 +130,7 @@ export class CadqueryController {
                                 output.info(msg.text)
                             }
                             if (this.pythonListener !== undefined) {
-                                output.debug("Sending message to python: " + message);
+                                // output.debug("Sending message to python: " + message);
                                 this.pythonListener.send(message);
                             }
                         });
@@ -136,7 +140,7 @@ export class CadqueryController {
         }
     }
 
-    public startCommandServer(port: number): Promise<boolean> {
+    public startCommandServer(): Promise<boolean> {
         return new Promise<boolean>((resolve, reject) => {
             const httpServer = createServer();
             const wss = new WebSocketServer({ server: httpServer });
@@ -191,13 +195,41 @@ export class CadqueryController {
                 resolve(false);
             });
 
-            httpServer.listen(port, () => {
-                output.info(`Server started on port ${port}`);
+            httpServer.listen(this.port, () => {
+                output.info(`Server started on port ${this.port}`);
                 this.server = httpServer;
                 resolve(true);
             });
 
         });
+    }
+
+    /**
+     * @returns the path to the python backend
+     */
+    private getBackendPath(): string {
+        return vscode.Uri.joinPath(this.context.extensionUri, "ocp_vscode/backend.py").fsPath;
+    }
+
+    /**
+     * Starts the python backend server
+     */
+    public async startBackend() {
+        let python = await getPythonPath();
+        output.debug(`Starting python backend with ${python}`);
+        // this.pythonBackendProcess = spawn(python, [this.getBackendPath(), "--port", this.port.toString()]);
+        // this.pythonBackendProcess.stdout.on('data', (data) => {
+        //     output.debug(`Python backend: ${data}`);
+        // });
+
+    }
+    
+    /**
+     * Stops the python backend server
+     */
+    public stopBackend() {
+        this.pythonBackendProcess?.kill();
+        this.pythonBackendProcess = undefined;
     }
 
     public stopCommandServer() {
@@ -214,9 +246,10 @@ export class CadqueryController {
     }
 
     public dispose() {
-        output.debug("CadqueryController dispose");
+        output.debug("OCPCADController dispose");
 
         this.stopCommandServer();
+        this.stopBackend();
         serverStarted = false;
         output.info("Server is shut down");
         this.statusController.refresh("<none>");

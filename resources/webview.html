@@ -322,7 +322,7 @@
                 }
 
             } else {
-                if (_config.position){
+                if (_config.position) {
                     viewerOptions.position = _config.position;
                 } else if (_position) {
                     const camera_distance = 5 * bb_radius;
@@ -343,19 +343,19 @@
                 }
                 _position = viewerOptions.position;
 
-                if (_config.quaternion){
+                if (_config.quaternion) {
                     viewerOptions.quaternion = _config.quaternion;
                 } else if (_quaternion) {
                     viewerOptions.quaternion = _quaternion;
                 }
 
-                if (_config.target){
+                if (_config.target) {
                     viewerOptions.target = _config.target;
                 } else if (_target) {
                     viewerOptions.target = _target;
                 }
 
-                if (_config.zoom){
+                if (_config.zoom) {
                     viewerOptions.zoom = _config.zoom;
                 } else if (_zoom) {
                     viewerOptions.zoom = _zoom;
@@ -401,7 +401,6 @@
 
             if (data.type === "data") {
                 decode(data);
-
                 const old_states = (viewer == null) ? {} : viewer.treeview.states;
 
                 let meshData = data.data;
@@ -415,7 +414,10 @@
                     }
                 });
 
-            } else if (data.type === "clear") {
+            } else if (data.type === "tool_response") {
+                viewer.cadTools.handleResponse(data);
+            }
+            else if (data.type === "clear") {
                 viewer.clear();
             } else if (data.type === "ui") {
                 if (data.config.debug) {
