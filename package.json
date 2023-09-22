@@ -703,7 +703,7 @@
         "adm-zip": "^0.5.10",
         "follow-redirects": "^1.15.2",
         "semver": "^7.5.1",
-        "three-cad-viewer": "D:\\Projets\\three-cad-viewer\\three-cad-viewer-v2.0.7.tgz",
+        "three-cad-viewer": "D:\\Projets\\three-cad-viewer\\three-cad-viewer-v2.0.13.tgz",
         "ws": "^8.13.0"
     }
 }

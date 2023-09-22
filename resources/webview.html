@@ -414,8 +414,8 @@
                     }
                 });
 
-            } else if (data.type === "tool_response") {
-                viewer.cadTools.handleResponse(data);
+            } else if (data.type === "backend_response") {
+                viewer.handleBackendResponse(data);
             }
             else if (data.type === "clear") {
                 viewer.clear();

@@ -36,7 +36,8 @@
 			"request" : "launch",
 			"program" : "${file}",
 			"console" : "integratedTerminal",
-			"args": ["--port","3939"]
+			"args": ["--port","3939"],
+			"justMyCode": false,
 		}
 	]
 }

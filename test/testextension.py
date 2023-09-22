@@ -2,7 +2,7 @@ from build123d import *
 from ocp_vscode import *
 
 set_port(3939)
-set_defaults(reset_camera=False, ortho=True)
+set_defaults(reset_camera=Camera.KEEP, ortho=True)
 densa = 7800 / 1e6  # carbon steel density g/mm^3
 densb = 2700 / 1e6  # aluminum alloy
 densc = 1020 / 1e6  # ABS
@@ -37,8 +37,14 @@ with BuildPart() as p:
     mirror(about=Plane.XZ)
     mirror(about=Plane.YZ)
 
+
+r = RegularPolygon(10, 5)
+pp = extrude(r, 10)
+pp -= Hole(2, 50)
+
+
 classes = (BuildPart, BuildSketch, BuildLine)  # for OCP-vscode
 set_colormap(ColorMap.seeded(colormap="rgb", alpha=1, seed_value="vscod"))
-show2(p, "item")
+show2(pp, "item")
 print()
 print(f"part mass = {p.part.scale(IN).volume*densb/LB}")

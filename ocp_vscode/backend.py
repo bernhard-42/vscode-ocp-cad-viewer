@@ -6,7 +6,18 @@ from ocp_vscode.comms import listener, MessageType, send_data
 import argparse
 from enum import StrEnum
 import struct
-from build123d import CenterOf, GeomType, Vector, Vertex, Edge, Face, Solid, Shape
+from build123d import (
+    Axis,
+    CenterOf,
+    GeomType,
+    Plane,
+    Vector,
+    Vertex,
+    Edge,
+    Face,
+    Solid,
+    Shape,
+)
 import traceback
 
 HEADER_SIZE = 4
@@ -26,11 +37,27 @@ def error_handler(func):
 class Tool(StrEnum):
     Distance = "DistanceMeasurement"
     Properties = "PropertiesMeasurement"
+    Angle = "AngleMeasurement"
 
 
 @dataclass
-class DistanceResponse:
-    type: str = "tool_response"
+class Response:
+    type: str = "backend_response"
+
+
+@dataclass
+class FilterReponse(Response):
+    subtype: str = "filter_response"
+    highlightable_objs: list = None
+
+
+@dataclass
+class MeasureReponse(Response):
+    subtype: str = "tool_response"
+
+
+@dataclass
+class DistanceResponse(MeasureReponse):
     tool_type: Tool = Tool.Distance
     point1: tuple = None
     point2: tuple = None
@@ -43,8 +70,7 @@ class DistanceResponse:
 
 
 @dataclass
-class PropertiesResponse:
-    type: str = "tool_response"
+class PropertiesResponse(MeasureReponse):
     tool_type: Tool = Tool.Properties
     center: tuple = None
     vertex_coords: tuple = None
@@ -58,6 +84,17 @@ class PropertiesResponse:
         self.volume = round(self.volume, decimals) if self.volume is not None else None
 
 
+@dataclass
+class AngleResponse(MeasureReponse):
+    tool_type: Tool = Tool.Angle
+    angle: float = None
+    point1: tuple = None
+    point2: tuple = None
+
+    def set_precision(self, decimals=2):
+        self.angle = round(self.angle, decimals) if self.angle is not None else None
+
+
 class ViewerBackend:
     def __init__(self, port: int, block_size: int) -> None:
         self.port = port
@@ -66,6 +103,7 @@ class ViewerBackend:
         )
         self.model = None
         self.activated_tool = None
+        self.filter_type = "none"  # The current active selection filter
 
     def start(self):
         print("Viewer backend started")
@@ -83,7 +121,52 @@ class ViewerBackend:
                 self.activated_tool = None
 
         if self.activated_tool is not None:
+            self.handle_filter_geom_selection(changes)
             self.handle_activated_tool(changes)
+
+    def handle_filter_geom_selection(self, changes):
+        """
+        Tells the viewer if the geometry hovered can be highlighted (and thus selected)
+        For the current tool selected.
+        """
+        if "topoFilterType" in changes:
+            self.filter_type = changes["topoFilterType"]
+
+        if not "hoveredObjs" in changes:
+            return
+
+        objs_ids = changes["hoveredObjs"]
+        objs = {id: self.model[id.replace("|", "/")] for id in objs_ids}
+        filter_type = self.filter_type
+
+        if filter_type == "vertex":
+            objs = {id: obj for id, obj in objs.items() if isinstance(obj, Vertex)}
+        elif filter_type == "edge":
+            objs = {id: obj for id, obj in objs.items() if isinstance(obj, Edge)}
+        elif filter_type == "face":
+            objs = {id: obj for id, obj in objs.items() if isinstance(obj, Face)}
+        elif filter_type == "solid":
+            objs = {id: obj for id, obj in objs.items() if isinstance(obj, Solid)}
+
+        if self.activated_tool == Tool.Angle:
+            faces = {id: obj for id, obj in objs.items() if isinstance(obj, Face)}
+            edges = {id: obj for id, obj in objs.items() if isinstance(obj, Edge)}
+
+            valid_faces = {
+                id: f for id, f in faces.items() if f.geom_type() in ["PLANE"]
+            }
+            valid_edges = {
+                id: e
+                for id, e in edges.items()
+                if e.geom_type() in ["LINE", "CIRCLE", "ELLIPSE"]
+            }
+            objs = {**valid_faces, **valid_edges}
+
+        response = FilterReponse(
+            highlightable_objs=[] if not objs else [id for id in objs.keys()]
+        )
+        send_data(asdict(response), self.port)
+        print(f"Data sent {response}")
 
     def handle_activated_tool(self, changes):
         if not "selectedShapeIDs" in changes:
@@ -98,6 +181,11 @@ class ViewerBackend:
         elif self.activated_tool == Tool.Properties and len(selectedObjs) == 1:
             shape_id = changes["selectedShapeIDs"][0]
             self.handle_properties(shape_id)
+
+        elif self.activated_tool == Tool.Angle and len(selectedObjs) == 2:
+            shape_id1 = changes["selectedShapeIDs"][0]
+            shape_id2 = changes["selectedShapeIDs"][1]
+            self.handle_angle(shape_id1, shape_id2)
 
     def load_model(self):
         """Read the transfered model from the shared memory"""
@@ -125,6 +213,48 @@ class ViewerBackend:
         response.center = self.get_center(shape, False).to_tuple()
         response.set_precision()
 
+        send_data(asdict(response), self.port)
+        print(f"Data sent {response}")
+
+    def handle_angle(self, id1, id2):
+        """
+        Request the angle between the two objects that have the given ids
+        """
+        shape1: Shape = self.model[id1]
+        shape2: Shape = self.model[id2]
+        first = (
+            Plane(shape1)
+            if isinstance(shape1, Face)
+            else Plane(shape1 @ 0, z_dir=shape1.normal())
+            if isinstance(shape1, Edge) and shape1.geom_type() in ["CIRCLE", "ELLIPSE"]
+            else shape1 % 0
+        )
+        second = (
+            Plane(shape2)
+            if isinstance(shape2, Face)
+            else Plane(shape2 @ 0, z_dir=shape2.normal())
+            if isinstance(shape2, Edge) and shape2.geom_type() in ["CIRCLE", "ELLIPSE"]
+            else shape2 % 0
+        )
+        if type(first) == type(second) == Plane:
+            angle = first.z_dir.get_angle(second.z_dir)
+        elif type(first) == type(second) == Vector:
+            angle = first.get_angle(second)
+        else:
+            vector = first if isinstance(first, Vector) else second
+            plane = first if isinstance(first, Plane) else second
+
+            angle = 90 - plane.z_dir.get_angle(vector)
+
+        point1 = self.get_center(shape1, True)
+        point2 = self.get_center(shape2, True)
+
+        response = AngleResponse(
+            angle=angle,
+            point1=point1.to_tuple(),
+            point2=point2.to_tuple(),
+        )
+        response.set_precision(3)
         send_data(asdict(response), self.port)
         print(f"Data sent {response}")
 
