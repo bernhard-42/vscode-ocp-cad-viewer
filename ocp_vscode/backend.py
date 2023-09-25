@@ -46,12 +46,6 @@ class Response:
 
 
 @dataclass
-class FilterReponse(Response):
-    subtype: str = "filter_response"
-    highlightable_objs: list = None
-
-
-@dataclass
 class MeasureReponse(Response):
     subtype: str = "tool_response"
 
@@ -121,52 +115,7 @@ class ViewerBackend:
                 self.activated_tool = None
 
         if self.activated_tool is not None:
-            self.handle_filter_geom_selection(changes)
             self.handle_activated_tool(changes)
-
-    def handle_filter_geom_selection(self, changes):
-        """
-        Tells the viewer if the geometry hovered can be highlighted (and thus selected)
-        For the current tool selected.
-        """
-        if "topoFilterType" in changes:
-            self.filter_type = changes["topoFilterType"]
-
-        if not "hoveredObjs" in changes:
-            return
-
-        objs_ids = changes["hoveredObjs"]
-        objs = {id: self.model[id.replace("|", "/")] for id in objs_ids}
-        filter_type = self.filter_type
-
-        if filter_type == "vertex":
-            objs = {id: obj for id, obj in objs.items() if isinstance(obj, Vertex)}
-        elif filter_type == "edge":
-            objs = {id: obj for id, obj in objs.items() if isinstance(obj, Edge)}
-        elif filter_type == "face":
-            objs = {id: obj for id, obj in objs.items() if isinstance(obj, Face)}
-        elif filter_type == "solid":
-            objs = {id: obj for id, obj in objs.items() if isinstance(obj, Solid)}
-
-        if self.activated_tool == Tool.Angle:
-            faces = {id: obj for id, obj in objs.items() if isinstance(obj, Face)}
-            edges = {id: obj for id, obj in objs.items() if isinstance(obj, Edge)}
-
-            valid_faces = {
-                id: f for id, f in faces.items() if f.geom_type() in ["PLANE"]
-            }
-            valid_edges = {
-                id: e
-                for id, e in edges.items()
-                if e.geom_type() in ["LINE", "CIRCLE", "ELLIPSE"]
-            }
-            objs = {**valid_faces, **valid_edges}
-
-        response = FilterReponse(
-            highlightable_objs=[] if not objs else [id for id in objs.keys()]
-        )
-        send_data(asdict(response), self.port)
-        print(f"Data sent {response}")
 
     def handle_activated_tool(self, changes):
         if not "selectedShapeIDs" in changes:
