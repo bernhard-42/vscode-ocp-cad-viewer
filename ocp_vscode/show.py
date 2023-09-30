@@ -13,9 +13,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from multiprocessing.shared_memory import SharedMemory
+from multiprocessing import resource_tracker
+
+import json
+import pickle
 import re
-import sys
-from build123d import Shape
+import struct
+
+from build123d import Vertex, Edge, Face
 from ocp_tessellate import PartGroup
 from ocp_tessellate.convert import (
     tessellate_group,
@@ -24,9 +30,11 @@ from ocp_tessellate.convert import (
     to_assembly,
     mp_get_results,
     is_topods_shape,
+    is_build123d_shape,
+    is_cadquery,
     is_vector,
 )
-from ocp_tessellate.utils import numpy_to_buffer_json, Timer, Color
+from ocp_tessellate.utils import numpy_to_buffer_json, Timer, Color, numpy_to_json
 from ocp_tessellate.ocp_utils import (
     is_vector,
     is_topods_shape,
@@ -35,6 +43,9 @@ from ocp_tessellate.ocp_utils import (
     is_cadquery_assembly,
     is_cadquery_sketch,
     is_build123d,
+    is_topods_edge,
+    is_topods_face,
+    is_topods_vertex,
     is_build123d_assembly,
     is_toploc_location,
 )
@@ -62,8 +73,11 @@ from .config import (
     Collapse,
     check_deprecated,
 )
-from .comms import send_data, MessageType
+from .comms import send_data, CMD_PORT
 from .colors import *
+
+from .persistence import modify_copyreg
+from .backend import HEADER_SIZE
 
 __all__ = ["show", "show_object", "reset_show", "show_all", "show_clear"]
 
@@ -71,6 +85,8 @@ OBJECTS = {"objs": [], "names": [], "colors": [], "alphas": []}
 
 FIRST_CALL = True
 LAST_CALL = "other"
+
+modify_copyreg()
 
 
 def _tessellate(
@@ -212,7 +228,35 @@ def _tessellate(
     return instances, shapes, states, params, part_group.count_shapes()
 
 
-def _convert(*cad_objs, names=None, colors=None, alphas=None, progress=None, **kwargs):
+def merge_instances(instances, shapes):
+    def walk(obj):
+        typ = None
+        for attr in obj.keys():
+            if attr == "parts":
+                for part in obj["parts"]:
+                    walk(part)
+
+            elif attr == "type":
+                typ = obj["type"]
+
+            elif attr == "shape":
+                if typ == "shapes":
+                    if obj["shape"].get("ref") is not None:
+                        ind = obj["shape"]["ref"]
+                        obj["shape"] = instances[ind]
+
+    walk(shapes)
+
+
+def _convert(
+    *cad_objs,
+    names=None,
+    colors=None,
+    alphas=None,
+    progress=None,
+    decode=False,
+    **kwargs,
+):
     timeit = preset("timeit", kwargs.get("timeit"))
 
     if progress is None:
@@ -226,6 +270,9 @@ def _convert(*cad_objs, names=None, colors=None, alphas=None, progress=None, **k
         progress=progress,
         **kwargs,
     )
+    if decode:
+        merge_instances(instances, shapes)
+
     if config.get("dark") is not None:
         config["theme"] = "dark"
     elif config.get("orbit_control") is not None:
@@ -238,16 +285,19 @@ def _convert(*cad_objs, names=None, colors=None, alphas=None, progress=None, **k
         config["explode"] = kwargs["explode"]
 
     with Timer(timeit, "", "create data obj", 1):
-        data = {
-            "data": numpy_to_buffer_json(
-                dict(instances=instances, shapes=shapes, states=states)
-            ),
-            "type": "data",
-            "config": config,
-            "count": count_shapes,
-        }
-
-    return data
+        if decode:
+            return json.loads(
+                numpy_to_json({"data": dict(shapes=shapes, states=states)})
+            )
+        else:
+            return {
+                "data": numpy_to_buffer_json(
+                    dict(instances=instances, shapes=shapes, states=states)
+                ),
+                "type": "data",
+                "config": config,
+                "count": count_shapes,
+            }
 
 
 class Progress:
@@ -763,80 +813,124 @@ def show_all(variables=None, exclude=None, **kwargs):
         show_clear()
 
 
-def show2(obj, name="obj", **kwargs):
-    from multiprocessing.shared_memory import SharedMemory
-    from ocp_vscode.comms import CMD_PORT
-    import pickle
-    from ocp_vscode.persistence import modify_copyreg
-    from ocp_vscode.backend import HEADER_SIZE
-    import struct
+def _convert2(obj, name="obj", decode=False, **kwargs):
+    def add_geom_type(shapes, mapping):
+        for shape in shapes["parts"]:
+            if shape.get("parts") is None:
+                shape["geomtype"] = mapping[shape["id"]].geom_type()
+            else:
+                add_geom_type(shape, mapping)
 
-    modify_copyreg()
+    def to_b123d(obj):
+        from build123d.topology import downcast
 
-    def to_occ(obj):
-        if isinstance(obj, (list, tuple)):
-            return [o.wrapped for o in obj]
+        if is_build123d_shape(obj):
+            return obj
         else:
-            return obj.wrapped
+            if is_topods_vertex(obj.wrapped):
+                return Vertex(obj.wrapped)
+            elif is_topods_edge(obj.wrapped):
+                return Edge(obj.wrapped)
+            elif is_topods_face(obj.wrapped):
+                return Face(obj.wrapped)
+            else:
+                raise TypeError(f"Cannot convert {type(obj)} to build123d")
 
-    default_color = workspace_config()["default_color"]
+    def vals(obj):
+        if hasattr(obj, "vals"):
+            return obj.vals()
+        else:
+            return obj
+
     default_edgecolor = workspace_config()["default_edgecolor"]
+    default_facecolor = workspace_config()["default_color"]
+    default_vertexcolor = workspace_config()["default_vertexcolor"]
 
-    pg_e = OCP_PartGroup([], name="edges")
-    pg_f = OCP_PartGroup([], name="faces")
-    pg_v = OCP_PartGroup([], name="vertices")
+    all_faces = vals(obj.faces())
+    all_edges = vals(obj.edges())
+    all_vertices = vals(obj.vertices())
+
+    pg = OCP_PartGroup([], name=name)
+    mapping = {}
 
     # Edges
-    pg_e.add_list(
-        [
-            OCP_Edges([edge], name=f"edges_{i}", color=default_edgecolor)
-            for i, edge in enumerate(obj.edges())
-        ]
-    )
+    pg_e = OCP_PartGroup([], name="edges")
 
-    # Faces
-    faces = []
-    for i, face in enumerate(obj.faces()):
-        face = OCP_Faces(
-            [face], name=f"faces_{i}", color=default_color, show_edges=False
-        )
-        # Ensure back is not rendered
-        face.renderback = False
-        faces.append(face)
+    for i, edge in enumerate(all_edges):
+        e_name = f"edges_{i}"
+        mapping[f"/{name}/edges/{e_name}"] = to_b123d(edge)
+        pg_e.add(OCP_Edges([edge.wrapped], name=e_name, color=default_edgecolor))
 
-    pg_f.add_list(faces)
+    if len(all_edges) > 0:
+        pg.add(pg_e)
 
     # Vertices
-    pg_v.add_list(
-        OCP_Vertices([vertex], name=f"vertices_{i}", size=5, color=default_edgecolor)
-        for i, vertex in enumerate(obj.vertices())
-    )
+    pg_v = OCP_PartGroup([], name="vertices")
 
-    pg = OCP_PartGroup([pg_f, pg_e, pg_v], name=name)
-    map = pg.get_id_ocp_mapping()
+    for i, vertex in enumerate(all_vertices):
+        v_name = f"vertices_{i}"
+        mapping[f"/{name}/vertices/{v_name}"] = to_b123d(vertex)
+        pg_v.add(
+            OCP_Vertices(
+                [vertex.wrapped], name=v_name, color=default_vertexcolor, size=2
+            )
+        )
 
-    shm = SharedMemory(name=f"ocp-viewer-{CMD_PORT}")
-    data = pickle.dumps(map)
-    length = HEADER_SIZE + len(data)
-    shm.buf[:length] = struct.pack("I", len(data)) + data
-    shm.close()
+    if len(all_vertices) > 0:
+        pg.add(pg_v)
 
-    def reduce_to_occ(partgroup):
-        for obj in partgroup.objects:
-            if isinstance(obj, OCP_PartGroup):
-                reduce_to_occ(obj)
-            else:
-                obj.shape = [to_occ(obj.shape[0])]
+    # Faces
+    pg_f = OCP_PartGroup([], name="faces")
 
-    reduce_to_occ(pg)
-    t = _convert(pg, names=[name])
+    for i, face in enumerate(all_faces):
+        f_name = f"faces_{i}"
+        mapping[f"/{name}/faces/{f_name}"] = to_b123d(face)
+        faces = OCP_Faces(
+            [face.wrapped],
+            name=f_name,
+            color=default_facecolor if len(all_faces) > 1 else None,
+            show_edges=False,
+        )
+        # Ensure back is not rendered
+        if len(all_faces) > 1:
+            faces.renderback = False
+        pg_f.add(faces)
+
+    if len(all_faces) > 0:
+        pg.add(pg_f)
+
+    if not decode:
+        shm = SharedMemory(name=f"ocp-viewer-{CMD_PORT}")
+        data = pickle.dumps(mapping)
+        length = HEADER_SIZE + len(data)
+        shm.buf[:length] = struct.pack("I", len(data)) + data
+        shm.close()
+        resource_tracker.unregister(f"/ocp-viewer-{CMD_PORT}", "shared_memory")
+
+    t = _convert(pg, names=[name], decode=decode)
+
+    add_geom_type(t["data"]["shapes"], mapping)
 
     # remove edges of faces
     for k, v in t["data"]["states"].items():
         if "/faces/" in k:
             t["data"]["states"][k][1] = 3
 
-    # collapse faces, edges, vertices
-    t["config"]["collapse"] = 3
+    if not decode:
+        # collapse faces, edges, vertices
+        t["config"]["collapse"] = 3
+
+    return t
+
+
+def show2(obj, name="obj", **kwargs):
+    t = _convert2(obj, name, False, **kwargs)
 
     send_data(t)
+
+
+def export_tcv_json(obj, filename="export.json", name="obj", **kwargs):
+    t = _convert2(obj, name, True, **kwargs)
+
+    with open(filename, "w") as fd:
+        fd.write(json.dumps((t["data"]["shapes"], t["data"]["states"]), indent=2))

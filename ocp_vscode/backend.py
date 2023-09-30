@@ -2,11 +2,11 @@ from dataclasses import dataclass, asdict, fields
 import math
 from multiprocessing.shared_memory import SharedMemory
 import pickle
+import sys
+import traceback
+
 from ocp_vscode.config import SHARED_MEMORY_BLOCK_SIZE
 from ocp_vscode.comms import listener, MessageType, send_data
-import argparse
-from enum import StrEnum
-import struct
 from build123d import (
     Axis,
     CenterOf,
@@ -19,7 +19,7 @@ from build123d import (
     Solid,
     Shape,
 )
-import traceback
+
 
 HEADER_SIZE = 4
 
@@ -35,7 +35,8 @@ def error_handler(func):
     return wrapper
 
 
-class Tool(StrEnum):
+@dataclass
+class Tool:
     Distance = "DistanceMeasurement"
     Properties = "PropertiesMeasurement"
     Angle = "AngleMeasurement"
@@ -142,7 +143,7 @@ class ViewerBackend:
         """Read the transfered model from the shared memory"""
         block_size = self._shared_memory.buf[:HEADER_SIZE]
         data = self._shared_memory.buf[
-            HEADER_SIZE : HEADER_SIZE + int.from_bytes(block_size)
+            HEADER_SIZE : HEADER_SIZE + int.from_bytes(block_size, sys.byteorder)
         ]
         self.model = pickle.loads(data)
 
