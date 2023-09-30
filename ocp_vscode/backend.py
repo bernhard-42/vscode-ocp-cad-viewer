@@ -1,4 +1,5 @@
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass, asdict, fields
+import math
 from multiprocessing.shared_memory import SharedMemory
 import pickle
 from ocp_vscode.config import SHARED_MEMORY_BLOCK_SIZE
@@ -40,6 +41,17 @@ class Tool(StrEnum):
     Angle = "AngleMeasurement"
 
 
+def set_precision(instance, decimals=2):
+    """
+    Set the precision of all float fields of the dataclass to the given number of decimals
+    """
+    for field in fields(instance):
+        if field.type == float:
+            value = getattr(instance, field.name)
+            if value is not None:
+                setattr(instance, field.name, round(value, decimals))
+
+
 @dataclass
 class Response:
     type: str = "backend_response"
@@ -57,11 +69,6 @@ class DistanceResponse(MeasureReponse):
     point2: tuple = None
     distance: float = None
 
-    def set_precision(self, decimals=2):
-        self.distance = (
-            round(self.distance, decimals) if self.distance is not None else None
-        )
-
 
 @dataclass
 class PropertiesResponse(MeasureReponse):
@@ -69,13 +76,11 @@ class PropertiesResponse(MeasureReponse):
     center: tuple = None
     vertex_coords: tuple = None
     length: float = None
+    width: float = None
     area: float = None
     volume: float = None
-
-    def set_precision(self, decimals=2):
-        self.length = round(self.length, decimals) if self.length is not None else None
-        self.area = round(self.area, decimals) if self.area is not None else None
-        self.volume = round(self.volume, decimals) if self.volume is not None else None
+    radius: float = None
+    geom_type = str = None
 
 
 @dataclass
@@ -84,9 +89,6 @@ class AngleResponse(MeasureReponse):
     angle: float = None
     point1: tuple = None
     point2: tuple = None
-
-    def set_precision(self, decimals=2):
-        self.angle = round(self.angle, decimals) if self.angle is not None else None
 
 
 class ViewerBackend:
@@ -150,17 +152,32 @@ class ViewerBackend:
         """
         shape = self.model[shape_id]
 
-        if isinstance(shape, Vertex):
-            response = PropertiesResponse(vertex_coords=shape.to_tuple())
-        elif isinstance(shape, Edge):
-            response = PropertiesResponse(length=shape.length)
-        elif isinstance(shape, Face):
-            response = PropertiesResponse(area=shape.area)
-        elif isinstance(shape, Solid):
-            response = PropertiesResponse(volume=shape.volume)
+        response = PropertiesResponse()
 
+        if isinstance(shape, Vertex):
+            response.vertex_coords = shape.to_tuple()
+        elif isinstance(shape, Edge):
+            response.radius = (
+                shape.radius
+                if shape.geom_type() in [GeomType.CIRCLE, "CIRCLE"]
+                else None
+            )
+            response.length = shape.length
+        elif isinstance(shape, Face):
+            if shape.geom_type() == "CYLINDER":
+                circle = shape.edges().filter_by(GeomType.CIRCLE).first
+                response.radius = circle.radius
+
+            response.length = shape.length
+            response.width = shape.width
+            response.area = shape.area
+
+        elif isinstance(shape, Solid):
+            response.volume = shape.volume
+
+        response.geom_type = shape.geom_type().capitalize()
         response.center = self.get_center(shape, False).to_tuple()
-        response.set_precision()
+        set_precision(response)
 
         send_data(asdict(response), self.port)
         print(f"Data sent {response}")
@@ -194,7 +211,7 @@ class ViewerBackend:
             plane = first if isinstance(first, Plane) else second
 
             angle = 90 - plane.z_dir.get_angle(vector)
-
+        angle = math.abs(angle)
         point1 = self.get_center(shape1, True)
         point2 = self.get_center(shape2, True)
 
@@ -203,7 +220,7 @@ class ViewerBackend:
             point1=point1.to_tuple(),
             point2=point2.to_tuple(),
         )
-        response.set_precision(3)
+        set_precision(response)
         send_data(asdict(response), self.port)
         print(f"Data sent {response}")
 
@@ -256,7 +273,7 @@ class ViewerBackend:
         response = DistanceResponse(
             point1=p1.to_tuple(), point2=p2.to_tuple(), distance=dist
         )
-        response.set_precision()
+        set_precision(response)
         send_data(asdict(response), self.port)
         print(f"Data sent {response}")
 
