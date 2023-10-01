@@ -1,5 +1,5 @@
 from dataclasses import dataclass, asdict, fields
-import math
+import argparse
 from multiprocessing.shared_memory import SharedMemory
 import pickle
 import sys
@@ -51,6 +51,14 @@ def set_precision(instance, decimals=2):
             value = getattr(instance, field.name)
             if value is not None:
                 setattr(instance, field.name, round(value, decimals))
+        elif isinstance(getattr(instance, field.name), tuple):
+            # Handle tuple fields
+            old_tuple = getattr(instance, field.name)
+            new_tuple = tuple(
+                round(elem, decimals) if isinstance(elem, float) else elem
+                for elem in old_tuple
+            )
+            setattr(instance, field.name, new_tuple)
 
 
 @dataclass
@@ -81,7 +89,7 @@ class PropertiesResponse(MeasureReponse):
     area: float = None
     volume: float = None
     radius: float = None
-    geom_type = str = None
+    geom_type: str = None
 
 
 @dataclass
@@ -158,11 +166,7 @@ class ViewerBackend:
         if isinstance(shape, Vertex):
             response.vertex_coords = shape.to_tuple()
         elif isinstance(shape, Edge):
-            response.radius = (
-                shape.radius
-                if shape.geom_type() in [GeomType.CIRCLE, "CIRCLE"]
-                else None
-            )
+            response.radius = shape.radius if shape.geom_type() in ["CIRCLE"] else None
             response.length = shape.length
         elif isinstance(shape, Face):
             if shape.geom_type() == "CYLINDER":
@@ -176,7 +180,8 @@ class ViewerBackend:
         elif isinstance(shape, Solid):
             response.volume = shape.volume
 
-        response.geom_type = shape.geom_type().capitalize()
+        geom_type = shape.geom_type().capitalize()
+        response.geom_type = geom_type if geom_type != "Vertex" else None
         response.center = self.get_center(shape, False).to_tuple()
         set_precision(response)
 
@@ -212,7 +217,7 @@ class ViewerBackend:
             plane = first if isinstance(first, Plane) else second
 
             angle = 90 - plane.z_dir.get_angle(vector)
-        angle = math.abs(angle)
+        angle = abs(angle)
         point1 = self.get_center(shape1, True)
         point2 = self.get_center(shape2, True)
 
