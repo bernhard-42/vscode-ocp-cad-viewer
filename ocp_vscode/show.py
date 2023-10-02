@@ -822,8 +822,6 @@ def _convert2(obj, name="obj", decode=False, **kwargs):
                 add_geom_type(shape, mapping)
 
     def to_b123d(obj):
-        from build123d.topology import downcast
-
         if is_build123d_shape(obj):
             return obj
         else:
