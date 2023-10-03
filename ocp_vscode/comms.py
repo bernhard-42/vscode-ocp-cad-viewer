@@ -16,6 +16,7 @@ class MessageType(enum.IntEnum):
     command = 2
     updates = 3
     listen = 4
+    backend = 5
 
 
 __all__ = ["send_data", "send_command", "set_port", "get_port", "listener"]
@@ -40,6 +41,10 @@ def _send(data, message_type, port=None, timeit=False):
                 j = b"C:" + j
             elif message_type == MessageType.data:
                 j = b"D:" + j
+            elif message_type == MessageType.listen:
+                j = b"L:" + j
+            elif message_type == MessageType.backend:
+                j = b"B:" + j
 
         with Timer(timeit, "", "websocket send", 1):
             ws = connect(f"{CMD_URL}:{port}")
@@ -72,6 +77,10 @@ def send_command(data, port=None, timeit=False):
     return _send(data, MessageType.command, port, timeit)
 
 
+def send_backend(data, port=None, timeit=False):
+    return _send(data, MessageType.backend, port, timeit)
+
+
 #
 # Receive data from the viewer
 #
@@ -93,6 +102,9 @@ def listener(callback):
                         continue
 
                     message = json.loads(message)
+                    if "model" in message.keys():
+                        callback(message["model"], MessageType.data)
+
                     if message.get("command") == "status":
                         changes = message["text"]
                         new_changes = {}

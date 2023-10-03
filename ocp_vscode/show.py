@@ -73,11 +73,13 @@ from .config import (
     Collapse,
     check_deprecated,
 )
-from .comms import send_data, CMD_PORT
+from .comms import send_backend, send_data, CMD_PORT
 from .colors import *
 
 from .persistence import modify_copyreg
 from .backend import HEADER_SIZE
+
+import base64
 
 __all__ = ["show", "show_object", "reset_show", "show_all", "show_clear"]
 
@@ -849,6 +851,7 @@ def _convert2(obj, name="obj", decode=False, **kwargs):
     all_faces = vals(obj.faces())
     all_edges = vals(obj.edges())
     all_vertices = vals(obj.vertices())
+    all_solids = vals(obj.solids())
 
     pg = OCP_PartGroup([], name=name)
     mapping = {}
@@ -899,13 +902,13 @@ def _convert2(obj, name="obj", decode=False, **kwargs):
     if len(all_faces) > 0:
         pg.add(pg_f)
 
+    # for solid in all_solids:
+    #     mapping[f"/{name}"] = to_b123d(solid)
+
     if not decode:
-        shm = SharedMemory(name=f"ocp-viewer-{CMD_PORT}")
         data = pickle.dumps(mapping)
-        length = HEADER_SIZE + len(data)
-        shm.buf[:length] = struct.pack("I", len(data)) + data
-        shm.close()
-        resource_tracker.unregister(f"/ocp-viewer-{CMD_PORT}", "shared_memory")
+        encoded = base64.b64encode(data)
+        send_data_to_backend({"model": encoded.decode("ascii")})
 
     t = _convert(pg, names=[name], decode=decode)
 
@@ -921,6 +924,10 @@ def _convert2(obj, name="obj", decode=False, **kwargs):
         t["config"]["collapse"] = 3
 
     return t
+
+
+def send_data_to_backend(data):
+    send_backend(data)
 
 
 def show2(obj, name="obj", **kwargs):

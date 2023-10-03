@@ -37,7 +37,7 @@ interface Message {
 export class OCPCADController {
     server: Server | undefined;
     pythonListener: WebSocket | undefined;
-    pythonBackendProcess : ChildProcessWithoutNullStreams | undefined;
+    pythonBackendProcess: ChildProcessWithoutNullStreams | undefined;
     statusController: StatusManagerProvider;
     statusBarItem: vscode.StatusBarItem;
     view: vscode.Webview | undefined;
@@ -171,6 +171,10 @@ export class OCPCADController {
                             this.pythonListener = socket;
                             output.debug("Listener registered");
                         }
+                        else if (messageType === "B") {
+                            this.pythonListener?.send(data);
+                            output.debug("Model data sent to the backend");
+                        }
                     } catch (error: any) {
                         output.error(`Server error: ${error.message}`);
                     }
@@ -217,13 +221,13 @@ export class OCPCADController {
     public async startBackend() {
         let python = await getPythonPath();
         output.debug(`Starting python backend with ${python}`);
-        // this.pythonBackendProcess = spawn(python, [this.getBackendPath(), "--port", this.port.toString()]);
-        // this.pythonBackendProcess.stdout.on('data', (data) => {
-        //     output.debug(`Python backend: ${data}`);
-        // });
+        this.pythonBackendProcess = spawn(python, [this.getBackendPath(), "--port", this.port.toString()]);
+        this.pythonBackendProcess.stdout.on('data', (data) => {
+            output.debug(`Python backend: ${data}`);
+        });
 
     }
-    
+
     /**
      * Stops the python backend server
      */
