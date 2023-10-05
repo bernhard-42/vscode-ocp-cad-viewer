@@ -911,7 +911,10 @@ def _convert2(*objs, names=None, decode=False, **kwargs):
         # Solids
         mapping[f"{prefix}/{names[n]}"] = to_b123d(obj)
 
-        pg_top.add(pg)
+        if len(objs) > 1:
+            pg_top.add(pg)
+        else:
+            pg_top = pg
 
     if not decode:
         data = pickle.dumps(mapping)
