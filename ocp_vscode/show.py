@@ -73,11 +73,13 @@ from .config import (
     Collapse,
     check_deprecated,
 )
-from .comms import send_data, CMD_PORT
+from .comms import send_backend, send_data, CMD_PORT
 from .colors import *
 
 from .persistence import modify_copyreg
 from .backend import HEADER_SIZE
+
+import base64
 
 __all__ = ["show", "show_object", "reset_show", "show_all", "show_clear"]
 
@@ -813,7 +815,7 @@ def show_all(variables=None, exclude=None, **kwargs):
         show_clear()
 
 
-def _convert2(obj, name="obj", decode=False, **kwargs):
+def _convert2(*objs, names=None, decode=False, **kwargs):
     def add_geom_type(shapes, mapping):
         for shape in shapes["parts"]:
             if shape.get("parts") is None:
@@ -840,72 +842,83 @@ def _convert2(obj, name="obj", decode=False, **kwargs):
         else:
             return obj
 
-    default_edgecolor = workspace_config()["default_edgecolor"]
-    default_facecolor = workspace_config()["default_color"]
-    default_vertexcolor = workspace_config()["default_vertexcolor"]
+    pg_top = OCP_PartGroup([], name="Group")
+    prefix = "/Group" if len(objs) > 1 else ""
 
-    all_faces = vals(obj.faces())
-    all_edges = vals(obj.edges())
-    all_vertices = vals(obj.vertices())
-
-    pg = OCP_PartGroup([], name=name)
+    if names is None:
+        names = [f"obj_{i}" for i in range(len(objs))]
     mapping = {}
 
-    # Edges
-    pg_e = OCP_PartGroup([], name="edges")
+    for n, obj in enumerate(objs):
+        default_edgecolor = workspace_config()["default_edgecolor"]
+        default_facecolor = workspace_config()["default_color"]
+        default_vertexcolor = workspace_config()["default_vertexcolor"]
 
-    for i, edge in enumerate(all_edges):
-        e_name = f"edges_{i}"
-        mapping[f"/{name}/edges/{e_name}"] = to_b123d(edge)
-        pg_e.add(OCP_Edges([edge.wrapped], name=e_name, color=default_edgecolor))
+        print(obj, type(obj))
+        all_faces = vals(obj.faces())
+        all_edges = vals(obj.edges())
+        all_vertices = vals(obj.vertices())
+        # all_solids = vals(obj.solids())
 
-    if len(all_edges) > 0:
-        pg.add(pg_e)
+        pg = OCP_PartGroup([], name=names[n])
 
-    # Vertices
-    pg_v = OCP_PartGroup([], name="vertices")
+        # Edges
+        pg_e = OCP_PartGroup([], name="edges")
 
-    for i, vertex in enumerate(all_vertices):
-        v_name = f"vertices_{i}"
-        mapping[f"/{name}/vertices/{v_name}"] = to_b123d(vertex)
-        pg_v.add(
-            OCP_Vertices(
-                [vertex.wrapped], name=v_name, color=default_vertexcolor, size=2
+        for i, edge in enumerate(all_edges):
+            e_name = f"edges_{i}"
+            mapping[f"{prefix}/{names[n]}/edges/{e_name}"] = to_b123d(edge)
+            pg_e.add(OCP_Edges([edge.wrapped], name=e_name, color=default_edgecolor))
+
+        if len(all_edges) > 0:
+            pg.add(pg_e)
+
+        # Vertices
+        pg_v = OCP_PartGroup([], name="vertices")
+
+        for i, vertex in enumerate(all_vertices):
+            v_name = f"vertices_{i}"
+            mapping[f"{prefix}/{names[n]}/vertices/{v_name}"] = to_b123d(vertex)
+            pg_v.add(
+                OCP_Vertices(
+                    [vertex.wrapped], name=v_name, color=default_vertexcolor, size=2
+                )
             )
-        )
 
-    if len(all_vertices) > 0:
-        pg.add(pg_v)
+        if len(all_vertices) > 0:
+            pg.add(pg_v)
 
-    # Faces
-    pg_f = OCP_PartGroup([], name="faces")
+        # Faces
+        pg_f = OCP_PartGroup([], name="faces")
 
-    for i, face in enumerate(all_faces):
-        f_name = f"faces_{i}"
-        mapping[f"/{name}/faces/{f_name}"] = to_b123d(face)
-        faces = OCP_Faces(
-            [face.wrapped],
-            name=f_name,
-            color=default_facecolor if len(all_faces) > 1 else None,
-            show_edges=False,
-        )
-        # Ensure back is not rendered
-        if len(all_faces) > 1:
-            faces.renderback = False
-        pg_f.add(faces)
+        for i, face in enumerate(all_faces):
+            f_name = f"faces_{i}"
+            mapping[f"{prefix}/{names[n]}/faces/{f_name}"] = to_b123d(face)
+            faces = OCP_Faces(
+                [face.wrapped],
+                name=f_name,
+                color=default_facecolor if len(all_faces) > 1 else None,
+                show_edges=False,
+            )
+            # Ensure back is not rendered
+            if len(all_faces) > 1:
+                faces.renderback = False
+            pg_f.add(faces)
 
-    if len(all_faces) > 0:
-        pg.add(pg_f)
+        if len(all_faces) > 0:
+            pg.add(pg_f)
+
+        # Solids
+        mapping[f"{prefix}/{names[n]}"] = to_b123d(obj)
+
+        pg_top.add(pg)
 
     if not decode:
-        shm = SharedMemory(name=f"ocp-viewer-{CMD_PORT}")
         data = pickle.dumps(mapping)
-        length = HEADER_SIZE + len(data)
-        shm.buf[:length] = struct.pack("I", len(data)) + data
-        shm.close()
-        resource_tracker.unregister(f"/ocp-viewer-{CMD_PORT}", "shared_memory")
+        encoded = base64.b64encode(data)
+        send_data_to_backend({"model": encoded.decode("ascii")})
 
-    t = _convert(pg, names=[name], decode=decode)
+    t = _convert(pg_top, names=names, decode=decode)
 
     add_geom_type(t["data"]["shapes"], mapping)
 
@@ -921,8 +934,12 @@ def _convert2(obj, name="obj", decode=False, **kwargs):
     return t
 
 
-def show2(obj, name="obj", **kwargs):
-    t = _convert2(obj, name, False, **kwargs)
+def send_data_to_backend(data):
+    send_backend(data)
+
+
+def show2(*objs, name="obj", **kwargs):
+    t = _convert2(*objs, name=name, decode=False, **kwargs)
 
     send_data(t)
 

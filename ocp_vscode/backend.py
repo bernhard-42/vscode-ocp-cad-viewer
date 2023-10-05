@@ -4,7 +4,7 @@ from multiprocessing.shared_memory import SharedMemory
 import pickle
 import sys
 import traceback
-
+import base64
 from ocp_vscode.config import SHARED_MEMORY_BLOCK_SIZE
 from ocp_vscode.comms import listener, MessageType, send_data
 from build123d import (
@@ -101,11 +101,8 @@ class AngleResponse(MeasureReponse):
 
 
 class ViewerBackend:
-    def __init__(self, port: int, block_size: int) -> None:
+    def __init__(self, port: int) -> None:
         self.port = port
-        self._shared_memory = SharedMemory(
-            name=f"ocp-viewer-{port}", create=True, size=block_size
-        )
         self.model = None
         self.activated_tool = None
         self.filter_type = "none"  # The current active selection filter
@@ -115,18 +112,22 @@ class ViewerBackend:
         listener(self.handle_event)()
 
     @error_handler
-    def handle_event(self, changes: dict, event_type: MessageType):
-        if "activeTool" in changes:
-            active_tool = changes.get("activeTool")
+    def handle_event(self, message, event_type: MessageType):
+        if event_type == MessageType.data:
+            self.load_model(message)
+        elif event_type == MessageType.updates:
+            changes = message
 
-            if active_tool != "None":
-                self.load_model()
-                self.activated_tool = active_tool
-            else:
-                self.activated_tool = None
+            if "activeTool" in changes:
+                active_tool = changes.get("activeTool")
 
-        if self.activated_tool is not None:
-            self.handle_activated_tool(changes)
+                if active_tool != "None":
+                    self.activated_tool = active_tool
+                else:
+                    self.activated_tool = None
+
+            if self.activated_tool is not None:
+                self.handle_activated_tool(changes)
 
     def handle_activated_tool(self, changes):
         if not "selectedShapeIDs" in changes:
@@ -147,13 +148,9 @@ class ViewerBackend:
             shape_id2 = changes["selectedShapeIDs"][1]
             self.handle_angle(shape_id1, shape_id2)
 
-    def load_model(self):
-        """Read the transfered model from the shared memory"""
-        block_size = self._shared_memory.buf[:HEADER_SIZE]
-        data = self._shared_memory.buf[
-            HEADER_SIZE : HEADER_SIZE + int.from_bytes(block_size, sys.byteorder)
-        ]
-        self.model = pickle.loads(data)
+    def load_model(self, raw_model):
+        """Read the transfered model from websocket"""
+        self.model = pickle.loads(base64.b64decode(raw_model))
 
     def handle_properties(self, shape_id):
         """
@@ -290,7 +287,7 @@ if __name__ == "__main__":
         "--port", type=int, required=True, help="Port the viewer listens to"
     )
     args = parser.parse_args()
-    backend = ViewerBackend(args.port, SHARED_MEMORY_BLOCK_SIZE)
+    backend = ViewerBackend(args.port)
     try:
         backend.start()
     except Exception as ex:
