@@ -38,13 +38,21 @@ with BuildPart() as p:
     mirror(about=Plane.YZ)
 
 
-r = RegularPolygon(10, 5)
-pp = extrude(r, 10)
+r = RegularPolygon(100, 5)
+pp = extrude(r, 1000)
 pp -= Hole(2, 50)
 
 
 classes = (BuildPart, BuildSketch, BuildLine)  # for OCP-vscode
 set_colormap(ColorMap.seeded(colormap="rgb", alpha=1, seed_value="vscod"))
-show2(pp, "item")
+show2(pp, name="item")
+
+# b = Box(1, 2, 3) - Plane.YZ * Cylinder(0.5, 1)
+# b = fillet(b.edges().filter_by(Axis.X), 0.3)
+# b = chamfer(b.edges().filter_by(Axis.Y), 0.1)
+# c = Pos(3, 0, 0) * Box(1, 1, 1)
+# s = Pos(0, 2, 1) * Circle(0.5)
+
+# show2(b, c, s)
 print()
 print(f"part mass = {p.part.scale(IN).volume*densb/LB}")
