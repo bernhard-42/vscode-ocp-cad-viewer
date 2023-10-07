@@ -947,8 +947,10 @@ def show2(*objs, name="obj", **kwargs):
     send_data(t)
 
 
-def export_tcv_json(obj, filename="export.json", name="obj", **kwargs):
-    t = _convert2(obj, name, True, **kwargs)
+def export_tcv_json(*objs, filename="export.json", names=None, **kwargs):
+    if names is None:
+        names = [f"obj_{i}" for i in range(len(objs))]
+    t = _convert2(*objs, names=names, decode=True, **kwargs)
 
     with open(filename, "w") as fd:
         fd.write(json.dumps((t["data"]["shapes"], t["data"]["states"]), indent=2))

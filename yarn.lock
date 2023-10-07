@@ -1825,9 +1825,9 @@ text-table@^0.2.0:
   resolved "https://registry.yarnpkg.com/text-table/-/text-table-0.2.0.tgz#7f5ee823ae805207c00af2df4a84ec3fcfa570b4"
   integrity sha512-N+8UisAXDGk8PFXP4HAzVR9nbfmVJ3zYLAWiTIoqC5v5isinhr+r5uaO8+7r3BMfuNIufIsA7RdpVgacC2cSpw==
 
-three-cad-viewer@./three-cad-viewer-v2.0.21.tgz:
-  version "2.0.21"
-  resolved "./three-cad-viewer-v2.0.21.tgz#2cc06b7bf7b70ee3b8ea95b767fdc6eacf794b95"
+three-cad-viewer@./three-cad-viewer-v2.0.23.tgz:
+  version "2.0.23"
+  resolved "./three-cad-viewer-v2.0.23.tgz#a9c0f8348eb24ec5d967656f21ce3f078ddda86b"
   dependencies:
     three "0.155.0"
 
