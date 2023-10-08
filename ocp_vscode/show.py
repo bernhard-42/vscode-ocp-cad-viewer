@@ -858,7 +858,6 @@ def _convert2(*objs, names=None, decode=False, **kwargs):
         all_faces = vals(obj.faces())
         all_edges = vals(obj.edges())
         all_vertices = vals(obj.vertices())
-        # all_solids = vals(obj.solids())
 
         pg = OCP_PartGroup([], name=names[n])
 

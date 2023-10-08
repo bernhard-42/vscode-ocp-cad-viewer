@@ -6,7 +6,7 @@ import sys
 import traceback
 import base64
 from ocp_vscode.config import SHARED_MEMORY_BLOCK_SIZE
-from ocp_vscode.comms import listener, MessageType, send_data
+from ocp_vscode.comms import listener, MessageType, send_response
 from build123d import (
     Axis,
     CenterOf,
@@ -182,7 +182,7 @@ class ViewerBackend:
         response.center = self.get_center(shape, False).to_tuple()
         set_precision(response)
 
-        send_data(asdict(response), self.port)
+        send_response(asdict(response), self.port)
         print(f"Data sent {response}")
 
     def handle_angle(self, id1, id2):
@@ -224,7 +224,7 @@ class ViewerBackend:
             point2=point2.to_tuple(),
         )
         set_precision(response)
-        send_data(asdict(response), self.port)
+        send_response(asdict(response), self.port)
         print(f"Data sent {response}")
 
     def get_center(self, shape: Shape, for_distance=True) -> Vector:
@@ -277,7 +277,7 @@ class ViewerBackend:
             point1=p1.to_tuple(), point2=p2.to_tuple(), distance=dist
         )
         set_precision(response)
-        send_data(asdict(response), self.port)
+        send_response(asdict(response), self.port)
         print(f"Data sent {response}")
 
 

@@ -17,9 +17,17 @@ class MessageType(enum.IntEnum):
     updates = 3
     listen = 4
     backend = 5
+    backend_response = 6
 
 
-__all__ = ["send_data", "send_command", "set_port", "get_port", "listener"]
+__all__ = [
+    "send_data",
+    "send_command",
+    "send_response",
+    "set_port",
+    "get_port",
+    "listener",
+]
 
 
 def get_port():
@@ -45,6 +53,8 @@ def _send(data, message_type, port=None, timeit=False):
                 j = b"L:" + j
             elif message_type == MessageType.backend:
                 j = b"B:" + j
+            elif message_type == MessageType.backend_response:
+                j = b"R:" + j
 
         with Timer(timeit, "", "websocket send", 1):
             ws = connect(f"{CMD_URL}:{port}")
@@ -79,6 +89,10 @@ def send_command(data, port=None, timeit=False):
 
 def send_backend(data, port=None, timeit=False):
     return _send(data, MessageType.backend, port, timeit)
+
+
+def send_response(data, port=None, timeit=False):
+    return _send(data, MessageType.backend_response, port, timeit)
 
 
 #

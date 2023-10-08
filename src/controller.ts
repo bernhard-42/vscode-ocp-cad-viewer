@@ -175,6 +175,10 @@ export class OCPCADController {
                             this.pythonListener?.send(data);
                             output.debug("Model data sent to the backend");
                         }
+                        else if (messageType === "R") {
+                            this.view?.postMessage(data);
+                            output.debug("Backend response received.");
+                        }
                     } catch (error: any) {
                         output.error(`Server error: ${error.message}`);
                     }
