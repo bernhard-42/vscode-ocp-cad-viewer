@@ -31,32 +31,32 @@
                 "command": "ocpCadViewer.openViewer",
                 "title": "OCP CAD Viewer: Open viewer (button)",
                 "icon": {
-                    "light": "resources/open.png",
-                    "dark": "resources/open.png"
+                    "light": "resources/light/open.svg",
+                    "dark": "resources/dark/open.svg"
                 }
             },
             {
                 "command": "ocpCadViewer.installLibrary",
                 "title": "OCP CAD Viewer: Install library",
                 "icon": {
-                    "light": "resources/install.png",
-                    "dark": "resources/install.png"
+                    "light": "resources/light/install.svg",
+                    "dark": "resources/dark/install.svg"
                 }
             },
             {
                 "command": "ocpCadViewer.installPythonModule",
                 "title": "OCP CAD Viewer: Install ocp_vscode library",
                 "icon": {
-                    "light": "resources/install.png",
-                    "dark": "resources/install.png"
+                    "light": "resources/light/install.svg",
+                    "dark": "resources/dark/install.svg"
                 }
             },
             {
                 "command": "ocpCadViewer.installJupyterExtension",
                 "title": "OCP CAD Viewer: Install Jupyter extension 'ms-toolsai.jupyter'",
                 "icon": {
-                    "light": "resources/install.png",
-                    "dark": "resources/install.png"
+                    "light": "resources/light/install.svg",
+                    "dark": "resources/dark/install.svg"
                 }
             },
             {
@@ -67,16 +67,16 @@
                 "command": "ocpCadViewer.downloadExamples",
                 "title": "OCP CAD Viewer: Download examples for a specific library",
                 "icon": {
-                    "light": "resources/install.png",
-                    "dark": "resources/install.png"
+                    "light": "resources/light/install.svg",
+                    "dark": "resources/dark/install.svg"
                 }
             },
             {
                 "command": "ocpCadViewer.pasteSnippet",
                 "title": "OCP CAD Viewer: Paste code snippet",
                 "icon": {
-                    "light": "resources/light/paste.png",
-                    "dark": "resources/dark/paste.png"
+                    "light": "resources/light/paste.svg",
+                    "dark": "resources/dark/paste.svg"
                 }
             },
             {
@@ -91,16 +91,16 @@
                 "command": "ocpCadViewer.preferences",
                 "title": "OCP CAD Viewer: Open preferences",
                 "icon": {
-                    "light": "resources/settings.png",
-                    "dark": "resources/settings.png"
+                    "light": "resources/light/settings.svg",
+                    "dark": "resources/dark/settings.svg"
                 }
             },
             {
                 "command": "ocpCadViewer.output",
                 "title": "OCP CAD Viewer: Toggle OCP CAD Viewer output panel",
                 "icon": {
-                    "light": "resources/output.png",
-                    "dark": "resources/output.png"
+                    "light": "resources/light/output.svg",
+                    "dark": "resources/dark/output.svg"
                 }
             },
             {

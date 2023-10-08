@@ -1827,7 +1827,7 @@ text-table@^0.2.0:
 
 three-cad-viewer@./three-cad-viewer-v2.0.23.tgz:
   version "2.0.23"
-  resolved "./three-cad-viewer-v2.0.23.tgz#a9c0f8348eb24ec5d967656f21ce3f078ddda86b"
+  resolved "./three-cad-viewer-v2.0.23.tgz#c3ea35583abc8d6c820e2eb53bc399d9caf24a7d"
   dependencies:
     three "0.155.0"
 

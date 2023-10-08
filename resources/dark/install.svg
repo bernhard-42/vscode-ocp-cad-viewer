@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="100%" height="100%" viewBox="0 0 112 112" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:1.5;">
+    <g id="install">
+        <path d="M4.68,83.516C4.68,83.516 4.678,85.976 4.676,89.314C4.673,94.076 6.562,98.644 9.928,102.013C13.293,105.382 17.859,107.276 22.621,107.278C41.336,107.284 70.498,107.295 89.248,107.302C94.035,107.304 98.627,105.403 102.012,102.019C105.398,98.634 107.3,94.043 107.3,89.256C107.3,85.993 107.3,83.603 107.3,83.603" style="fill:none;stroke:#C5C5C5;stroke-width:8px;"/>
+        <g transform="matrix(-0.707107,0.707107,-0.707107,-0.707107,135.694,28.3026)">
+            <path d="M54.545,57.788L88.336,23.744" style="fill:none;stroke:#C5C5C5;stroke-width:8px;"/>
+        </g>
+        <g transform="matrix(-0.707107,0.707107,-0.707107,-0.707107,135.694,28.3026)">
+            <path d="M60.02,23.658L88.336,23.744L88.274,50.204" style="fill:none;stroke:#C5C5C5;stroke-width:8px;"/>
+        </g>
+    </g>
+</svg>
