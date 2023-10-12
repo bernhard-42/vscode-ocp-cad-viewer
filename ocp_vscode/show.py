@@ -453,10 +453,6 @@ def show(
     """
     global LAST_CALL
 
-    # if sys.gettrace() is not None and not _force_in_debug:
-    #     print("\nshow and show_object are ignored in debugging sessions\n")
-    #     return
-
     kwargs = {
         k: v
         for k, v in locals().items()
