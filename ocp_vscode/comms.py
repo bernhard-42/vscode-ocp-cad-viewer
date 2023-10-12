@@ -107,7 +107,7 @@ def send_response(data, port=None, timeit=False):
 def listener(callback):
     def _listen():
         LAST_CONFIG = {}
-        with connect(f"{CMD_URL}:{CMD_PORT}") as websocket:
+        with connect(f"{CMD_URL}:{CMD_PORT}", max_size=2**26) as websocket:
             websocket.send(b"L:register")
             while True:
                 try:
