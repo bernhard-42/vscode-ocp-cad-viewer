@@ -336,6 +336,7 @@ def show(
     progress="-+c",
     glass=None,
     tools=None,
+    measure_tools=None,
     tree_width=None,
     axes=None,
     axes0=None,
@@ -396,6 +397,7 @@ def show(
     Valid keywords to configure the viewer (**kwargs):
     - UI
         glass:                   Use glass mode where tree is an overlay over the cad object (default=False)
+        measure_tools:           Show measure tools (default=False)
         tools:                   Show tools (default=True)
         tree_width:              Width of the object tree (default=240)
 
@@ -551,6 +553,7 @@ def show_object(
     progress="-+c",
     glass=None,
     tools=None,
+    measure_tools=None,
     tree_width=None,
     axes=None,
     axes0=None,
@@ -613,6 +616,7 @@ def show_object(
     Valid keywords to configure the viewer (**kwargs):
     - UI
         glass:                   Use glass mode where tree is an overlay over the cad object (default=False)
+        measure_tools:           Show measure tools (default=False)
         tools:                   Show tools (default=True)
         tree_width:              Width of the object tree (default=240)
 

@@ -38,6 +38,7 @@
             timeit: false,
             tools: { tools },
             glass: { glass },
+            measure_tools: false,
             up: '{ up }',
             zoom: 1.0,
             position: null,
@@ -266,7 +267,7 @@
             viewerOptions = {
                 axes: preset(_config, "axes", viewerDefaultOptions.axes),
                 axes0: preset(_config, "axes0", viewerDefaultOptions.axes0),
-                blackEdges: preset(_config, "black_edges", viewerDefaultOptions.black_edges),
+                blackEdges: preset(_config, "black_edges", viewerDefaultOptions.blackEdges),
                 grid: preset(_config, "grid", viewerDefaultOptions.grid),
                 collapse: preset(_config, "collapse", viewerDefaultOptions.collapse),
                 ortho: preset(_config, "ortho", viewerDefaultOptions.ortho),
@@ -274,12 +275,14 @@
                 timeit: preset(_config, "timeit", viewerDefaultOptions.timeit),
                 tools: preset(_config, "tools", viewerDefaultOptions.tools),
                 glass: preset(_config, "glass", viewerDefaultOptions.glass),
+                measureTools: preset(_config, "measure_tools", viewerDefaultOptions.measureTools),
                 up: preset(_config, "up", viewerDefaultOptions.up),
                 transparent: preset(_config, "transparent", viewerDefaultOptions.transparent),
                 control: preset(_config, "control", viewerDefaultOptions.control),
                 panSpeed: preset(_config, "pan_speed", viewerDefaultOptions.panSpeed),
                 zoomSpeed: preset(_config, "zoom_speed", viewerDefaultOptions.zoomSpeed),
                 rotateSpeed: preset(_config, "rotate_speed", viewerDefaultOptions.rotateSpeed),
+                measureTools: preset(_config, "measure_tools", viewerDefaultOptions.measureTools),
             };
 
             var reset_camera = preset(_config, "reset_camera", "reset");

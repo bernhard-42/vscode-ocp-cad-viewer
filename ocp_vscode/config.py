@@ -67,6 +67,7 @@ CONFIG_WORKSPACE_KEYS = CONFIG_UI_KEYS + [
     "collapse",
     "dark",
     "glass",
+    "measure_tools",
     "orbit_control",
     "ticks",
     "tools",
@@ -191,6 +192,7 @@ def get_defaults():
 def set_defaults(
     glass=None,
     tools=None,
+    measure_tools=None,
     tree_width=None,
     axes=None,
     axes0=None,
@@ -232,6 +234,7 @@ def set_defaults(
     - UI
         glass:             Use glass mode where tree is an overlay over the cad object (default=False)
         tools:             Show tools (default=True)
+        measure_tools:     Show measure tools (default=False)
         tree_width:        Width of the object tree (default=240)
 
     - Viewer
