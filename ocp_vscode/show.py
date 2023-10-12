@@ -17,7 +17,17 @@ import json
 import pickle
 import re
 
-from build123d import Vertex, Edge, Face
+from build123d import (
+    Vertex,
+    Edge,
+    Face,
+    ShapeList,
+    Compound,
+    Location,
+    Axis,
+    Vector,
+    Plane,
+)
 from ocp_tessellate import PartGroup
 from ocp_tessellate.convert import (
     tessellate_group,
@@ -30,7 +40,7 @@ from ocp_tessellate.convert import (
     is_cadquery,
     is_vector,
 )
-from ocp_tessellate.utils import numpy_to_buffer_json, Timer, Color, numpy_to_json
+from ocp_tessellate.utils import numpy_to_buffer_json, Timer, Color
 from ocp_tessellate.ocp_utils import (
     is_vector,
     is_topods_shape,
@@ -152,6 +162,38 @@ def _tessellate(
         ):
             part_group = part_group.objects[0]
 
+    # patch edge and vertex color and size in measure mode
+
+    def adapt(obj, path, mapping):
+        if isinstance(obj, OCP_Edges):
+            cls = Edge
+        elif isinstance(obj, OCP_Vertices):
+            cls = Vertex
+        elif isinstance(obj, OCP_Faces):
+            cls = Face
+        else:
+            raise TypeError(f"Unknown type {type(obj)}")
+
+        mapping[f"{path}/{obj.name}"] = cls(obj.shape[0])
+
+        if isinstance(obj, OCP_Edges):
+            obj.width = 1
+            obj.color = Color(workspace_config()["default_edgecolor"])
+        elif isinstance(obj, OCP_Vertices):
+            obj.size = 2
+            obj.color = Color(workspace_config()["default_edgecolor"])
+
+    def traverse(pg, path, mapping):
+        for obj in pg.objects:
+            if isinstance(obj, OCP_PartGroup):
+                traverse(obj, f"{path}/{obj.name}", mapping)
+            else:
+                adapt(obj, f"{path}", mapping)
+
+    mapping = {}
+    if kwargs.get("measure_tools") == True:
+        traverse(part_group, f"/{part_group.name}", mapping)
+
     params = {
         k: v
         for k, v in conf.items()
@@ -219,27 +261,8 @@ def _tessellate(
 
     # add global bounding box
     shapes["bb"] = bb
-    return instances, shapes, states, params, part_group.count_shapes()
 
-
-def merge_instances(instances, shapes):
-    def walk(obj):
-        typ = None
-        for attr in obj.keys():
-            if attr == "parts":
-                for part in obj["parts"]:
-                    walk(part)
-
-            elif attr == "type":
-                typ = obj["type"]
-
-            elif attr == "shape":
-                if typ == "shapes":
-                    if obj["shape"].get("ref") is not None:
-                        ind = obj["shape"]["ref"]
-                        obj["shape"] = instances[ind]
-
-    walk(shapes)
+    return instances, shapes, states, params, part_group.count_shapes(), mapping
 
 
 def _convert(
@@ -248,7 +271,6 @@ def _convert(
     colors=None,
     alphas=None,
     progress=None,
-    decode=False,
     **kwargs,
 ):
     timeit = preset("timeit", kwargs.get("timeit"))
@@ -256,7 +278,7 @@ def _convert(
     if progress is None:
         progress = Progress([c for c in "-+c"])
 
-    instances, shapes, states, config, count_shapes = _tessellate(
+    instances, shapes, states, config, count_shapes, mapping = _tessellate(
         *cad_objs,
         names=names,
         colors=colors,
@@ -264,8 +286,6 @@ def _convert(
         progress=progress,
         **kwargs,
     )
-    if decode:
-        merge_instances(instances, shapes)
 
     if config.get("dark") is not None:
         config["theme"] = "dark"
@@ -279,19 +299,22 @@ def _convert(
         config["explode"] = kwargs["explode"]
 
     with Timer(timeit, "", "create data obj", 1):
-        if decode:
-            return json.loads(
-                numpy_to_json({"data": dict(shapes=shapes, states=states)})
-            )
+        return {
+            "data": numpy_to_buffer_json(
+                dict(instances=instances, shapes=shapes, states=states)
+            ),
+            "type": "data",
+            "config": config,
+            "count": count_shapes,
+        }, mapping
+
+
+def add_geom_type(shapes, mapping):
+    for shape in shapes["parts"]:
+        if shape.get("parts") is None:
+            shape["geomtype"] = mapping[shape["id"]].geom_type()
         else:
-            return {
-                "data": numpy_to_buffer_json(
-                    dict(instances=instances, shapes=shapes, states=states)
-                ),
-                "type": "data",
-                "config": config,
-                "count": count_shapes,
-            }
+            add_geom_type(shape, mapping)
 
 
 class Progress:
@@ -310,7 +333,7 @@ def align_attrs(attr_list, length, default, tag, explode=True):
     if attr_list is None:
         return [None] * length if explode else None
     elif len(attr_list) < length:
-        print(f"Too view {tag}, using defaults to fill")
+        print(f"Too few {tag}, using defaults to fill")
         return list(attr_list) + [default] * (length - len(attr_list))
     elif len(attr_list) > length:
         print(f"Too many {tag}, trimming to length {length}")
@@ -445,7 +468,7 @@ def show(
         render_joints:           Render build123d joints (default=False)
         parallel:                Tessellate objects in parallel (default=False)
         show_parent:             Render parent of faces, edges or vertices as wireframe
-        helper_scale:              Scale of rendered helpers (locations, axis, mates for MAssemblies) (default=1)
+        helper_scale:            Scale of rendered helpers (locations, axis, mates for MAssemblies) (default=1)
 
     - Debug
         debug:                   Show debug statements to the VS Code browser console (default=False)
@@ -473,7 +496,13 @@ def show(
 
     timeit = preset("timeit", timeit)
 
-    names = align_attrs(names, len(cad_objs), None, "names", explode=False)
+    if measure_tools is None:
+        measure_tools = get_default("measure_tools")
+        if measure_tools is None:
+            measure_tools = False
+    kwargs["measure_tools"] = measure_tools
+
+    names = align_attrs(names, len(cad_objs), None, "names", explode=measure_tools)
 
     # Handle colormaps
 
@@ -504,10 +533,109 @@ def show(
     if default_edgecolor is not None:
         default_edgecolor = Color(default_edgecolor).web_color
 
+    # convert objects to assemblies with faces, edges and vertices
+    def model_axis(a, s):
+        return Edge.make_line(a.position, Vector(a.position) + Vector(a.direction) * s)
+
+    if measure_tools:
+        if helper_scale is None:
+            helper_scale = get_default("helper_scale")
+            if helper_scale is None:
+                helper_scale = 1
+
+        new_objs = []
+        for name, obj, color, alpha in zip(names, cad_objs, colors, alphas):
+            if color is not None:
+                color = Color(color)
+                if alpha is not None:
+                    color.a = alpha
+
+            if isinstance(obj, ShapeList):
+                a = Compound.make_compound([])
+                if isinstance(obj[0], Face):
+                    a.label = "faces" if name is None else name
+                elif isinstance(obj[0], Edge):
+                    a.label = "edges" if name is None else name
+                elif isinstance(obj[0], Vertex):
+                    a.label = "vertices" if name is None else name
+                else:
+                    a.label = "solids"
+                a.children = obj
+
+            elif isinstance(obj, Axis):
+                a = Compound.make_compound([])
+                a.children = [
+                    Vertex(*obj.position),
+                    model_axis(obj, helper_scale),
+                ]
+                a.label = "axis"
+
+            elif isinstance(obj, (Plane, Location)):
+                if isinstance(obj, Plane):
+                    obj = obj.location
+                a = Compound.make_compound([])
+                a.children = [
+                    Vertex(*obj.position),
+                    model_axis(obj.x_axis, helper_scale),
+                    model_axis(obj.y_axis, helper_scale),
+                    model_axis(obj.z_axis, helper_scale),
+                ]
+                a.label = "location"
+
+            else:
+                children = []
+                a = Compound.make_compound([])
+                a.name = "Group" if name is None else name
+
+                faces = obj.faces()
+                if len(faces) > 0:
+                    f = Compound.make_compound([])
+                    f.label = "faces"
+                    for face in faces:
+                        face.color = (
+                            workspace_config()["default_color"]
+                            if color is None
+                            else color
+                        )
+                    f.children = faces
+                    children.append(f)
+
+                edges = obj.edges()
+                if len(edges) > 0:
+                    e = Compound.make_compound([])
+                    e.label = "edges"
+                    for edge in edges:
+                        edge.color = (
+                            workspace_config()["default_edgecolor"]
+                            if color is None
+                            else color
+                        )
+                    e.children = edges
+                    children.append(e)
+
+                vertices = obj.vertices()
+                if len(vertices) > 0:
+                    v = Compound.make_compound([])
+                    v.label = "vertices"
+                    for vertex in vertices:
+                        vertex.color = (
+                            workspace_config()["default_edgecolor"]
+                            if color is None
+                            else color
+                        )
+                    v.children = vertices
+                    children.append(v)
+
+                a.children = children
+
+            new_objs.append(a)
+
+        cad_objs = new_objs
+
     progress = Progress([] if progress is None else [c for c in progress])
 
     with Timer(timeit, "", "overall"):
-        data = _convert(
+        t, mapping = _convert(
             *cad_objs,
             names=names,
             colors=colors,
@@ -516,13 +644,25 @@ def show(
             **kwargs,
         )
 
-    if not _force_in_debug:
-        LAST_CALL = "show"
-    else:
-        LAST_CALL = "other"
+        if not _force_in_debug:
+            LAST_CALL = "show"
+        else:
+            LAST_CALL = "other"
+
+    if measure_tools:
+        data = pickle.dumps(mapping)
+        encoded = base64.b64encode(data)
+        send_backend({"model": encoded.decode("ascii")})
+
+        add_geom_type(t["data"]["shapes"], mapping)
+
+        # remove edges of faces
+        for k, v in t["data"]["states"].items():
+            if "/faces/" in k:
+                t["data"]["states"][k][1] = 3
 
     with Timer(timeit, "", "send"):
-        return send_data(data, port=port, timeit=timeit)
+        return send_data(t, port=port, timeit=timeit)
 
 
 def reset_show():
@@ -753,8 +893,8 @@ def show_all(variables=None, exclude=None, **kwargs):
             if hasattr(obj, "locations") and hasattr(obj, "local_locations"):
                 obj = obj.locations
 
-            if hasattr(obj, "to_location"):
-                obj = obj.to_location()
+            if hasattr(obj, "local_coord_system"):
+                obj = obj.location
 
             if (
                 (
@@ -773,6 +913,11 @@ def show_all(variables=None, exclude=None, **kwargs):
                     isinstance(obj, (list, tuple))
                     and len(obj) > 0
                     and hasattr(obj[0], "wrapped")
+                )
+                or (
+                    hasattr(obj, "wrapped")
+                    and hasattr(obj, "position")
+                    and hasattr(obj, "direction")
                 )
             ):
                 objects.append(obj)
@@ -805,143 +950,3 @@ def show_all(variables=None, exclude=None, **kwargs):
         FIRST_CALL = False
     else:
         show_clear()
-
-
-def _convert2(*objs, names=None, decode=False, **kwargs):
-    def add_geom_type(shapes, mapping):
-        for shape in shapes["parts"]:
-            if shape.get("parts") is None:
-                shape["geomtype"] = mapping[shape["id"]].geom_type()
-            else:
-                add_geom_type(shape, mapping)
-
-    def to_b123d(obj):
-        if is_build123d_shape(obj):
-            return obj
-        else:
-            if is_topods_vertex(obj.wrapped):
-                return Vertex(obj.wrapped)
-            elif is_topods_edge(obj.wrapped):
-                return Edge(obj.wrapped)
-            elif is_topods_face(obj.wrapped):
-                return Face(obj.wrapped)
-            else:
-                raise TypeError(f"Cannot convert {type(obj)} to build123d")
-
-    def vals(obj):
-        if hasattr(obj, "vals"):
-            return obj.vals()
-        else:
-            return obj
-
-    pg_top = OCP_PartGroup([], name="Group")
-    prefix = "/Group" if len(objs) > 1 else ""
-
-    if names is None:
-        names = [f"obj_{i}" for i in range(len(objs))]
-    mapping = {}
-
-    for n, obj in enumerate(objs):
-        default_edgecolor = workspace_config()["default_edgecolor"]
-        default_facecolor = workspace_config()["default_color"]
-        default_vertexcolor = workspace_config()["default_vertexcolor"]
-
-        print(obj, type(obj))
-        all_faces = vals(obj.faces())
-        all_edges = vals(obj.edges())
-        all_vertices = vals(obj.vertices())
-
-        pg = OCP_PartGroup([], name=names[n])
-
-        # Edges
-        pg_e = OCP_PartGroup([], name="edges")
-
-        for i, edge in enumerate(all_edges):
-            e_name = f"edges_{i}"
-            mapping[f"{prefix}/{names[n]}/edges/{e_name}"] = to_b123d(edge)
-            pg_e.add(OCP_Edges([edge.wrapped], name=e_name, color=default_edgecolor))
-
-        if len(all_edges) > 0:
-            pg.add(pg_e)
-
-        # Vertices
-        pg_v = OCP_PartGroup([], name="vertices")
-
-        for i, vertex in enumerate(all_vertices):
-            v_name = f"vertices_{i}"
-            mapping[f"{prefix}/{names[n]}/vertices/{v_name}"] = to_b123d(vertex)
-            pg_v.add(
-                OCP_Vertices(
-                    [vertex.wrapped], name=v_name, color=default_vertexcolor, size=2
-                )
-            )
-
-        if len(all_vertices) > 0:
-            pg.add(pg_v)
-
-        # Faces
-        pg_f = OCP_PartGroup([], name="faces")
-
-        for i, face in enumerate(all_faces):
-            f_name = f"faces_{i}"
-            mapping[f"{prefix}/{names[n]}/faces/{f_name}"] = to_b123d(face)
-            faces = OCP_Faces(
-                [face.wrapped],
-                name=f_name,
-                color=default_facecolor if len(all_faces) > 1 else None,
-                show_edges=False,
-            )
-            # Ensure back is not rendered
-            if len(all_faces) > 1:
-                faces.renderback = False
-            pg_f.add(faces)
-
-        if len(all_faces) > 0:
-            pg.add(pg_f)
-
-        # Solids
-        mapping[f"{prefix}/{names[n]}"] = to_b123d(obj)
-
-        if len(objs) > 1:
-            pg_top.add(pg)
-        else:
-            pg_top = pg
-
-    if not decode:
-        data = pickle.dumps(mapping)
-        encoded = base64.b64encode(data)
-        send_data_to_backend({"model": encoded.decode("ascii")})
-
-    t = _convert(pg_top, names=names, decode=decode)
-
-    add_geom_type(t["data"]["shapes"], mapping)
-
-    # remove edges of faces
-    for k, v in t["data"]["states"].items():
-        if "/faces/" in k:
-            t["data"]["states"][k][1] = 3
-
-    if not decode:
-        # collapse faces, edges, vertices
-        t["config"]["collapse"] = 3
-
-    return t
-
-
-def send_data_to_backend(data):
-    send_backend(data)
-
-
-def show2(*objs, name="obj", **kwargs):
-    t = _convert2(*objs, name=name, decode=False, **kwargs)
-
-    send_data(t)
-
-
-def export_tcv_json(*objs, filename="export.json", names=None, **kwargs):
-    if names is None:
-        names = [f"obj_{i}" for i in range(len(objs))]
-    t = _convert2(*objs, names=names, decode=True, **kwargs)
-
-    with open(filename, "w") as fd:
-        fd.write(json.dumps((t["data"]["shapes"], t["data"]["states"]), indent=2))
