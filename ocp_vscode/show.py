@@ -13,13 +13,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-from multiprocessing.shared_memory import SharedMemory
-from multiprocessing import resource_tracker
-
 import json
 import pickle
 import re
-import struct
 
 from build123d import Vertex, Edge, Face
 from ocp_tessellate import PartGroup
@@ -43,10 +39,6 @@ from ocp_tessellate.ocp_utils import (
     is_cadquery_assembly,
     is_cadquery_sketch,
     is_build123d,
-    is_topods_edge,
-    is_topods_face,
-    is_topods_vertex,
-    is_build123d_assembly,
     is_toploc_location,
 )
 
