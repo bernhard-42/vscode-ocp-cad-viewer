@@ -178,10 +178,8 @@ def _tessellate(
 
         if isinstance(obj, OCP_Edges):
             obj.width = 1
-            obj.color = Color(workspace_config()["default_edgecolor"])
         elif isinstance(obj, OCP_Vertices):
             obj.size = 2
-            obj.color = Color(workspace_config()["default_edgecolor"])
 
     def traverse(pg, path, mapping):
         for obj in pg.objects:
@@ -561,6 +559,8 @@ def show(
                 else:
                     a.label = "solids"
                 a.children = obj
+                for o in a.children:
+                    o.color = color
 
             elif isinstance(obj, Axis):
                 a = Compound.make_compound([])
@@ -599,6 +599,8 @@ def show(
                         )
                     f.children = faces
                     children.append(f)
+
+                    color = None  # don't color vertices and edges of faces
 
                 edges = obj.edges()
                 if len(edges) > 0:
