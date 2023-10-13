@@ -162,7 +162,7 @@ def _tessellate(
         ):
             part_group = part_group.objects[0]
 
-    # patch edge and vertex color and size in measure mode
+    # patch edge and vertex size in measure mode
 
     def adapt(obj, path, mapping):
         if isinstance(obj, OCP_Edges):
@@ -568,6 +568,7 @@ def show(
                     Vertex(*obj.position),
                     model_axis(obj, helper_scale),
                 ]
+                a.children[1].color = "black"
                 a.label = "axis"
 
             elif isinstance(obj, (Plane, Location)):
@@ -580,6 +581,9 @@ def show(
                     model_axis(obj.y_axis, helper_scale),
                     model_axis(obj.z_axis, helper_scale),
                 ]
+                a.children[1].color = "red"
+                a.children[2].color = "lightgreen"
+                a.children[3].color = "blue"
                 a.label = "location"
 
             else:
