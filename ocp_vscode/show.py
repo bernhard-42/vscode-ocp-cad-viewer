@@ -546,6 +546,7 @@ def show(
             if helper_scale is None:
                 helper_scale = 1
 
+        wconf = workspace_config()
         new_objs = []
         for name, obj, color, alpha in zip(names, cad_objs, colors, alphas):
             if color is not None:
@@ -595,11 +596,7 @@ def show(
                     f = Compound.make_compound([])
                     f.label = "faces"
                     for face in faces:
-                        face.color = (
-                            workspace_config()["default_color"]
-                            if color is None
-                            else color
-                        )
+                        face.color = wconf["default_color"] if color is None else color
                     f.children = faces
                     children.append(f)
 
@@ -609,9 +606,7 @@ def show(
                     e.label = "edges"
                     for edge in edges:
                         edge.color = (
-                            workspace_config()["default_edgecolor"]
-                            if color is None
-                            else color
+                            wconf["default_edgecolor"] if color is None else color
                         )
                     e.children = edges
                     children.append(e)
@@ -622,9 +617,7 @@ def show(
                     v.label = "vertices"
                     for vertex in vertices:
                         vertex.color = (
-                            workspace_config()["default_edgecolor"]
-                            if color is None
-                            else color
+                            wconf["default_edgecolor"] if color is None else color
                         )
                     v.children = vertices
                     children.append(v)
