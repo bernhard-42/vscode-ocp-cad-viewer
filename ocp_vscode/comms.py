@@ -2,7 +2,6 @@ import enum
 from websockets.sync.client import connect
 import orjson as json
 from ocp_tessellate.utils import Timer
-from msgpack import packb
 
 CMD_URL = "ws://127.0.0.1"
 CMD_PORT = 3939
