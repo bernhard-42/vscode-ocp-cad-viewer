@@ -2,6 +2,7 @@ import enum
 from websockets.sync.client import connect
 import orjson as json
 from ocp_tessellate.utils import Timer
+from msgpack import packb
 
 CMD_URL = "ws://127.0.0.1"
 CMD_PORT = 3939
@@ -56,7 +57,7 @@ def _send(data, message_type, port=None, timeit=False):
             elif message_type == MessageType.backend_response:
                 j = b"R:" + j
 
-        with Timer(timeit, "", "websocket send", 1):
+        with Timer(timeit, "", f"websocket send {len(j)/1024/1024:.3f} MB", 1):
             ws = connect(f"{CMD_URL}:{port}")
             ws.send(j)
 

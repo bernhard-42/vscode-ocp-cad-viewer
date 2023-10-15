@@ -143,7 +143,7 @@ export class OCPCADController {
     public startCommandServer(): Promise<boolean> {
         return new Promise<boolean>((resolve, reject) => {
             const httpServer = createServer();
-            const wss = new WebSocketServer({ server: httpServer });
+            const wss = new WebSocketServer({ server: httpServer, maxPayload: 256 * 1024 * 1024 });
 
             wss.on('connection', (socket) => {
                 output.info('Client connected');
