@@ -109,6 +109,9 @@ def _tessellate(
             reset_camera = conf.get("reset_camera", Camera.RESET)
             conf["reset_camera"] = reset_camera.value
 
+    if isinstance(conf["reset_camera"], Camera):
+        conf["reset_camera"] = conf["reset_camera"].value
+
     collapse = conf.get("collapse", Collapse.LEAVES)
     conf["collapse"] = collapse.value
 
