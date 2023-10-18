@@ -1,3 +1,4 @@
+# %%
 from build123d import *
 from ocp_vscode import show, set_port
 from ocp_vscode.show import _convert
@@ -36,18 +37,18 @@ eye = eye + center
 logo = Plane.XZ * Pos(0, -20, 0) * logo
 eye = Plane.XZ * Pos(0, -20, 0) * eye
 
-show(
-    logo,
-    eye,
-    colors=[(85, 160, 227), "#333"],
-    names=["OCP", "Eye"],
-    grid=(True, False, False),
-    ortho=False,
-    axes0=True,
-    zoom=1.2,
-    position=[77.0, -82.0, -1.0],
-    quaternion=[0.6047, 0.2156, 0.2603, 0.7212],
-)
+# show(
+#     logo,
+#     eye,
+#     colors=[(85, 160, 227), "#333"],
+#     names=["OCP", "Eye"],
+#     grid=(True, False, False),
+#     ortho=False,
+#     axes0=True,
+#     zoom=1.2,
+#     position=[77.0, -82.0, -1.0],
+#     quaternion=[0.6047, 0.2156, 0.2603, 0.7212],
+# )
 
 c = _convert(
     logo,
@@ -63,7 +64,7 @@ c = _convert(
 )
 
 # %%
-with open("logo_dump.py", "w") as fp:
-    fp.write(json.dumps(c, separators=(",", ":")))
+with open("logo.ts", "w") as fp:
+    fp.write(json.dumps(c[0], separators=(",", ":")))
 
 # %%
