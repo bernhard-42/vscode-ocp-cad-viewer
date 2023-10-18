@@ -265,7 +265,7 @@ def align_attrs(attr_list, length, default, tag, explode=True):
     if attr_list is None:
         return [None] * length if explode else None
     elif len(attr_list) < length:
-        print(f"Too view {tag}, using defaults to fill")
+        print(f"Too few {tag}, using defaults to fill")
         return list(attr_list) + [default] * (length - len(attr_list))
     elif len(attr_list) > length:
         print(f"Too many {tag}, trimming to length {length}")
