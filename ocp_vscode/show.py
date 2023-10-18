@@ -167,33 +167,33 @@ def _tessellate(
 
     # patch edge and vertex size in measure mode
 
-    def adapt(obj, path, mapping):
-        if isinstance(obj, OCP_Edges):
-            cls = Edge
-        elif isinstance(obj, OCP_Vertices):
-            cls = Vertex
-        elif isinstance(obj, OCP_Faces):
-            cls = Face
-        else:
-            raise TypeError(f"Unknown type {type(obj)}")
+    # def adapt(obj, path, mapping):
+    #     if isinstance(obj, OCP_Edges):
+    #         cls = Edge
+    #     elif isinstance(obj, OCP_Vertices):
+    #         cls = Vertex
+    #     elif isinstance(obj, OCP_Faces):
+    #         cls = Face
+    #     else:
+    #         raise TypeError(f"Unknown type {type(obj)}")
 
-        mapping[f"{path}/{obj.name}"] = cls(obj.shape[0])
+    #     mapping[f"{path}/{obj.name}"] = cls(obj.shape[0])
 
-        if isinstance(obj, OCP_Edges):
-            obj.width = 1
-        elif isinstance(obj, OCP_Vertices):
-            obj.size = 2
+    #     if isinstance(obj, OCP_Edges):
+    #         obj.width = 1
+    #     elif isinstance(obj, OCP_Vertices):
+    #         obj.size = 2
 
-    def traverse(pg, path, mapping):
-        for obj in pg.objects:
-            if isinstance(obj, OCP_PartGroup):
-                traverse(obj, f"{path}/{obj.name}", mapping)
-            else:
-                adapt(obj, f"{path}", mapping)
+    # def traverse(pg, path, mapping):
+    #     for obj in pg.objects:
+    #         if isinstance(obj, OCP_PartGroup):
+    #             traverse(obj, f"{path}/{obj.name}", mapping)
+    #         else:
+    #             adapt(obj, f"{path}", mapping)
 
     mapping = {}
-    if kwargs.get("measure_tools") == True:
-        traverse(part_group, f"/{part_group.name}", mapping)
+    # if kwargs.get("measure_tools") == True:
+    #     traverse(part_group, f"/{part_group.name}", mapping)
 
     params = {
         k: v
@@ -538,101 +538,101 @@ def show(
     def model_axis(a, s):
         return Edge.make_line(a.position, Vector(a.position) + Vector(a.direction) * s)
 
-    if measure_tools:
-        if helper_scale is None:
-            helper_scale = get_default("helper_scale")
-            if helper_scale is None:
-                helper_scale = 1
+    # if measure_tools:
+    #     if helper_scale is None:
+    #         helper_scale = get_default("helper_scale")
+    #         if helper_scale is None:
+    #             helper_scale = 1
 
-        wconf = workspace_config()
-        new_objs = []
-        for name, obj, color, alpha in zip(names, cad_objs, colors, alphas):
-            if color is not None:
-                color = Color(color)
-                if alpha is not None:
-                    color.a = alpha
+    #     wconf = workspace_config()
+    #     new_objs = []
+    #     for name, obj, color, alpha in zip(names, cad_objs, colors, alphas):
+    #         if color is not None:
+    #             color = Color(color)
+    #             if alpha is not None:
+    #                 color.a = alpha
 
-            if isinstance(obj, ShapeList):
-                a = Compound.make_compound([])
-                if isinstance(obj[0], Face):
-                    a.label = "faces" if name is None else name
-                elif isinstance(obj[0], Edge):
-                    a.label = "edges" if name is None else name
-                elif isinstance(obj[0], Vertex):
-                    a.label = "vertices" if name is None else name
-                else:
-                    a.label = "solids"
-                a.children = obj
-                for o in a.children:
-                    o.color = color
+    #         if isinstance(obj, ShapeList):
+    #             a = Compound.make_compound([])
+    #             if isinstance(obj[0], Face):
+    #                 a.label = "faces" if name is None else name
+    #             elif isinstance(obj[0], Edge):
+    #                 a.label = "edges" if name is None else name
+    #             elif isinstance(obj[0], Vertex):
+    #                 a.label = "vertices" if name is None else name
+    #             else:
+    #                 a.label = "solids"
+    #             a.children = obj
+    #             for o in a.children:
+    #                 o.color = color
 
-            elif isinstance(obj, Axis):
-                a = Compound.make_compound([])
-                a.children = [
-                    Vertex(*obj.position),
-                    model_axis(obj, helper_scale),
-                ]
-                a.children[1].color = "black"
-                a.label = "axis"
+    #         elif isinstance(obj, Axis):
+    #             a = Compound.make_compound([])
+    #             a.children = [
+    #                 Vertex(*obj.position),
+    #                 model_axis(obj, helper_scale),
+    #             ]
+    #             a.children[1].color = "black"
+    #             a.label = "axis"
 
-            elif isinstance(obj, (Plane, Location)):
-                if isinstance(obj, Plane):
-                    obj = obj.location
-                a = Compound.make_compound([])
-                a.children = [
-                    Vertex(*obj.position),
-                    model_axis(obj.x_axis, helper_scale),
-                    model_axis(obj.y_axis, helper_scale),
-                    model_axis(obj.z_axis, helper_scale),
-                ]
-                a.children[1].color = "red"
-                a.children[2].color = "lightgreen"
-                a.children[3].color = "blue"
-                a.label = "location"
+    #         elif isinstance(obj, (Plane, Location)):
+    #             if isinstance(obj, Plane):
+    #                 obj = obj.location
+    #             a = Compound.make_compound([])
+    #             a.children = [
+    #                 Vertex(*obj.position),
+    #                 model_axis(obj.x_axis, helper_scale),
+    #                 model_axis(obj.y_axis, helper_scale),
+    #                 model_axis(obj.z_axis, helper_scale),
+    #             ]
+    #             a.children[1].color = "red"
+    #             a.children[2].color = "lightgreen"
+    #             a.children[3].color = "blue"
+    #             a.label = "location"
 
-            else:
-                children = []
-                a = Compound.make_compound([])
-                a.name = "Group" if name is None else name
+    #         else:
+    #             children = []
+    #             a = Compound.make_compound([])
+    #             a.name = "Group" if name is None else name
 
-                faces = obj.faces()
-                if len(faces) > 0:
-                    f = Compound.make_compound([])
-                    f.label = "faces"
-                    for face in faces:
-                        face.color = wconf["default_color"] if color is None else color
-                    f.children = faces
-                    children.append(f)
+    #             faces = obj.faces()
+    #             if len(faces) > 0:
+    #                 f = Compound.make_compound([])
+    #                 f.label = "faces"
+    #                 for face in faces:
+    #                     face.color = wconf["default_color"] if color is None else color
+    #                 f.children = faces
+    #                 children.append(f)
 
-                    color = None  # don't color vertices and edges of faces
+    #                 color = None  # don't color vertices and edges of faces
 
-                edges = obj.edges()
-                if len(edges) > 0:
-                    e = Compound.make_compound([])
-                    e.label = "edges"
-                    for edge in edges:
-                        edge.color = (
-                            wconf["default_edgecolor"] if color is None else color
-                        )
-                    e.children = edges
-                    children.append(e)
+    #             edges = obj.edges()
+    #             if len(edges) > 0:
+    #                 e = Compound.make_compound([])
+    #                 e.label = "edges"
+    #                 for edge in edges:
+    #                     edge.color = (
+    #                         wconf["default_edgecolor"] if color is None else color
+    #                     )
+    #                 e.children = edges
+    #                 children.append(e)
 
-                vertices = obj.vertices()
-                if len(vertices) > 0:
-                    v = Compound.make_compound([])
-                    v.label = "vertices"
-                    for vertex in vertices:
-                        vertex.color = (
-                            wconf["default_edgecolor"] if color is None else color
-                        )
-                    v.children = vertices
-                    children.append(v)
+    #             vertices = obj.vertices()
+    #             if len(vertices) > 0:
+    #                 v = Compound.make_compound([])
+    #                 v.label = "vertices"
+    #                 for vertex in vertices:
+    #                     vertex.color = (
+    #                         wconf["default_edgecolor"] if color is None else color
+    #                     )
+    #                 v.children = vertices
+    #                 children.append(v)
 
-                a.children = children
+    #             a.children = children
 
-            new_objs.append(a)
+    #         new_objs.append(a)
 
-        cad_objs = new_objs
+    #     cad_objs = new_objs
 
     progress = Progress([] if progress is None else [c for c in progress])
 
@@ -656,12 +656,12 @@ def show(
         encoded = base64.b64encode(data)
         send_backend({"model": encoded.decode("ascii")})
 
-        add_geom_type(t["data"]["shapes"], mapping)
+        # add_geom_type(t["data"]["shapes"], mapping)
 
         # remove edges of faces
-        for k, v in t["data"]["states"].items():
-            if "/faces/" in k:
-                t["data"]["states"][k][1] = 3
+        # for k, v in t["data"]["states"].items():
+        #     if "/faces/" in k:
+        #         t["data"]["states"][k][1] = 3
 
     with Timer(timeit, "", "send"):
         return send_data(t, port=port, timeit=timeit)

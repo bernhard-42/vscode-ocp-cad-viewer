@@ -81,10 +81,24 @@
             return i === bytes.length ? bytes : bytes.slice(0, i);
         }
 
-        function decode(data) {
+        function decode(data, measureTools) {
             function convert(obj) {
                 let buffer = fromHex(obj.buffer);
                 return new Float32Array(buffer.buffer);
+            }
+
+            function combineFloatArrays(input) {
+                let totalLength = 0;
+                for (let i = 0; i < input.length; i++) {
+                    totalLength += input[i].length;
+                }
+                let output = new Float32Array(totalLength);
+                let offset = 0;
+                for (let i = 0; i < input.length; i++) {
+                    output.set(input[i], offset);
+                    offset += input[i].length;
+                }
+                return output;
             }
 
             function walk(obj) {
@@ -102,8 +116,12 @@
                         if (type === "shapes") {
                             if (obj.shape.ref === undefined) {
                                 obj.shape.vertices = convert(obj.shape.vertices);
+                                obj.shape.obj_vertices = convert(obj.shape.obj_vertices);
                                 obj.shape.normals = convert(obj.shape.normals);
-                                obj.shape.edges = convert(obj.shape.edges);
+                                obj.shape.edges = obj.shape.edges.map((edge) => convert(edge));
+                                if (!measureTools) {
+                                    obj.shape.edges = combineFloatArrays(obj.shape.edges);
+                                }
                             } else {
                                 const ind = obj.shape.ref;
                                 if (ind !== undefined) {
@@ -121,9 +139,12 @@
 
             data.data.instances.forEach((instance) => {
                 instance.vertices = convert(instance.vertices);
+                instance.obj_vertices = convert(instance.obj_vertices);
                 instance.normals = convert(instance.normals);
-                instance.edges = convert(instance.edges);
-                instance.triangles = Uint32Array.from(instance.triangles);
+                instance.edges = instance.edges.map((edge) => convert(edge));
+                if (!measureTools) {
+                    instance.edges = combineFloatArrays(instance.edges);
+                }
             });
 
             walk(data.data.shapes);
@@ -262,6 +283,7 @@
                 edgeColor: preset(_config, "default_edgecolor", renderDefaultOptions.defaultEdgecolor),
                 defaultOpacity: preset(_config, "default_opacity", renderDefaultOptions.defaultOpacity),
                 normalLen: preset(_config, "normal_len", renderDefaultOptions.normalLen),
+                measureTools: preset(_config, "measure_tools", viewerDefaultOptions.measureTools),
             };
 
             viewerOptions = {
@@ -404,7 +426,7 @@
             var data = JSON.parse(event.data);
 
             if (data.type === "data") {
-                decode(data);
+                decode(data, data.config.measure_tools);
                 const old_states = (viewer == null) ? {} : viewer.treeview.states;
 
                 let meshData = data.data;
