@@ -64,7 +64,7 @@ c = _convert(
 )
 
 # %%
-with open("logo.ts", "w") as fp:
+with open("logo.txt", "w") as fp:
     fp.write(json.dumps(c[0], separators=(",", ":")))
 
 # %%
