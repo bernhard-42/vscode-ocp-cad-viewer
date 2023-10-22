@@ -20,10 +20,10 @@ l3 = offset([l1], thickness + distance)
 l4 = offset([l1], -distance)
 
 eye_face = make_face(l2) - make_face(l1)
-eye = extrude(eye_face, 2)
+eye = extrude(eye_face, -2)
 
 eye_mask_face = make_face(l3) - make_face(l4)
-eye_mask = extrude(eye_mask_face, 2)
+eye_mask = extrude(eye_mask_face, -2)
 
 logo_o = extrude(o, -depth)
 logo_cp = Pos(22.5, 0, 0) * extrude(cp, -depth)
