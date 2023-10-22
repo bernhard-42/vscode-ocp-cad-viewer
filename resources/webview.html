@@ -118,18 +118,17 @@
                                 obj.shape.vertices = convert(obj.shape.vertices);
                                 obj.shape.obj_vertices = convert(obj.shape.obj_vertices);
                                 obj.shape.normals = convert(obj.shape.normals);
-                                obj.shape.edges = obj.shape.edges.map((edge) => convert(edge));
-                                if (!measureTools) {
-                                    obj.shape.edges = combineFloatArrays(obj.shape.edges);
-                                }
+                                obj.shape.edges = obj.shape.edges.map((edge) => Array.from(convert(edge)));
                             } else {
                                 const ind = obj.shape.ref;
                                 if (ind !== undefined) {
                                     obj.shape = instances[ind];
                                 }
                             }
+                        } else if (type === "edges") {
+                            obj.shape.edges = obj.shape.edges.map((edge) => Array.from(convert(edge)));
                         } else {
-                            obj.shape = convert(obj.shape);
+                            obj.shape.obj_vertices = convert(obj.shape.obj_vertices);
                         }
                     }
                 }
@@ -141,10 +140,7 @@
                 instance.vertices = convert(instance.vertices);
                 instance.obj_vertices = convert(instance.obj_vertices);
                 instance.normals = convert(instance.normals);
-                instance.edges = instance.edges.map((edge) => convert(edge));
-                if (!measureTools) {
-                    instance.edges = combineFloatArrays(instance.edges);
-                }
+                instance.edges = instance.edges.map((edge) => Array.from(convert(edge)));
             });
 
             walk(data.data.shapes);
@@ -427,7 +423,7 @@
 
             if (data.type === "data") {
                 decode(data, data.config.measure_tools);
-                const old_states = (viewer == null) ? {} : viewer.treeview.states;
+                const old_states = (viewer == null) ? {} : (viewer.treeview == null) ? {} : viewer.treeview.states;
 
                 let meshData = data.data;
                 let config = data.config;
