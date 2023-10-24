@@ -13,20 +13,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-import json
 import pickle
 import re
 
 from build123d import (
-    Vertex,
     Edge,
-    Face,
-    ShapeList,
-    Compound,
-    Location,
-    Axis,
     Vector,
-    Plane,
 )
 from ocp_tessellate import PartGroup
 from ocp_tessellate.convert import (
@@ -165,8 +157,6 @@ def _tessellate(
         ):
             part_group = part_group.objects[0]
 
-    mapping = {}
-
     params = {
         k: v
         for k, v in conf.items()
@@ -215,7 +205,7 @@ def _tessellate(
             init_pool()
             keymap.reset()
 
-        instances, shapes, states = tessellate_group(
+        instances, shapes, states, mapping = tessellate_group(
             part_group, params, progress, params.get("timeit")
         )
 
@@ -282,12 +272,17 @@ def _convert(
         }, mapping
 
 
-def add_geom_type(shapes, mapping):
-    for shape in shapes["parts"]:
-        if shape.get("parts") is None:
-            shape["geomtype"] = mapping[shape["id"]].geom_type()
+def _expand_mapping(mapping):
+    for part in mapping["parts"]:
+        if part.get("parts") is not None:
+            _expand_mapping(part["parts"])
         else:
-            add_geom_type(shape, mapping)
+            if part.get("faces") is not None:
+                part["faces"] = list(part["faces"])
+            if part.get("edges") is not None:
+                part["edges"] = list(part["edges"])
+            if part.get("vertices") is not None:
+                part["vertices"] = list(part["vertices"])
 
 
 class Progress:
@@ -527,13 +522,14 @@ def show(
         else:
             LAST_CALL = "other"
 
+    with Timer(timeit, "", "send"):
+        send_data(t, port=port, timeit=timeit)
+
     if measure_tools:
+        _expand_mapping(mapping)
         data = pickle.dumps(mapping)
         encoded = base64.b64encode(data)
         send_backend({"model": encoded.decode("ascii")})
-
-    with Timer(timeit, "", "send"):
-        return send_data(t, port=port, timeit=timeit)
 
 
 def reset_show():
