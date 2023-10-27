@@ -275,7 +275,7 @@ def _convert(
 def _expand_mapping(mapping):
     for part in mapping["parts"]:
         if part.get("parts") is not None:
-            _expand_mapping(part["parts"])
+            _expand_mapping(part)
         else:
             if part.get("faces") is not None:
                 part["faces"] = list(part["faces"])
@@ -500,10 +500,6 @@ def show(
 
     if default_edgecolor is not None:
         default_edgecolor = Color(default_edgecolor).web_color
-
-    # convert objects to assemblies with faces, edges and vertices
-    def model_axis(a, s):
-        return Edge.make_line(a.position, Vector(a.position) + Vector(a.direction) * s)
 
     progress = Progress([] if progress is None else [c for c in progress])
 

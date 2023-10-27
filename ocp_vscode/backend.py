@@ -150,19 +150,29 @@ class ViewerBackend:
 
     def load_model(self, raw_model):
         """Read the transfered model from websocket"""
+
+        def walk(model):
+            for v in model["parts"]:
+                if v.get("parts") is not None:
+                    walk(v)
+                else:
+                    id = v["id"]
+                    if v.get("faces") is not None:
+                        for i, face in enumerate(v["faces"]):
+                            self.model[f"{id}/faces/faces_{i}"] = Face(face)
+                    if v.get("edges") is not None:
+                        for i, edge in enumerate(v["edges"]):
+                            self.model[f"{id}/edges/edges_{i}"] = Edge(edge)
+                    if v.get("vertices") is not None:
+                        for i, vertex in enumerate(v["vertices"]):
+                            self.model[f"{id}/vertices/vertices{i}"] = Vertex(vertex)
+
         self.model = {}
         model = pickle.loads(base64.b64decode(raw_model))
-        for v in model["parts"]:
-            id = v["id"]
-            if v.get("faces") is not None:
-                for i, face in enumerate(v["faces"]):
-                    self.model[f"{id}/faces/faces_{i}"] = Face(face)
-            if v.get("edges") is not None:
-                for i, edge in enumerate(v["edges"]):
-                    self.model[f"{id}/edges/edges_{i}"] = Edge(edge)
-            if v.get("vertices") is not None:
-                for i, vertex in enumerate(v["vertices"]):
-                    self.model[f"{id}/vertices/vertices{i}"] = Vertex(vertex)
+        walk(model)
+
+        for k, v in self.model.items():
+            print(k)
 
     def handle_properties(self, shape_id):
         """
