@@ -166,8 +166,7 @@ class ViewerBackend:
                     walk(v)
                 else:
                     id = v["id"]
-                    loc = tq_to_loc(*v["loc"])
-                    # base64.b64encode(serialize(obj)).decode("utf-8")
+                    loc = None if v["loc"] is None else tq_to_loc(*v["loc"])
                     shape = [
                         deserialize(base64.b64decode(s.encode("utf-8")))
                         for s in v["shape"]
@@ -181,11 +180,6 @@ class ViewerBackend:
                         self.model[f"{id}/edges/edges_{i}"] = (
                             Edge(edge) if loc is None else Edge(edge.Moved(loc))
                         )
-                        # self.model[f"{id}/edges/edges_{i}"] = (
-                        #     Edge(edge)
-                        #     if loc is None
-                        #     else downcast(Shape(edge).moved(Location(loc)))
-                        # )
                     vertices = get_vertices(compound)
                     for i, vertex in enumerate(vertices):
                         self.model[f"{id}/vertices/vertices{i}"] = (
