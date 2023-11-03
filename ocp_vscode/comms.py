@@ -1,7 +1,14 @@
+import base64
 import enum
 from websockets.sync.client import connect
 import orjson as json
 from ocp_tessellate.utils import Timer
+from ocp_tessellate.ocp_utils import (
+    is_topods_shape,
+    is_toploc_location,
+    serialize,
+    loc_to_tq,
+)
 
 CMD_URL = "ws://127.0.0.1"
 CMD_PORT = 3939
@@ -30,6 +37,15 @@ __all__ = [
 ]
 
 
+def default(obj):
+    if is_topods_shape(obj):
+        return base64.b64encode(serialize(obj)).decode("utf-8")
+    elif is_toploc_location(obj):
+        return loc_to_tq(obj)
+    else:
+        raise TypeError(f"Object of type {type(obj)} is not JSON serializable")
+
+
 def get_port():
     return CMD_PORT
 
@@ -44,7 +60,7 @@ def _send(data, message_type, port=None, timeit=False):
         port = CMD_PORT
     try:
         with Timer(timeit, "", "json dumps", 1):
-            j = json.dumps(data)
+            j = json.dumps(data, default=default)
             if message_type == MessageType.command:
                 j = b"C:" + j
             elif message_type == MessageType.data:
@@ -107,7 +123,7 @@ def send_response(data, port=None, timeit=False):
 def listener(callback):
     def _listen():
         LAST_CONFIG = {}
-        with connect(f"{CMD_URL}:{CMD_PORT}", max_size=2**26) as websocket:
+        with connect(f"{CMD_URL}:{CMD_PORT}", max_size=2**28) as websocket:
             websocket.send(b"L:register")
             while True:
                 try:

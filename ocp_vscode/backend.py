@@ -19,7 +19,16 @@ from build123d import (
     Solid,
     Shape,
 )
-
+from build123d.topology import downcast
+from ocp_tessellate.tessellator import (
+    face_mapper,
+    edge_mapper,
+    vertex_mapper,
+    get_faces,
+    get_edges,
+    get_vertices,
+)
+from ocp_tessellate.ocp_utils import make_compound, deserialize, tq_to_loc
 
 HEADER_SIZE = 4
 
@@ -157,22 +166,37 @@ class ViewerBackend:
                     walk(v)
                 else:
                     id = v["id"]
-                    if v.get("faces") is not None:
-                        for i, face in enumerate(v["faces"]):
-                            self.model[f"{id}/faces/faces_{i}"] = Face(face)
-                    if v.get("edges") is not None:
-                        for i, edge in enumerate(v["edges"]):
-                            self.model[f"{id}/edges/edges_{i}"] = Edge(edge)
-                    if v.get("vertices") is not None:
-                        for i, vertex in enumerate(v["vertices"]):
-                            self.model[f"{id}/vertices/vertices{i}"] = Vertex(vertex)
+                    loc = tq_to_loc(*v["loc"])
+                    # base64.b64encode(serialize(obj)).decode("utf-8")
+                    shape = [
+                        deserialize(base64.b64decode(s.encode("utf-8")))
+                        for s in v["shape"]
+                    ]
+                    compound = make_compound(shape) if len(shape) > 1 else shape[0]
+                    faces = get_faces(compound)
+                    for i, face in enumerate(faces):
+                        self.model[f"{id}/faces/faces_{i}"] = Face(face.Moved(loc))
+                    edges = get_edges(compound)
+                    for i, edge in enumerate(edges):
+                        self.model[f"{id}/edges/edges_{i}"] = (
+                            Edge(edge) if loc is None else Edge(edge.Moved(loc))
+                        )
+                        # self.model[f"{id}/edges/edges_{i}"] = (
+                        #     Edge(edge)
+                        #     if loc is None
+                        #     else downcast(Shape(edge).moved(Location(loc)))
+                        # )
+                    vertices = get_vertices(compound)
+                    for i, vertex in enumerate(vertices):
+                        self.model[f"{id}/vertices/vertices{i}"] = (
+                            Vertex(vertex)
+                            if loc is None
+                            else Vertex(downcast(vertex.Moved(loc)))
+                        )
 
         self.model = {}
-        model = pickle.loads(base64.b64decode(raw_model))
-        walk(model)
-
-        for k, v in self.model.items():
-            print(k)
+        # model = pickle.loads(base64.b64decode(raw_model))
+        walk(raw_model)
 
     def handle_properties(self, shape_id):
         """
