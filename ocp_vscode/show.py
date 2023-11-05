@@ -522,11 +522,6 @@ def show(
         send_data(t, port=port, timeit=timeit)
 
     if measure_tools:
-        # _expand_mapping(mapping)
-        # data = pickle.dumps(mapping)
-        # encoded = base64.b64encode(data)
-        # send_backend({"model": encoded.decode("ascii")}, port=port, timeit=timeit)
-
         send_backend({"model": mapping}, port=port, timeit=timeit)
 
 

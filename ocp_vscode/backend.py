@@ -1,11 +1,7 @@
 from dataclasses import dataclass, asdict, fields
 import argparse
-from multiprocessing.shared_memory import SharedMemory
-import pickle
-import sys
 import traceback
 import base64
-from ocp_vscode.config import SHARED_MEMORY_BLOCK_SIZE
 from ocp_vscode.comms import listener, MessageType, send_response
 from build123d import (
     Axis,
@@ -29,6 +25,7 @@ from ocp_tessellate.tessellator import (
     get_vertices,
 )
 from ocp_tessellate.ocp_utils import make_compound, deserialize, tq_to_loc
+from ocp_tessellate.trace import Trace, dump_face, dump_edge, dump_vertex
 
 HEADER_SIZE = 4
 
@@ -160,10 +157,10 @@ class ViewerBackend:
     def load_model(self, raw_model):
         """Read the transfered model from websocket"""
 
-        def walk(model):
+        def walk(model, trace):
             for v in model["parts"]:
                 if v.get("parts") is not None:
-                    walk(v)
+                    walk(v, trace)
                 else:
                     id = v["id"]
                     loc = None if v["loc"] is None else tq_to_loc(*v["loc"])
@@ -174,14 +171,20 @@ class ViewerBackend:
                     compound = make_compound(shape) if len(shape) > 1 else shape[0]
                     faces = get_faces(compound)
                     for i, face in enumerate(faces):
+                        trace.face(f"faces/faces_{i}", face)
+
                         self.model[f"{id}/faces/faces_{i}"] = Face(face.Moved(loc))
                     edges = get_edges(compound)
                     for i, edge in enumerate(edges):
+                        trace.edge(f"edges/edges_{i}", edge)
+
                         self.model[f"{id}/edges/edges_{i}"] = (
                             Edge(edge) if loc is None else Edge(edge.Moved(loc))
                         )
                     vertices = get_vertices(compound)
                     for i, vertex in enumerate(vertices):
+                        trace.vertex(f"vertices/vertex{i}", vertex)
+
                         self.model[f"{id}/vertices/vertices{i}"] = (
                             Vertex(vertex)
                             if loc is None
@@ -189,23 +192,32 @@ class ViewerBackend:
                         )
 
         self.model = {}
-        # model = pickle.loads(base64.b64decode(raw_model))
-        walk(raw_model)
+        trace = Trace("ocp-vscode-backend.log")
+        walk(raw_model, trace)
+        trace.close()
 
     def handle_properties(self, shape_id):
         """
         Request the properties of the object with the given id
         """
+        print(f"Identifier received '{shape_id}'")
+
         shape = self.model[shape_id]
 
         response = PropertiesResponse()
 
         if isinstance(shape, Vertex):
+            print(dump_vertex(shape_id, shape.wrapped))
+
             response.vertex_coords = shape.to_tuple()
         elif isinstance(shape, Edge):
+            print(dump_edge(shape_id, shape.wrapped))
+
             response.radius = shape.radius if shape.geom_type() in ["CIRCLE"] else None
             response.length = shape.length
         elif isinstance(shape, Face):
+            print(dump_face(shape_id, shape.wrapped))
+
             if shape.geom_type() == "CYLINDER":
                 circle = shape.edges().filter_by(GeomType.CIRCLE).first
                 response.radius = circle.radius
@@ -229,6 +241,8 @@ class ViewerBackend:
         """
         Request the angle between the two objects that have the given ids
         """
+        print(f"Identifiers received '{id1}', '{id2}'")
+
         shape1: Shape = self.model[id1]
         shape2: Shape = self.model[id2]
         first = (
@@ -308,6 +322,8 @@ class ViewerBackend:
         """
         Request the distance between the two objects that have the given ids
         """
+        print(f"Identifiers received '{id1}', '{id2}'")
+
         shape1: Shape = self.model[id1]
         shape2: Shape = self.model[id2]
         p1 = self.get_center(shape1)
