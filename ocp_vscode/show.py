@@ -71,7 +71,6 @@ from .comms import send_backend, send_data, CMD_PORT
 from .colors import *
 
 from .persistence import modify_copyreg
-from .backend import HEADER_SIZE
 
 import base64
 

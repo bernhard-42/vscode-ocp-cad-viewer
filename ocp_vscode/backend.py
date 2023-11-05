@@ -27,7 +27,16 @@ from ocp_tessellate.tessellator import (
 from ocp_tessellate.ocp_utils import make_compound, deserialize, tq_to_loc
 from ocp_tessellate.trace import Trace, dump_face, dump_edge, dump_vertex
 
-HEADER_SIZE = 4
+
+class SelectedCenterInfo:
+    """
+    Stores the information message about what as been used as center for the measurement
+    """
+
+    vertex = "Reference point has been taken as vertex location"
+    circular = "Reference point has been taken as the center of the circle or ellipse"
+    geom = "Reference point has been taken as the center of the geometry"
+    cylinder = "Reference point has been taken as the center of the cylinder"
 
 
 def error_handler(func):
@@ -74,6 +83,7 @@ class Response:
 
 @dataclass
 class MeasureReponse(Response):
+    center_info: str = ""  # a string telling the frontend how the reference points used for the measurement were chosen
     subtype: str = "tool_response"
 
 
@@ -107,6 +117,12 @@ class AngleResponse(MeasureReponse):
 
 
 class ViewerBackend:
+    """
+    Represents the backend of the viewer, it listens to the websocket and handles the events
+    It's job is to send responses to the vscode extension that goes through the three cad viewer view.
+    The reponses holds all the data needed to display the measurements.
+    """
+
     def __init__(self, port: int) -> None:
         self.port = port
         self.model = None
@@ -114,11 +130,18 @@ class ViewerBackend:
         self.filter_type = "none"  # The current active selection filter
 
     def start(self):
+        """
+        Start the backend
+        """
         print("Viewer backend started")
         listener(self.handle_event)()
 
     @error_handler
     def handle_event(self, message, event_type: MessageType):
+        """
+        Handle the event received from the websocket
+        Dispatch the event to the appropriate handler
+        """
         if event_type == MessageType.data:
             self.load_model(message)
         elif event_type == MessageType.updates:
@@ -136,6 +159,9 @@ class ViewerBackend:
                 self.handle_activated_tool(changes)
 
     def handle_activated_tool(self, changes):
+        """
+        Handle the activated tool, there is a special behavior for each tool
+        """
         if not "selectedShapeIDs" in changes:
             return
 
@@ -231,7 +257,10 @@ class ViewerBackend:
 
         geom_type = shape.geom_type().capitalize()
         response.geom_type = geom_type if geom_type != "Vertex" else None
-        response.center = self.get_center(shape, False).to_tuple()
+        center, info = self.get_center(shape, False)
+        response.center = center.to_tuple()
+        response.center_info = info
+
         set_precision(response)
 
         send_response(asdict(response), self.port)
@@ -269,10 +298,11 @@ class ViewerBackend:
 
             angle = 90 - plane.z_dir.get_angle(vector)
         angle = abs(angle)
-        point1 = self.get_center(shape1, True)
-        point2 = self.get_center(shape2, True)
-
+        point1, info1 = self.get_center(shape1, True)
+        point2, info2 = self.get_center(shape2, True)
+        center_info = f"Shape 1 : {info1}\nShape 2 : {info2}"
         response = AngleResponse(
+            center_info=center_info,
             angle=angle,
             point1=point1.to_tuple(),
             point2=point2.to_tuple(),
@@ -281,7 +311,9 @@ class ViewerBackend:
         send_response(asdict(response), self.port)
         print(f"Data sent {response}")
 
-    def get_center(self, shape: Shape, for_distance=True) -> Vector:
+    def get_center(
+        self, shape: Shape, for_distance=True
+    ) -> tuple[Vector, SelectedCenterInfo]:
         """
         Returns the center vector of the given shape
         Center of the shape depends on the type of the shape and the tool used
@@ -289,7 +321,7 @@ class ViewerBackend:
         but at the center of the circle for distance tool
         """
         if isinstance(shape, Vertex):
-            return shape.center()
+            return shape.center(), SelectedCenterInfo.vertex
         elif isinstance(shape, Edge):
             if shape.geom_type() in [
                 GeomType.CIRCLE,
@@ -297,11 +329,15 @@ class ViewerBackend:
                 "CIRCLE",
                 "ELLIPSE",
             ]:
-                return shape.arc_center if for_distance else shape.center()
+                if for_distance:
+                    return shape.arc_center, SelectedCenterInfo.circular
+                else:
+                    return shape.center(), SelectedCenterInfo.geom
+
         elif isinstance(shape, Face):
             if shape.geom_type() in [GeomType.CYLINDER, "CYLINDER"]:
                 if not for_distance:
-                    return shape.center()
+                    return shape.center(), SelectedCenterInfo.geom
 
                 extremity_edges = shape.edges().filter_by(GeomType.CIRCLE)
                 if len(extremity_edges) == 2:
@@ -311,12 +347,21 @@ class ViewerBackend:
                             extremity_edges.first.arc_center
                             - extremity_edges.last.arc_center
                         )
-                        / 2
+                        / 2,
+                        SelectedCenterInfo.cylinder,
                     )
                 else:
-                    return extremity_edges.first.arc_center
+                    try:
+                        return (
+                            extremity_edges.first.arc_center,
+                            SelectedCenterInfo.cylinder,
+                        )
+                    except IndexError:
+                        # cylinder might have bspline extremity edges hence the list would be empty
+                        # in that case we default to geom center
+                        pass
 
-        return shape.center()
+        return shape.center(), SelectedCenterInfo.geom
 
     def handle_distance(self, id1, id2):
         """
@@ -326,11 +371,15 @@ class ViewerBackend:
 
         shape1: Shape = self.model[id1]
         shape2: Shape = self.model[id2]
-        p1 = self.get_center(shape1)
-        p2 = self.get_center(shape2)
+        p1, info1 = self.get_center(shape1)
+        p2, info2 = self.get_center(shape2)
+        center_info = f"Shape 1 : {info1}\nShape 2 : {info2}"
         dist = (p2 - p1).length
         response = DistanceResponse(
-            point1=p1.to_tuple(), point2=p2.to_tuple(), distance=dist
+            center_info=center_info,
+            point1=p1.to_tuple(),
+            point2=p2.to_tuple(),
+            distance=dist,
         )
         set_precision(response)
         send_response(asdict(response), self.port)
