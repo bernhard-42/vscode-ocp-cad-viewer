@@ -259,7 +259,7 @@ class ViewerBackend:
         response.geom_type = geom_type if geom_type != "Vertex" else None
         center, info = self.get_center(shape, False)
         response.center = center.to_tuple()
-        response.center_info = info
+        response.center_info = f"{shape_id} : {info}"
 
         set_precision(response)
 
@@ -300,7 +300,7 @@ class ViewerBackend:
         angle = abs(angle)
         point1, info1 = self.get_center(shape1, True)
         point2, info2 = self.get_center(shape2, True)
-        center_info = f"Shape 1 : {info1}\nShape 2 : {info2}"
+        center_info = f"{id1} : {info1}\n{id2} : {info2}"
         response = AngleResponse(
             center_info=center_info,
             angle=angle,
@@ -373,7 +373,7 @@ class ViewerBackend:
         shape2: Shape = self.model[id2]
         p1, info1 = self.get_center(shape1)
         p2, info2 = self.get_center(shape2)
-        center_info = f"Shape 1 : {info1}\nShape 2 : {info2}"
+        center_info = f"{id1} : {info1}\n{id2} : {info2}"
         dist = (p2 - p1).length
         response = DistanceResponse(
             center_info=center_info,
