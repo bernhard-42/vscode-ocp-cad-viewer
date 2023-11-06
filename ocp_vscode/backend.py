@@ -197,19 +197,19 @@ class ViewerBackend:
                     compound = make_compound(shape) if len(shape) > 1 else shape[0]
                     faces = get_faces(compound)
                     for i, face in enumerate(faces):
-                        trace.face(f"faces/faces_{i}", face)
+                        trace.face(f"{id}/faces/faces_{i}", face)
 
                         self.model[f"{id}/faces/faces_{i}"] = Face(face.Moved(loc))
                     edges = get_edges(compound)
                     for i, edge in enumerate(edges):
-                        trace.edge(f"edges/edges_{i}", edge)
+                        trace.edge(f"{id}/edges/edges_{i}", edge)
 
                         self.model[f"{id}/edges/edges_{i}"] = (
                             Edge(edge) if loc is None else Edge(edge.Moved(loc))
                         )
                     vertices = get_vertices(compound)
                     for i, vertex in enumerate(vertices):
-                        trace.vertex(f"vertices/vertex{i}", vertex)
+                        trace.vertex(f"{id}/vertices/vertex{i}", vertex)
 
                         self.model[f"{id}/vertices/vertices{i}"] = (
                             Vertex(vertex)
