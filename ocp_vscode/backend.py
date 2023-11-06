@@ -15,6 +15,7 @@ from build123d import (
     Face,
     Solid,
     Shape,
+    Compound,
 )
 from build123d.topology import downcast
 from ocp_tessellate.tessellator import (
@@ -203,6 +204,7 @@ class ViewerBackend:
                         for s in v["shape"]
                     ]
                     compound = make_compound(shape) if len(shape) > 1 else shape[0]
+                    self.model[id] = Compound(compound.Moved(loc))
                     faces = get_faces(compound)
                     for i, face in enumerate(faces):
                         trace.face(f"{id}/faces/faces_{i}", face)
