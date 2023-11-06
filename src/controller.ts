@@ -25,6 +25,7 @@ import { logo } from "./logo";
 import { StatusManagerProvider } from "./statusManager";
 import { ChildProcessWithoutNullStreams, spawn } from "child_process";
 import { getPythonPath } from "./utils";
+import { getCurrentFolder } from "./utils";
 
 var serverStarted = false;
 
@@ -223,9 +224,16 @@ export class OCPCADController {
      * Starts the python backend server
      */
     public async startBackend() {
+        let root = getCurrentFolder();
+        if (root === "") {
+            vscode.window.showInformationMessage("First open a file in your project");
+            return;
+        }
+
         let python = await getPythonPath();
         output.debug(`Starting python backend with ${python}`);
-        this.pythonBackendProcess = spawn(python, [this.getBackendPath(), "--port", this.port.toString()]);
+        const defaults = { cwd: root };
+        this.pythonBackendProcess = spawn(python, [this.getBackendPath(), "--port", this.port.toString()], defaults);
         this.pythonBackendProcess.stdout.on('data', (data) => {
             output.debug(`Python backend: ${data}`);
         });

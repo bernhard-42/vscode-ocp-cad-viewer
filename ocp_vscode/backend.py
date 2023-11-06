@@ -1,5 +1,6 @@
 from dataclasses import dataclass, asdict, fields
 import argparse
+import sys
 import traceback
 import base64
 from ocp_vscode.comms import listener, MessageType, send_response
@@ -39,13 +40,20 @@ class SelectedCenterInfo:
     cylinder = "Reference point has been taken as the center of the cylinder"
 
 
+def print_to_stdout(*msg):
+    """
+    Write the given message to the stdout
+    """
+    print(*msg, flush=True, file=sys.stdout)
+
+
 def error_handler(func):
     def wrapper(*args, **kwargs):
         try:
             func(*args, **kwargs)
         except Exception as ex:
-            print("The following error happened, backend still running")
-            traceback.print_exc()
+            print_to_stdout(ex)
+            traceback.print_exception(*sys.exc_info(), file=sys.stdout)
 
     return wrapper
 
@@ -226,24 +234,20 @@ class ViewerBackend:
         """
         Request the properties of the object with the given id
         """
-        print(f"Identifier received '{shape_id}'")
+        print_to_stdout(f"Identifier received '{shape_id}'")
 
         shape = self.model[shape_id]
 
         response = PropertiesResponse()
 
         if isinstance(shape, Vertex):
-            print(dump_vertex(shape_id, shape.wrapped))
-
             response.vertex_coords = shape.to_tuple()
-        elif isinstance(shape, Edge):
-            print(dump_edge(shape_id, shape.wrapped))
 
+        elif isinstance(shape, Edge):
             response.radius = shape.radius if shape.geom_type() in ["CIRCLE"] else None
             response.length = shape.length
-        elif isinstance(shape, Face):
-            print(dump_face(shape_id, shape.wrapped))
 
+        elif isinstance(shape, Face):
             if shape.geom_type() == "CYLINDER":
                 circle = shape.edges().filter_by(GeomType.CIRCLE).first
                 response.radius = circle.radius
@@ -264,13 +268,13 @@ class ViewerBackend:
         set_precision(response)
 
         send_response(asdict(response), self.port)
-        print(f"Data sent {response}")
+        print_to_stdout(f"Data sent {response}")
 
     def handle_angle(self, id1, id2):
         """
         Request the angle between the two objects that have the given ids
         """
-        print(f"Identifiers received '{id1}', '{id2}'")
+        print_to_stdout(f"Identifiers received '{id1}', '{id2}'")
 
         shape1: Shape = self.model[id1]
         shape2: Shape = self.model[id2]
@@ -309,7 +313,7 @@ class ViewerBackend:
         )
         set_precision(response)
         send_response(asdict(response), self.port)
-        print(f"Data sent {response}")
+        print_to_stdout(f"Data sent {response}")
 
     def get_center(
         self, shape: Shape, for_distance=True
@@ -367,7 +371,7 @@ class ViewerBackend:
         """
         Request the distance between the two objects that have the given ids
         """
-        print(f"Identifiers received '{id1}', '{id2}'")
+        print_to_stdout(f"Identifiers received '{id1}', '{id2}'")
 
         shape1: Shape = self.model[id1]
         shape2: Shape = self.model[id2]
@@ -383,7 +387,7 @@ class ViewerBackend:
         )
         set_precision(response)
         send_response(asdict(response), self.port)
-        print(f"Data sent {response}")
+        print_to_stdout(f"Data sent {response}")
 
 
 if __name__ == "__main__":
