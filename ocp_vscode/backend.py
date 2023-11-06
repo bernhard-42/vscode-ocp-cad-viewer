@@ -258,7 +258,7 @@ class ViewerBackend:
             response.width = shape.width
             response.area = shape.area
 
-        elif isinstance(shape, Solid):
+        elif isinstance(shape, (Solid, Compound)):
             response.volume = shape.volume
 
         geom_type = shape.geom_type().capitalize()
