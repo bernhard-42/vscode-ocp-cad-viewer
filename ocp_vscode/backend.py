@@ -8,6 +8,7 @@ from build123d import (
     Axis,
     CenterOf,
     GeomType,
+    Location,
     Plane,
     Vector,
     Vertex,
@@ -198,7 +199,7 @@ class ViewerBackend:
                     walk(v, trace)
                 else:
                     id = v["id"]
-                    loc = None if v["loc"] is None else tq_to_loc(*v["loc"])
+                    loc = Location() if v["loc"] is None else tq_to_loc(*v["loc"])
                     shape = [
                         deserialize(base64.b64decode(s.encode("utf-8")))
                         for s in v["shape"]
@@ -265,6 +266,7 @@ class ViewerBackend:
         response.geom_type = geom_type if geom_type != "Vertex" else None
         center, info = self.get_center(shape, False)
         response.center = center.to_tuple()
+        response.vertex_coords = response.center
         response.center_info = f"{shape_id} : {info}"
 
         set_precision(response)
