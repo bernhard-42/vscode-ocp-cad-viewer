@@ -8,6 +8,7 @@ from build123d import (
     Axis,
     CenterOf,
     GeomType,
+    Location,
     Plane,
     Vector,
     Vertex,
@@ -268,6 +269,7 @@ class ViewerBackend:
         response.geom_type = geom_type if geom_type != "Vertex" else None
         center, info = self.get_center(shape, False)
         response.center = center.to_tuple()
+        response.vertex_coords = response.center
         response.center_info = f"{shape_id} : {info}"
 
         set_precision(response)
