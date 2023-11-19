@@ -16,6 +16,7 @@ from build123d import (
     Solid,
     Shape,
     Compound,
+    Location,
 )
 from build123d.topology import downcast
 from ocp_tessellate.tessellator import (
@@ -198,7 +199,9 @@ class ViewerBackend:
                     walk(v, trace)
                 else:
                     id = v["id"]
-                    loc = None if v["loc"] is None else tq_to_loc(*v["loc"])
+                    loc = (
+                        Location().wrapped if v["loc"] is None else tq_to_loc(*v["loc"])
+                    )
                     shape = [
                         deserialize(base64.b64decode(s.encode("utf-8")))
                         for s in v["shape"]
