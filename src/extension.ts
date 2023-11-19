@@ -103,6 +103,15 @@ export async function activate(context: vscode.ExtensionContext) {
 
     context.subscriptions.push(
         vscode.commands.registerCommand(
+            "ocpCadViewer.port",
+            async () => {
+                return controller.port;
+            }
+        )
+    );
+
+    context.subscriptions.push(
+        vscode.commands.registerCommand(
             "ocpCadViewer.ocpCadViewer",
             async () => {
                 output.show();

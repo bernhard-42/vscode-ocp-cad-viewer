@@ -14,7 +14,8 @@
         "Other"
     ],
     "activationEvents": [
-        "onCommand:ocpCadViewer.ocpCadViewer"
+        "onCommand:ocpCadViewer.ocpCadViewer",
+        "onCommand:ocpCadViewer.port"
     ],
     "main": "./out/extension.js",
     "contributes": {
