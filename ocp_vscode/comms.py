@@ -2,9 +2,16 @@ import enum
 from websockets.sync.client import connect
 import orjson as json
 from ocp_tessellate.utils import Timer
+import os
 
 CMD_URL = "ws://127.0.0.1"
 CMD_PORT = 3939
+
+if "ocp_port" in os.environ:
+    try:
+        CMD_PORT = int(os.environ["ocp_port"])
+    except ValueError:
+        pass
 
 #
 # Send data to the viewer
