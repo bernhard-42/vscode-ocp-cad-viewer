@@ -271,19 +271,6 @@ def _convert(
         }, mapping
 
 
-def _expand_mapping(mapping):
-    for part in mapping["parts"]:
-        if part.get("parts") is not None:
-            _expand_mapping(part)
-        else:
-            if part.get("faces") is not None:
-                part["faces"] = list(part["faces"])
-            if part.get("edges") is not None:
-                part["edges"] = list(part["edges"])
-            if part.get("vertices") is not None:
-                part["vertices"] = list(part["vertices"])
-
-
 class Progress:
     def __init__(self, levels=None):
         if levels is None:
