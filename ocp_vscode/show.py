@@ -456,6 +456,9 @@ def show(
             measure_tools = False
     kwargs["measure_tools"] = measure_tools
 
+    if measure_tools and kwargs.get("collapse") is None:
+        kwargs["collapse"] = Collapse.ROOT
+
     names = align_attrs(names, len(cad_objs), None, "names", explode=measure_tools)
 
     # Handle colormaps
