@@ -424,21 +424,51 @@
 
             if (data.type === "data") {
                 decode(data, data.config.measure_tools);
-                const old_states = (viewer == null) ? {} : (viewer.treeview == null) ? {} : viewer.treeview.states;
+
+                var old_states = (viewer == null) ? {} : (viewer.treeview == null) ? {} : viewer.treeview.states;
 
                 let meshData = data.data;
                 let config = data.config;
                 showViewer(meshData.shapes, meshData.states, config);
-                const new_states = Object.keys(meshData.states);
 
-                // TODO: Can this be optimzed so that it also works in case of measure tools mode
-                if (!data.config.measure_tools) {
-                    Object.keys(old_states).forEach((key) => {
-                        if (new_states.includes(key)) {
-                            viewer.setState(key, old_states[key]);
-                        }
-                    });
+                var time = performance.now();
+
+                var new_states = meshData.states;
+
+                // in measure mode, we only want to update the states of the nodes that have changed
+                // and we move one level up to avoid updating the states of the nodes that have already changed
+                // (propagation in the tree)
+                if (data.config.measure_tools) {
+                    var old_s = {};
+                    var short = "";
+                    for (var s in old_states) {
+                        short = s.split("/").slice(0, -1).join("/");
+                        old_s[short] = old_states[s]
+                    }
+                    old_states = old_s;
+                    var new_s = {};
+                    for (s in meshData.states) {
+                        short = s.split("/").slice(0, -1).join("/");
+                        new_s[short] = new_states[s]
+                    }
+                    new_states = new_s;
                 }
+
+                const new_keys = Object.keys(new_states);
+
+                Object.keys(old_states).forEach((key) => {
+                    if (new_keys.includes(key)) {
+                        if (new_states[key][0] !== old_states[key][0] || new_states[key][1] !== old_states[key][1]) {
+                            if (data.config.measure_tools) {
+                                viewer.treeview.handleStateChange("node", key, 0, old_states[key][0])
+                                viewer.treeview.handleStateChange("node", key, 1, old_states[key][1])
+                            } else {
+                                viewer.setState(key, old_states[key]);
+                            }
+                        }
+                    }
+                });
+                console.log("state update", performance.now() - time);
 
             } else if (data.type === "backend_response") {
                 viewer.handleBackendResponse(data);
