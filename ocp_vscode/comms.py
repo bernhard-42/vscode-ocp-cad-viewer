@@ -7,11 +7,10 @@ import os
 CMD_URL = "ws://127.0.0.1"
 CMD_PORT = 3939
 
-if "ocp_port" in os.environ:
-    try:
-        CMD_PORT = int(os.environ["ocp_port"])
-    except ValueError:
-        pass
+try:
+    CMD_PORT = int(os.environ["ocp_port"])
+except (ValueError, KeyError):
+    pass
 
 #
 # Send data to the viewer
