@@ -358,83 +358,89 @@
                     "description": "Turn explode mode on (default: false)",
                     "order": 32
                 },
+                "OcpCadViewer.view.measure_tools": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Run on measure tools by default",
+                    "order": 33
+                },
                 "OcpCadViewer.render.angular_tolerance": {
                     "type": "number",
                     "default": 0.2,
                     "description": "Angular tolerance for tessellation algorithm (default: 0.2)",
-                    "order": 33
+                    "order": 34
                 },
                 "OcpCadViewer.render.deviation": {
                     "type": "number",
                     "default": 0.1,
                     "description": "Deviation of for tessellation algorithm (default: 0.1)",
-                    "order": 34
+                    "order": 35
                 },
                 "OcpCadViewer.render.default_color": {
                     "type": "string",
                     "default": "#e8b024",
                     "description": "Default shape color, CSS3 color names are allowed (default: #e8b024)",
-                    "order": 35
+                    "order": 36
                 },
                 "OcpCadViewer.render.default_edgecolor": {
                     "type": "string",
                     "default": "#707070",
                     "description": "Default color of the edges of shapes, CSS3 color names are allowed (default: #707070)",
-                    "order": 36
+                    "order": 37
                 },
                 "OcpCadViewer.render.default_thickedgecolor": {
                     "type": "string",
                     "default": "MediumOrchid",
                     "description": "Default color of lines, CSS3 color names are allowed (default: MediumOrchid)",
-                    "order": 37
+                    "order": 38
                 },
                 "OcpCadViewer.render.default_facecolor": {
                     "type": "string",
                     "default": "Violet",
                     "description": "Default color of faces, CSS3 color names are allowed (default: Violet)",
-                    "order": 38
+                    "order": 39
                 },
                 "OcpCadViewer.render.default_vertexcolor": {
                     "type": "string",
                     "default": "MediumOrchid",
                     "description": "Default color of vertices, CSS3 color names are allowed (default: MediumOrchid)",
-                    "order": 39
+                    "order": 40
                 },
                 "OcpCadViewer.render.ambient_intensity": {
                     "type": "number",
                     "default": 1,
                     "description": "Intensity of ambient light (default: 1.00)",
-                    "order": 40
+                    "order": 41
                 },
                 "OcpCadViewer.render.direct_intensity": {
                     "type": "number",
                     "default": 1.1,
                     "description": "Intensity of direct light (default: 1.10)",
-                    "order": 41
+                    "order": 42
                 },
                 "OcpCadViewer.render.metalness": {
                     "type": "number",
                     "default": 0.3,
                     "description": "Metalness property of material (default: 0.30)",
-                    "order": 42
+                    "order": 43
                 },
                 "OcpCadViewer.render.roughness": {
                     "type": "number",
                     "default": 0.65,
                     "description": "Roughness property of material (default: 0.65)",
-                    "order": 43
+                    "order": 44
                 },
                 "OcpCadViewer.advanced.watchCommands": {
                     "type": "string",
                     "default": "from ocp_vscode import show_all; show_all(locals())",
                     "description": "Command to be executed when debugger halts. Needs to include locals()",
-                    "order": 42
+                    "order": 50
                 },
                 "OcpCadViewer.advanced.watchByDefault": {
                     "type": "boolean",
                     "default": true,
                     "description": "Whether to have visual debugging (OCP: on) as the default or not",
-                    "order": 43
+                    "order": 51
                 },
                 "OcpCadViewer.advanced.quickstartCommands": {
                     "type": "object",
@@ -459,7 +465,8 @@
                                 "{python} -m pip install ocp_vscode git+https://github.com/gumyr/build123d"
                             ]
                         }
-                    }
+                    },
+                    "order": 52
                 },
                 "OcpCadViewer.advanced.installCommands": {
                     "type": "object",
@@ -518,7 +525,7 @@
                             ]
                         }
                     },
-                    "order": 50
+                    "order": 53
                 },
                 "OcpCadViewer.advanced.codeSnippets": {
                     "type": "object",
@@ -537,7 +544,7 @@
                             "\n# %%\n"
                         ]
                     },
-                    "order": 51
+                    "order": 54
                 },
                 "OcpCadViewer.advanced.exampleDownloads": {
                     "type": "object",
@@ -552,7 +559,7 @@
                             "example_path": "build123d-dev/examples"
                         }
                     },
-                    "order": 52
+                    "order": 55
                 },
                 "OcpCadViewer.snippets.dotVscodeSnippets": {
                     "type": "object",
@@ -669,7 +676,7 @@
                             }
                         }
                     },
-                    "order": 53
+                    "order": 56
                 }
             }
         }

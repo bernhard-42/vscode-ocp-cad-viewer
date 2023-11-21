@@ -88,6 +88,7 @@ CONFIG_WORKSPACE_KEYS = CONFIG_UI_KEYS + [
     "default_vertexcolor",
     "default_opacity",
     "deviation",
+    "measure_tools",
 ]
 
 CONFIG_CONTROL_KEYS = [
@@ -371,6 +372,7 @@ def combined_config(port=None, use_status=True):
         wspace_config["ortho"] = False
         wspace_config["transparent"] = False
         wspace_config["black_edges"] = False
+        wspace_config["measure_tools"] = False
 
     wspace_config.update(DEFAULTS)
     if use_status:

@@ -453,7 +453,8 @@ def show(
     if measure_tools is None:
         measure_tools = get_default("measure_tools")
         if measure_tools is None:
-            measure_tools = False
+            conf = workspace_config()
+            measure_tools = conf["measure_tools"]
     kwargs["measure_tools"] = measure_tools
 
     if measure_tools and kwargs.get("collapse") is None:
