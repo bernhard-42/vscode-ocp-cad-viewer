@@ -1825,16 +1825,16 @@ text-table@^0.2.0:
   resolved "https://registry.yarnpkg.com/text-table/-/text-table-0.2.0.tgz#7f5ee823ae805207c00af2df4a84ec3fcfa570b4"
   integrity sha512-N+8UisAXDGk8PFXP4HAzVR9nbfmVJ3zYLAWiTIoqC5v5isinhr+r5uaO8+7r3BMfuNIufIsA7RdpVgacC2cSpw==
 
-three-cad-viewer@./three-cad-viewer-v2.0.44.tgz:
-  version "2.0.44"
-  resolved "./three-cad-viewer-v2.0.44.tgz#4d2b2f067ccaf73e3ac88d8370c0aa0c6b363970"
+three-cad-viewer@./three-cad-viewer-v2.0.47.tgz:
+  version "2.0.47"
+  resolved "./three-cad-viewer-v2.0.47.tgz#be17af70eafd54a3dc6f9db4117519e6f582a6fa"
   dependencies:
-    three "0.155.0"
+    three "0.158.0"
 
-three@0.155.0:
-  version "0.155.0"
-  resolved "https://registry.yarnpkg.com/three/-/three-0.155.0.tgz#cca9b8ad817830c8b4fdd8f0d9a12a2e413a2672"
-  integrity sha512-sNgCYmDijnIqkD/bMfk+1pHg3YzsxW7V2ChpuP6HCQ8NiZr3RufsXQr8M3SSUMjW4hG+sUk7YbyuY0DncaDTJQ==
+three@0.158.0:
+  version "0.158.0"
+  resolved "https://registry.yarnpkg.com/three/-/three-0.158.0.tgz#03ddd5b60ce9c31be8fb69f27a6d9efd49908ac3"
+  integrity sha512-TALj4EOpdDPF1henk2Q+s17K61uEAAWQ7TJB68nr7FKxqwyDr3msOt5IWdbGm4TaWKjrtWS8DJJWe9JnvsWOhQ==
 
 tmp@^0.2.1:
   version "0.2.1"
