@@ -3,6 +3,7 @@ dist
 node_modules
 .vscode-test/
 *.vsix
+*.tgz
 vsc-extension-quickstart.md
 ipc
 ocp_vscode.egg-info
@@ -13,3 +14,5 @@ dist
 lego.py
 change.tar
 three-cad-viewer-*.tgz
+ocp-vscode-backend.log
+ocp_tessellate.log

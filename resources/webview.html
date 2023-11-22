@@ -20,7 +20,7 @@
         var viewerOptions = {};
         var last_bb_radius = null;
 
-        const minWidth = 665;
+        const minWidth = 735;
         const vscode = acquireVsCodeApi();
         var message = {};
 
@@ -38,6 +38,7 @@
             timeit: false,
             tools: { tools },
             glass: { glass },
+            measure_tools: false,
             up: '{ up }',
             zoom: 1.0,
             position: null,
@@ -80,10 +81,24 @@
             return i === bytes.length ? bytes : bytes.slice(0, i);
         }
 
-        function decode(data) {
+        function decode(data, measureTools) {
             function convert(obj) {
                 let buffer = fromHex(obj.buffer);
                 return new Float32Array(buffer.buffer);
+            }
+
+            function combineFloatArrays(input) {
+                let totalLength = 0;
+                for (let i = 0; i < input.length; i++) {
+                    totalLength += input[i].length;
+                }
+                let output = new Float32Array(totalLength);
+                let offset = 0;
+                for (let i = 0; i < input.length; i++) {
+                    output.set(input[i], offset);
+                    offset += input[i].length;
+                }
+                return output;
             }
 
             function walk(obj) {
@@ -101,16 +116,20 @@
                         if (type === "shapes") {
                             if (obj.shape.ref === undefined) {
                                 obj.shape.vertices = convert(obj.shape.vertices);
+                                obj.shape.obj_vertices = convert(obj.shape.obj_vertices);
                                 obj.shape.normals = convert(obj.shape.normals);
-                                obj.shape.edges = convert(obj.shape.edges);
+                                obj.shape.edges = obj.shape.edges.map((edge) => Array.from(convert(edge)));
                             } else {
                                 const ind = obj.shape.ref;
                                 if (ind !== undefined) {
                                     obj.shape = instances[ind];
                                 }
                             }
+                        } else if (type === "edges") {
+                            obj.shape.edges = obj.shape.edges.map((edge) => Array.from(convert(edge)));
+                            obj.shape.obj_vertices = convert(obj.shape.obj_vertices);
                         } else {
-                            obj.shape = convert(obj.shape);
+                            obj.shape.obj_vertices = convert(obj.shape.obj_vertices);
                         }
                     }
                 }
@@ -120,9 +139,9 @@
 
             data.data.instances.forEach((instance) => {
                 instance.vertices = convert(instance.vertices);
+                instance.obj_vertices = convert(instance.obj_vertices);
                 instance.normals = convert(instance.normals);
-                instance.edges = convert(instance.edges);
-                instance.triangles = Uint32Array.from(instance.triangles);
+                instance.edges = instance.edges.map((edge) => Array.from(convert(edge)));
             });
 
             walk(data.data.shapes);
@@ -223,7 +242,8 @@
                 cadWidth: normalizeWidth(size.width, glass),
                 height: normalizeHeight(size.height),
                 theme: theme,
-                tools: tools
+                tools: tools,
+                measureTools: true,
             }
         }
 
@@ -260,12 +280,13 @@
                 edgeColor: preset(_config, "default_edgecolor", renderDefaultOptions.defaultEdgecolor),
                 defaultOpacity: preset(_config, "default_opacity", renderDefaultOptions.defaultOpacity),
                 normalLen: preset(_config, "normal_len", renderDefaultOptions.normalLen),
+                measureTools: preset(_config, "measure_tools", viewerDefaultOptions.measureTools),
             };
 
             viewerOptions = {
                 axes: preset(_config, "axes", viewerDefaultOptions.axes),
                 axes0: preset(_config, "axes0", viewerDefaultOptions.axes0),
-                blackEdges: preset(_config, "black_edges", viewerDefaultOptions.black_edges),
+                blackEdges: preset(_config, "black_edges", viewerDefaultOptions.blackEdges),
                 grid: preset(_config, "grid", viewerDefaultOptions.grid),
                 collapse: preset(_config, "collapse", viewerDefaultOptions.collapse),
                 ortho: preset(_config, "ortho", viewerDefaultOptions.ortho),
@@ -273,12 +294,14 @@
                 timeit: preset(_config, "timeit", viewerDefaultOptions.timeit),
                 tools: preset(_config, "tools", viewerDefaultOptions.tools),
                 glass: preset(_config, "glass", viewerDefaultOptions.glass),
+                measureTools: preset(_config, "measure_tools", viewerDefaultOptions.measureTools),
                 up: preset(_config, "up", viewerDefaultOptions.up),
                 transparent: preset(_config, "transparent", viewerDefaultOptions.transparent),
                 control: preset(_config, "control", viewerDefaultOptions.control),
                 panSpeed: preset(_config, "pan_speed", viewerDefaultOptions.panSpeed),
                 zoomSpeed: preset(_config, "zoom_speed", viewerDefaultOptions.zoomSpeed),
                 rotateSpeed: preset(_config, "rotate_speed", viewerDefaultOptions.rotateSpeed),
+                measureTools: preset(_config, "measure_tools", viewerDefaultOptions.measureTools),
             };
 
             var reset_camera = preset(_config, "reset_camera", "reset");
@@ -322,7 +345,7 @@
                 }
 
             } else {
-                if (_config.position){
+                if (_config.position) {
                     viewerOptions.position = _config.position;
                 } else if (_position) {
                     const camera_distance = 5 * bb_radius;
@@ -343,19 +366,19 @@
                 }
                 _position = viewerOptions.position;
 
-                if (_config.quaternion){
+                if (_config.quaternion) {
                     viewerOptions.quaternion = _config.quaternion;
                 } else if (_quaternion) {
                     viewerOptions.quaternion = _quaternion;
                 }
 
-                if (_config.target){
+                if (_config.target) {
                     viewerOptions.target = _config.target;
                 } else if (_target) {
                     viewerOptions.target = _target;
                 }
 
-                if (_config.zoom){
+                if (_config.zoom) {
                     viewerOptions.zoom = _config.zoom;
                 } else if (_zoom) {
                     viewerOptions.zoom = _zoom;
@@ -400,22 +423,57 @@
             var data = JSON.parse(event.data);
 
             if (data.type === "data") {
-                decode(data);
+                decode(data, data.config.measure_tools);
 
-                const old_states = (viewer == null) ? {} : viewer.treeview.states;
+                var old_states = (viewer == null) ? {} : (viewer.treeview == null) ? {} : viewer.treeview.states;
 
                 let meshData = data.data;
                 let config = data.config;
                 showViewer(meshData.shapes, meshData.states, config);
-                const new_states = Object.keys(meshData.states);
+
+                var time = performance.now();
+
+                var new_states = meshData.states;
+
+                // in measure mode, we only want to update the states of the nodes that have changed
+                // and we move one level up to avoid updating the states of the nodes that have already changed
+                // (propagation in the tree)
+                if (data.config.measure_tools) {
+                    var old_s = {};
+                    var short = "";
+                    for (var s in old_states) {
+                        short = s.split("/").slice(0, -1).join("/");
+                        old_s[short] = old_states[s]
+                    }
+                    old_states = old_s;
+                    var new_s = {};
+                    for (s in meshData.states) {
+                        short = s.split("/").slice(0, -1).join("/");
+                        new_s[short] = new_states[s]
+                    }
+                    new_states = new_s;
+                }
+
+                const new_keys = Object.keys(new_states);
 
                 Object.keys(old_states).forEach((key) => {
-                    if (new_states.includes(key)) {
-                        viewer.setState(key, old_states[key]);
+                    if (new_keys.includes(key)) {
+                        if (new_states[key][0] !== old_states[key][0] || new_states[key][1] !== old_states[key][1]) {
+                            if (data.config.measure_tools) {
+                                viewer.treeview.handleStateChange("node", key, 0, old_states[key][0])
+                                viewer.treeview.handleStateChange("node", key, 1, old_states[key][1])
+                            } else {
+                                viewer.setState(key, old_states[key]);
+                            }
+                        }
                     }
                 });
+                console.log("state update", performance.now() - time);
 
-            } else if (data.type === "clear") {
+            } else if (data.type === "backend_response") {
+                viewer.handleBackendResponse(data);
+            }
+            else if (data.type === "clear") {
                 viewer.clear();
             } else if (data.type === "ui") {
                 if (data.config.debug) {

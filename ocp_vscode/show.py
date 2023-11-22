@@ -13,8 +13,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+import pickle
 import re
-import sys
+
+from build123d import (
+    Edge,
+    Vector,
+)
 from ocp_tessellate import PartGroup
 from ocp_tessellate.convert import (
     tessellate_group,
@@ -23,6 +28,8 @@ from ocp_tessellate.convert import (
     to_assembly,
     mp_get_results,
     is_topods_shape,
+    is_build123d_shape,
+    is_cadquery,
     is_vector,
 )
 from ocp_tessellate.utils import numpy_to_buffer_json, Timer, Color
@@ -34,7 +41,6 @@ from ocp_tessellate.ocp_utils import (
     is_cadquery_assembly,
     is_cadquery_sketch,
     is_build123d,
-    is_build123d_assembly,
     is_toploc_location,
 )
 
@@ -46,7 +52,7 @@ from ocp_tessellate.cad_objects import (
     OCP_Part,
     OCP_Vertices,
 )
-from ocp_tessellate.convert import to_assembly, conv
+from ocp_tessellate.convert import to_assembly
 import ocp_tessellate.convert as oc
 
 from .config import (
@@ -61,8 +67,12 @@ from .config import (
     Collapse,
     check_deprecated,
 )
-from .comms import send_data, MessageType
+from .comms import send_backend, send_data, CMD_PORT
 from .colors import *
+
+from .persistence import modify_copyreg
+
+import base64
 
 __all__ = ["show", "show_object", "reset_show", "show_all", "show_clear"]
 
@@ -70,6 +80,8 @@ OBJECTS = {"objs": [], "names": [], "colors": [], "alphas": []}
 
 FIRST_CALL = True
 LAST_CALL = "other"
+
+modify_copyreg()
 
 
 def _tessellate(
@@ -87,6 +99,9 @@ def _tessellate(
         else:
             reset_camera = conf.get("reset_camera", Camera.RESET)
             conf["reset_camera"] = reset_camera.value
+
+    if isinstance(conf["reset_camera"], Camera):
+        conf["reset_camera"] = conf["reset_camera"].value
 
     collapse = conf.get("collapse", Collapse.LEAVES)
     conf["collapse"] = collapse.value
@@ -189,7 +204,7 @@ def _tessellate(
             init_pool()
             keymap.reset()
 
-        instances, shapes, states = tessellate_group(
+        instances, shapes, states, mapping = tessellate_group(
             part_group, params, progress, params.get("timeit")
         )
 
@@ -208,16 +223,24 @@ def _tessellate(
 
     # add global bounding box
     shapes["bb"] = bb
-    return instances, shapes, states, params, part_group.count_shapes()
+
+    return instances, shapes, states, params, part_group.count_shapes(), mapping
 
 
-def _convert(*cad_objs, names=None, colors=None, alphas=None, progress=None, **kwargs):
+def _convert(
+    *cad_objs,
+    names=None,
+    colors=None,
+    alphas=None,
+    progress=None,
+    **kwargs,
+):
     timeit = preset("timeit", kwargs.get("timeit"))
 
     if progress is None:
         progress = Progress([c for c in "-+c"])
 
-    instances, shapes, states, config, count_shapes = _tessellate(
+    instances, shapes, states, config, count_shapes, mapping = _tessellate(
         *cad_objs,
         names=names,
         colors=colors,
@@ -225,6 +248,7 @@ def _convert(*cad_objs, names=None, colors=None, alphas=None, progress=None, **k
         progress=progress,
         **kwargs,
     )
+
     if config.get("dark") is not None:
         config["theme"] = "dark"
     elif config.get("orbit_control") is not None:
@@ -237,16 +261,14 @@ def _convert(*cad_objs, names=None, colors=None, alphas=None, progress=None, **k
         config["explode"] = kwargs["explode"]
 
     with Timer(timeit, "", "create data obj", 1):
-        data = {
+        return {
             "data": numpy_to_buffer_json(
                 dict(instances=instances, shapes=shapes, states=states)
             ),
             "type": "data",
             "config": config,
             "count": count_shapes,
-        }
-
-    return data
+        }, mapping
 
 
 class Progress:
@@ -265,7 +287,7 @@ def align_attrs(attr_list, length, default, tag, explode=True):
     if attr_list is None:
         return [None] * length if explode else None
     elif len(attr_list) < length:
-        print(f"Too view {tag}, using defaults to fill")
+        print(f"Too few {tag}, using defaults to fill")
         return list(attr_list) + [default] * (length - len(attr_list))
     elif len(attr_list) > length:
         print(f"Too many {tag}, trimming to length {length}")
@@ -283,6 +305,7 @@ def show(
     progress="-+c",
     glass=None,
     tools=None,
+    measure_tools=None,
     tree_width=None,
     axes=None,
     axes0=None,
@@ -343,6 +366,7 @@ def show(
     Valid keywords to configure the viewer (**kwargs):
     - UI
         glass:                   Use glass mode where tree is an overlay over the cad object (default=False)
+        measure_tools:           Show measure tools (default=False)
         tools:                   Show tools (default=True)
         tree_width:              Width of the object tree (default=240)
 
@@ -398,17 +422,13 @@ def show(
         render_joints:           Render build123d joints (default=False)
         parallel:                Tessellate objects in parallel (default=False)
         show_parent:             Render parent of faces, edges or vertices as wireframe
-        helper_scale:              Scale of rendered helpers (locations, axis, mates for MAssemblies) (default=1)
+        helper_scale:            Scale of rendered helpers (locations, axis, mates for MAssemblies) (default=1)
 
     - Debug
         debug:                   Show debug statements to the VS Code browser console (default=False)
         timeit:                  Show timing information from level 0-3 (default=False)
     """
     global LAST_CALL
-
-    # if sys.gettrace() is not None and not _force_in_debug:
-    #     print("\nshow and show_object are ignored in debugging sessions\n")
-    #     return
 
     kwargs = {
         k: v
@@ -430,7 +450,17 @@ def show(
 
     timeit = preset("timeit", timeit)
 
-    names = align_attrs(names, len(cad_objs), None, "names", explode=False)
+    if measure_tools is None:
+        measure_tools = get_default("measure_tools")
+        if measure_tools is None:
+            conf = workspace_config()
+            measure_tools = conf["measure_tools"]
+    kwargs["measure_tools"] = measure_tools
+
+    if measure_tools and kwargs.get("collapse") is None:
+        kwargs["collapse"] = Collapse.ROOT
+
+    names = align_attrs(names, len(cad_objs), None, "names", explode=measure_tools)
 
     # Handle colormaps
 
@@ -464,7 +494,7 @@ def show(
     progress = Progress([] if progress is None else [c for c in progress])
 
     with Timer(timeit, "", "overall"):
-        data = _convert(
+        t, mapping = _convert(
             *cad_objs,
             names=names,
             colors=colors,
@@ -473,13 +503,16 @@ def show(
             **kwargs,
         )
 
-    if not _force_in_debug:
-        LAST_CALL = "show"
-    else:
-        LAST_CALL = "other"
+        if not _force_in_debug:
+            LAST_CALL = "show"
+        else:
+            LAST_CALL = "other"
 
     with Timer(timeit, "", "send"):
-        return send_data(data, port=port, timeit=timeit)
+        send_data(t, port=port, timeit=timeit)
+
+    if measure_tools:
+        send_backend({"model": mapping}, port=port, timeit=timeit)
 
 
 def reset_show():
@@ -498,6 +531,7 @@ def show_object(
     progress="-+c",
     glass=None,
     tools=None,
+    measure_tools=None,
     tree_width=None,
     axes=None,
     axes0=None,
@@ -560,6 +594,7 @@ def show_object(
     Valid keywords to configure the viewer (**kwargs):
     - UI
         glass:                   Use glass mode where tree is an overlay over the cad object (default=False)
+        measure_tools:           Show measure tools (default=False)
         tools:                   Show tools (default=True)
         tree_width:              Width of the object tree (default=240)
 
@@ -708,8 +743,8 @@ def show_all(variables=None, exclude=None, **kwargs):
             if hasattr(obj, "locations") and hasattr(obj, "local_locations"):
                 obj = obj.locations
 
-            if hasattr(obj, "to_location"):
-                obj = obj.to_location()
+            if hasattr(obj, "local_coord_system"):
+                obj = obj.location
 
             if (
                 (
@@ -728,6 +763,11 @@ def show_all(variables=None, exclude=None, **kwargs):
                     isinstance(obj, (list, tuple))
                     and len(obj) > 0
                     and hasattr(obj[0], "wrapped")
+                )
+                or (
+                    hasattr(obj, "wrapped")
+                    and hasattr(obj, "position")
+                    and hasattr(obj, "direction")
                 )
             ):
                 objects.append(obj)

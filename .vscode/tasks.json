@@ -14,7 +14,9 @@
 			"group": {
 				"kind": "build",
 				"isDefault": true
-			}
+			},
+			"label": "npm: watch",
+			"detail": "tsc -watch -p ./"
 		}
 	]
 }
