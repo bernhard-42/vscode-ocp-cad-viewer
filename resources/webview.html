@@ -32,6 +32,12 @@
             theme: '{ theme }',
             tools: { tools },
             pinning: false,
+            measureTools: false,
+            keymap: {
+                "shift": "shiftKey",
+                "ctrl": "ctrlKey",
+                "meta": "metaKey"
+            }
         };
 
         const viewerDefaultOptions = {
@@ -236,6 +242,7 @@
             const theme = displayDefaultOptions.theme;
             const tools = preset(_config, "tools", displayDefaultOptions.tools);
             const treeWidth = glass ? 0 : preset(_config, "treeWidth", displayDefaultOptions.treeWidth);
+            const keymap = preset(_config, "modifier_keys", viewerDefaultOptions.keymap);
             return {
                 glass: glass,
                 treeWidth: treeWidth,
@@ -243,7 +250,7 @@
                 height: normalizeHeight(size.height),
                 theme: theme,
                 tools: tools,
-                measureTools: true,
+                keymap: keymap,
             }
         }
 
@@ -301,13 +308,13 @@
                 panSpeed: preset(_config, "pan_speed", viewerDefaultOptions.panSpeed),
                 zoomSpeed: preset(_config, "zoom_speed", viewerDefaultOptions.zoomSpeed),
                 rotateSpeed: preset(_config, "rotate_speed", viewerDefaultOptions.rotateSpeed),
-                measureTools: preset(_config, "measure_tools", viewerDefaultOptions.measureTools),
             };
 
             var reset_camera = preset(_config, "reset_camera", "reset");
 
             if (_config.debug) {
                 console.log("renderOptions", renderOptions);
+                console.log("viewerOptions", viewerOptions);
                 console.log("reset_camera", reset_camera);
             }
 

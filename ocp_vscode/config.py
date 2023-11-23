@@ -89,6 +89,7 @@ CONFIG_WORKSPACE_KEYS = CONFIG_UI_KEYS + [
     "default_opacity",
     "deviation",
     "measure_tools",
+    "modifier_keys",
 ]
 
 CONFIG_CONTROL_KEYS = [

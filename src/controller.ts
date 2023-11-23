@@ -88,6 +88,7 @@ export class OCPCADController {
             "transparent": options.get("transparent"),
             "explode": options.get("explode"),
             "measure_tools": options.get("measure_tools"),
+            "modifier_keys": options.get("modifier_keys"),
         }
         options = vscode.workspace.getConfiguration("OcpCadViewer.render");
         c["angular_tolerance"] = options.get("angular_tolerance");
