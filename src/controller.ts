@@ -170,6 +170,11 @@ export class OCPCADController {
                             output.debug("Posted model to view");
                             if (this.splash) { this.splash = false }
 
+                        } else if (messageType === "S") {
+                            output.debug("Received a config");
+                            this.view?.postMessage(data);
+                            output.debug("Posted config to view");
+
                         } else if (messageType === "L") {
                             this.pythonListener = socket;
                             output.debug("Listener registered");

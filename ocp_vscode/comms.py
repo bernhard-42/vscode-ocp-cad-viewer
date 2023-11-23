@@ -25,6 +25,7 @@ class MessageType(enum.IntEnum):
     listen = 4
     backend = 5
     backend_response = 6
+    config = 7
 
 
 __all__ = [
@@ -71,6 +72,8 @@ def _send(data, message_type, port=None, timeit=False):
                 j = b"B:" + j
             elif message_type == MessageType.backend_response:
                 j = b"R:" + j
+            elif message_type == MessageType.config:
+                j = b"S:" + j
 
         with Timer(timeit, "", f"websocket send {len(j)/1024/1024:.3f} MB", 1):
             ws = connect(f"{CMD_URL}:{port}")
@@ -97,6 +100,10 @@ def _send(data, message_type, port=None, timeit=False):
 
 def send_data(data, port=None, timeit=False):
     return _send(data, MessageType.data, port, timeit)
+
+
+def send_config(config, port=None, timeit=False):
+    return _send(config, MessageType.config, port, timeit)
 
 
 def send_command(data, port=None, timeit=False):

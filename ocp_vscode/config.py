@@ -16,7 +16,7 @@
 
 from enum import Enum
 
-from .comms import send_command, send_data, get_port
+from .comms import send_command, send_config, get_port
 
 __all__ = [
     "workspace_config",
@@ -178,7 +178,7 @@ def set_viewer_config(
         "type": "ui",
         "config": config,
     }
-    send_data(data)
+    send_config(data)
 
 
 def get_default(key):

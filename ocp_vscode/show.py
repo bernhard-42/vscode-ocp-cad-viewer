@@ -78,7 +78,6 @@ __all__ = ["show", "show_object", "reset_show", "show_all", "show_clear"]
 
 OBJECTS = {"objs": [], "names": [], "colors": [], "alphas": []}
 
-FIRST_CALL = True
 LAST_CALL = "other"
 
 modify_copyreg()
@@ -87,21 +86,14 @@ modify_copyreg()
 def _tessellate(
     *cad_objs, names=None, colors=None, alphas=None, progress=None, **kwargs
 ):
-    global FIRST_CALL
-
     if workspace_config().get("_splash"):
         conf = combined_config(use_status=False)
+        reset_camera = Camera.RESET
     else:
         conf = combined_config(use_status=True)
-        if FIRST_CALL:
-            conf["reset_camera"] = Camera.RESET.value
-            FIRST_CALL = False
-        else:
-            reset_camera = conf.get("reset_camera", Camera.RESET)
-            conf["reset_camera"] = reset_camera.value
+        reset_camera = conf.get("reset_camera", Camera.RESET)
 
-    if isinstance(conf["reset_camera"], Camera):
-        conf["reset_camera"] = conf["reset_camera"].value
+    conf["reset_camera"] = reset_camera.value
 
     collapse = conf.get("collapse", Collapse.LEAVES)
     conf["collapse"] = collapse.value
@@ -186,6 +178,8 @@ def _tessellate(
             print(f"Setting {k} can only be set in VSCode config")
 
         elif v is not None:
+            if k == "reset_camera" and params.get("_splash") == True:
+                continue
             params[k] = v
 
     parallel = preset("parallel", params.get("parallel"))
@@ -712,7 +706,7 @@ def show_clear():
 def show_all(variables=None, exclude=None, **kwargs):
     import inspect
 
-    global FIRST_CALL, LAST_CALL
+    global LAST_CALL
 
     if LAST_CALL == "show":
         LAST_CALL = "other"
@@ -786,9 +780,6 @@ def show_all(variables=None, exclude=None, **kwargs):
                 objects.append(pg)
                 names.append(name)
 
-    if FIRST_CALL:
-        kwargs["reset_camera"] = Camera.RESET
-
     if len(objects) > 0:
         show(
             *objects,
@@ -797,6 +788,5 @@ def show_all(variables=None, exclude=None, **kwargs):
             _force_in_debug=True,
             **kwargs,
         )
-        FIRST_CALL = False
     else:
         show_clear()
