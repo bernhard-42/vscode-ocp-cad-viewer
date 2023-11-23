@@ -364,6 +364,16 @@
                     "description": "Run on measure tools by default",
                     "order": 33
                 },
+                "OcpCadViewer.view.modifier_keys": {
+                    "type": "object",
+                    "default": {
+                        "shift": "shiftKey",
+                        "ctrl": "ctrlKey",
+                        "meta": "metaKey"
+                    },
+                    "description": "Mapping of modifier keys shift, ctrl and meta (cmd on Mac, Windows on Windows)",
+                    "order": 33
+                },
                 "OcpCadViewer.render.angular_tolerance": {
                     "type": "number",
                     "default": 0.2,
