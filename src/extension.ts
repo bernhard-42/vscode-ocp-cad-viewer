@@ -112,7 +112,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
                 let port = 3939;
 
-                while (true && (port < 49152)) {
+                while (port < 49152) {
                     const editor = vscode.window?.activeTextEditor?.document;
                     if (editor === undefined) {
                         output.error("No editor open");
