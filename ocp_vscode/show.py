@@ -703,10 +703,13 @@ def show_clear():
     send_data(data)
 
 
-def show_all(variables=None, exclude=None, **kwargs):
+def show_all(variables=None, exclude=None, force=False, **kwargs):
     import inspect
 
     global LAST_CALL
+
+    if force:
+        LAST_CALL = "other"
 
     if LAST_CALL == "show":
         LAST_CALL = "other"
