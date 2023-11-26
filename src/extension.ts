@@ -192,11 +192,10 @@ export async function activate(context: vscode.ExtensionContext) {
 
                         fs.writeFileSync(path.join(folder, ".ocp_vscode"), JSON.stringify({ "port": port }));
 
-                        if (port !== 3939) {
-                            vscode.window.showWarningMessage(
-                                `In Python first call ocp_vscode's "set_port(${port})"`
-                            );
-                        }
+                        vscode.window.showWarningMessage(
+                            `Using port ${port} and "show" should detect it automatically. If not, call ocp_vscode's "set_port(${port})" in Python first`
+                        );
+
                         statusManager.refresh(port.toString());
 
                         output.show();
