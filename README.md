@@ -6,7 +6,7 @@ _OCP CAD Viewer_ for VS Code is an extension to show [CadQuery](https://github.c
 
 ### Prerequisites
 
--   A fairly recent version of Microsoft VS Code, e.g. 1.76.0 or newer
+-   A fairly recent version of Microsoft VS Code, e.g. 1.84.0 or newer
 -   The [Python extension](https://marketplace.visualstudio.com/items?itemName=ms-python.python) installed in VS Code
 -   Necessary tools:
     -   `python` and `pip` available in the Python enviroment that will be used for CAD development
@@ -18,11 +18,6 @@ _OCP CAD Viewer_ for VS Code is an extension to show [CadQuery](https://github.c
 -   To use OCP CAD Viewer, start VS Code from the commandline in the Python environment you want to use or select the right Python interpreter in VS Code first. **OCP CAD Viewer depends on VS Code using the right Python interpreter** (i.e. mamba / conda / pyenv / poetry / ... environment).
 -   For VSCodium, the extension is not available in the VS code market place. You need to download the the vsix file from the [release folder](https://github.com/bernhard-42/vscode-ocp-cad-viewer/releases) and install it manually.
 -   Currently, on a Silicon Mac (ARM CPU), _OCP_ and _CadQuery_ can only be installed via `mamba` and Python 3.9 or 3.10. Prepare an environment with `mamba create -n code_cad python=3.9` or `mamba create -n code_cad python=3.10`.
-
-### Breaking changes from v1.0.0
-
--   IPython and the ipython extensions are not supported any more out of the box. Instead the Microsoft's Jupyter extension with ipykernel is supported. If you have the installation configs in your local VS Code settings.json file, you might want to remove the ipython installation commands.
--   For the color maps, `CM` is replaced by `ColorMap` (to resolve the conflict with build123d `CM`)
 
 ### Installation
 
@@ -176,14 +171,12 @@ You can also use "Library Manager" in the _OCP CAD Viewer_ sidebar to manage the
 
 ## Changes
 
-v1.2.2
+v2.0.0
 
--   Replace the boolean values for `reset_camera` with the `Camera` enum; `reset_camera` now supports `Camera.RESET` (works like `True` before), `Camera.CENTER` (works like `False` before) and `Camera.KEEP` (additionally keeps the pan location). See best practices for details.
--   Replace the values for `collapse` with the `Collapse` enum: `Collapse.ALL` (was `"C"`), `Collapse.None` (was `"E"`), `Collapse.LEAVES` (was `"1"` or `1`) and `Collapse.Root` (was `"R"`)
--   Added a button to toggle the output panel for OCP CAD Viewer
--   Visual debug is on by default now (workspace setting `WatchByDefault` to `true`)
--   Changed behavior of ` show` during debug session: `show` will be executed, however, visual debug step omitted
--   Do not show Jupyter variables `_`, `__`, `_1`, `_2`, ... in `show_all`
--   Fix an error where the orientation marker was partly or fully moved outside its view due to panning of the object ([vscode-ocp-cad-viewer issue #22](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/22))
+-   Introduce **measure mode**. Use `set_defaults(measure_tools=True)` or `show(obj, measure_tools=True)` or the global workspace confiv of OCP CAD Viewer to turn it on. This release added a Python backend process that communicates with the viewer for providing correct BRep measurement info.
+-   **Autostart** viewer: When opening or saving a Python file that includes `import cadquery`, `import build123d`, `from cadquery import` or `from build123d import`, the viewer gets started if it is not already running. Use `OcpCadViewer.autostart` configuration of workspace config to turn this feature off.
+-   **Environment variable OCP_PORT** is supported. It will be used by the viewer and the `show*` clients as the port for OCP CAD Viewer. This variable can be set on the command line or in `launch.json` (`"env": {"OCP_PORT": "3999"}`).
+-   **Modifier keys can now be remapped** `key={"shift": "shiftKey", "ctrl": "ctrlKey", "meta": "metaKey"}`. Valid keys are `shift`, `ctrl` and `meta`. Valid values are `shiftKey`, `ctrlKey`, `metaKey` (command on Mac and Windows on Windows) and `altKey` (option on Mac and Alt on Windows).
+-   `CAMERA.KEEP` and `CAMERA.CENTER` now **persist the viewer across execution sessions**. If you want to reset at every beginning, use `show(objs, reset_camer=Camera.RESET)` as the first show command.
 
 full change log see [Changes.md](./Changes.md)
