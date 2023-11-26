@@ -55,7 +55,7 @@ function check_upgrade(libraryManager: LibraryManagerProvider) {
     }
 }
 
-async function conditionallyOpenViewer(document: vscode.TextDocument, controller: OCPCADController) {
+async function conditionallyOpenViewer(document: vscode.TextDocument) {
     const autostart = vscode.workspace.getConfiguration("OcpCadViewer.advanced")["autostart"];
 
     if (!autostart) {
@@ -107,12 +107,23 @@ export async function activate(context: vscode.ExtensionContext) {
     statusBarItem.command = 'ocpCadViewer.toggleWatch';
     context.subscriptions.push(statusBarItem);
 
+    // Should be event based, but didn't find an event that gets reliably fired
+    // So back to good old timeout ...
+    setTimeout(() => {
+        const editor = vscode.window?.activeTextEditor;
+        if (editor) {
+            if (!controller || !controller.isStarted()) {
+                conditionallyOpenViewer(editor.document);
+            }
+        }
+    }, 500);
+
     //	Commands
 
     context.subscriptions.push(
         vscode.workspace.onDidSaveTextDocument(async (document: vscode.TextDocument) => {
             if (!controller || !controller.isStarted()) {
-                conditionallyOpenViewer(document, controller);
+                conditionallyOpenViewer(document);
             }
         })
     );
@@ -121,7 +132,7 @@ export async function activate(context: vscode.ExtensionContext) {
         vscode.window.onDidChangeActiveTextEditor(async (editor) => {
             if (editor) {
                 if (!controller || !controller.isStarted()) {
-                    conditionallyOpenViewer(editor.document, controller);
+                    conditionallyOpenViewer(editor.document);
                 }
             }
         })
