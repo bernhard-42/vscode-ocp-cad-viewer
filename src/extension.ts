@@ -55,6 +55,28 @@ function check_upgrade(libraryManager: LibraryManagerProvider) {
     }
 }
 
+async function conditionallyOpenViewer(document: vscode.TextDocument, controller: OCPCADController) {
+    const autostart = vscode.workspace.getConfiguration("OcpCadViewer.advanced")["autostart"];
+
+    if (!autostart) {
+        return;
+    }
+
+    // if the open document is a python file and contains a import of build123d or cadquery, 
+    // then open the viewer if it is not already running
+    if (document.languageId === 'python') {
+        if (
+            document.getText().includes('import build123d') ||
+            document.getText().includes('import cadquery') ||
+            document.getText().includes('from build123d import') ||
+            document.getText().includes('from cadquery import')
+        ) {
+
+            await vscode.commands.executeCommand('ocpCadViewer.ocpCadViewer');
+
+        }
+    }
+}
 
 export async function activate(context: vscode.ExtensionContext) {
     let controller: OCPCADController;
@@ -86,6 +108,24 @@ export async function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(statusBarItem);
 
     //	Commands
+
+    context.subscriptions.push(
+        vscode.workspace.onDidSaveTextDocument(async (document: vscode.TextDocument) => {
+            if (!controller || !controller.isStarted()) {
+                conditionallyOpenViewer(document, controller);
+            }
+        })
+    );
+
+    context.subscriptions.push(
+        vscode.window.onDidChangeActiveTextEditor(async (editor) => {
+            if (editor) {
+                if (!controller || !controller.isStarted()) {
+                    conditionallyOpenViewer(editor.document, controller);
+                }
+            }
+        })
+    );
 
     context.subscriptions.push(
         vscode.commands.registerCommand('ocpCadViewer.toggleWatch', () => {
