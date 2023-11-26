@@ -2,6 +2,18 @@
 
 All notable changes to the "OCP CAD Viewer" extension will be documented in this file.
 
+v2.0.0
+
+-   Introduce measure mode. Use `set_defaults(measure_tools=True)` or `show(obj, measure_tools=True)` or the global workspace confiv of OCP CAD Viewer to turn it on. This release added a Python backend process that communicates with the viewer for providing correct BRep measurement info.
+-   Autostart viewer: When opening or saving a Python file that includes `import cadquery`, `import build123d`, `from cadquery import` or `from build123d import`, the viewer gets started if it is not already running. Use `OcpCadViewer.autostart` configuration of workspace config to turn this feature off.
+-   Environment variable OCP_PORT is supported. It will be used by the viewer and the `show*` clients as the port for OCP CAD Viewer. This variable can be set on the command line or in `launch.json` (`"env": {"OCP_PORT": "3999"}`).
+-   `CAMERA.KEEP` and `CAMERA.CENTER` now persist the viewer across execution sessions. If you want to reset at every beginning, use `show(objs, reset_camer=Camera.RESET)` as the first show command.
+-   Modifier keys can now be remapped `key={"shift": "shiftKey", "ctrl": "ctrlKey", "meta": "metaKey"}`. Valid keys are `shift`, `ctrl` and `meta`. Valid values are `shiftKey`, `ctrlKey`, `metaKey` (command on Mac and Windows on Windows) and `altKey` (option on Mac and Alt on Windows).
+-   The tool bar of the viewer is now icons only.
+-   The icons of he extension are SVG now, and hence follow the black/white style of VS Code.
+-   `show_all` has a parameter `force=True` to override the skipping behavior it has for visual debugging.
+-   Apple Silicon build123d install command is updated.
+
 v1.2.2
 
 -   Replace the boolean values for `reset_camera` with the `Camera` enum; `reset_camera` now supports `Camera.RESET` (works like `True` before), `Camera.CENTER` (works like `False` before) and `Camera.KEEP` (additionally keeps the pan location). See best practices for details.
