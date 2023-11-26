@@ -32,7 +32,7 @@ export class OCPCADViewer {
     private readonly _panel: vscode.WebviewPanel;
     private _disposables: vscode.Disposable[] = [];
 
-    public static createOrShow(
+    public static async createOrShow(
         extensionUri: vscode.Uri,
         _controller: OCPCADController
     ) {
@@ -49,6 +49,9 @@ export class OCPCADViewer {
 
             output.debug("Creating new webview panel");
 
+            // get all current tabs
+            const tabs: vscode.Tab[] = vscode.window.tabGroups.all.map(tg => tg.tabs).flat();
+
             const panel = vscode.window.createWebviewPanel(
                 OCPCADViewer.viewType,
                 "OCP CAD Viewer",
@@ -62,13 +65,20 @@ export class OCPCADViewer {
                 panel,
                 extensionUri
             );
+
+            // delete old tabs called "OCP CAD Viewer"
+            for (var tab of tabs) {
+                if (tab.label === "OCP CAD Viewer") {
+                    await vscode.window.tabGroups.close(tab);
+                }
+            }
         }
     }
 
     public static revive(panel: vscode.WebviewPanel, extensionUri: vscode.Uri) {
         output.debug("Reviving webview panel");
 
-        OCPCADViewer.currentPanel = new OCPCADViewer(panel, extensionUri);
+        vscode.commands.executeCommand('ocpCadViewer.ocpCadViewer');
     }
 
     private constructor(panel: vscode.WebviewPanel, extensionUri: vscode.Uri) {
