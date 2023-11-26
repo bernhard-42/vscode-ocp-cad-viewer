@@ -13,13 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-import pickle
 import re
 
-from build123d import (
-    Edge,
-    Vector,
-)
 from ocp_tessellate import PartGroup
 from ocp_tessellate.convert import (
     tessellate_group,
@@ -28,7 +23,6 @@ from ocp_tessellate.convert import (
     to_assembly,
     mp_get_results,
     is_topods_shape,
-    is_build123d_shape,
     is_cadquery,
     is_vector,
 )
@@ -61,18 +55,14 @@ from .config import (
     workspace_config,
     combined_config,
     get_default,
-    status,
-    set_viewer_config,
     Camera,
     Collapse,
     check_deprecated,
 )
-from .comms import send_backend, send_data, CMD_PORT
+from .comms import send_backend, send_data
 from .colors import *
 
 from .persistence import modify_copyreg
-
-import base64
 
 __all__ = ["show", "show_object", "reset_show", "show_all", "show_clear"]
 

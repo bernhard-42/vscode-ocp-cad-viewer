@@ -15,7 +15,6 @@
 */
 
 import * as vscode from "vscode";
-import { template } from "./display";
 import { OCPCADController } from "./controller";
 import * as output from "./output";
 
@@ -86,19 +85,6 @@ export class OCPCADViewer {
 
         this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
         this._panel.webview.html = "";
-
-        // TODO This doesn't seem to be needed: Remove?
-        // Update the content based on view changes
-        // this._panel.onDidChangeViewState(
-        //     (e) => {
-        //         if (this._panel.visible) {
-        //             output.debug("Webview panel changed state");
-        //             this.update(template());
-        //         }
-        //     },
-        //     null,
-        //     this._disposables
-        // );
 
         // Handle messages from the webview
         this._panel.webview.onDidReceiveMessage(
