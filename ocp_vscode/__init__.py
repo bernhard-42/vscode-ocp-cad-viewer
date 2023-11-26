@@ -34,7 +34,6 @@ try:
 
         cwd = os.getcwd()
         while cwd != "/":
-            print(cwd)
             if os.path.exists(os.path.join(cwd, ".ocp_vscode")):
                 break
             cwd = os.path.dirname(cwd)
