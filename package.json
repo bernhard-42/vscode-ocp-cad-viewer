@@ -457,7 +457,13 @@
                     "type": "boolean",
                     "default": true,
                     "description": "Whether to start the viewer when opening Python files or not",
-                    "order": 51
+                    "order": 52
+                },
+                "OcpCadViewer.advanced.initialPort": {
+                    "type": "number",
+                    "default": 3939,
+                    "description": "The start port where OCP CAD Viewer will start to search for a free port",
+                    "order": 53
                 },
                 "OcpCadViewer.advanced.quickstartCommands": {
                     "type": "object",
@@ -542,7 +548,7 @@
                             ]
                         }
                     },
-                    "order": 53
+                    "order": 54
                 },
                 "OcpCadViewer.advanced.codeSnippets": {
                     "type": "object",
@@ -561,7 +567,7 @@
                             "\n# %%\n"
                         ]
                     },
-                    "order": 54
+                    "order": 55
                 },
                 "OcpCadViewer.advanced.exampleDownloads": {
                     "type": "object",
@@ -576,7 +582,7 @@
                             "example_path": "build123d-dev/examples"
                         }
                     },
-                    "order": 55
+                    "order": 56
                 },
                 "OcpCadViewer.snippets.dotVscodeSnippets": {
                     "type": "object",
@@ -693,7 +699,7 @@
                             }
                         }
                     },
-                    "order": 56
+                    "order": 57
                 }
             }
         }

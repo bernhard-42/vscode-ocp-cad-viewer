@@ -154,7 +154,7 @@ export async function activate(context: vscode.ExtensionContext) {
                 try {
                     port = parseInt(process.env.OCP_PORT || "0", 10);
                     if (port === 0) {
-                        port = 3939;
+                        port = vscode.workspace.getConfiguration("OcpCadViewer.advanced")["initialPort"];
                     } else {
                         preset_port = true;
                     }
@@ -192,7 +192,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
                         fs.writeFileSync(path.join(folder, ".ocp_vscode"), JSON.stringify({ "port": port }));
 
-                        vscode.window.showWarningMessage(
+                        vscode.window.showInformationMessage(
                             `Using port ${port} and "show" should detect it automatically. If not, call ocp_vscode's "set_port(${port})" in Python first`
                         );
 
