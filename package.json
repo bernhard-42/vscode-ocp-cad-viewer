@@ -452,6 +452,12 @@
                     "description": "Whether to have visual debugging (OCP: on) as the default or not",
                     "order": 51
                 },
+                "OcpCadViewer.advanced.autostart": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Whether to start the viewer when opening Python files or not",
+                    "order": 51
+                },
                 "OcpCadViewer.advanced.quickstartCommands": {
                     "type": "object",
                     "description": "Shell commands to install the quickstart recipes. The values for placeholders {python}, {conda_env}, {ocp_vscode_version} will be replaced accordingly during execution",
