@@ -14,7 +14,8 @@
         "Other"
     ],
     "activationEvents": [
-        "onCommand:ocpCadViewer.ocpCadViewer"
+        "onLanguage:python",
+        "onWebviewPanel:OcpCadViewer"
     ],
     "main": "./out/extension.js",
     "contributes": {
