@@ -21,7 +21,7 @@ _OCP CAD Viewer_ for VS Code is an extension to show [CadQuery](https://github.c
 
 ### Installation
 
-1. Open the VS Code Marketplace, and search and install _OCP CAD Viewer 2.0.0_.
+1. Open the VS Code Marketplace, and search and install _OCP CAD Viewer 2.0.1_.
 
     Afterwards the OCP viewer is available in the VS Code sidebar:
 
@@ -170,6 +170,11 @@ You can also use "Library Manager" in the _OCP CAD Viewer_ sidebar to manage the
     -   `reset_camera=Camera.RESET` will ensure that position, rotation and panning will be reset to the initial default
 
 ## Changes
+
+v2.0.1
+
+-   Introduce a workspace configuration `initialPort` for OCP CAD Viewer
+-   Change the warning about used port to an auto vanishing info
 
 v2.0.0
 

@@ -2,6 +2,11 @@
 
 All notable changes to the "OCP CAD Viewer" extension will be documented in this file.
 
+v2.0.1
+
+-   Introduce a workspace configuration `initialPort` for OCP CAD Viewer
+-   Change the warning about used port to an auto vanishing info
+
 v2.0.0
 
 -   Introduce measure mode. Use `set_defaults(measure_tools=True)` or `show(obj, measure_tools=True)` or the global workspace confiv of OCP CAD Viewer to turn it on. This release added a Python backend process that communicates with the viewer for providing correct BRep measurement info.
