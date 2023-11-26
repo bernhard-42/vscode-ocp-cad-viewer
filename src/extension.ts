@@ -145,22 +145,37 @@ export async function activate(context: vscode.ExtensionContext) {
         vscode.commands.registerCommand(
             "ocpCadViewer.ocpCadViewer",
             async () => {
+
+                let port;
+                let preset_port = false;
+
                 output.show();
+
+                try {
+                    port = parseInt(process.env.OCP_PORT || "0", 10);
+                    if (port === 0) {
+                        port = 3939;
+                    } else {
+                        preset_port = true;
+                    }
+                } catch (error) {
+                    vscode.window.showErrorMessage(`Error occurred while parsing the port: ${process.env.OCP_PORT}`);
+                    return;
+                }
 
                 statusBarItem.show();
                 check_upgrade(libraryManager);
 
-                let port = 3939;
+                const editor = vscode.window?.activeTextEditor?.document;
+                if (editor === undefined) {
+                    output.error("No editor open");
+                    vscode.window.showErrorMessage("No editor open");
+
+                    return;
+                }
+                const column = vscode.window?.activeTextEditor?.viewColumn;
 
                 while (port < 49152) {
-                    const editor = vscode.window?.activeTextEditor?.document;
-                    if (editor === undefined) {
-                        output.error("No editor open");
-                        vscode.window.showErrorMessage("No editor open");
-
-                        break;
-                    }
-                    const column = vscode.window?.activeTextEditor?.viewColumn;
 
                     controller = new OCPCADController(
                         context,
@@ -173,6 +188,9 @@ export async function activate(context: vscode.ExtensionContext) {
 
                     if (controller.isStarted()) {
                         vscode.window.showTextDocument(editor, column);
+                        var folder = vscode.workspace.workspaceFolders?.[0].uri.fsPath || "";
+
+                        fs.writeFileSync(path.join(folder, ".ocp_vscode"), JSON.stringify({ "port": port }));
 
                         if (port !== 3939) {
                             vscode.window.showWarningMessage(
@@ -186,8 +204,15 @@ export async function activate(context: vscode.ExtensionContext) {
                         controller.logo();
                         break;
                     } else {
-                        port++;
-                        output.info(`Trying port ${port} ...`);
+                        if (preset_port) {
+                            vscode.window.showErrorMessage(
+                                `OCP CAD Viewer could not start on port ${port} preconfigured in settings.json or env variable OCP_PORT`
+                            );
+                            break;
+                        } else {
+                            port++;
+                            output.info(`Trying port ${port} ...`);
+                        }
                     }
                 }
             }
@@ -400,6 +425,8 @@ export async function activate(context: vscode.ExtensionContext) {
                         expr = vscode.workspace.getConfiguration("OcpCadViewer.advanced")[
                             "watchCommands"
                         ];
+                        expr = expr.replace(/\{port\}/g, statusManager.port);
+                        output.debug(`Watch commands: ${expr}`);
 
                         // get the current stack trace, line number and frame id
                         const trace = await session.customRequest('stackTrace', { threadId: 1 });

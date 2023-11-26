@@ -14,9 +14,27 @@
 # limitations under the License.
 #
 __version__ = "2.0.0"
+
+import json
 from .show import *
 from .config import *
 from .comms import *
 
 from .colors import *
 from .animation import Animation
+
+from os import environ
+
+try:
+    port = int(environ.get("OCP_PORT", "0"))
+    if port > 0:
+        set_port(port)
+    else:
+        with open(".ocp_vscode", "r") as f:
+            port = json.load(f)["port"]
+        set_port(port)
+    print(f"Using OCP_PORT={port}")
+except:
+    pass
+
+del environ
