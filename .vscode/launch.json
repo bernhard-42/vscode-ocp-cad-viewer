@@ -16,6 +16,9 @@
 				"${workspaceFolder}/out/**/*.js"
 			],
 			"preLaunchTask": "${defaultBuildTask}"
+            // "env": {
+            //     "OCP_PORT": "3999"
+            // }
 		},
 		{
 			"name": "Extension Tests",
