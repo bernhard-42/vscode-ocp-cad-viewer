@@ -30,7 +30,16 @@ try:
     if port > 0:
         set_port(port)
     else:
-        with open(".ocp_vscode", "r") as f:
+        import os
+
+        cwd = os.getcwd()
+        while cwd != "/":
+            print(cwd)
+            if os.path.exists(os.path.join(cwd, ".ocp_vscode")):
+                break
+            cwd = os.path.dirname(cwd)
+
+        with open(os.path.join(cwd, ".ocp_vscode"), "r") as f:
             port = json.load(f)["port"]
         set_port(port)
     print(f"Using OCP_PORT={port}")
