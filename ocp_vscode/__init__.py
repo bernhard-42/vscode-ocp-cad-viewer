@@ -30,14 +30,16 @@ try:
     port = int(environ.get("OCP_PORT", "0"))
     if port > 0:
         set_port(port)
+        print(f"Using predefined port {port} taken from environment variable OCP_PORT")
     else:
         current_path = Path.cwd()
-        for path in current_path.parents:
+        for path in [current_path] + list(current_path.parents):
             file_path = path / ".ocp_vscode"
             if file_path.exists():
                 with open(file_path, "r") as f:
                     port = json.load(f)["port"]
                     set_port(port)
+                    print(f"Using port {port} taken from {file_path}")
                     break
 except:
     pass
