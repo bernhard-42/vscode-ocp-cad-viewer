@@ -527,10 +527,10 @@
                         },
                         "ocp_tessellate": {
                             "pip": [
-                                "{python} -m pip install --upgrade \"ocp_tessellate>=2.0.3,<2.1.0\""
+                                "{python} -m pip install --upgrade \"ocp_tessellate>=2.0.2,<2.1.0\""
                             ],
                             "poetry": [
-                                "poetry add ocp_tessellate@~2.0.3"
+                                "poetry add ocp_tessellate@~2.0.2"
                             ]
                         },
                         "ipykernel": {
