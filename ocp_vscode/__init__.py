@@ -23,6 +23,7 @@ from .comms import *
 from .colors import *
 from .animation import Animation
 
+from pathlib import Path
 from os import environ
 
 try:
@@ -30,18 +31,14 @@ try:
     if port > 0:
         set_port(port)
     else:
-        import os
-
-        cwd = os.getcwd()
-        while cwd != "/":
-            if os.path.exists(os.path.join(cwd, ".ocp_vscode")):
-                break
-            cwd = os.path.dirname(cwd)
-
-        with open(os.path.join(cwd, ".ocp_vscode"), "r") as f:
-            port = json.load(f)["port"]
-        set_port(port)
-    print(f"Using OCP_PORT={port}")
+        current_path = Path.cwd()
+        for path in current_path.parents:
+            file_path = path / ".ocp_vscode"
+            if file_path.exists():
+                with open(file_path, "r") as f:
+                    port = json.load(f)["port"]
+                    set_port(port)
+                    break
 except:
     pass
 
