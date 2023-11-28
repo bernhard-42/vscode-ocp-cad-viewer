@@ -2,6 +2,10 @@
 
 All notable changes to the "OCP CAD Viewer" extension will be documented in this file.
 
+v2.0.4
+
+-   Fix regression of ocp-tessallate version
+
 v2.0.3
 
 -   Fix regression in port detection
