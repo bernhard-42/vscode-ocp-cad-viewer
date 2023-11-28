@@ -2,6 +2,12 @@
 
 All notable changes to the "OCP CAD Viewer" extension will be documented in this file.
 
+v2.0.2
+
+-   Fix .ocp_vscode detection on Windows
+-   Fix showing ShapeList[Vector]
+-   Viewer now starts when VS Code opens with a build123d/cadquery Python file
+
 v2.0.1
 
 -   Introduce a workspace configuration `initialPort` for OCP CAD Viewer

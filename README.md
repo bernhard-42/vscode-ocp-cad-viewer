@@ -173,6 +173,12 @@ You can also use "Library Manager" in the _OCP CAD Viewer_ sidebar to manage the
 
 v2.0.2
 
+-   Fix .ocp_vscode detection on Windows
+-   Fix showing ShapeList[Vector]
+-   Viewer now starts when VS Code opens with a build123d/cadquery Python file
+
+v2.0.1
+
 -   Introduce a workspace configuration `initialPort` for OCP CAD Viewer
 -   Change the warning about used port to an auto vanishing info
 
