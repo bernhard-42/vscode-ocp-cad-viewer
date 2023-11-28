@@ -2,6 +2,11 @@
 
 All notable changes to the "OCP CAD Viewer" extension will be documented in this file.
 
+v2.0.3
+
+-   Fix regression in port detection
+-   Added missing dependencies for build123d on Apple Silicon
+
 v2.0.2
 
 -   Fix .ocp_vscode detection on Windows

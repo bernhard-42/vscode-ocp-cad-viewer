@@ -171,6 +171,11 @@ You can also use "Library Manager" in the _OCP CAD Viewer_ sidebar to manage the
 
 ## Changes
 
+v2.0.3
+
+-   Fix regression in port detection
+-   Added missing dependencies for build123d on Apple Silicon
+
 v2.0.2
 
 -   Fix .ocp_vscode detection on Windows
