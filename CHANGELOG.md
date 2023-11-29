@@ -2,6 +2,10 @@
 
 All notable changes to the "OCP CAD Viewer" extension will be documented in this file.
 
+v2.0.6
+
+-   Add three-cad-viewer 2.1.2 to fix black edges issue in measure mode and remove angle tool resizing
+
 v2.0.4
 
 -   Fix regression of ocp-tessallate version
