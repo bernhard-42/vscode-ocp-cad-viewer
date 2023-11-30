@@ -37,6 +37,14 @@
                 }
             },
             {
+                "command": "ocpCadViewer.openConsole",
+                "title": "OCP CAD Viewer: Open Jupyter Console (button)",
+                "icon": {
+                    "light": "resources/light/open.svg",
+                    "dark": "resources/dark/open.svg"
+                }
+            },
+            {
                 "command": "ocpCadViewer.installLibrary",
                 "title": "OCP CAD Viewer: Install library",
                 "icon": {
@@ -207,6 +215,11 @@
                 {
                     "command": "ocpCadViewer.openViewer",
                     "when": "view == ocpCadStatus && viewItem == status",
+                    "group": "inline@0"
+                },
+                {
+                    "command": "ocpCadViewer.openConsole",
+                    "when": "view == ocpCadStatus && viewItem == console",
                     "group": "inline@0"
                 }
             ]

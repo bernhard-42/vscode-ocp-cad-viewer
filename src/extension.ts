@@ -29,6 +29,7 @@ import { version } from "./version";
 import * as semver from "semver";
 import { createDemoFile } from "./demo"
 import { set_open, show as showLog } from "./output";
+import { TerminalExecute } from "./system/terminal";
 
 
 function check_upgrade(libraryManager: LibraryManagerProvider) {
@@ -381,6 +382,28 @@ export async function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(
         vscode.commands.registerCommand("ocpCadViewer.openViewer", async () => {
             statusManager.openViewer();
+        })
+    );
+
+    context.subscriptions.push(
+        vscode.commands.registerCommand("ocpCadViewer.openConsole", async () => {
+            var folder = vscode.workspace.workspaceFolders?.[0].uri.fsPath || "";
+
+            var ocpVscode = fs.readFileSync(path.join(folder, ".ocp_vscode"));
+            var connectionFile: string;
+            if (ocpVscode) {
+                connectionFile = JSON.parse(ocpVscode.toString())["connection_file"];
+                if (connectionFile) {
+                    let terminal = vscode.window.createTerminal({
+                        name: 'Jupyter Console',
+                        location: vscode.TerminalLocation.Editor,
+                    });
+                    terminal.show();
+                    setTimeout(() => {
+                        terminal.sendText(`jupyter console --existing ${connectionFile}`);
+                    }, 200);
+                }
+            }
         })
     );
 
