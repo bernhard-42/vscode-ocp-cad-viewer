@@ -19,6 +19,7 @@ import * as output from "./output";
 import * as path from "path";
 import * as fs from "fs";
 import * as os from "os";
+import * as net from "net";
 import { OCPCADController } from "./controller";
 import { OCPCADViewer } from "./viewer";
 import { createLibraryManager, installLib, Library, LibraryManagerProvider } from "./libraryManager";
@@ -394,14 +395,23 @@ export async function activate(context: vscode.ExtensionContext) {
             if (ocpVscode) {
                 connectionFile = JSON.parse(ocpVscode.toString())["connection_file"];
                 if (connectionFile) {
-                    let terminal = vscode.window.createTerminal({
-                        name: 'Jupyter Console',
-                        location: vscode.TerminalLocation.Editor,
-                    });
-                    terminal.show();
-                    setTimeout(() => {
-                        terminal.sendText(`jupyter console --existing ${connectionFile}`);
-                    }, 200);
+                    if (fs.existsSync(connectionFile)) {
+                        let iopubPort = JSON.parse(fs.readFileSync(connectionFile).toString())["iopub_port"];
+                        net.createConnection(iopubPort, "localhost").on("connect", () => {
+                            let terminal = vscode.window.createTerminal({
+                                name: 'Jupyter Console',
+                                location: vscode.TerminalLocation.Editor,
+                            });
+                            terminal.show();
+                            setTimeout(() => {
+                                terminal.sendText(`jupyter console --existing ${connectionFile}`);
+                            }, 500);
+                        }).on("error", function (e) {
+                            vscode.window.showErrorMessage(`Kernel not running. Is the Interactive Window open and initialized?`);
+                        });
+                    } else {
+                        vscode.window.showErrorMessage(`Connection file ${connectionFile} not found`);
+                    }
                 }
             }
         })
