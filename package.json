@@ -559,6 +559,20 @@
                             "poetry": [
                                 "poetry add ipykernel"
                             ]
+                        },
+                        "jupyter_console": {
+                            "pip": [
+                                "{python} -m pip install --upgrade jupyter_console"
+                            ],
+                            "conda": [
+                                "conda install -y -n {conda_env} -c conda-forge jupyter_console"
+                            ],
+                            "mamba": [
+                                "mamba install -y -n {conda_env} -c conda-forge jupyter_console"
+                            ],
+                            "poetry": [
+                                "poetry add jupyter_console"
+                            ]
                         }
                     },
                     "order": 54
