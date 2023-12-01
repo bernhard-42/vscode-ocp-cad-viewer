@@ -432,6 +432,10 @@ def show(
 
     kwargs = check_deprecated(kwargs)
 
+    if kwargs.get("grid") is not None:
+        if isinstance(kwargs["grid"], bool):
+            kwargs["grid"] = [kwargs["grid"]] * 3
+
     timeit = preset("timeit", timeit)
 
     if measure_tools is None:
