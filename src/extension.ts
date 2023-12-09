@@ -394,7 +394,7 @@ export async function activate(context: vscode.ExtensionContext) {
                 let requireConda = false;
                 if (os.platform() === "darwin" && os.arch() === "arm64") {
                     commands = commands["appleSilicon"];
-                    requiredPythonVersion = "3.9,3.10";
+                    requiredPythonVersion = "3.9,3.10,3.11";
                     requireConda = true;
                 } else {
                     commands = commands["others"];
