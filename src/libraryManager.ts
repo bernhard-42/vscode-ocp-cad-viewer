@@ -121,6 +121,7 @@ export async function installLib(
     }
 
     let term = vscode.window.createTerminal("Library Installations", (os.platform() === "win32") ? process.env.COMSPEC : undefined);
+    term.show();
     let listener = vscode.window.onDidCloseTerminal((e) => {
         libraryManager.refresh();
 
