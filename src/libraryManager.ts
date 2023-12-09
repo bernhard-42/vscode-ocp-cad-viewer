@@ -217,9 +217,7 @@ export class LibraryManagerProvider
         let python = await getPythonPath();
         let substCmds: string[] = [];
         commands.forEach((command: string) => {
-            if (lib === "ocp_vscode") {
-                command = command.replace("{ocp_vscode_version}", ocp_vscode_version);
-            };
+            command = command.replace("{ocp_vscode_version}", ocp_vscode_version);
             command = command.replace("{python}", '"' + python + '"');
             if (manager === "") {
                 manager = (command.startsWith("conda") || command.startsWith("mamba")) ? command.split(" ")[0] : "pip";
