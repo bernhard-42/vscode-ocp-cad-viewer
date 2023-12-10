@@ -6,7 +6,7 @@ _OCP CAD Viewer_ for VS Code is an extension to show [CadQuery](https://github.c
 
 ### Prerequisites
 
--   A fairly recent version of Microsoft VS Code, e.g. 1.84.0 or newer
+-   A fairly recent version of Microsoft VS Code, e.g. 1.85.0 or newer
 -   The [Python extension](https://marketplace.visualstudio.com/items?itemName=ms-python.python) installed in VS Code
 -   Necessary tools:
     -   `python` and `pip` available in the Python enviroment that will be used for CAD development
@@ -17,7 +17,7 @@ _OCP CAD Viewer_ for VS Code is an extension to show [CadQuery](https://github.c
 
 -   To use OCP CAD Viewer, start VS Code from the commandline in the Python environment you want to use or select the right Python interpreter in VS Code first. **OCP CAD Viewer depends on VS Code using the right Python interpreter** (i.e. mamba / conda / pyenv / poetry / ... environment).
 -   For VSCodium, the extension is not available in the VS code market place. You need to download the the vsix file from the [release folder](https://github.com/bernhard-42/vscode-ocp-cad-viewer/releases) and install it manually.
--   Currently, on a Silicon Mac (ARM CPU), _OCP_ and _CadQuery_ can only be installed via `mamba` and Python 3.9 or 3.10. Prepare an environment with `mamba create -n code_cad python=3.9` or `mamba create -n code_cad python=3.10`.
+-   Currently, on a Silicon Mac (ARM CPU), _OCP_ and _CadQuery_ can only be installed via `mamba` and Python 3.9, 3.10 or 3.11. Prepare an environment with `mamba create -n code_cad python=3.9` or `mamba create -n code_cad python=3.10`.
 
 ### Installation
 
