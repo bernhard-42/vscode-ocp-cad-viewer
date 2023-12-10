@@ -712,6 +712,9 @@
         "lint": "eslint src --ext ts",
         "test": "node ./out/test/runTest.js"
     },
+    "extensionDependencies": [
+        "ms-python.python"
+    ],
     "devDependencies": {
         "@types/adm-zip": "^0.5.0",
         "@types/follow-redirects": "^1.14.1",
