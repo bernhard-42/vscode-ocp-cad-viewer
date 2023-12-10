@@ -232,6 +232,11 @@
     "@typescript-eslint/types" "5.60.1"
     eslint-visitor-keys "^3.3.0"
 
+"@vscode/python-extension@^1.0.0":
+  version "1.0.5"
+  resolved "https://registry.yarnpkg.com/@vscode/python-extension/-/python-extension-1.0.5.tgz#881878006ad3f4b70e81b20d21a91f56dd577481"
+  integrity sha512-uYhXUrL/gn92mfqhjAwH2+yGOpjloBxj9ekoL4BhUsKcyJMpEg6WlNf3S3si+5x9zlbHHe7FYQNjZEbz1ymI9Q==
+
 "@vscode/test-electron@^2.1.5":
   version "2.3.3"
   resolved "https://registry.yarnpkg.com/@vscode/test-electron/-/test-electron-2.3.3.tgz#e648700d5848eccfda99efa5d839356cfbe8cd4e"
