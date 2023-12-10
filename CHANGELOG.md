@@ -2,6 +2,17 @@
 
 All notable changes to the "OCP CAD Viewer" extension will be documented in this file.
 
+v2.0.13
+-   Fix shortcut boolean parameter for grid
+-   Update dependencies for installing build123d on Apple Silicon
+-   Ensure terminal is shown during installations
+-   Refactor getCurrentFolder
+-   Create demo file in current folder instead of temp folder
+-   Use new environment API to get Python path
+-   Handle showing empty CAD objects with show_all
+-   Ensure to set ocp_vscode_version for quick install
+-   Add python 3.11 for Apple Silicon machines
+
 v2.0.6
 
 -   Add three-cad-viewer 2.1.2 to fix black edges issue in measure mode and remove angle tool resizing
