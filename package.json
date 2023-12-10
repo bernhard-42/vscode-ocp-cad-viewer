@@ -8,7 +8,7 @@
     "license": "Apache-2.0",
     "repository": "https://github.com/bernhard-42/vscode-ocp-cad-viewer",
     "engines": {
-        "vscode": "^1.71.0"
+        "vscode": "^1.85.0"
     },
     "categories": [
         "Other"
@@ -721,7 +721,7 @@
         "@types/glob": "^8.1.0",
         "@types/mocha": "^10.0.1",
         "@types/node": "^18.14.6",
-        "@types/vscode": "^1.71.0",
+        "@types/vscode": "^1.85.0",
         "@types/ws": "^8.5.4",
         "@typescript-eslint/eslint-plugin": "^5.31.0",
         "@typescript-eslint/parser": "^5.31.0",
