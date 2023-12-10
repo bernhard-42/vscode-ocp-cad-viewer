@@ -28,18 +28,30 @@ export function getEditor() {
     return editor;
 }
 
-export function getCurrentFilename() {
+export function getCurrentFileUri(): vscode.Uri | undefined {
     const editor = getEditor();
     if (editor) {
-        return editor.document.fileName;
+        return editor.document.uri;
     }
-    return;
+    return undefined;
+}
+export function getCurrentFilename(): string | undefined {
+    const filename = getCurrentFileUri()?.fsPath;
+    return filename;
 }
 
 export function getCurrentFolder(): string {
-    let filename = getCurrentFilename();
-    if (filename !== undefined) {
-        return path.dirname(filename);
+    let root: vscode.WorkspaceFolder | undefined;
+    if (vscode.workspace?.workspaceFolders?.length === 1) {
+        root = vscode.workspace.workspaceFolders[0];
+    } else {
+        let filename = getCurrentFileUri();
+        if (filename) {
+            root = vscode.workspace.getWorkspaceFolder(filename);
+        }
+    }
+    if (root) {
+        return root.uri.fsPath;
     } else {
         return "";
     }
