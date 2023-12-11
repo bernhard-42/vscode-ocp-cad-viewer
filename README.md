@@ -27,7 +27,7 @@ _OCP CAD Viewer_ for VS Code is an extension to show [CadQuery](https://github.c
 
     ![](screenshots/ocp_icon.png)
 
-2. Clicking on it shows the OCP CAD Viewer UI:
+2. Clicking on it shows the OCP CAD Viewer UI with the viewer manager and the library manager:
 
     ![](screenshots/init.png)
 
@@ -35,7 +35,7 @@ _OCP CAD Viewer_ for VS Code is an extension to show [CadQuery](https://github.c
 
     - Prepare _OCP CAD Viewer_ for working with [build123d](https://github.com/gumyr/build123d): Presse the _Quickstart build123d_ button.
 
-        This will install _OCP_, _build123d_, _ipykernel_ (_jupyter_client_), _ocp_tessellate_ and _ocp_vscode_ via `pip` (except for Apple Silicon machines that require `mamba`)
+        This will install _OCP_, _build123d_, _ipykernel_ (_jupyter_client_), _ocp_tessellate_ and _ocp_vscode_ via `pip` (except for Apple Silicon machines that require `mamba` and will also install _cadquery_)
 
         ![](screenshots/build123d_installed.png)
 
@@ -84,6 +84,7 @@ You can also use "Library Manager" in the _OCP CAD Viewer_ sidebar to manage the
 -   [Quickstart experience on Windows](docs/quickstart.md)
 -   [Use Jupyter to execute code](docs/run.md)
 -   [Debug code with visual debugging](docs/debug.md)
+-   [Measure mode](docs/measure.md)
 -   [Use the `show` command](docs/show.md)
 -   [Use the `show_object` command](docs/show_object.md)
 -   [Download examples for build123d or cadquery](docs/examples.md)
@@ -149,7 +150,7 @@ You can also use "Library Manager" in the _OCP CAD Viewer_ sidebar to manage the
         ```python
         # %%
         from build123d import *
-        set_defaults(helper_scale=0.5)
+        set_defaults(helper_scale=1, transparent=True)
 
         with BuildPart() as bp:
             with PolarLocations(3,8) as locs:
