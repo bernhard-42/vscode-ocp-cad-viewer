@@ -6,6 +6,11 @@ node_modules/three-cad-viewer/dist/three-cad-viewer.esm.min.js
 node_modules/three-cad-viewer/dist/three-cad-viewer.js
 node_modules/three-cad-viewer/dist/three-cad-viewer.min.js
 src/logo.ts
+media/ocp-icon.pxm
+out/logo_alt.js
+ocp-vscode-icons.afdesign
+media/ocp-logo.afdesign
+
 Makefile
 extension/media/ocp-icon.pxm
 extension/media/ocp-logo.afdesign
