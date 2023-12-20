@@ -1,5 +1,6 @@
 from OCP.BinTools import BinTools
 from OCP.TopoDS import (
+    TopoDS,
     TopoDS_Shape,
     TopoDS_Compound,
     TopoDS_CompSolid,
@@ -11,11 +12,23 @@ from OCP.TopoDS import (
     TopoDS_Vertex,
 )
 from OCP.TopAbs import TopAbs_ShapeEnum
+import OCP.TopAbs as ta
 from OCP.TopLoc import TopLoc_Location
 from OCP.gp import gp_Trsf, gp_Quaternion, gp_Vec
 import io
 import copyreg
 import struct
+
+downcast_LUT = {
+    ta.TopAbs_VERTEX: TopoDS.Vertex_s,
+    ta.TopAbs_EDGE: TopoDS.Edge_s,
+    ta.TopAbs_WIRE: TopoDS.Wire_s,
+    ta.TopAbs_FACE: TopoDS.Face_s,
+    ta.TopAbs_SHELL: TopoDS.Shell_s,
+    ta.TopAbs_SOLID: TopoDS.Solid_s,
+    ta.TopAbs_COMPOUND: TopoDS.Compound_s,
+    ta.TopAbs_COMPSOLID: TopoDS.CompSolid_s,
+}
 
 def shapetype(obj: TopoDS_Shape) -> TopAbs_ShapeEnum:
     """Return TopoDS_Shape's TopAbs_ShapeEnum"""
