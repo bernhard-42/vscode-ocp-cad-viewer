@@ -10,13 +10,34 @@ from OCP.TopoDS import (
     TopoDS_Edge,
     TopoDS_Vertex,
 )
+from OCP.TopAbs import TopAbs_ShapeEnum
 from OCP.TopLoc import TopLoc_Location
 from OCP.gp import gp_Trsf, gp_Quaternion, gp_Vec
 import io
 import copyreg
-from build123d.topology import downcast
 import struct
 
+def shapetype(obj: TopoDS_Shape) -> TopAbs_ShapeEnum:
+    """Return TopoDS_Shape's TopAbs_ShapeEnum"""
+    if obj.IsNull():
+        raise ValueError("Null TopoDS_Shape object")
+
+    return obj.ShapeType()
+
+def downcast(obj: TopoDS_Shape) -> TopoDS_Shape:
+    """Downcasts a TopoDS object to suitable specialized type
+
+    Args:
+      obj: TopoDS_Shape:
+
+    Returns:
+
+    """
+
+    f_downcast: Any = downcast_LUT[shapetype(obj)]
+    return_value = f_downcast(obj)
+
+    return return_value
 
 def serialize_shape(shape: TopoDS_Shape):
     """
