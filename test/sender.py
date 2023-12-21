@@ -1,10 +1,8 @@
-from persistence import modify_copyreg
 from build123d import *
 import pickle
 from backend import BUFFER_SIZE_HEADER
 import asyncio
-
-modify_copyreg()
+from ocp_tessellate.ocp_utils import serialize
 
 box = Box(10, 10, 10).solid()
 
@@ -16,7 +14,7 @@ class AsyncSender:
 
     async def send(self, obj):
         try:
-            data = pickle.dumps(obj)
+            data = serialize(obj)
             reader, writer = await asyncio.open_connection(self.host, self.port)
 
             header = len(data).to_bytes(BUFFER_SIZE_HEADER)
