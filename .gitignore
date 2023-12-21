@@ -17,3 +17,4 @@ three-cad-viewer-*.tgz
 ocp-vscode-backend.log
 ocp_tessellate.log
 .ocp_vscode
+test/__pycache__/
