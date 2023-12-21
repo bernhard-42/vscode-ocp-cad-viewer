@@ -1,35 +1,29 @@
-from dataclasses import dataclass, asdict, fields
 import argparse
+import base64
 import sys
 import traceback
-import base64
-from ocp_vscode.comms import listener, MessageType, send_response
-from build123d import (
-    Axis,
-    CenterOf,
-    GeomType,
-    Location,
-    Plane,
-    Vector,
-    Vertex,
-    Edge,
-    Face,
-    Solid,
-    Shape,
-    Compound,
-    Location,
-)
-from ocp_vscode.persistence import downcast
+from dataclasses import asdict, dataclass, fields
+
+from ocp_tessellate.ocp_utils import deserialize, make_compound, tq_to_loc
 from ocp_tessellate.tessellator import (
-    face_mapper,
-    edge_mapper,
-    vertex_mapper,
-    get_faces,
     get_edges,
+    get_faces,
     get_vertices,
 )
-from ocp_tessellate.ocp_utils import make_compound, deserialize, tq_to_loc
-from ocp_tessellate.trace import Trace, dump_face, dump_edge, dump_vertex
+from ocp_tessellate.trace import Trace
+from ocp_vscode.build123d import (
+    Compound,
+    Edge,
+    Face,
+    Location,
+    Plane,
+    Shape,
+    Solid,
+    Vector,
+    Vertex,
+    downcast,
+)
+from ocp_vscode.comms import MessageType, listener, send_response
 
 
 class SelectedCenterInfo:
@@ -54,8 +48,8 @@ def error_handler(func):
     def wrapper(*args, **kwargs):
         try:
             func(*args, **kwargs)
-        except Exception as ex:
-            print_to_stdout(ex)
+        except Exception as exc:
+            print_to_stdout(exc)
             traceback.print_exception(*sys.exc_info(), file=sys.stdout)
 
     return wrapper
@@ -255,7 +249,7 @@ class ViewerBackend:
 
         elif isinstance(shape, Face):
             if shape.geom_type() == "CYLINDER":
-                circle = shape.edges().filter_by(GeomType.CIRCLE).first
+                circle = shape.edges().filter_by("CIRCLE")[0]
                 response.radius = circle.radius
 
             response.length = shape.length
@@ -299,9 +293,9 @@ class ViewerBackend:
             if isinstance(shape2, Edge) and shape2.geom_type() in ["CIRCLE", "ELLIPSE"]
             else shape2 % 0
         )
-        if type(first) == type(second) == Plane:
+        if isinstance(first, Plane) and isinstance(second, Plane):
             angle = first.z_dir.get_angle(second.z_dir)
-        elif type(first) == type(second) == Vector:
+        elif isinstance(first, Vector) and isinstance(second, Vector):
             angle = first.get_angle(second)
         else:
             vector = first if isinstance(first, Vector) else second
@@ -335,8 +329,6 @@ class ViewerBackend:
             return shape.center(), SelectedCenterInfo.vertex
         elif isinstance(shape, Edge):
             if shape.geom_type() in [
-                GeomType.CIRCLE,
-                GeomType.ELLIPSE,
                 "CIRCLE",
                 "ELLIPSE",
             ]:
@@ -346,17 +338,17 @@ class ViewerBackend:
                     return shape.center(), SelectedCenterInfo.geom
 
         elif isinstance(shape, Face):
-            if shape.geom_type() in [GeomType.CYLINDER, "CYLINDER"]:
+            if shape.geom_type() in ["CYLINDER"]:
                 if not for_distance:
                     return shape.center(), SelectedCenterInfo.geom
 
-                extremity_edges = shape.edges().filter_by(GeomType.CIRCLE)
+                extremity_edges = shape.edges().filter_by("CIRCLE")
                 if len(extremity_edges) == 2:
                     return (
-                        extremity_edges.first.arc_center
+                        extremity_edges[0].arc_center
                         - (
-                            extremity_edges.first.arc_center
-                            - extremity_edges.last.arc_center
+                            extremity_edges[0].arc_center
+                            - extremity_edges[-1].arc_center
                         )
                         / 2,
                         SelectedCenterInfo.cylinder,
@@ -364,7 +356,7 @@ class ViewerBackend:
                 else:
                     try:
                         return (
-                            extremity_edges.first.arc_center,
+                            extremity_edges[0].arc_center,
                             SelectedCenterInfo.cylinder,
                         )
                     except IndexError:

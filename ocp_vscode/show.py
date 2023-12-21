@@ -62,15 +62,11 @@ from .config import (
 from .comms import send_backend, send_data
 from .colors import *
 
-from .persistence import modify_copyreg
-
 __all__ = ["show", "show_object", "reset_show", "show_all", "show_clear"]
 
 OBJECTS = {"objs": [], "names": [], "colors": [], "alphas": []}
 
 LAST_CALL = "other"
-
-modify_copyreg()
 
 
 def _tessellate(
