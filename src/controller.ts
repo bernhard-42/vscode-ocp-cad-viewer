@@ -38,7 +38,7 @@ interface Message {
 export class OCPCADController {
     server: Server | undefined;
     pythonListener: WebSocket | undefined;
-    pythonBackendProcess: ChildProcessWithoutNullStreams | undefined;
+    pythonBackendTerminal: vscode.Terminal | undefined;
     statusController: StatusManagerProvider;
     statusBarItem: vscode.StatusBarItem;
     view: vscode.Webview | undefined;
@@ -238,21 +238,25 @@ export class OCPCADController {
         }
 
         let python = await getPythonPath();
-        output.debug(`Starting python backend with ${python}`);
-        const defaults = { cwd: root };
-        this.pythonBackendProcess = spawn(python, [this.getBackendPath(), "--port", this.port.toString()], defaults);
-        this.pythonBackendProcess.stdout.on('data', (data) => {
-            output.debug(`Python backend: ${data}`);
-        });
 
+        let pythonBackendTerminal = vscode.window.createTerminal({
+            name: 'OCP backend',
+            cwd: root,
+        });
+        pythonBackendTerminal.show();
+        setTimeout(() => {
+            pythonBackendTerminal.sendText(`${python} ${this.getBackendPath()} --port ${this.port}`);
+            pythonBackendTerminal.hide();
+        }, 500);
+        this.pythonBackendTerminal = pythonBackendTerminal;
     }
 
     /**
      * Stops the python backend server
      */
     public stopBackend() {
-        this.pythonBackendProcess?.kill();
-        this.pythonBackendProcess = undefined;
+        this.pythonBackendTerminal?.dispose();
+        this.pythonBackendTerminal = undefined;
     }
 
     public stopCommandServer() {
