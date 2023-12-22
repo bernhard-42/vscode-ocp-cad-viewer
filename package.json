@@ -2,13 +2,13 @@
     "name": "ocp-cad-viewer",
     "displayName": "OCP CAD Viewer",
     "description": "An integrated OCP CAD viewer for CadQuery and build123d",
-    "version": "2.0.6",
+    "version": "2.0.13",
     "publisher": "bernhard-42",
     "icon": "resources/ocp-logo.png",
     "license": "Apache-2.0",
     "repository": "https://github.com/bernhard-42/vscode-ocp-cad-viewer",
     "engines": {
-        "vscode": "^1.71.0"
+        "vscode": "^1.85.0"
     },
     "categories": [
         "Other"
@@ -456,7 +456,7 @@
                 },
                 "OcpCadViewer.advanced.watchCommands": {
                     "type": "string",
-                    "default": "from ocp_vscode import show_all; show_all(locals(), port={port})",
+                    "default": "from ocp_vscode import show_all, get_port; show_all(locals(), port=get_port())",
                     "description": "Command to be executed when debugger halts. Needs to include locals()",
                     "order": 50
                 },
@@ -485,20 +485,20 @@
                         "cadquery": {
                             "appleSilicon": [
                                 "mamba install -y -n {conda_env} -c cadquery -c conda-forge cadquery=master",
-                                "{python} -m pip install ocp_vscode"
+                                "{python} -m pip install ocp_vscode=={ocp_vscode_version}"
                             ],
                             "others": [
-                                "{unset_conda} {python} -m pip install ocp_vscode git+https://github.com/cadquery/cadquery.git"
+                                "{unset_conda} {python} -m pip install ocp_vscode=={ocp_vscode_version} git+https://github.com/cadquery/cadquery.git"
                             ]
                         },
                         "build123d": {
                             "appleSilicon": [
                                 "mamba install -y -n {conda_env} -c cadquery -c conda-forge cadquery=master",
-                                "{python} -m pip install --no-deps git+https://github.com/gumyr/build123d  'typing_extensions>=4.6.0,<5' 'numpy>=1.24.1,<2' 'svgpathtools>=1.5.1,<2' 'svgwrite' 'svgelements' 'anytree>=2.8.0,<3' 'ezdxf>=1.0.0,<2' 'numpy-stl>=3.0.0,<4' 'ipython>=8.0.0,<9' 'py_lib3mf@git+https://github.com/jdegenstein/py-lib3mf' 'ocpsvg@git+https://github.com/snoyer/ocpsvg'",
-                                "{python} -m pip install ocp_vscode"
+                                "{python} -m pip install --no-deps git+https://github.com/gumyr/build123d  'typing_extensions>=4.6.0,<5' 'numpy>=1.24.1,<2' 'svgpathtools>=1.5.1,<2' 'svgwrite' 'svgelements' 'anytree>=2.8.0,<3' 'ezdxf>=1.0.0,<2' 'numpy-stl>=3.0.0,<4' 'ipython>=8.0.0,<9' 'py_lib3mf' 'ocpsvg' 'trianglesolver'",
+                                "{python} -m pip install ocp_vscode=={ocp_vscode_version}"
                             ],
                             "others": [
-                                "{python} -m pip install ocp_vscode git+https://github.com/gumyr/build123d"
+                                "{python} -m pip install ocp_vscode=={ocp_vscode_version} git+https://github.com/gumyr/build123d"
                             ]
                         }
                     },
@@ -540,10 +540,10 @@
                         },
                         "ocp_tessellate": {
                             "pip": [
-                                "{python} -m pip install --upgrade \"ocp_tessellate>=2.0.2,<2.1.0\""
+                                "{python} -m pip install --upgrade \"ocp_tessellate>=2.0.3,<2.1.0\""
                             ],
                             "poetry": [
-                                "poetry add ocp_tessellate@~2.0.2"
+                                "poetry add ocp_tessellate@~2.0.3"
                             ]
                         },
                         "ipykernel": {
@@ -739,13 +739,16 @@
         "lint": "eslint src --ext ts",
         "test": "node ./out/test/runTest.js"
     },
+    "extensionDependencies": [
+        "ms-python.python"
+    ],
     "devDependencies": {
         "@types/adm-zip": "^0.5.0",
         "@types/follow-redirects": "^1.14.1",
         "@types/glob": "^8.1.0",
         "@types/mocha": "^10.0.1",
         "@types/node": "^18.14.6",
-        "@types/vscode": "^1.71.0",
+        "@types/vscode": "^1.85.0",
         "@types/ws": "^8.5.4",
         "@typescript-eslint/eslint-plugin": "^5.31.0",
         "@typescript-eslint/parser": "^5.31.0",
@@ -759,6 +762,7 @@
     "dependencies": {
         "adm-zip": "^0.5.10",
         "follow-redirects": "^1.15.2",
+        "@vscode/python-extension": "^1.0.0",
         "semver": "^7.5.1",
         "three-cad-viewer": "2.1.2",
         "ws": "^8.13.0"

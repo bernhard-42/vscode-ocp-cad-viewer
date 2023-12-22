@@ -6,6 +6,15 @@ node_modules/three-cad-viewer/dist/three-cad-viewer.esm.min.js
 node_modules/three-cad-viewer/dist/three-cad-viewer.js
 node_modules/three-cad-viewer/dist/three-cad-viewer.min.js
 src/logo.ts
+media/ocp-icon.pxm
+out/logo_alt.js
+ocp-vscode-icons.afdesign
+media/ocp-logo.afdesign
+
+Makefile
+extension/media/ocp-icon.pxm
+extension/media/ocp-logo.afdesign
+examples/*
 TODO
 node_modules/@aashutoshrathi
 node_modules/@eslint
@@ -15,7 +24,6 @@ node_modules/@nodelib
 node_modules/@tootallnate
 node_modules/@types
 node_modules/@typescript-eslint
-node_modules/@vscode
 node_modules/acorn
 node_modules/acorn-jsx
 node_modules/agent-base

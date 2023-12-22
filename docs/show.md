@@ -20,11 +20,12 @@ Keywords for show:
     alphas:                  List of alpha values for the cad_objs. Needs to have the same length as cad_objs
     port:                    The port the viewer listens to. Typically use 'set_port(port)' instead
     progress:                Show progress of tessellation with None is no progress indicator. (default="-+c")
-                             for object: "-": is reference, "+": gets tessellated, "c": from cache
+                                for object: "-": is reference, "+": gets tessellated, "c": from cache
 
-Valid keywords to configure the viewer:
+Valid keywords to configure the viewer (**kwargs):
 - UI
     glass:                   Use glass mode where tree is an overlay over the cad object (default=False)
+    measure_tools:           Show measure tools (default=False)
     tools:                   Show tools (default=True)
     tree_width:              Width of the object tree (default=240)
 
@@ -38,10 +39,10 @@ Valid keywords to configure the viewer:
     black_edges:             Show edges in black color (default=False)
     orbit_control:           Mouse control use "orbit" control instead of "trackball" control (default=False)
     collapse:                Collapse.LEAVES: collapse all single leaf nodes,
-                             Collapse.ROOT: expand root only,
-                             Collapse.ALL: collapse all nodes,
-                             Collapse.NONE: expand all nodes
-                             (default=Collapse.LEAVES)
+                                Collapse.ROOT: expand root only,
+                                Collapse.ALL: collapse all nodes,
+                                Collapse.NONE: expand all nodes
+                                (default=Collapse.LEAVES)
     ticks:                   Hint for the number of ticks in both directions (default=10)
     up:                      Use z-axis ('Z') or y-axis ('Y') as up direction for the camera (default="Z")
     explode:                 Turn on explode mode (default=False)
@@ -51,9 +52,9 @@ Valid keywords to configure the viewer:
     quaternion:              Camera orientation as quaternion
     target:                  Camera look at target
     reset_camera:            Camera.RESET: Reset camera position, rotation, toom and target
-                             Camera.CENTER: Keep camera position, rotation, toom, but look at center
-                             Camera.KEEP: Keep camera position, rotation, toom, and target
-                             (default=Camera.RESET)
+                                Camera.CENTER: Keep camera position, rotation, toom, but look at center
+                                Camera.KEEP: Keep camera position, rotation, toom, and target
+                                (default=Camera.RESET)
 
     pan_speed:               Speed of mouse panning (default=1)
     rotate_speed:            Speed of mouse rotate (default=1)
@@ -74,7 +75,6 @@ Valid keywords to configure the viewer:
     metalness:               Metalness property of the default material (default=0.30)
     roughness:               Roughness property of the default material (default=0.65)
 
-
     render_edges:            Render edges  (default=True)
     render_normals:          Render normals (default=False)
     render_mates:            Render mates for MAssemblies (default=False)
@@ -92,13 +92,13 @@ Valid keywords to configure the viewer:
 
 -   Provide maximum space for the CAD object with _glass_ mode
 
-    `show(b, c, glass=False)`
+    `show(b, c, glass=True)`
 
     ![](../screenshots/glass.png)
 
 -   Hide the tree in glass mode by collapsing the it
 
-    `show(b, c, glass=True, collapse="C")`
+    `show(b, glass=True, collapse=Collapse.ALL)`
 
     ![](../screenshots/glass-collapsed.png)
 

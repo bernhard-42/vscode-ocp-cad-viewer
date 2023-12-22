@@ -19,7 +19,7 @@ from build123d import (
     Compound,
     Location,
 )
-from build123d.topology import downcast
+from ocp_vscode.persistence import downcast
 from ocp_tessellate.tessellator import (
     face_mapper,
     edge_mapper,

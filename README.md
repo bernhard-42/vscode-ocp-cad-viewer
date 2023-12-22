@@ -6,7 +6,7 @@ _OCP CAD Viewer_ for VS Code is an extension to show [CadQuery](https://github.c
 
 ### Prerequisites
 
--   A fairly recent version of Microsoft VS Code, e.g. 1.84.0 or newer
+-   A fairly recent version of Microsoft VS Code, e.g. 1.85.0 or newer
 -   The [Python extension](https://marketplace.visualstudio.com/items?itemName=ms-python.python) installed in VS Code
 -   Necessary tools:
     -   `python` and `pip` available in the Python enviroment that will be used for CAD development
@@ -17,17 +17,17 @@ _OCP CAD Viewer_ for VS Code is an extension to show [CadQuery](https://github.c
 
 -   To use OCP CAD Viewer, start VS Code from the commandline in the Python environment you want to use or select the right Python interpreter in VS Code first. **OCP CAD Viewer depends on VS Code using the right Python interpreter** (i.e. mamba / conda / pyenv / poetry / ... environment).
 -   For VSCodium, the extension is not available in the VS code market place. You need to download the the vsix file from the [release folder](https://github.com/bernhard-42/vscode-ocp-cad-viewer/releases) and install it manually.
--   Currently, on a Silicon Mac (ARM CPU), _OCP_ and _CadQuery_ can only be installed via `mamba` and Python 3.9 or 3.10. Prepare an environment with `mamba create -n code_cad python=3.9` or `mamba create -n code_cad python=3.10`.
+-   Currently, on a Silicon Mac (ARM CPU), _OCP_ and _CadQuery_ can only be installed via `mamba` and Python 3.9, 3.10 or 3.11. Prepare an environment with `mamba create -n code_cad python=3.9` or `mamba create -n code_cad python=3.10`.
 
 ### Installation
 
-1. Open the VS Code Marketplace, and search and install _OCP CAD Viewer 2.0.6_.
+1. Open the VS Code Marketplace, and search and install _OCP CAD Viewer 2.0.13_.
 
     Afterwards the OCP viewer is available in the VS Code sidebar:
 
     ![](screenshots/ocp_icon.png)
 
-2. Clicking on it shows the OCP CAD Viewer UI:
+2. Clicking on it shows the OCP CAD Viewer UI with the viewer manager and the library manager:
 
     ![](screenshots/init.png)
 
@@ -35,7 +35,7 @@ _OCP CAD Viewer_ for VS Code is an extension to show [CadQuery](https://github.c
 
     - Prepare _OCP CAD Viewer_ for working with [build123d](https://github.com/gumyr/build123d): Presse the _Quickstart build123d_ button.
 
-        This will install _OCP_, _build123d_, _ipykernel_ (_jupyter_client_), _ocp_tessellate_ and _ocp_vscode_ via `pip` (except for Apple Silicon machines that require `mamba`)
+        This will install _OCP_, _build123d_, _ipykernel_ (_jupyter_client_), _ocp_tessellate_ and _ocp_vscode_ via `pip` (except for Apple Silicon machines that require `mamba` and will also install _cadquery_)
 
         ![](screenshots/build123d_installed.png)
 
@@ -84,6 +84,7 @@ You can also use "Library Manager" in the _OCP CAD Viewer_ sidebar to manage the
 -   [Quickstart experience on Windows](docs/quickstart.md)
 -   [Use Jupyter to execute code](docs/run.md)
 -   [Debug code with visual debugging](docs/debug.md)
+-   [Measure mode](docs/measure.md)
 -   [Use the `show` command](docs/show.md)
 -   [Use the `show_object` command](docs/show_object.md)
 -   [Download examples for build123d or cadquery](docs/examples.md)
@@ -149,7 +150,7 @@ You can also use "Library Manager" in the _OCP CAD Viewer_ sidebar to manage the
         ```python
         # %%
         from build123d import *
-        set_defaults(helper_scale=0.5)
+        set_defaults(helper_scale=1, transparent=True)
 
         with BuildPart() as bp:
             with PolarLocations(3,8) as locs:
@@ -170,6 +171,17 @@ You can also use "Library Manager" in the _OCP CAD Viewer_ sidebar to manage the
     -   `reset_camera=Camera.RESET` will ensure that position, rotation and panning will be reset to the initial default
 
 ## Changes
+
+v2.0.13
+-   Fix shortcut boolean parameter for grid
+-   Update dependencies for installing build123d on Apple Silicon
+-   Ensure terminal is shown during installations
+-   Refactor getCurrentFolder
+-   Create demo file in current folder instead of temp folder
+-   Use new environment API to get Python path
+-   Handle showing empty CAD objects with show_all
+-   Ensure to set ocp_vscode_version for quick install
+-   Add python 3.11 for Apple Silicon machines
 
 v2.0.6
 

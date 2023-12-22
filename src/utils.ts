@@ -17,6 +17,8 @@
 import * as vscode from "vscode";
 import * as fs from "fs";
 import * as path from "path";
+import { PythonExtension } from '@vscode/python-extension';
+import * as output from "./output";
 
 export function getEditor() {
     const editor = vscode.window.activeTextEditor;
@@ -26,18 +28,30 @@ export function getEditor() {
     return editor;
 }
 
-export function getCurrentFilename() {
+export function getCurrentFileUri(): vscode.Uri | undefined {
     const editor = getEditor();
     if (editor) {
-        return editor.document.fileName;
+        return editor.document.uri;
     }
-    return;
+    return undefined;
+}
+export function getCurrentFilename(): string | undefined {
+    const filename = getCurrentFileUri()?.fsPath;
+    return filename;
 }
 
 export function getCurrentFolder(): string {
-    let filename = getCurrentFilename();
-    if (filename !== undefined) {
-        return path.dirname(filename);
+    let root: vscode.WorkspaceFolder | undefined;
+    if (vscode.workspace?.workspaceFolders?.length === 1) {
+        root = vscode.workspace.workspaceFolders[0];
+    } else {
+        let filename = getCurrentFileUri();
+        if (filename) {
+            root = vscode.workspace.getWorkspaceFolder(filename);
+        }
+    }
+    if (root) {
+        return root.uri.fsPath;
     } else {
         return "";
     }
@@ -58,30 +72,15 @@ class PythonPath {
     public static async getPythonPath(
         document?: vscode.TextDocument
     ): Promise<string> {
-        try {
-            const extension =
-                vscode.extensions.getExtension("ms-python.python");
-            if (!extension) {
-                return "python";
-            }
-            const usingNewInterpreterStorage =
-                extension.packageJSON?.featureFlags?.usingNewInterpreterStorage;
-            if (usingNewInterpreterStorage) {
-                if (!extension.isActive) {
-                    await extension.activate();
-                }
-                const pythonPath =
-                    extension.exports.settings.getExecutionDetails()
-                        .execCommand[0];
-                return pythonPath;
-            } else {
-                return (
-                    this.getConfiguration("python", document).get<string>(
-                        "defaultInterpreterPath"
-                    ) || ""
-                );
-            }
-        } catch (error) {
+        const pythonApi: PythonExtension = await PythonExtension.api();
+        const environmentPath = pythonApi.environments.getActiveEnvironmentPath();
+        const environment = await pythonApi.environments.resolveEnvironment(environmentPath);
+        if (environment != null) {
+            output.debug(`PythonPath: '${environment.path}', environment: ${environment.environment?.type}, ${environment.environment?.name}`);
+            return environment.path;
+        } else {
+            output.debug(`PythonPath: 'python', environment: DEFAULT`);
+            vscode.window.showErrorMessage("No Python environment seems to be selected, falling back to default - might not work!");
             return "python";
         }
     }
