@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
 import re
 
 from ocp_tessellate import PartGroup
@@ -59,7 +60,7 @@ from .config import (
     Collapse,
     check_deprecated,
 )
-from .comms import send_backend, send_data
+from .comms import send_backend, send_data, set_port_and_connectionfile
 from .colors import *
 
 __all__ = ["show", "show_object", "reset_show", "show_all", "show_clear"]
@@ -67,6 +68,7 @@ __all__ = ["show", "show_object", "reset_show", "show_all", "show_clear"]
 OBJECTS = {"objs": [], "names": [], "colors": [], "alphas": []}
 
 LAST_CALL = "other"
+INIT_DONE = False
 
 
 def _tessellate(
@@ -408,7 +410,10 @@ def show(
         debug:                   Show debug statements to the VS Code browser console (default=False)
         timeit:                  Show timing information from level 0-3 (default=False)
     """
-    global LAST_CALL
+    global LAST_CALL, INIT_DONE
+    if not INIT_DONE:
+        set_port_and_connectionfile()
+        INIT_DONE = True
 
     kwargs = {
         k: v

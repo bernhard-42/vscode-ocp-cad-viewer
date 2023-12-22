@@ -1,5 +1,10 @@
 import base64
 import enum
+import os
+import socket
+
+from pathlib import Path
+
 from websockets.sync.client import connect
 
 import orjson
@@ -11,6 +16,13 @@ from ocp_tessellate.ocp_utils import (
     serialize,
     loc_to_tq,
 )
+
+try:
+    from jupyter_client import find_connection_file
+
+    JCLIENT = True
+except:  # pylint: disable=bare-except
+    JCLIENT = False
 
 CMD_URL = "ws://127.0.0.1"
 CMD_PORT = 3939
@@ -163,3 +175,55 @@ def listener(callback):
                     break
 
     return _listen
+
+
+def set_port_and_connectionfile():
+    def find_config():
+        config_path = None
+        current_path = Path.cwd()
+        for path in [current_path] + list(current_path.parents):
+            cur_file_path = path / ".ocp_vscode"
+            if cur_file_path.exists():
+                config_path = cur_file_path
+                break
+
+        return config_path
+
+    port = int(os.environ.get("OCP_PORT", "0"))
+    config_path = find_config()
+
+    if port > 0:
+        print(f"Using predefined port {port} taken from environment variable OCP_PORT")
+    else:
+        if config_path is None:
+            raise RuntimeError(".ocp_vscode not found")
+
+        with open(config_path, "r", encoding="utf-8") as f:
+            port = json.load(f)["port"]
+            print(f"Using port {port} taken from {config_path}")
+    set_port(port)
+
+    if JCLIENT:
+        if config_path is None:
+            print(".ocp_vscode not found, Jupyter Console not supported")
+        else:
+            cf = find_connection_file()
+            with open(cf, "r", encoding="utf-8") as f:
+                connection_info = json.load(f)
+
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            result = s.connect_ex(("127.0.0.1", connection_info["iopub_port"]))
+
+            if result == 0:
+                print("Jupyter kernel running")
+                s.close()
+
+                with open(config_path, "w", encoding="utf-8") as f:
+                    json.dump(
+                        {"port": port, "connection_file": cf},
+                        f,
+                        indent=4,
+                    )
+                print(f"Jupyter Connection file written to {config_path}")
+            else:
+                print("Jupyter kernel not running")
