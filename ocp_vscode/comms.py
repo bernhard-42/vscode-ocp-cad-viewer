@@ -97,7 +97,9 @@ def _send(data, message_type, port=None, timeit=False):
             return result
 
     except Exception as ex:
-        print("Cannot connect to viewer, is it running and the right port provided?")
+        print(
+            f"Cannot connect to viewer on port {port}, is it running and the right port provided?"
+        )
         print(ex)
         return
 
