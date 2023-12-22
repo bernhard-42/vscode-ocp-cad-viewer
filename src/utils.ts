@@ -41,17 +41,20 @@ export function getCurrentFilename(): string | undefined {
 }
 
 export function getCurrentFolder(): string {
-    let root: vscode.WorkspaceFolder | undefined;
+    let root: string | undefined;
     if (vscode.workspace?.workspaceFolders?.length === 1) {
-        root = vscode.workspace.workspaceFolders[0];
+        root = vscode.workspace.workspaceFolders[0].uri.fsPath;
     } else {
         let filename = getCurrentFileUri();
         if (filename) {
-            root = vscode.workspace.getWorkspaceFolder(filename);
+            root = vscode.workspace.getWorkspaceFolder(filename)?.uri.fsPath;
+            if (root === undefined) {
+                root = path.dirname(filename.fsPath);
+            }
         }
     }
     if (root) {
-        return root.uri.fsPath;
+        return root;
     } else {
         return "";
     }
