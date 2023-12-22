@@ -153,6 +153,11 @@ export class Status extends vscode.TreeItem {
             label = "jupyter";
             this.contextValue = options.jupyter ? "open" : "missing";
 
+        } else if (label === "jupyter_console") {
+            label = "ipython";
+            this.contextValue = options.jupyter ? "console" : "missing";
+
+
         } else {
             this.contextValue = "library";
         }

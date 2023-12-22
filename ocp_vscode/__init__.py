@@ -40,8 +40,22 @@ try:
                     port = json.load(f)["port"]
                     set_port(port)
                     print(f"Using port {port} taken from {file_path}")
+
                     break
 except Exception as ex:
     print(ex)
+
+try:
+    from jupyter_client import find_connection_file
+
+    with open(file_path, "w") as f:
+        json.dump(
+            {"port": port, "connection_file": find_connection_file()},
+            f,
+            indent=4,
+        )
+    print("Jupyter Connection file written to .ocp_vscode")
+except:
+    pass
 
 del environ

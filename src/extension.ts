@@ -19,6 +19,7 @@ import * as output from "./output";
 import * as path from "path";
 import * as fs from "fs";
 import * as os from "os";
+import * as net from "net";
 import { OCPCADController } from "./controller";
 import { OCPCADViewer } from "./viewer";
 import { createLibraryManager, installLib, Library, LibraryManagerProvider } from "./libraryManager";
@@ -29,6 +30,7 @@ import { version } from "./version";
 import * as semver from "semver";
 import { createDemoFile } from "./demo"
 import { set_open, show as showLog } from "./output";
+import { TerminalExecute } from "./system/terminal";
 
 
 function check_upgrade(libraryManager: LibraryManagerProvider) {
@@ -381,6 +383,37 @@ export async function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(
         vscode.commands.registerCommand("ocpCadViewer.openViewer", async () => {
             statusManager.openViewer();
+        })
+    );
+
+    context.subscriptions.push(
+        vscode.commands.registerCommand("ocpCadViewer.openConsole", async () => {
+            var folder = vscode.workspace.workspaceFolders?.[0].uri.fsPath || "";
+
+            var ocpVscode = fs.readFileSync(path.join(folder, ".ocp_vscode"));
+            var connectionFile: string;
+            if (ocpVscode) {
+                connectionFile = JSON.parse(ocpVscode.toString())["connection_file"];
+                if (connectionFile) {
+                    if (fs.existsSync(connectionFile)) {
+                        let iopubPort = JSON.parse(fs.readFileSync(connectionFile).toString())["iopub_port"];
+                        net.createConnection(iopubPort, "localhost").on("connect", () => {
+                            let terminal = vscode.window.createTerminal({
+                                name: 'Jupyter Console',
+                                location: vscode.TerminalLocation.Editor,
+                            });
+                            terminal.show();
+                            setTimeout(() => {
+                                terminal.sendText(`jupyter console --existing ${connectionFile}`);
+                            }, 500);
+                        }).on("error", function (e) {
+                            vscode.window.showErrorMessage(`Kernel not running. Is the Interactive Window open and initialized?`);
+                        });
+                    } else {
+                        vscode.window.showErrorMessage(`Connection file ${connectionFile} not found`);
+                    }
+                }
+            }
         })
     );
 
