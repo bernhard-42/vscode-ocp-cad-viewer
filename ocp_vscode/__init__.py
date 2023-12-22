@@ -16,6 +16,11 @@
 __version__ = "2.0.13"
 
 import json
+import socket
+
+from pathlib import Path
+from os import environ
+
 from .show import *
 from .config import *
 from .comms import *
@@ -23,8 +28,6 @@ from .comms import *
 from .colors import *
 from .animation import Animation
 
-from pathlib import Path
-from os import environ
 
 try:
     port = int(environ.get("OCP_PORT", "0"))
@@ -48,14 +51,24 @@ except Exception as ex:
 try:
     from jupyter_client import find_connection_file
 
-    with open(file_path, "w") as f:
-        json.dump(
-            {"port": port, "connection_file": find_connection_file()},
-            f,
-            indent=4,
-        )
-    print("Jupyter Connection file written to .ocp_vscode")
-except:
-    pass
+    cf = find_connection_file()
+    with open(cf, "r", encoding="utf-8") as f:
+        connection_info = json.load(f)
+
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    result = s.connect_ex(("127.0.0.1", connection_info["iopub_port"]))
+
+    if result == 0:
+        print("Jupyter kernel running")
+        s.close()
+        with open(file_path, "w", encoding="utf-8") as f:
+            json.dump(
+                {"port": port, "connection_file": cf},
+                f,
+                indent=4,
+            )
+        print("Jupyter Connection file written to .ocp_vscode")
+except Exception as ex:
+    print(ex)
 
 del environ
