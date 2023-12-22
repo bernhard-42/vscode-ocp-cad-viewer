@@ -90,6 +90,8 @@ export async function activate(context: vscode.ExtensionContext) {
     let libraryManager = createLibraryManager(statusManager);
     await libraryManager.refresh();
 
+    let ocpvscodeFile: string | undefined = undefined;
+
     //	Statusbar
 
     const statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
@@ -179,8 +181,8 @@ export async function activate(context: vscode.ExtensionContext) {
                 statusBarItem.show();
                 check_upgrade(libraryManager);
 
-                const editor = vscode.window?.activeTextEditor?.document;
-                if (editor === undefined) {
+                const document = vscode.window?.activeTextEditor?.document;
+                if (document === undefined) {
                     output.error("No editor open");
                     vscode.window.showErrorMessage("No editor open");
 
@@ -200,9 +202,10 @@ export async function activate(context: vscode.ExtensionContext) {
                     await controller.start();
 
                     if (controller.isStarted()) {
-                        vscode.window.showTextDocument(editor, column);
+                        vscode.window.showTextDocument(document, column);
                         var folder = getCurrentFolder();
-                        fs.writeFileSync(path.join(folder, ".ocp_vscode"), JSON.stringify({ "port": port }));
+                        ocpvscodeFile = path.join(folder, ".ocp_vscode");
+                        fs.writeFileSync(ocpvscodeFile, JSON.stringify({ "port": port }));
 
                         vscode.window.showInformationMessage(
                             `Using port ${port} and "show" should detect it automatically. If not, call ocp_vscode's "set_port(${port})" in Python first`
@@ -388,8 +391,15 @@ export async function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(
         vscode.commands.registerCommand("ocpCadViewer.openConsole", async () => {
             var folder = getCurrentFolder();
-
-            var ocpVscode = fs.readFileSync(path.join(folder, ".ocp_vscode"));
+            if (!folder) {
+                vscode.window.showErrorMessage("No folder or file is opened");
+                return;
+            }
+            if (!ocpvscodeFile) {
+                vscode.window.showErrorMessage("OCP CAD Viewer is not opened");
+                return
+            }
+            var ocpVscode = fs.readFileSync(ocpvscodeFile);
             var connectionFile: string;
             if (ocpVscode) {
                 connectionFile = JSON.parse(ocpVscode.toString())["connection_file"];
@@ -411,7 +421,11 @@ export async function activate(context: vscode.ExtensionContext) {
                     } else {
                         vscode.window.showErrorMessage(`Connection file ${connectionFile} not found`);
                     }
+                } else {
+                    vscode.window.showErrorMessage(`Connection file not found. Is the Interactive Window open and initialized?`);
                 }
+            } else {
+                vscode.window.showErrorMessage(`Config file ${ocpVscode} not found`);
             }
         })
     );
