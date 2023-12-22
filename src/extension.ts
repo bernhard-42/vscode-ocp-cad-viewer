@@ -201,8 +201,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
                     if (controller.isStarted()) {
                         vscode.window.showTextDocument(editor, column);
-                        var folder = vscode.workspace.workspaceFolders?.[0].uri.fsPath || "";
-
+                        var folder = getCurrentFolder();
                         fs.writeFileSync(path.join(folder, ".ocp_vscode"), JSON.stringify({ "port": port }));
 
                         vscode.window.showInformationMessage(
@@ -388,7 +387,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
     context.subscriptions.push(
         vscode.commands.registerCommand("ocpCadViewer.openConsole", async () => {
-            var folder = vscode.workspace.workspaceFolders?.[0].uri.fsPath || "";
+            var folder = getCurrentFolder();
 
             var ocpVscode = fs.readFileSync(path.join(folder, ".ocp_vscode"));
             var connectionFile: string;
