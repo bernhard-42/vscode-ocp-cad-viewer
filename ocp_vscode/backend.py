@@ -23,7 +23,8 @@ from ocp_vscode.build123d import (
     Vertex,
     downcast,
 )
-from ocp_vscode.comms import MessageType, listener, send_response
+
+from ocp_vscode.comms import MessageType, listener, send_response, set_port
 
 
 class SelectedCenterInfo:
@@ -133,6 +134,7 @@ class ViewerBackend:
         self.model = None
         self.activated_tool = None
         self.filter_type = "none"  # The current active selection filter
+        set_port(port)
 
     def start(self):
         """

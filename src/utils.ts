@@ -46,18 +46,19 @@ export function getCurrentFolder(): string {
         root = vscode.workspace.workspaceFolders[0].uri.fsPath;
     } else {
         let filename = getCurrentFileUri();
-        if (filename) {
+        if (filename && filename.fsPath.endsWith(".py")) {
             root = vscode.workspace.getWorkspaceFolder(filename)?.uri.fsPath;
             if (root === undefined) {
                 root = path.dirname(filename.fsPath);
             }
+        } else {
+            root = "";
         }
     }
-    if (root) {
-        return root;
-    } else {
-        return "";
+    if (!root || root === "") {
+        vscode.window.showErrorMessage("No workspace folder found. Open a Python file directly or in a workspace folder");
     }
+    return root;
 }
 
 export async function inquiry(placeholder: string, options: string[]) {
