@@ -16,6 +16,7 @@
 
 import * as vscode from "vscode";
 import * as fs from "fs";
+import * as net from "net";
 import * as path from "path";
 import { PythonExtension } from '@vscode/python-extension';
 import * as output from "./output";
@@ -109,4 +110,22 @@ export function getPythonPath() {
 export function getPackageManager() {
     let cwd = getCurrentFolder();
     return fs.existsSync(path.join(cwd, "poetry.lock")) ? "poetry" : "pip";
+}
+
+export async function isPortInUse(port: number): Promise<boolean> {
+    return new Promise((resolve) => {
+        const tester = net.createServer()
+            .once('error', (err: NodeJS.ErrnoException) => {
+                if (err.code === 'EADDRINUSE') {
+                    resolve(true);
+                } else {
+                    resolve(false);
+                }
+            })
+            .once('listening', () => {
+                tester.close();
+                resolve(false);
+            })
+            .listen(port);
+    });
 }

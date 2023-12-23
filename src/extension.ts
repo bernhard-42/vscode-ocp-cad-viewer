@@ -25,7 +25,7 @@ import { OCPCADViewer } from "./viewer";
 import { createLibraryManager, installLib, Library, LibraryManagerProvider } from "./libraryManager";
 import { createStatusManager } from "./statusManager";
 import { download } from "./examples";
-import { getCurrentFolder, jupyterExtensionInstalled } from "./utils";
+import { getCurrentFolder, jupyterExtensionInstalled, isPortInUse } from "./utils";
 import { version } from "./version";
 import * as semver from "semver";
 import { createDemoFile } from "./demo"
@@ -161,7 +161,7 @@ export async function activate(context: vscode.ExtensionContext) {
             "ocpCadViewer.ocpCadViewer",
             async () => {
 
-                let port;
+                let port: number;
                 let preset_port = false;
 
                 output.show();
@@ -190,44 +190,49 @@ export async function activate(context: vscode.ExtensionContext) {
                 }
                 const column = vscode.window?.activeTextEditor?.viewColumn;
 
-                while (port < 49152) {
-
-                    controller = new OCPCADController(
-                        context,
-                        port,
-                        statusManager,
-                        statusBarItem,
-                    );
-
-                    await controller.start();
-
-                    if (controller.isStarted()) {
-                        vscode.window.showTextDocument(document, column);
-                        var folder = getCurrentFolder();
-                        ocpvscodeFile = path.join(folder, ".ocp_vscode");
-                        fs.writeFileSync(ocpvscodeFile, JSON.stringify({ "port": port }));
-
-                        vscode.window.showInformationMessage(
-                            `Using port ${port} and "show" should detect it automatically. If not, call ocp_vscode's "set_port(${port})" in Python first`
+                if (preset_port) {
+                    if (await isPortInUse(port)) {
+                        vscode.window.showErrorMessage(
+                            `OCP CAD Viewer could not start on port ${port} preconfigured in settings.json or env variable OCP_PORT`
                         );
-
-                        statusManager.refresh(port.toString());
-
-                        output.show();
-                        output.debug("Command OCP CAD Viewer registered");
-                        controller.logo();
-                        break;
-                    } else {
-                        if (preset_port) {
-                            vscode.window.showErrorMessage(
-                                `OCP CAD Viewer could not start on port ${port} preconfigured in settings.json or env variable OCP_PORT`
-                            );
-                            break;
-                        } else {
+                        return
+                    }
+                } else {
+                    while (port < 49152) {
+                        if (await isPortInUse(port)) {
+                            output.info(`Port ${port} already in use`);
                             port++;
-                            output.info(`Trying port ${port} ...`);
+                        } else {
+                            break;
                         }
                     }
+                }
+                controller = new OCPCADController(
+                    context,
+                    port,
+                    statusManager,
+                    statusBarItem,
+                );
+
+                await controller.start();
+
+                if (controller.isStarted()) {
+                    vscode.window.showTextDocument(document, column);
+                    var folder = getCurrentFolder();
+                    ocpvscodeFile = path.join(folder, ".ocp_vscode");
+                    fs.writeFileSync(ocpvscodeFile, JSON.stringify({ "port": port }));
+
+                    vscode.window.showInformationMessage(
+                        `Using port ${port} and "show" should detect it automatically. If not, call ocp_vscode's "set_port(${port})" in Python first`
+                    );
+
+                    statusManager.refresh(port.toString());
+
+                    output.show();
+                    output.debug("Command OCP CAD Viewer registered");
+                    controller.logo();
+                } else {
+                    vscode.window.showErrorMessage(`OCP CAD Viewer could not start on port ${port}`);
                 }
             }
         )
