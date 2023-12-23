@@ -395,6 +395,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
     context.subscriptions.push(
         vscode.commands.registerCommand("ocpCadViewer.openConsole", async () => {
+            output.debug("Trying to open Jupyter console");
             var folder = getCurrentFolder();
             if (!folder) {
                 vscode.window.showErrorMessage("No folder or file is opened");
@@ -407,10 +408,13 @@ export async function activate(context: vscode.ExtensionContext) {
             var ocpVscode = fs.readFileSync(ocpvscodeFile);
             var connectionFile: string;
             if (ocpVscode) {
+                output.debug(`ocpvscodeFile: ${ocpvscodeFile}`);
                 connectionFile = JSON.parse(ocpVscode.toString())["connection_file"];
+                output.debug(`connectionFile: ${connectionFile}`);
                 if (connectionFile) {
                     if (fs.existsSync(connectionFile)) {
                         let iopubPort = JSON.parse(fs.readFileSync(connectionFile).toString())["iopub_port"];
+                        output.debug(`iopubPort: ${iopubPort}`);
                         net.createConnection(iopubPort, "localhost").on("connect", () => {
                             let terminal = vscode.window.createTerminal({
                                 name: 'Jupyter Console',
@@ -419,6 +423,7 @@ export async function activate(context: vscode.ExtensionContext) {
                             terminal.show();
                             setTimeout(() => {
                                 terminal.sendText(`jupyter console --existing ${connectionFile}`);
+                                output.debug(`jupyter console --existing ${connectionFile} started`);
                             }, 500);
                         }).on("error", function (e) {
                             vscode.window.showErrorMessage(`Kernel not running. Is the Interactive Window open and initialized?`);
