@@ -23,9 +23,9 @@ import { WebSocket, WebSocketServer } from 'ws';
 import * as output from "./output";
 import { logo } from "./logo";
 import { StatusManagerProvider } from "./statusManager";
-import { ChildProcessWithoutNullStreams, spawn } from "child_process";
 import { getPythonPath } from "./utils";
 import { getCurrentFolder } from "./utils";
+import { updateState } from "./state";
 
 var serverStarted = false;
 
@@ -281,5 +281,6 @@ export class OCPCADController {
         output.info("Server is shut down");
         this.statusController.refresh("<none>");
         this.statusBarItem.hide();
+        updateState(this.port, null, null);
     }
 }

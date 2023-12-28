@@ -15,12 +15,6 @@
 #
 __version__ = "2.0.13"
 
-import json
-import socket
-
-from pathlib import Path
-from os import environ
-
 from .show import *
 from .config import *
 from .comms import *

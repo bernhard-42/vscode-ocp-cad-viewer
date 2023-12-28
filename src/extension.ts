@@ -30,8 +30,7 @@ import { version } from "./version";
 import * as semver from "semver";
 import { createDemoFile } from "./demo"
 import { set_open, show as showLog } from "./output";
-import { TerminalExecute } from "./system/terminal";
-
+import { updateState, getState } from "./state";
 
 function check_upgrade(libraryManager: LibraryManagerProvider) {
     const ocp_vscode_lib = libraryManager.installed["ocp_vscode"];
@@ -219,8 +218,7 @@ export async function activate(context: vscode.ExtensionContext) {
                 if (controller.isStarted()) {
                     vscode.window.showTextDocument(document, column);
                     var folder = getCurrentFolder();
-                    ocpvscodeFile = path.join(folder, ".ocp_vscode");
-                    fs.writeFileSync(ocpvscodeFile, JSON.stringify({ "port": port }));
+                    updateState(port, "roots", folder);
 
                     vscode.window.showInformationMessage(
                         `Using port ${port} and "show" should detect it automatically. If not, call ocp_vscode's "set_port(${port})" in Python first`
@@ -401,41 +399,32 @@ export async function activate(context: vscode.ExtensionContext) {
                 vscode.window.showErrorMessage("No folder or file is opened");
                 return;
             }
-            if (!ocpvscodeFile) {
-                vscode.window.showErrorMessage("OCP CAD Viewer is not opened");
-                return
-            }
-            var ocpVscode = fs.readFileSync(ocpvscodeFile);
-            var connectionFile: string;
-            if (ocpVscode) {
-                output.debug(`ocpvscodeFile: ${ocpvscodeFile}`);
-                connectionFile = JSON.parse(ocpVscode.toString())["connection_file"];
-                output.debug(`connectionFile: ${connectionFile}`);
-                if (connectionFile) {
-                    if (fs.existsSync(connectionFile)) {
-                        let iopubPort = JSON.parse(fs.readFileSync(connectionFile).toString())["iopub_port"];
-                        output.debug(`iopubPort: ${iopubPort}`);
-                        net.createConnection(iopubPort, "localhost").on("connect", () => {
-                            let terminal = vscode.window.createTerminal({
-                                name: 'Jupyter Console',
-                                location: vscode.TerminalLocation.Editor,
-                            });
-                            terminal.show();
-                            setTimeout(() => {
-                                terminal.sendText(`jupyter console --existing ${connectionFile}`);
-                                output.debug(`jupyter console --existing ${connectionFile} started`);
-                            }, 500);
-                        }).on("error", function (e) {
-                            vscode.window.showErrorMessage(`Kernel not running. Is the Interactive Window open and initialized?`);
+            const state = await getState(folder);
+            const connectionFile = state?.state?.connection_file;
+
+            output.debug(`connectionFile: ${connectionFile}`);
+            if (connectionFile) {
+                if (fs.existsSync(connectionFile)) {
+                    let iopubPort = JSON.parse(fs.readFileSync(connectionFile).toString())["iopub_port"];
+                    output.debug(`iopubPort: ${iopubPort}`);
+                    net.createConnection(iopubPort, "localhost").on("connect", () => {
+                        let terminal = vscode.window.createTerminal({
+                            name: 'Jupyter Console',
+                            location: vscode.TerminalLocation.Editor,
                         });
-                    } else {
-                        vscode.window.showErrorMessage(`Connection file ${connectionFile} not found`);
-                    }
+                        terminal.show();
+                        setTimeout(() => {
+                            terminal.sendText(`jupyter console --existing ${connectionFile}`);
+                            output.debug(`jupyter console --existing ${connectionFile} started`);
+                        }, 500);
+                    }).on("error", function (e) {
+                        vscode.window.showErrorMessage(`Kernel not running. Is the Interactive Window open and initialized?`);
+                    });
                 } else {
-                    vscode.window.showErrorMessage(`Connection file not found. Is the Interactive Window open and initialized?`);
+                    vscode.window.showErrorMessage(`Connection file ${connectionFile} not found`);
                 }
             } else {
-                vscode.window.showErrorMessage(`Config file ${ocpVscode} not found`);
+                vscode.window.showErrorMessage(`Connection file not found. Is the Interactive Window open and initialized?`);
             }
         })
     );
