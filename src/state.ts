@@ -10,7 +10,7 @@ Ideas are taken from the node js library "proper-lockfile"
 import { promises as fs } from "fs";
 import * as os from "os";
 import * as path from "path";
-
+import * as output from "./output";
 
 const STALE_DURATION_MS = 3000; // 3 seconds
 const RETRIES = 7;
@@ -60,10 +60,10 @@ function isLockStale(mtime: number, staleMilliseconds: number): boolean {
 async function removeLock(lockfile: string) {
     try {
         await fs.rmdir(lockfile);
-        console.log("removed", lockfile);
+        output.debug(`Lockfile ${lockfile} removed`);
     } catch (error: any) {
         if (error.code === "ENOENT") {
-            console.log(`Lock file ${lockfile} not found`);
+            output.debug(`Lock file ${lockfile} not found`);
         } else {
             throw new Error(`Unable to remove lock file ${lockfile}`);
         }
@@ -79,13 +79,13 @@ async function acquireLock(
 ) {
     try {
         await fs.mkdir(lockfile);
-        console.log(`Lock ${lockfile} acquired`);
+        output.debug(`Lock ${lockfile} acquired`);
     } catch (error: any) {
         if (error.code === "EEXIST") {
-            console.log(`Lock file ${lockfile} already exists`);
+            output.debug(`Lock file ${lockfile} already exists`);
             const stat = await fs.stat(lockfile);
             if (isLockStale(stat.mtimeMs, staleDurationMs)) {
-                console.log(`Lock file ${lockfile} is stale`);
+                output.debug(`Lock file ${lockfile} is stale`);
                 try {
                     // assume the lockfile is stale and simply remove it
                     await removeLock(lockfile);
@@ -103,7 +103,7 @@ async function acquireLock(
             } else {
                 if (retry < retries) {
                     await sleep(intervalMs);
-                    console.log("Retrying to acquire lock");
+                    output.debug("Retrying to acquire lock");
                     await acquireLock(
                         lockfile,
                         retries,
@@ -118,7 +118,7 @@ async function acquireLock(
                 }
             }
         } else {
-            console.log(error);
+            output.debug(error);
         }
     }
 }
