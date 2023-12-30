@@ -519,7 +519,10 @@ export async function activate(context: vscode.ExtensionContext) {
     });
 
     vscode.workspace.onDidCloseTextDocument(async (e: vscode.TextDocument) => {
-        if (e.uri.scheme === "output" && e.uri.path.endsWith("OCP CAD Viewer Log")) {
+        if (e.uri.scheme === 'vscode-interactive-input') {
+            // remove the connection_file from the state
+            updateState(controller.port, "connection_file", null);
+        } else if (e.uri.scheme === "output" && e.uri.path.endsWith("OCP CAD Viewer Log")) {
             set_open(false);
         }
     });
