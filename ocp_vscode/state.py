@@ -139,11 +139,12 @@ def update_state(port, key=None, value=None):
 
     fd.seek(0)
     try:
-        fd.write(json.dumps(config, indent=2))
+        bytes_written = fd.write(json.dumps(config, indent=2))
+        fd.truncate(bytes_written)
+        fd.close()
     except Exception as ex:
         raise RuntimeError(f"Unable to write config file {config}.") from ex
     finally:
-        fd.close()
         unlock(config_file)
 
 
