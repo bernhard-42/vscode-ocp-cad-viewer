@@ -36,30 +36,40 @@ export function getCurrentFileUri(): vscode.Uri | undefined {
     }
     return undefined;
 }
-export function getCurrentFilename(): string | undefined {
-    const filename = getCurrentFileUri()?.fsPath;
+export function getCurrentFilename(): vscode.Uri | undefined {
+    const filename = getCurrentFileUri();
     return filename;
 }
 
-export function getCurrentFolder(): string {
-    let root: string | undefined;
-    if (vscode.workspace?.workspaceFolders?.length === 1) {
-        root = vscode.workspace.workspaceFolders[0].uri.fsPath;
-    } else {
-        let filename = getCurrentFileUri();
-        if (filename && filename.fsPath.endsWith(".py")) {
+export function getCurrentFolder(filename: vscode.Uri | undefined = undefined): [string, boolean] {
+    let root: string | undefined = undefined;
+    let isWorkspace = false;
+    if (filename === undefined) {
+        filename = getCurrentFilename();
+    }
+
+    if (vscode.workspace?.workspaceFolders && vscode.workspace.workspaceFolders.length > 0) {
+        for (let i = 0; i < vscode.workspace.workspaceFolders.length; i++) {
+            if (filename?.fsPath.startsWith(vscode.workspace.workspaceFolders[i].uri.fsPath)) {
+                root = vscode.workspace.workspaceFolders[i].uri.fsPath;
+                isWorkspace = true;
+                break;
+            }
+        }
+    }
+    if (root === undefined) {
+        if (filename?.fsPath.endsWith(".py")) {
             root = vscode.workspace.getWorkspaceFolder(filename)?.uri.fsPath;
             if (root === undefined) {
                 root = path.dirname(filename.fsPath);
             }
-        } else {
-            root = "";
         }
     }
-    if (!root || root === "") {
+    if (!root) {
         vscode.window.showErrorMessage("No workspace folder found. Open a Python file directly or in a workspace folder");
+        return ["", false];
     }
-    return root;
+    return [root, isWorkspace];
 }
 
 export async function inquiry(placeholder: string, options: string[]) {
@@ -108,7 +118,7 @@ export function getPythonPath() {
 }
 
 export function getPackageManager() {
-    let cwd = getCurrentFolder();
+    let cwd = getCurrentFolder()[0];
     return fs.existsSync(path.join(cwd, "poetry.lock")) ? "poetry" : "pip";
 }
 

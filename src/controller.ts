@@ -231,7 +231,7 @@ export class OCPCADController {
      * Starts the python backend server
      */
     public async startBackend() {
-        let root = getCurrentFolder();
+        let root = getCurrentFolder()[0];
         if (root === "") {
             vscode.window.showInformationMessage("First open a file in your project");
             return;

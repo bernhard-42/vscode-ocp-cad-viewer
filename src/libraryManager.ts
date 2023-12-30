@@ -196,7 +196,7 @@ export class LibraryManagerProvider
         let filteredManagers: string[] = [];
 
         managers.forEach((manager: string) => {
-            const cwd = getCurrentFolder();
+            const cwd = getCurrentFolder()[0];
             const poetryLock = fs.existsSync(path.join(cwd, "poetry.lock"));
             if (manager === "poetry" && !poetryLock) {
                 // ignore

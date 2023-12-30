@@ -57,7 +57,7 @@ show(b)
 
 export function createDemoFile(lib: string) {
     return new Promise((resolve, reject) => {
-        const current = getCurrentFolder();
+        const current = getCurrentFolder()[0];
         const demoFilePath = path.join(current, "ocp_vscode_demo.py");
         if (lib === "build123d") {
             fs.writeFileSync(demoFilePath, build123d_demo);
