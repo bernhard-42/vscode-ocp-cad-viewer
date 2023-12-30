@@ -128,10 +128,10 @@ def update_state(port, key=None, value=None):
     if config.get(port) is None:
         config[port] = {}
 
-    if value is None:
-        del config[port][key]
-    elif key is None:
+    if key is None:
         del config[port]
+    elif value is None:
+        del config[port][key]
     elif isinstance(value, str):
         config[port][key] = value.rstrip(os.path.sep)
     else:
@@ -147,11 +147,8 @@ def update_state(port, key=None, value=None):
         unlock(config_file)
 
 
-def get_state(path):
-    """Get the port for the given path"""
-    if not isinstance(path, Path):
-        path = Path(path)
-
+def get_state():
+    """Get the config file"""
     config_file = resolve_path(CONFIG_FILE)
     lock(config_file)
     try:
@@ -165,20 +162,4 @@ def get_state(path):
     except FileNotFoundError as ex:
         raise RuntimeError(f"Unable to open config file {config_file}.") from ex
 
-    # exact match
-    port = None
-    for p, v in config.items():
-        for root in v["roots"]:
-            if path == Path(root):
-                port = p
-
-    # else search nearest path
-    for p, v in config.items():
-        for root in v["roots"]:
-            if path.as_posix().startswith(root):
-                port = p
-
-    if port is None:
-        return {"port": None, "state": None}
-
-    return {"port": port, "state": config[port]}
+    return config

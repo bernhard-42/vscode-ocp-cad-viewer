@@ -20,15 +20,19 @@ from ocp_tessellate.ocp_utils import (
 )
 from .state import get_state, update_state, get_config_file
 
+# pylint: disable=unused-import
 try:
-    from jupyter_client import find_connection_file
+    from IPython import get_ipython
+    import jupyter_console
 
-    JCLIENT = True
+    JCONSOLE = True
 except:  # pylint: disable=bare-except
-    JCLIENT = False
+    JCONSOLE = False
 
 CMD_URL = "ws://127.0.0.1"
 CMD_PORT = 3939
+
+INIT_DONE = False
 
 #
 # Send data to the viewer
@@ -57,6 +61,16 @@ __all__ = [
 ]
 
 
+def port_check(port):
+    """Check whether the port is listening"""
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.settimeout(1)
+    result = s.connect_ex(("127.0.0.1", port)) == 0
+    if result:
+        s.close()
+    return result
+
+
 def default(obj):
     """Default JSON serializer."""
     if is_topods_shape(obj):
@@ -71,18 +85,25 @@ def default(obj):
 
 def get_port():
     """Get the port"""
+    if not INIT_DONE:
+        find_and_set_port()
+        set_connection_file()
     return CMD_PORT
 
 
 def set_port(port):
     """Set the port"""
-    global CMD_PORT  # pylint: disable=global-statement
+    global CMD_PORT, INIT_DONE  # pylint: disable=global-statement
     CMD_PORT = port
+    INIT_DONE = True
 
 
 def _send(data, message_type, port=None, timeit=False):
     """Send data to the viewer"""
     if port is None:
+        if not INIT_DONE:
+            find_and_set_port()
+            set_connection_file()
         port = CMD_PORT
     try:
         with Timer(timeit, "", "json dumps", 1):
@@ -122,7 +143,7 @@ def _send(data, message_type, port=None, timeit=False):
             f"Cannot connect to viewer on port {port}, is it running and the right port provided?"
         )
         print(ex)
-        return
+        return None
 
 
 def send_data(data, port=None, timeit=False):
@@ -193,16 +214,39 @@ def listener(callback):
     return _listen
 
 
-def set_port_and_connectionfile():
+def find_and_set_port():
     """Set the port and connection file"""
 
     def find_port():
         port = None
         current_path = Path.cwd()
-        for path in [current_path] + list(current_path.parents):
-            port = get_state(path)["port"]
-            if port is not None:
-                break
+        states = get_state().items()
+        for p, state in states:
+            if not port_check(int(p)):
+                print(f"Found stale configuration for port {p}, deleting it.")
+                update_state(int(p), None, None)
+                continue
+
+            roots = state.get("roots", [])
+            for root in roots:
+                if current_path.is_relative_to(Path(root)):
+                    port = int(p)
+                    break
+        if port is None:
+            ports = [port for port, _ in states if port_check(int(port))]
+            if len(ports) == 1:
+                port = ports[0]
+            elif len(ports) > 1:
+                raise RuntimeError(
+                    f"\nMultiple ports found ({', '.join(ports)}) and the file is outside of any\n"
+                    "workspace folder of this VS Code instance:\n"
+                    "The right viewer cannot be auto detected, use set_port(port) in your code."
+                )
+            else:
+                raise RuntimeError(
+                    "No port found via config file\n"
+                    "To change the port, use set_port(port) in your code"
+                )
 
         return port
 
@@ -212,28 +256,24 @@ def set_port_and_connectionfile():
         print(f"Using predefined port {port} taken from environment variable OCP_PORT")
     else:
         port = find_port()
-        if port is None:
-            print("No port found in config file, using default port 3939")
-            print("To change the port, use set_port(port) in your code")
-            port = 3939
-        else:
-            port = int(port)
-            print(f"Using port {port} taken from config file")
+        print(f"Using port {port} taken from config file")
 
     set_port(port)
 
-    if JCLIENT:
-        cf = find_connection_file()
+
+def set_connection_file():
+    """Set the connection file for Jupyter in the state file .ocpvscode"""
+    if JCONSOLE and hasattr(get_ipython(), "kernel"):
+        kernel = get_ipython().kernel
+        cf = kernel.config["IPKernelApp"]["connection_file"]
         with open(cf, "r", encoding="utf-8") as f:
             connection_info = json.load(f)
 
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        result = s.connect_ex(("127.0.0.1", connection_info["iopub_port"]))
-
-        if result == 0:
+        if port_check(connection_info["iopub_port"]):
             print("Jupyter kernel running")
-            s.close()
-            update_state(port, "connection_file", cf)
-            print(f"Jupyter Connection file written to {get_config_file()}")
+            update_state(CMD_PORT, "connection_file", cf)
+            print(f"Jupyter connection file path written to {get_config_file()}")
         else:
             print("Jupyter kernel not running")
+    else:
+        print("Jupyter kernel not running")

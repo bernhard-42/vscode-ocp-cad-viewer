@@ -58,7 +58,7 @@ from .config import (
     Collapse,
     check_deprecated,
 )
-from .comms import send_backend, send_data, set_port_and_connectionfile
+from .comms import send_backend, send_data
 from .colors import get_colormap, web_to_rgb, BaseColorMap
 
 __all__ = ["show", "show_object", "reset_show", "show_all", "show_clear"]
@@ -66,7 +66,6 @@ __all__ = ["show", "show_object", "reset_show", "show_all", "show_clear"]
 OBJECTS = {"objs": [], "names": [], "colors": [], "alphas": []}
 
 LAST_CALL = "other"
-INIT_DONE = False
 
 
 def _tessellate(
@@ -414,11 +413,7 @@ def show(
         debug:                   Show debug statements to the VS Code browser console (default=False)
         timeit:                  Show timing information from level 0-3 (default=False)
     """
-    global LAST_CALL, INIT_DONE  # pylint: disable=global-statement
-
-    if not INIT_DONE:
-        set_port_and_connectionfile()
-        INIT_DONE = True
+    global LAST_CALL  # pylint: disable=global-statement
 
     kwargs = {
         k: v
