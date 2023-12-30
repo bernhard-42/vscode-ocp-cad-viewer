@@ -1,3 +1,5 @@
+"""Python backend for the OCP Viewer"""
+
 import argparse
 import base64
 import sys
@@ -46,10 +48,12 @@ def print_to_stdout(*msg):
 
 
 def error_handler(func):
-    def wrapper(*args, **kwargs):
+    """Decorator for error handling"""
+
+    def wrapper(*args, **kwargs):  # pylint: disable=redefined-outer-name
         try:
             func(*args, **kwargs)
-        except Exception as exc:
+        except Exception as exc:  # pylint: disable=broad-except
             print_to_stdout(exc)
             traceback.print_exception(*sys.exc_info(), file=sys.stdout)
 
@@ -58,6 +62,8 @@ def error_handler(func):
 
 @dataclass
 class Tool:
+    """The tools available in the viewer"""
+
     Distance = "DistanceMeasurement"
     Properties = "PropertiesMeasurement"
     Angle = "AngleMeasurement"
@@ -84,17 +90,25 @@ def set_precision(instance, decimals=2):
 
 @dataclass
 class Response:
+    """Base class for all responses"""
+
     type: str = "backend_response"
 
 
 @dataclass
 class MeasureReponse(Response):
-    center_info: str = ""  # a string telling the frontend how the reference points used for the measurement were chosen
+    """Base class for all measurement responses"""
+
+    # a string telling the frontend how the reference points used for the
+    # measurement were chosen
+    center_info: str = ""
     subtype: str = "tool_response"
 
 
 @dataclass
 class DistanceResponse(MeasureReponse):
+    """Response class for distance measurement"""
+
     tool_type: Tool = Tool.Distance
     point1: tuple = None
     point2: tuple = None
@@ -103,6 +117,8 @@ class DistanceResponse(MeasureReponse):
 
 @dataclass
 class PropertiesResponse(MeasureReponse):
+    """Response class for properties measurement"""
+
     tool_type: Tool = Tool.Properties
     center: tuple = None
     vertex_coords: tuple = None
@@ -116,6 +132,8 @@ class PropertiesResponse(MeasureReponse):
 
 @dataclass
 class AngleResponse(MeasureReponse):
+    """Response class for angle measurement"""
+
     tool_type: Tool = Tool.Angle
     angle: float = None
     point1: tuple = None
@@ -125,7 +143,8 @@ class AngleResponse(MeasureReponse):
 class ViewerBackend:
     """
     Represents the backend of the viewer, it listens to the websocket and handles the events
-    It's job is to send responses to the vscode extension that goes through the three cad viewer view.
+    It's job is to send responses to the vscode extension that goes through the three cad
+    viewer view.
     The reponses holds all the data needed to display the measurements.
     """
 
@@ -149,9 +168,9 @@ class ViewerBackend:
         Handle the event received from the websocket
         Dispatch the event to the appropriate handler
         """
-        if event_type == MessageType.data:
+        if event_type == MessageType.DATA:
             self.load_model(message)
-        elif event_type == MessageType.updates:
+        elif event_type == MessageType.UPDATES:
             changes = message
 
             if "activeTool" in changes:
@@ -172,17 +191,17 @@ class ViewerBackend:
         if not "selectedShapeIDs" in changes:
             return
 
-        selectedObjs = changes["selectedShapeIDs"]
-        if self.activated_tool == Tool.Distance and len(selectedObjs) == 2:
+        selected_objs = changes["selectedShapeIDs"]
+        if self.activated_tool == Tool.Distance and len(selected_objs) == 2:
             shape_id1 = changes["selectedShapeIDs"][0]
             shape_id2 = changes["selectedShapeIDs"][1]
             self.handle_distance(shape_id1, shape_id2)
 
-        elif self.activated_tool == Tool.Properties and len(selectedObjs) == 1:
+        elif self.activated_tool == Tool.Properties and len(selected_objs) == 1:
             shape_id = changes["selectedShapeIDs"][0]
             self.handle_properties(shape_id)
 
-        elif self.activated_tool == Tool.Angle and len(selectedObjs) == 2:
+        elif self.activated_tool == Tool.Angle and len(selected_objs) == 2:
             shape_id1 = changes["selectedShapeIDs"][0]
             shape_id2 = changes["selectedShapeIDs"][1]
             self.handle_angle(shape_id1, shape_id2)
@@ -195,7 +214,7 @@ class ViewerBackend:
                 if v.get("parts") is not None:
                     walk(v, trace)
                 else:
-                    id = v["id"]
+                    id_ = v["id"]
                     loc = (
                         Location().wrapped if v["loc"] is None else tq_to_loc(*v["loc"])
                     )
@@ -204,24 +223,24 @@ class ViewerBackend:
                         for s in v["shape"]
                     ]
                     compound = make_compound(shape) if len(shape) > 1 else shape[0]
-                    self.model[id] = Compound(compound.Moved(loc))
+                    self.model[id_] = Compound(compound.Moved(loc))
                     faces = get_faces(compound)
                     for i, face in enumerate(faces):
-                        trace.face(f"{id}/faces/faces_{i}", face)
+                        trace.face(f"{id_}/faces/faces_{i}", face)
 
-                        self.model[f"{id}/faces/faces_{i}"] = Face(face.Moved(loc))
+                        self.model[f"{id_}/faces/faces_{i}"] = Face(face.Moved(loc))
                     edges = get_edges(compound)
                     for i, edge in enumerate(edges):
-                        trace.edge(f"{id}/edges/edges_{i}", edge)
+                        trace.edge(f"{id_}/edges/edges_{i}", edge)
 
-                        self.model[f"{id}/edges/edges_{i}"] = (
+                        self.model[f"{id_}/edges/edges_{i}"] = (
                             Edge(edge) if loc is None else Edge(edge.Moved(loc))
                         )
                     vertices = get_vertices(compound)
                     for i, vertex in enumerate(vertices):
-                        trace.vertex(f"{id}/vertices/vertex{i}", vertex)
+                        trace.vertex(f"{id_}/vertices/vertex{i}", vertex)
 
-                        self.model[f"{id}/vertices/vertices{i}"] = (
+                        self.model[f"{id_}/vertices/vertices{i}"] = (
                             Vertex(vertex)
                             if loc is None
                             else Vertex(downcast(vertex.Moved(loc)))
@@ -400,5 +419,5 @@ if __name__ == "__main__":
     backend = ViewerBackend(args.port)
     try:
         backend.start()
-    except Exception as ex:
+    except Exception as ex:  # pylint: disable=broad-except
         print(ex)

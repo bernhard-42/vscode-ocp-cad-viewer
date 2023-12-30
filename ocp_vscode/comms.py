@@ -1,5 +1,8 @@
+"""Communication with the viewer"""
+
 import base64
 import enum
+import json
 import os
 import socket
 
@@ -8,7 +11,6 @@ from pathlib import Path
 from websockets.sync.client import connect
 
 import orjson
-import json
 from ocp_tessellate.utils import Timer
 from ocp_tessellate.ocp_utils import (
     is_topods_shape,
@@ -34,13 +36,15 @@ CMD_PORT = 3939
 
 
 class MessageType(enum.IntEnum):
-    data = 1
-    command = 2
-    updates = 3
-    listen = 4
-    backend = 5
-    backend_response = 6
-    config = 7
+    """Message types"""
+
+    DATA = 1
+    COMMAND = 2
+    UPDATES = 3
+    LISTEN = 4
+    BACKEND = 5
+    BACKEND_RESPONSE = 6
+    CONFIG = 7
 
 
 __all__ = [
@@ -54,6 +58,7 @@ __all__ = [
 
 
 def default(obj):
+    """Default JSON serializer."""
     if is_topods_shape(obj):
         return base64.b64encode(serialize(obj)).decode("utf-8")
     elif is_toploc_location(obj):
@@ -65,31 +70,34 @@ def default(obj):
 
 
 def get_port():
+    """Get the port"""
     return CMD_PORT
 
 
 def set_port(port):
-    global CMD_PORT
+    """Set the port"""
+    global CMD_PORT  # pylint: disable=global-statement
     CMD_PORT = port
 
 
 def _send(data, message_type, port=None, timeit=False):
+    """Send data to the viewer"""
     if port is None:
         port = CMD_PORT
     try:
         with Timer(timeit, "", "json dumps", 1):
-            j = orjson.dumps(data, default=default)
-            if message_type == MessageType.command:
+            j = orjson.dumps(data, default=default)  # pylint: disable=no-member
+            if message_type == MessageType.COMMAND:
                 j = b"C:" + j
-            elif message_type == MessageType.data:
+            elif message_type == MessageType.DATA:
                 j = b"D:" + j
-            elif message_type == MessageType.listen:
+            elif message_type == MessageType.LISTEN:
                 j = b"L:" + j
-            elif message_type == MessageType.backend:
+            elif message_type == MessageType.BACKEND:
                 j = b"B:" + j
-            elif message_type == MessageType.backend_response:
+            elif message_type == MessageType.BACKEND_RESPONSE:
                 j = b"R:" + j
-            elif message_type == MessageType.config:
+            elif message_type == MessageType.CONFIG:
                 j = b"S:" + j
 
         with Timer(timeit, "", f"websocket send {len(j)/1024/1024:.3f} MB", 1):
@@ -97,19 +105,19 @@ def _send(data, message_type, port=None, timeit=False):
             ws.send(j)
 
             result = None
-            if message_type == MessageType.command:
+            if message_type == MessageType.COMMAND:
                 try:
                     result = json.loads(ws.recv())
-                except Exception as ex:
+                except Exception as ex:  # pylint: disable=broad-except
                     print(ex)
             try:
                 ws.close()
-            except:
+            except:  # pylint: disable=bare-except
                 pass
 
             return result
 
-    except Exception as ex:
+    except Exception as ex:  # pylint: disable=broad-except
         print(
             f"Cannot connect to viewer on port {port}, is it running and the right port provided?"
         )
@@ -118,23 +126,28 @@ def _send(data, message_type, port=None, timeit=False):
 
 
 def send_data(data, port=None, timeit=False):
-    return _send(data, MessageType.data, port, timeit)
+    """Send data to the viewer"""
+    return _send(data, MessageType.DATA, port, timeit)
 
 
 def send_config(config, port=None, timeit=False):
-    return _send(config, MessageType.config, port, timeit)
+    """Send config to the viewer"""
+    return _send(config, MessageType.CONFIG, port, timeit)
 
 
 def send_command(data, port=None, timeit=False):
-    return _send(data, MessageType.command, port, timeit)
+    """Send command to the viewer"""
+    return _send(data, MessageType.COMMAND, port, timeit)
 
 
 def send_backend(data, port=None, timeit=False):
-    return _send(data, MessageType.backend, port, timeit)
+    """Send data to the viewer"""
+    return _send(data, MessageType.BACKEND, port, timeit)
 
 
 def send_response(data, port=None, timeit=False):
-    return _send(data, MessageType.backend_response, port, timeit)
+    """Send data to the viewer"""
+    return _send(data, MessageType.BACKEND_RESPONSE, port, timeit)
 
 
 #
@@ -147,8 +160,10 @@ def send_response(data, port=None, timeit=False):
 # the data is then passed to the callback function
 #
 def listener(callback):
+    """Listen for data from the viewer"""
+
     def _listen():
-        LAST_CONFIG = {}
+        last_config = {}
         with connect(f"{CMD_URL}:{CMD_PORT}", max_size=2**28) as websocket:
             websocket.send(b"L:register")
             while True:
@@ -159,19 +174,19 @@ def listener(callback):
 
                     message = json.loads(message)
                     if "model" in message.keys():
-                        callback(message["model"], MessageType.data)
+                        callback(message["model"], MessageType.DATA)
 
                     if message.get("command") == "status":
                         changes = message["text"]
                         new_changes = {}
                         for k, v in changes.items():
-                            if k in LAST_CONFIG and LAST_CONFIG[k] == v:
+                            if k in last_config and last_config[k] == v:
                                 continue
                             new_changes[k] = v
-                        LAST_CONFIG = changes
-                        callback(new_changes, MessageType.updates)
+                        last_config = changes
+                        callback(new_changes, MessageType.UPDATES)
 
-                except Exception as ex:
+                except Exception as ex:  # pylint: disable=broad-except
                     print(ex)
                     break
 
@@ -179,6 +194,8 @@ def listener(callback):
 
 
 def set_port_and_connectionfile():
+    """Set the port and connection file"""
+
     def find_port():
         port = None
         current_path = Path.cwd()

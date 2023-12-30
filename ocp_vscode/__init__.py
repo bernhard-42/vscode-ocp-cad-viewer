@@ -1,3 +1,4 @@
+"""ocp_vscode - OCC viewer for VSCode"""
 #
 # Copyright 2023 Bernhard Walter
 #

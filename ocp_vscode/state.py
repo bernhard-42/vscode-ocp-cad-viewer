@@ -9,7 +9,6 @@ Ideas are taken from the node js library "proper-lockfile"
 import json
 import os
 import time
-from pathlib import Path
 
 STALE_DURATION_MS = 3000  # 3 seconds
 RETRIES = 7

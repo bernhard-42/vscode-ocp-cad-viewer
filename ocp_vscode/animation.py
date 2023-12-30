@@ -1,3 +1,5 @@
+"""Animation class for the viewer"""
+
 #
 # Copyright 2023 Bernhard Walter
 #
@@ -21,6 +23,7 @@ from .comms import send_data
 
 
 def collect_paths(assembly, path=""):
+    """Collect all paths in the assembly tree"""
     result = []
     new_path = f"{path}/{assembly.label}"
     result.append(new_path)
@@ -30,6 +33,8 @@ def collect_paths(assembly, path=""):
 
 
 class Animation:
+    """Class to create animations for the viewer"""
+
     def __init__(self, assembly):
         self.tracks = []
         self.is_cadquery = hasattr(assembly, "mates") and not hasattr(
@@ -42,6 +47,7 @@ class Animation:
             self.paths = collect_paths(assembly)
 
     def add_track(self, path, action, times, values):
+        # pylint: disable=line-too-long
         """
         Adding a three.js animation track.
 
@@ -117,5 +123,6 @@ class Animation:
         self.tracks.append((path, action, times, values))
 
     def animate(self, speed):
+        """Animate the tracks"""
         data = {"data": self.tracks, "type": "animation", "config": {"speed": speed}}
         send_data(json.loads(numpy_to_json(data)))

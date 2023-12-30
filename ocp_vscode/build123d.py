@@ -1,4 +1,7 @@
-# pylint: disable=missing-class-docstring,missing-function-docstring
+"""A minimum subset of build123d to support backend.py"""
+
+# pylint: disable=missing-class-docstring,missing-function-docstring,import-error,no-name-in-module
+# pyright: reportMissingModuleSource=false
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 #              THIS FILE IS AN EXTRACT OF http://github.com/gumyr/build123d
@@ -9,6 +12,7 @@
 
 import copy
 import math
+
 
 import OCP.GeomAbs as ga
 import OCP.TopAbs as ta
