@@ -168,6 +168,7 @@ export async function updateState(port: number, key: string | null, value: strin
     try {
         const { bytesWritten } = await fh.write(buffer, 0, "utf-8");
         await fh.truncate(bytesWritten);
+        await fh.close();
     } catch (error) {
         // Handle the error
     } finally {
