@@ -220,7 +220,7 @@ export async function activate(context: vscode.ExtensionContext) {
                     var [folder, isWorkspace] = getCurrentFolder();
                     output.debug(`ocpCadViewer ${port}, ${folder}, ${path.dirname(document.fileName)}`);
                     var folders = (vscode.workspace?.workspaceFolders) ? vscode.workspace.workspaceFolders.map(f => f.uri.fsPath) : [];
-                    updateState(port, "roots", folders);
+                    updateState(port, "roots", folders, true);
 
                     vscode.window.showInformationMessage(
                         `Using port ${port} and "show" should detect it automatically. If not, call ocp_vscode's "set_port(${port})" in Python first`

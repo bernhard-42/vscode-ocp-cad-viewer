@@ -133,7 +133,9 @@ async function unlock(file: string) {
     await removeLock(lockfile);
 }
 
-export async function updateState(port: number, key: string | null, value: string | Array<string> | null) {
+export async function updateState(
+    port: number, key: string | null, value: string | Array<string> | null, initialize: boolean = false
+) {
     let data;
     let fh: fs.FileHandle;
 
@@ -152,7 +154,7 @@ export async function updateState(port: number, key: string | null, value: strin
         fh = await fs.open(config_file, "w+");
         data = {};
     }
-    if (data[port] == null) {
+    if (data[port] == null || initialize) {
         data[port] = {};
     }
     if (key == null) {
