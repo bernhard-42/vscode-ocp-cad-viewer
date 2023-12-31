@@ -21,7 +21,7 @@ _OCP CAD Viewer_ for VS Code is an extension to show [CadQuery](https://github.c
 
 ### Installation
 
-1. Open the VS Code Marketplace, and search and install _OCP CAD Viewer 2.0.13_.
+1. Open the VS Code Marketplace, and search and install _OCP CAD Viewer 2.0.14_.
 
     Afterwards the OCP viewer is available in the VS Code sidebar:
 
@@ -172,7 +172,7 @@ You can also use "Library Manager" in the _OCP CAD Viewer_ sidebar to manage the
 
 ## Changes
 
-v2.0.13
+v2.0.14
 -   Fix shortcut boolean parameter for grid
 -   Update dependencies for installing build123d on Apple Silicon
 -   Ensure terminal is shown during installations
