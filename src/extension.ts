@@ -30,7 +30,7 @@ import { version } from "./version";
 import * as semver from "semver";
 import { createDemoFile } from "./demo"
 import { set_open, show as showLog } from "./output";
-import { updateState, getState } from "./state";
+import { updateState, getState, getConfigFile } from "./state";
 
 function check_upgrade(libraryManager: LibraryManagerProvider) {
     const ocp_vscode_lib = libraryManager.installed["ocp_vscode"];
@@ -231,6 +231,11 @@ export async function activate(context: vscode.ExtensionContext) {
                     output.show();
                     output.debug("Command OCP CAD Viewer registered");
                     controller.logo();
+
+                    if (fs.existsSync(path.join(folder, ".ocp_vscode"))) {
+                        vscode.window.showInformationMessage(`Found .ocp_vscode in ${folder}. ` +
+                            `This file will be ignored and ${await getConfigFile()} used instead!`);
+                    }
                 } else {
                     vscode.window.showErrorMessage(`OCP CAD Viewer could not start on port ${port}`);
                 }

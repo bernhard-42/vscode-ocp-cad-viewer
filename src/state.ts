@@ -153,7 +153,10 @@ export async function updateState(
     } catch (error) {
         fh = await fs.open(config_file, "w+");
         data = {};
+    } finally {
+        await unlock(config_file);
     }
+
     if (data[port] == null || initialize) {
         data[port] = {};
     }
@@ -172,7 +175,7 @@ export async function updateState(
         await fh.truncate(bytesWritten);
         await fh.close();
     } catch (error) {
-        // Handle the error
+        output.error(`${error}`);
     } finally {
         await unlock(config_file);
     }
