@@ -274,6 +274,8 @@ def set_connection_file():
             update_state(CMD_PORT, "connection_file", cf)
             print(f"Jupyter connection file path written to {get_config_file()}")
         else:
-            print("Jupyter kernel not running")
+            print("Jupyter kernel not responding")
+    elif not JCONSOLE:
+        print("Jupyter console not installed")
     else:
         print("Jupyter kernel not running")
