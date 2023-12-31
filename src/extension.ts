@@ -421,10 +421,13 @@ export async function activate(context: vscode.ExtensionContext) {
                             shellPath: (os.platform() === "win32") ? process.env.COMSPEC : undefined
                         });
                         terminal.show();
+                        const delay = vscode.workspace.getConfiguration("OcpCadViewer.advanced")[
+                            "terminalDelay"
+                        ];
                         setTimeout(() => {
                             terminal.sendText(`jupyter console --existing ${connectionFile}`);
                             output.debug(`jupyter console --existing ${connectionFile} started`);
-                        }, 500);
+                        }, delay);
                     }).on("error", function (e) {
                         vscode.window.showErrorMessage(`Kernel not running. Is the Interactive Window open and initialized?`);
                     });

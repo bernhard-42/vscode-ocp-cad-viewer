@@ -727,6 +727,12 @@
                         }
                     },
                     "order": 57
+                },
+                "OcpCadViewer.advanced.terminalDelay": {
+                    "type": "number",
+                    "default": 1000,
+                    "description": "Delay until terminal command is started (default: 1000)",
+                    "order": 58
                 }
             }
         }

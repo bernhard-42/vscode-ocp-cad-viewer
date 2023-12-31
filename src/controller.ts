@@ -246,10 +246,13 @@ export class OCPCADController {
             shellPath: (os.platform() === "win32") ? process.env.COMSPEC : undefined
         });
         pythonBackendTerminal.show();
+        const delay = vscode.workspace.getConfiguration("OcpCadViewer.advanced")[
+            "terminalDelay"
+        ];
         setTimeout(() => {
             pythonBackendTerminal.sendText(`${python} ${this.getBackendPath()} --port ${this.port}`);
             pythonBackendTerminal.hide();
-        }, 500);
+        }, delay);
         this.pythonBackendTerminal = pythonBackendTerminal;
     }
 
