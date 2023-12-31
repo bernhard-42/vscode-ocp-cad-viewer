@@ -122,7 +122,9 @@ def update_state(port, key=None, value=None):
         fd = open(config_file, "w+", encoding="utf-8")
         config = {}
     except Exception as ex:
+        unlock(config_file)
         raise RuntimeError(f"Unable to open config file {config_file}.") from ex
+    fd.close()
 
     port = str(port)
     if config.get(port) is None:
@@ -137,11 +139,9 @@ def update_state(port, key=None, value=None):
     else:
         config[port][key] = [v.rstrip(os.path.sep) for v in value]
 
-    fd.seek(0)
     try:
-        bytes_written = fd.write(json.dumps(config, indent=2))
-        fd.truncate(bytes_written)
-        fd.close()
+        with open(config_file, "w", encoding="utf-8") as fd:
+            fd.write(json.dumps(config, indent=2))
     except Exception as ex:
         raise RuntimeError(f"Unable to write config file {config}.") from ex
     finally:
