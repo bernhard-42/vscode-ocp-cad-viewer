@@ -223,7 +223,8 @@ export async function activate(context: vscode.ExtensionContext) {
                     updateState(port, "roots", folders, true);
 
                     vscode.window.showInformationMessage(
-                        `Using port ${port} and "show" should detect it automatically. If not, call ocp_vscode's "set_port(${port})" in Python first`
+                        `Using port ${port} and "show" should detect it automatically. ` +
+                        `If not, call ocp_vscode's "set_port(${port})" in Python first`
                     );
 
                     statusManager.refresh(port.toString());
@@ -403,7 +404,6 @@ export async function activate(context: vscode.ExtensionContext) {
             output.debug("Trying to open Jupyter console");
             var folder = getCurrentFolder()[0];
             if (!folder) {
-                vscode.window.showErrorMessage("No folder or file is opened");
                 return;
             }
             const state = await getState(folder);

@@ -66,7 +66,7 @@ export function getCurrentFolder(filename: vscode.Uri | undefined = undefined): 
         }
     }
     if (!root) {
-        vscode.window.showErrorMessage("No workspace folder found. Open a Python file directly or in a workspace folder");
+        vscode.window.showErrorMessage("No workspace folder found. Open a folder and click to focus an editor window.");
         return ["", false];
     }
     return [root, isWorkspace];
