@@ -18,3 +18,4 @@ ocp-vscode-backend.log
 ocp_tessellate.log
 .ocp_vscode
 test/__pycache__/
+main.py
