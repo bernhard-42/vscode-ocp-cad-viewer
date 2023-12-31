@@ -418,6 +418,7 @@ export async function activate(context: vscode.ExtensionContext) {
                         let terminal = vscode.window.createTerminal({
                             name: 'Jupyter Console',
                             location: vscode.TerminalLocation.Editor,
+                            shellPath: (os.platform() === "win32") ? process.env.COMSPEC : undefined
                         });
                         terminal.show();
                         setTimeout(() => {

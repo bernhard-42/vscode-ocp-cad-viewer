@@ -15,6 +15,7 @@
    limitations under the License.
 */
 
+import * as os from "os";
 import * as vscode from "vscode";
 import { OCPCADViewer } from "./viewer";
 import { template } from "./display";
@@ -242,6 +243,7 @@ export class OCPCADController {
         let pythonBackendTerminal = vscode.window.createTerminal({
             name: 'OCP backend',
             cwd: root,
+            shellPath: (os.platform() === "win32") ? process.env.COMSPEC : undefined
         });
         pythonBackendTerminal.show();
         setTimeout(() => {
