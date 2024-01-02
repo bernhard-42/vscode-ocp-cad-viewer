@@ -235,6 +235,12 @@ export async function getState(path: string): Promise<null | ResultState> {
         }
     }
 
+    // heuristic: if there is only one port, use it
+    let ports = Object.keys(data);
+    if (ports.length === 1) {
+        port = ports[0]
+    }
+
     if (port == null) {
         return new ResultState(null, null);
     }
