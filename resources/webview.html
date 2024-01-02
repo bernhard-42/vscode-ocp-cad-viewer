@@ -213,8 +213,10 @@
                 }
             });
             if (viewer != null && viewer.treeview != null) {
-                const states = viewer.treeview.states;
-                if (oldStates == null || JSON.stringify(oldStates) != JSON.stringify(states)) {
+                // ensure to clone the object
+                const states_json = JSON.stringify(viewer.treeview.states);
+                const states = JSON.parse(states_json); 
+                if (oldStates == null || JSON.stringify(oldStates) != states_json) {
                     message["states"] = states;
                     oldStates = states;
                     changed = true;
