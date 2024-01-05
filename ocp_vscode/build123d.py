@@ -563,9 +563,18 @@ class Edge(Shape):
 
         return return_value
 
-    def position_at(self, distance):
+    def position_at(self, distance: float) -> Vector:
         curve = self._geom_adaptor()
-        return Vector(curve.Value(distance))
+        param = self.param_at(distance)
+        return Vector(curve.Value(param))
+
+    def param_at(self, distance: float) -> float:
+        curve = self._geom_adaptor()
+
+        length = GCPnts_AbscissaPoint.Length_s(curve)
+        return GCPnts_AbscissaPoint(
+            curve, length * distance, curve.FirstParameter()
+        ).Parameter()
 
     def __mod__(self, position):
         return self.tangent_at(position)
