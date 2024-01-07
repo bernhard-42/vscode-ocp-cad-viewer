@@ -172,10 +172,14 @@ You can also use "Library Manager" in the _OCP CAD Viewer_ sidebar to manage the
 
 ## Changes
 
+v2.1.1
+-   Fix Jupyter Console for non-worpkspace mode
+-   Enforce using latest ocp-tesellate 2.0.6
+
 v2.1.0
 -   Introduce a minimum version of build123d for backend.py to remove the Python dependency on buidl123d.
 -   Changed the state handling: instead of distributed `.ocp_vscode` files, there is now one central `$HOME/.ocpvscode` file.
--   Jupyter console support: When starting an interacive session, the kernel connection file will be writte to `$HOME/.ocpvscode`.
+-   Experimental Jupyter console support: When starting an interacive session, the kernel connection file will be writte to `$HOME/.ocpvscode`.
     This file will be used in the Viewer Manager under *jupyter console* to open the jupyter console as another client for the kernel
 -   Use a VS Code Terminal for the backend so that it is no black box any more
 -   Enforce using latest ocp-tesellate 2.0.5
