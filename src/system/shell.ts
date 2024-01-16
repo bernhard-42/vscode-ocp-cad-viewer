@@ -12,7 +12,7 @@ function parsePipLibs(jsonData: string) {
 }
 
 export function pipList(python: string): Map<string, string> {
-    let workspaceFolder = getCurrentFolder();
+    let workspaceFolder = getCurrentFolder()[0];
     try {
         let result = execSync(`"${python}" -m pip list --format json`, { cwd: workspaceFolder }).toString();
         return parsePipLibs(result);
@@ -23,7 +23,7 @@ export function pipList(python: string): Map<string, string> {
 }
 
 export function execute(cmd: string) {
-    let currentFolder = getCurrentFolder();
+    let currentFolder = getCurrentFolder()[0];
     if (currentFolder === "") {
         currentFolder = ".";
     }

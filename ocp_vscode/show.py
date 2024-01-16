@@ -1,3 +1,5 @@
+"""Show CAD objects in Visual Studio Code"""
+
 #
 # Copyright 2023 Bernhard Walter
 #
@@ -13,6 +15,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
 import re
 
 from ocp_tessellate import PartGroup
@@ -22,9 +25,6 @@ from ocp_tessellate.convert import (
     combined_bb,
     to_assembly,
     mp_get_results,
-    is_topods_shape,
-    is_cadquery,
-    is_vector,
 )
 from ocp_tessellate.utils import numpy_to_buffer_json, Timer, Color
 from ocp_tessellate.ocp_utils import (
@@ -46,7 +46,6 @@ from ocp_tessellate.cad_objects import (
     OCP_Part,
     OCP_Vertices,
 )
-from ocp_tessellate.convert import to_assembly
 import ocp_tessellate.convert as oc
 
 from .config import (
@@ -60,17 +59,13 @@ from .config import (
     check_deprecated,
 )
 from .comms import send_backend, send_data
-from .colors import *
-
-from .persistence import modify_copyreg
+from .colors import get_colormap, web_to_rgb, BaseColorMap
 
 __all__ = ["show", "show_object", "reset_show", "show_all", "show_clear"]
 
 OBJECTS = {"objs": [], "names": [], "colors": [], "alphas": []}
 
 LAST_CALL = "other"
-
-modify_copyreg()
 
 
 def _tessellate(
@@ -168,7 +163,7 @@ def _tessellate(
             print(f"Setting {k} can only be set in VSCode config")
 
         elif v is not None:
-            if k == "reset_camera" and params.get("_splash") == True:
+            if k == "reset_camera" and params.get("_splash") is True:
                 continue
             params[k] = v
 
@@ -256,6 +251,8 @@ def _convert(
 
 
 class Progress:
+    """Progress indicator for tessellation"""
+
     def __init__(self, levels=None):
         if levels is None:
             self.levels = ["+", "c", "-"]
@@ -263,11 +260,13 @@ class Progress:
             self.levels = levels
 
     def update(self, mark="+"):
+        """Update progress indicator"""
         if mark in self.levels:
             print(mark, end="", flush=True)
 
 
 def align_attrs(attr_list, length, default, tag, explode=True):
+    """Align attributes to the length of the cad_objs"""
     if attr_list is None:
         return [None] * length if explode else None
     elif len(attr_list) < length:
@@ -280,6 +279,7 @@ def align_attrs(attr_list, length, default, tag, explode=True):
         return attr_list
 
 
+# pylint: disable=unused-argument
 def show(
     *cad_objs,
     names=None,
@@ -335,6 +335,7 @@ def show(
     timeit=None,
     _force_in_debug=False,
 ):
+    # pylint: disable=line-too-long
     """Show CAD objects in Visual Studio Code
     Parameters
         cad_objs:                All cad objects that should be shown as positional parameters
@@ -412,7 +413,7 @@ def show(
         debug:                   Show debug statements to the VS Code browser console (default=False)
         timeit:                  Show timing information from level 0-3 (default=False)
     """
-    global LAST_CALL
+    global LAST_CALL  # pylint: disable=global-statement
 
     kwargs = {
         k: v
@@ -504,11 +505,13 @@ def show(
 
 
 def reset_show():
-    global OBJECTS
+    """Reset the stack of objects to be shown"""
+    global OBJECTS  # pylint: disable=global-statement
 
     OBJECTS = {"objs": [], "names": [], "colors": [], "alphas": []}
 
 
+# pylint: disable=too-many-locals,too-many-arguments
 def show_object(
     obj,
     name=None,
@@ -563,6 +566,7 @@ def show_object(
     debug=None,
     timeit=None,
 ):
+    # pylint: disable=line-too-long
     """Incrementally show CAD objects in Visual Studio Code
 
     Parameters:
@@ -652,8 +656,6 @@ def show_object(
         and k not in ["obj", "name", "options", "parent", "clear", "port", "progress"]
     }
 
-    global OBJECTS
-
     if clear:
         reset_show()
 
@@ -691,6 +693,7 @@ def show_object(
 
 
 def show_clear():
+    """Clear the viewer"""
     data = {
         "type": "clear",
     }
@@ -698,9 +701,10 @@ def show_clear():
 
 
 def show_all(variables=None, exclude=None, force=False, **kwargs):
-    import inspect
+    """Show all variables in the current scope"""
+    import inspect  # pylint: disable=import-outside-toplevel
 
-    global LAST_CALL
+    global LAST_CALL  # pylint: disable=global-statement
 
     if force:
         LAST_CALL = "other"
@@ -723,12 +727,15 @@ def show_all(variables=None, exclude=None, force=False, **kwargs):
         if (
             isinstance(obj, type)
             or name in ["_", "__", "___"]
-            or re.search("_\d+", name) is not None
+            or re.search("_\\d+", name) is not None
         ):
             continue  # ignore classes and jupyter variables
 
         if name not in exclude:
-            if hasattr(obj, "_obj") and obj._obj is None:
+            if (
+                hasattr(obj, "_obj")
+                and obj._obj is None  # pylint: disable=protected-access
+            ):
                 continue
 
             if hasattr(obj, "locations") and hasattr(obj, "local_locations"):

@@ -21,7 +21,7 @@ _OCP CAD Viewer_ for VS Code is an extension to show [CadQuery](https://github.c
 
 ### Installation
 
-1. Open the VS Code Marketplace, and search and install _OCP CAD Viewer 2.0.13_.
+1. Open the VS Code Marketplace, and search and install _OCP CAD Viewer 2.1.1_.
 
     Afterwards the OCP viewer is available in the VS Code sidebar:
 
@@ -186,47 +186,17 @@ You can also use "Library Manager" in the _OCP CAD Viewer_ sidebar to manage the
 
 ## Changes
 
-v2.0.13
--   Fix shortcut boolean parameter for grid
--   Update dependencies for installing build123d on Apple Silicon
--   Ensure terminal is shown during installations
--   Refactor getCurrentFolder
--   Create demo file in current folder instead of temp folder
--   Use new environment API to get Python path
--   Handle showing empty CAD objects with show_all
--   Ensure to set ocp_vscode_version for quick install
--   Add python 3.11 for Apple Silicon machines
+v2.1.1
+-   Fix Jupyter Console for non-worpkspace mode
+-   Enforce using latest ocp-tesellate 2.0.6
 
-v2.0.6
+v2.1.0
+-   Introduce a minimum version of build123d for backend.py to remove the Python dependency on buidl123d.
+-   Changed the state handling: instead of distributed `.ocp_vscode` files, there is now one central `$HOME/.ocpvscode` file.
+-   Experimental Jupyter console support: When starting an interacive session, the kernel connection file will be writte to `$HOME/.ocpvscode`.
+    This file will be used in the Viewer Manager under *jupyter console* to open the jupyter console as another client for the kernel
+-   Use a VS Code Terminal for the backend so that it is no black box any more
+-   Enforce using latest ocp-tesellate 2.0.5
+-   Streamline the vsix to be <1MB
 
--   Add three-cad-viewer 2.1.2 to fix black edges issue in measure mode and remove angle tool resizing
-
-v2.0.4
-
--   Fix regression of ocp-tessallate version
-
-v2.0.3
-
--   Fix regression in port detection
--   Added missing dependencies for build123d on Apple Silicon
-
-v2.0.2
-
--   Fix .ocp_vscode detection on Windows
--   Fix showing ShapeList[Vector]
--   Viewer now starts when VS Code opens with a build123d/cadquery Python file
-
-v2.0.1
-
--   Introduce a workspace configuration `initialPort` for OCP CAD Viewer
--   Change the warning about used port to an auto vanishing info
-
-v2.0.0
-
--   Introduce **measure mode**. Use `set_defaults(measure_tools=True)` or `show(obj, measure_tools=True)` or the global workspace confiv of OCP CAD Viewer to turn it on. This release added a Python backend process that communicates with the viewer for providing correct BRep measurement info.
--   **Autostart** viewer: When opening or saving a Python file that includes `import cadquery`, `import build123d`, `from cadquery import` or `from build123d import`, the viewer gets started if it is not already running. Use `OcpCadViewer.autostart` configuration of workspace config to turn this feature off.
--   **Environment variable OCP_PORT** is supported. It will be used by the viewer and the `show*` clients as the port for OCP CAD Viewer. This variable can be set on the command line or in `launch.json` (`"env": {"OCP_PORT": "3999"}`).
--   **Modifier keys can now be remapped** `key={"shift": "shiftKey", "ctrl": "ctrlKey", "meta": "metaKey"}`. Valid keys are `shift`, `ctrl` and `meta`. Valid values are `shiftKey`, `ctrlKey`, `metaKey` (command on Mac and Windows on Windows) and `altKey` (option on Mac and Alt on Windows).
--   `CAMERA.KEEP` and `CAMERA.CENTER` now **persist the viewer across execution sessions**. If you want to reset at every beginning, use `show(objs, reset_camer=Camera.RESET)` as the first show command.
-
-full change log see [Changes.md](./Changes.md)
+full change log see [CHANGELOG.md](./CHANGELOG.md)

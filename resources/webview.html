@@ -17,6 +17,7 @@
         var _position = null;
         var _quaternion = null;
         var _target = null;
+        var oldStates = null;
         var viewerOptions = {};
         var last_bb_radius = null;
 
@@ -211,6 +212,16 @@
                     changed = true;
                 }
             });
+            if (viewer != null && viewer.treeview != null) {
+                // ensure to clone the object
+                const states_json = JSON.stringify(viewer.treeview.states);
+                const states = JSON.parse(states_json); 
+                if (oldStates == null || JSON.stringify(oldStates) != states_json) {
+                    message["states"] = states;
+                    oldStates = states;
+                    changed = true;
+                }
+            }
             if (changed) {
                 send('status', message);
             }

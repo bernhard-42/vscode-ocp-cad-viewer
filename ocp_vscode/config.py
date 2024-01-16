@@ -1,3 +1,5 @@
+"""Configuration of the viewer"""
+
 #
 # Copyright 2023 Bernhard Walter
 #
@@ -34,12 +36,16 @@ __all__ = [
 
 
 class Camera(Enum):
+    """Camera reset modes"""
+
     RESET = "reset"
     CENTER = "center"
     KEEP = "keep"
 
 
 class Collapse(Enum):
+    """Collapse modes for the CAD navigation tree"""
+
     NONE = 0
     LEAVES = 1
     ALL = 2
@@ -145,6 +151,7 @@ DEFAULTS = {
 }
 
 
+# pylint: disable=too-many-arguments,unused-argument,too-many-locals
 def set_viewer_config(
     axes=None,
     axes0=None,
@@ -173,6 +180,7 @@ def set_viewer_config(
     reset_camera=None,
     states=None,
 ):
+    """Set viewer config"""
     config = {k: v for k, v in locals().items() if v is not None}
     data = {
         "type": "ui",
@@ -182,10 +190,12 @@ def set_viewer_config(
 
 
 def get_default(key):
+    """Get default value for key"""
     return DEFAULTS.get(key)
 
 
 def get_defaults():
+    """Get all defaults"""
     return DEFAULTS
 
 
@@ -229,6 +239,7 @@ def set_defaults(
     debug=None,
     timeit=None,
 ):
+    # pylint: disable=line-too-long
     """Set viewer defaults
     Keywords to configure the viewer:
     - UI
@@ -294,7 +305,6 @@ def set_defaults(
 
     kwargs = check_deprecated(kwargs)
 
-    global DEFAULTS
     for key, value in kwargs.items():
         if key in CONFIG_KEYS:
             DEFAULTS[key] = value
@@ -305,14 +315,17 @@ def set_defaults(
 
 
 def preset(key, value):
+    """Set default value for key"""
     return get_default(key) if value is None else value
 
 
 def ui_filter(conf):
+    """Filter out all non-UI keys from the config dict"""
     return {k: v for k, v in conf.items() if k in CONFIG_UI_KEYS}
 
 
 def status(port=None, debug=False):
+    """Get viewer status"""
     if port is None:
         port = get_port()
     try:
@@ -325,10 +338,11 @@ def status(port=None, debug=False):
     except Exception as ex:
         raise RuntimeError(
             "Cannot access viewer status. Is the viewer running?\n" + str(ex.args)
-        )
+        ) from ex
 
 
 def workspace_config(port=None):
+    """Get viewer workspace config"""
     if port is None:
         port = get_port()
     try:
@@ -349,10 +363,11 @@ def workspace_config(port=None):
     except Exception as ex:
         raise RuntimeError(
             "Cannot access viewer config. Is the viewer running?\n" + str(ex.args)
-        )
+        ) from ex
 
 
 def combined_config(port=None, use_status=True):
+    """Get combined config from workspace and status"""
     if port is None:
         port = get_port()
 
@@ -363,7 +378,7 @@ def combined_config(port=None, use_status=True):
     except Exception as ex:
         raise RuntimeError(
             "Cannot access viewer config. Is the viewer running?\n" + str(ex.args)
-        )
+        ) from ex
 
     if use_status and wspace_config["_splash"]:
         del wspace_config["_splash"]
@@ -382,6 +397,7 @@ def combined_config(port=None, use_status=True):
 
 
 def get_changed_config(key=None):
+    """Get changed config from workspace and status"""
     wspace_config = workspace_config()
     wspace_config.update(DEFAULTS)
     if key is None:
@@ -392,7 +408,7 @@ def get_changed_config(key=None):
 
 def reset_defaults():
     """Reset defaults not given in workspace config"""
-    global DEFAULTS
+    global DEFAULTS  # pylint: disable=global-statement
 
     config = {
         key: value
@@ -419,18 +435,19 @@ def reset_defaults():
 
 
 def check_deprecated(kwargs):
+    """Check for deprecated arguments"""
     if kwargs.get("mate_scale") is not None:
         print("\nmate_scale is deprecated, use helper_scale instead\n")
         kwargs["helper_scale"] = kwargs["mate_scale"]
         del kwargs["mate_scale"]
 
-    if kwargs.get("reset_camera") == True:
+    if kwargs.get("reset_camera") is True:
         print(
             "\n'reset_camera=True' is deprecated, use 'reset_camera=Camera.RESET' instead\n"
         )
         kwargs["reset_camera"] = Camera.RESET
 
-    if kwargs.get("reset_camera") == False:
+    if kwargs.get("reset_camera") is False:
         print(
             "\n'reset_camera=False' is deprecated, use 'reset_camera=Camera.CENTER' instead\n"
         )

@@ -1,35 +1,32 @@
-from dataclasses import dataclass, asdict, fields
+"""Python backend for the OCP Viewer"""
+
 import argparse
+import base64
 import sys
 import traceback
-import base64
-from ocp_vscode.comms import listener, MessageType, send_response
-from build123d import (
-    Axis,
-    CenterOf,
-    GeomType,
-    Location,
-    Plane,
-    Vector,
-    Vertex,
-    Edge,
-    Face,
-    Solid,
-    Shape,
-    Compound,
-    Location,
-)
-from build123d.topology import downcast
+from dataclasses import asdict, dataclass, fields
+
+from ocp_tessellate.ocp_utils import deserialize, make_compound, tq_to_loc
 from ocp_tessellate.tessellator import (
-    face_mapper,
-    edge_mapper,
-    vertex_mapper,
-    get_faces,
     get_edges,
+    get_faces,
     get_vertices,
 )
-from ocp_tessellate.ocp_utils import make_compound, deserialize, tq_to_loc
-from ocp_tessellate.trace import Trace, dump_face, dump_edge, dump_vertex
+from ocp_tessellate.trace import Trace
+from ocp_vscode.build123d import (
+    Compound,
+    Edge,
+    Face,
+    Location,
+    Plane,
+    Shape,
+    Solid,
+    Vector,
+    Vertex,
+    downcast,
+)
+
+from ocp_vscode.comms import MessageType, listener, send_response, set_port
 
 
 class SelectedCenterInfo:
@@ -51,11 +48,13 @@ def print_to_stdout(*msg):
 
 
 def error_handler(func):
-    def wrapper(*args, **kwargs):
+    """Decorator for error handling"""
+
+    def wrapper(*args, **kwargs):  # pylint: disable=redefined-outer-name
         try:
             func(*args, **kwargs)
-        except Exception as ex:
-            print_to_stdout(ex)
+        except Exception as exc:  # pylint: disable=broad-except
+            print_to_stdout(exc)
             traceback.print_exception(*sys.exc_info(), file=sys.stdout)
 
     return wrapper
@@ -63,6 +62,8 @@ def error_handler(func):
 
 @dataclass
 class Tool:
+    """The tools available in the viewer"""
+
     Distance = "DistanceMeasurement"
     Properties = "PropertiesMeasurement"
     Angle = "AngleMeasurement"
@@ -89,17 +90,25 @@ def set_precision(instance, decimals=2):
 
 @dataclass
 class Response:
+    """Base class for all responses"""
+
     type: str = "backend_response"
 
 
 @dataclass
 class MeasureReponse(Response):
-    center_info: str = ""  # a string telling the frontend how the reference points used for the measurement were chosen
+    """Base class for all measurement responses"""
+
+    # a string telling the frontend how the reference points used for the
+    # measurement were chosen
+    center_info: str = ""
     subtype: str = "tool_response"
 
 
 @dataclass
 class DistanceResponse(MeasureReponse):
+    """Response class for distance measurement"""
+
     tool_type: Tool = Tool.Distance
     point1: tuple = None
     point2: tuple = None
@@ -108,6 +117,8 @@ class DistanceResponse(MeasureReponse):
 
 @dataclass
 class PropertiesResponse(MeasureReponse):
+    """Response class for properties measurement"""
+
     tool_type: Tool = Tool.Properties
     center: tuple = None
     vertex_coords: tuple = None
@@ -121,6 +132,8 @@ class PropertiesResponse(MeasureReponse):
 
 @dataclass
 class AngleResponse(MeasureReponse):
+    """Response class for angle measurement"""
+
     tool_type: Tool = Tool.Angle
     angle: float = None
     point1: tuple = None
@@ -130,7 +143,8 @@ class AngleResponse(MeasureReponse):
 class ViewerBackend:
     """
     Represents the backend of the viewer, it listens to the websocket and handles the events
-    It's job is to send responses to the vscode extension that goes through the three cad viewer view.
+    It's job is to send responses to the vscode extension that goes through the three cad
+    viewer view.
     The reponses holds all the data needed to display the measurements.
     """
 
@@ -139,6 +153,7 @@ class ViewerBackend:
         self.model = None
         self.activated_tool = None
         self.filter_type = "none"  # The current active selection filter
+        set_port(port)
 
     def start(self):
         """
@@ -153,9 +168,9 @@ class ViewerBackend:
         Handle the event received from the websocket
         Dispatch the event to the appropriate handler
         """
-        if event_type == MessageType.data:
+        if event_type == MessageType.DATA:
             self.load_model(message)
-        elif event_type == MessageType.updates:
+        elif event_type == MessageType.UPDATES:
             changes = message
 
             if "activeTool" in changes:
@@ -176,17 +191,17 @@ class ViewerBackend:
         if not "selectedShapeIDs" in changes:
             return
 
-        selectedObjs = changes["selectedShapeIDs"]
-        if self.activated_tool == Tool.Distance and len(selectedObjs) == 2:
+        selected_objs = changes["selectedShapeIDs"]
+        if self.activated_tool == Tool.Distance and len(selected_objs) == 2:
             shape_id1 = changes["selectedShapeIDs"][0]
             shape_id2 = changes["selectedShapeIDs"][1]
             self.handle_distance(shape_id1, shape_id2)
 
-        elif self.activated_tool == Tool.Properties and len(selectedObjs) == 1:
+        elif self.activated_tool == Tool.Properties and len(selected_objs) == 1:
             shape_id = changes["selectedShapeIDs"][0]
             self.handle_properties(shape_id)
 
-        elif self.activated_tool == Tool.Angle and len(selectedObjs) == 2:
+        elif self.activated_tool == Tool.Angle and len(selected_objs) == 2:
             shape_id1 = changes["selectedShapeIDs"][0]
             shape_id2 = changes["selectedShapeIDs"][1]
             self.handle_angle(shape_id1, shape_id2)
@@ -199,7 +214,7 @@ class ViewerBackend:
                 if v.get("parts") is not None:
                     walk(v, trace)
                 else:
-                    id = v["id"]
+                    id_ = v["id"]
                     loc = (
                         Location().wrapped if v["loc"] is None else tq_to_loc(*v["loc"])
                     )
@@ -208,24 +223,24 @@ class ViewerBackend:
                         for s in v["shape"]
                     ]
                     compound = make_compound(shape) if len(shape) > 1 else shape[0]
-                    self.model[id] = Compound(compound.Moved(loc))
+                    self.model[id_] = Compound(compound.Moved(loc))
                     faces = get_faces(compound)
                     for i, face in enumerate(faces):
-                        trace.face(f"{id}/faces/faces_{i}", face)
+                        trace.face(f"{id_}/faces/faces_{i}", face)
 
-                        self.model[f"{id}/faces/faces_{i}"] = Face(face.Moved(loc))
+                        self.model[f"{id_}/faces/faces_{i}"] = Face(face.Moved(loc))
                     edges = get_edges(compound)
                     for i, edge in enumerate(edges):
-                        trace.edge(f"{id}/edges/edges_{i}", edge)
+                        trace.edge(f"{id_}/edges/edges_{i}", edge)
 
-                        self.model[f"{id}/edges/edges_{i}"] = (
+                        self.model[f"{id_}/edges/edges_{i}"] = (
                             Edge(edge) if loc is None else Edge(edge.Moved(loc))
                         )
                     vertices = get_vertices(compound)
                     for i, vertex in enumerate(vertices):
-                        trace.vertex(f"{id}/vertices/vertex{i}", vertex)
+                        trace.vertex(f"{id_}/vertices/vertex{i}", vertex)
 
-                        self.model[f"{id}/vertices/vertices{i}"] = (
+                        self.model[f"{id_}/vertices/vertices{i}"] = (
                             Vertex(vertex)
                             if loc is None
                             else Vertex(downcast(vertex.Moved(loc)))
@@ -255,7 +270,7 @@ class ViewerBackend:
 
         elif isinstance(shape, Face):
             if shape.geom_type() == "CYLINDER":
-                circle = shape.edges().filter_by(GeomType.CIRCLE).first
+                circle = shape.edges().filter_by("CIRCLE")[0]
                 response.radius = circle.radius
 
             response.length = shape.length
@@ -299,9 +314,9 @@ class ViewerBackend:
             if isinstance(shape2, Edge) and shape2.geom_type() in ["CIRCLE", "ELLIPSE"]
             else shape2 % 0
         )
-        if type(first) == type(second) == Plane:
+        if isinstance(first, Plane) and isinstance(second, Plane):
             angle = first.z_dir.get_angle(second.z_dir)
-        elif type(first) == type(second) == Vector:
+        elif isinstance(first, Vector) and isinstance(second, Vector):
             angle = first.get_angle(second)
         else:
             vector = first if isinstance(first, Vector) else second
@@ -335,8 +350,6 @@ class ViewerBackend:
             return shape.center(), SelectedCenterInfo.vertex
         elif isinstance(shape, Edge):
             if shape.geom_type() in [
-                GeomType.CIRCLE,
-                GeomType.ELLIPSE,
                 "CIRCLE",
                 "ELLIPSE",
             ]:
@@ -346,17 +359,17 @@ class ViewerBackend:
                     return shape.center(), SelectedCenterInfo.geom
 
         elif isinstance(shape, Face):
-            if shape.geom_type() in [GeomType.CYLINDER, "CYLINDER"]:
+            if shape.geom_type() in ["CYLINDER"]:
                 if not for_distance:
                     return shape.center(), SelectedCenterInfo.geom
 
-                extremity_edges = shape.edges().filter_by(GeomType.CIRCLE)
+                extremity_edges = shape.edges().filter_by("CIRCLE")
                 if len(extremity_edges) == 2:
                     return (
-                        extremity_edges.first.arc_center
+                        extremity_edges[0].arc_center
                         - (
-                            extremity_edges.first.arc_center
-                            - extremity_edges.last.arc_center
+                            extremity_edges[0].arc_center
+                            - extremity_edges[-1].arc_center
                         )
                         / 2,
                         SelectedCenterInfo.cylinder,
@@ -364,7 +377,7 @@ class ViewerBackend:
                 else:
                     try:
                         return (
-                            extremity_edges.first.arc_center,
+                            extremity_edges[0].arc_center,
                             SelectedCenterInfo.cylinder,
                         )
                     except IndexError:
@@ -406,5 +419,5 @@ if __name__ == "__main__":
     backend = ViewerBackend(args.port)
     try:
         backend.start()
-    except Exception as ex:
+    except Exception as ex:  # pylint: disable=broad-except
         print(ex)

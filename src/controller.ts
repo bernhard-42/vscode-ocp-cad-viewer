@@ -15,6 +15,7 @@
    limitations under the License.
 */
 
+import * as os from "os";
 import * as vscode from "vscode";
 import { OCPCADViewer } from "./viewer";
 import { template } from "./display";
@@ -23,9 +24,9 @@ import { WebSocket, WebSocketServer } from 'ws';
 import * as output from "./output";
 import { logo } from "./logo";
 import { StatusManagerProvider } from "./statusManager";
-import { ChildProcessWithoutNullStreams, spawn } from "child_process";
 import { getPythonPath } from "./utils";
 import { getCurrentFolder } from "./utils";
+import { updateState } from "./state";
 
 var serverStarted = false;
 
@@ -38,7 +39,7 @@ interface Message {
 export class OCPCADController {
     server: Server | undefined;
     pythonListener: WebSocket | undefined;
-    pythonBackendProcess: ChildProcessWithoutNullStreams | undefined;
+    pythonBackendTerminal: vscode.Terminal | undefined;
     statusController: StatusManagerProvider;
     statusBarItem: vscode.StatusBarItem;
     view: vscode.Webview | undefined;
@@ -231,28 +232,36 @@ export class OCPCADController {
      * Starts the python backend server
      */
     public async startBackend() {
-        let root = getCurrentFolder();
+        let root = getCurrentFolder()[0];
         if (root === "") {
             vscode.window.showInformationMessage("First open a file in your project");
             return;
         }
 
         let python = await getPythonPath();
-        output.debug(`Starting python backend with ${python}`);
-        const defaults = { cwd: root };
-        this.pythonBackendProcess = spawn(python, [this.getBackendPath(), "--port", this.port.toString()], defaults);
-        this.pythonBackendProcess.stdout.on('data', (data) => {
-            output.debug(`Python backend: ${data}`);
-        });
 
+        let pythonBackendTerminal = vscode.window.createTerminal({
+            name: 'OCP backend',
+            cwd: root,
+            shellPath: (os.platform() === "win32") ? process.env.COMSPEC : undefined
+        });
+        pythonBackendTerminal.show();
+        const delay = vscode.workspace.getConfiguration("OcpCadViewer.advanced")[
+            "terminalDelay"
+        ];
+        setTimeout(() => {
+            pythonBackendTerminal.sendText(`${python} ${this.getBackendPath()} --port ${this.port}`);
+            pythonBackendTerminal.hide();
+        }, delay);
+        this.pythonBackendTerminal = pythonBackendTerminal;
     }
 
     /**
      * Stops the python backend server
      */
     public stopBackend() {
-        this.pythonBackendProcess?.kill();
-        this.pythonBackendProcess = undefined;
+        this.pythonBackendTerminal?.dispose();
+        this.pythonBackendTerminal = undefined;
     }
 
     public stopCommandServer() {
@@ -277,5 +286,6 @@ export class OCPCADController {
         output.info("Server is shut down");
         this.statusController.refresh("<none>");
         this.statusBarItem.hide();
+        updateState(this.port, null, null);
     }
 }

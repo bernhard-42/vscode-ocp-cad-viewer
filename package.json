@@ -2,7 +2,7 @@
     "name": "ocp-cad-viewer",
     "displayName": "OCP CAD Viewer",
     "description": "An integrated OCP CAD viewer for CadQuery and build123d",
-    "version": "2.0.13",
+    "version": "2.1.1",
     "publisher": "bernhard-42",
     "icon": "resources/ocp-logo.png",
     "license": "Apache-2.0",
@@ -31,6 +31,14 @@
             {
                 "command": "ocpCadViewer.openViewer",
                 "title": "OCP CAD Viewer: Open viewer (button)",
+                "icon": {
+                    "light": "resources/light/open.svg",
+                    "dark": "resources/dark/open.svg"
+                }
+            },
+            {
+                "command": "ocpCadViewer.openConsole",
+                "title": "OCP CAD Viewer: Open Jupyter Console (button)",
                 "icon": {
                     "light": "resources/light/open.svg",
                     "dark": "resources/dark/open.svg"
@@ -207,6 +215,11 @@
                 {
                     "command": "ocpCadViewer.openViewer",
                     "when": "view == ocpCadStatus && viewItem == status",
+                    "group": "inline@0"
+                },
+                {
+                    "command": "ocpCadViewer.openConsole",
+                    "when": "view == ocpCadStatus && viewItem == console",
                     "group": "inline@0"
                 }
             ]
@@ -527,10 +540,10 @@
                         },
                         "ocp_tessellate": {
                             "pip": [
-                                "{python} -m pip install --upgrade \"ocp_tessellate>=2.0.3,<2.1.0\""
+                                "{python} -m pip install --upgrade \"ocp_tessellate>=2.0.6,<2.1.1\""
                             ],
                             "poetry": [
-                                "poetry add ocp_tessellate@~2.0.3"
+                                "poetry add ocp_tessellate@~2.0.6"
                             ]
                         },
                         "ipykernel": {
@@ -545,6 +558,20 @@
                             ],
                             "poetry": [
                                 "poetry add ipykernel"
+                            ]
+                        },
+                        "jupyter_console": {
+                            "pip": [
+                                "{python} -m pip install --upgrade jupyter_console"
+                            ],
+                            "conda": [
+                                "conda install -y -n {conda_env} -c conda-forge jupyter_console"
+                            ],
+                            "mamba": [
+                                "mamba install -y -n {conda_env} -c conda-forge jupyter_console"
+                            ],
+                            "poetry": [
+                                "poetry add jupyter_console"
                             ]
                         }
                     },
@@ -700,6 +727,12 @@
                         }
                     },
                     "order": 57
+                },
+                "OcpCadViewer.advanced.terminalDelay": {
+                    "type": "number",
+                    "default": 1000,
+                    "description": "Delay until terminal command is started (default: 1000)",
+                    "order": 58
                 }
             }
         }

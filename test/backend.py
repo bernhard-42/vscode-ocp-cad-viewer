@@ -1,4 +1,4 @@
-import pickle
+from ocp_tessellate.ocp_utils import deserialize
 from asyncio import StreamWriter, StreamReader
 import asyncio
 
@@ -30,7 +30,7 @@ class AsyncServer:
             await server.serve_forever()
 
     def handle_data(self, data):
-        obj = pickle.loads(data)
+        obj = deserialize(data)
         print(obj)
 
 

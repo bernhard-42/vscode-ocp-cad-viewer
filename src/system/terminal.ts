@@ -42,7 +42,7 @@ export class TerminalExecute {
             name: this.terminalName,
             pty
         });
-        this.workspaceFolder = getCurrentFolder();
+        this.workspaceFolder = getCurrentFolder()[0];
 
         vscode.window.onDidCloseTerminal(async t => {
 

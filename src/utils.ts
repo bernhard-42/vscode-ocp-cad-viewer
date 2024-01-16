@@ -16,6 +16,7 @@
 
 import * as vscode from "vscode";
 import * as fs from "fs";
+import * as net from "net";
 import * as path from "path";
 import { PythonExtension } from '@vscode/python-extension';
 import * as output from "./output";
@@ -35,26 +36,40 @@ export function getCurrentFileUri(): vscode.Uri | undefined {
     }
     return undefined;
 }
-export function getCurrentFilename(): string | undefined {
-    const filename = getCurrentFileUri()?.fsPath;
+export function getCurrentFilename(): vscode.Uri | undefined {
+    const filename = getCurrentFileUri();
     return filename;
 }
 
-export function getCurrentFolder(): string {
-    let root: vscode.WorkspaceFolder | undefined;
-    if (vscode.workspace?.workspaceFolders?.length === 1) {
-        root = vscode.workspace.workspaceFolders[0];
-    } else {
-        let filename = getCurrentFileUri();
-        if (filename) {
-            root = vscode.workspace.getWorkspaceFolder(filename);
+export function getCurrentFolder(filename: vscode.Uri | undefined = undefined): [string, boolean] {
+    let root: string | undefined = undefined;
+    let isWorkspace = false;
+    if (filename === undefined) {
+        filename = getCurrentFilename();
+    }
+
+    if (vscode.workspace?.workspaceFolders && vscode.workspace.workspaceFolders.length > 0) {
+        for (let i = 0; i < vscode.workspace.workspaceFolders.length; i++) {
+            if (filename?.fsPath.startsWith(vscode.workspace.workspaceFolders[i].uri.fsPath)) {
+                root = vscode.workspace.workspaceFolders[i].uri.fsPath;
+                isWorkspace = true;
+                break;
+            }
         }
     }
-    if (root) {
-        return root.uri.fsPath;
-    } else {
-        return "";
+    if (root === undefined) {
+        if (filename?.fsPath.endsWith(".py")) {
+            root = vscode.workspace.getWorkspaceFolder(filename)?.uri.fsPath;
+            if (root === undefined) {
+                root = path.dirname(filename.fsPath);
+            }
+        }
     }
+    if (!root) {
+        vscode.window.showErrorMessage("No workspace folder found. Open a folder and click to focus an editor window.");
+        return ["", false];
+    }
+    return [root, isWorkspace];
 }
 
 export async function inquiry(placeholder: string, options: string[]) {
@@ -103,6 +118,24 @@ export function getPythonPath() {
 }
 
 export function getPackageManager() {
-    let cwd = getCurrentFolder();
+    let cwd = getCurrentFolder()[0];
     return fs.existsSync(path.join(cwd, "poetry.lock")) ? "poetry" : "pip";
+}
+
+export async function isPortInUse(port: number): Promise<boolean> {
+    return new Promise((resolve) => {
+        const tester = net.createServer()
+            .once('error', (err: NodeJS.ErrnoException) => {
+                if (err.code === 'EADDRINUSE') {
+                    resolve(true);
+                } else {
+                    resolve(false);
+                }
+            })
+            .once('listening', () => {
+                tester.close();
+                resolve(false);
+            })
+            .listen(port);
+    });
 }

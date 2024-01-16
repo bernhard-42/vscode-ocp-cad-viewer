@@ -122,6 +122,9 @@ export async function installLib(
 
     let term = vscode.window.createTerminal("Library Installations", (os.platform() === "win32") ? process.env.COMSPEC : undefined);
     term.show();
+    const delay = vscode.workspace.getConfiguration("OcpCadViewer.advanced")[
+        "terminalDelay"
+    ];
     let listener = vscode.window.onDidCloseTerminal((e) => {
         libraryManager.refresh();
 
@@ -132,7 +135,7 @@ export async function installLib(
         callback();
         listener.dispose();
     })
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await new Promise(resolve => setTimeout(resolve, delay));
     commands.push("exit")
     const command = commands.join(" && ");
     term.sendText(command, true);
@@ -196,7 +199,7 @@ export class LibraryManagerProvider
         let filteredManagers: string[] = [];
 
         managers.forEach((manager: string) => {
-            const cwd = getCurrentFolder();
+            const cwd = getCurrentFolder()[0];
             const poetryLock = fs.existsSync(path.join(cwd, "poetry.lock"));
             if (manager === "poetry" && !poetryLock) {
                 // ignore

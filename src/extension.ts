@@ -19,17 +19,18 @@ import * as output from "./output";
 import * as path from "path";
 import * as fs from "fs";
 import * as os from "os";
+import * as net from "net";
 import { OCPCADController } from "./controller";
 import { OCPCADViewer } from "./viewer";
 import { createLibraryManager, installLib, Library, LibraryManagerProvider } from "./libraryManager";
 import { createStatusManager } from "./statusManager";
 import { download } from "./examples";
-import { getCurrentFolder, jupyterExtensionInstalled } from "./utils";
+import { getCurrentFolder, jupyterExtensionInstalled, isPortInUse } from "./utils";
 import { version } from "./version";
 import * as semver from "semver";
 import { createDemoFile } from "./demo"
 import { set_open, show as showLog } from "./output";
-
+import { updateState, getState, getConfigFile } from "./state";
 
 function check_upgrade(libraryManager: LibraryManagerProvider) {
     const ocp_vscode_lib = libraryManager.installed["ocp_vscode"];
@@ -87,6 +88,8 @@ export async function activate(context: vscode.ExtensionContext) {
 
     let libraryManager = createLibraryManager(statusManager);
     await libraryManager.refresh();
+
+    let ocpvscodeFile: string | undefined = undefined;
 
     //	Statusbar
 
@@ -157,7 +160,7 @@ export async function activate(context: vscode.ExtensionContext) {
             "ocpCadViewer.ocpCadViewer",
             async () => {
 
-                let port;
+                let port: number;
                 let preset_port = false;
 
                 output.show();
@@ -177,8 +180,8 @@ export async function activate(context: vscode.ExtensionContext) {
                 statusBarItem.show();
                 check_upgrade(libraryManager);
 
-                const editor = vscode.window?.activeTextEditor?.document;
-                if (editor === undefined) {
+                const document = vscode.window?.activeTextEditor?.document;
+                if (document === undefined) {
                     output.error("No editor open");
                     vscode.window.showErrorMessage("No editor open");
 
@@ -186,44 +189,56 @@ export async function activate(context: vscode.ExtensionContext) {
                 }
                 const column = vscode.window?.activeTextEditor?.viewColumn;
 
-                while (port < 49152) {
-
-                    controller = new OCPCADController(
-                        context,
-                        port,
-                        statusManager,
-                        statusBarItem,
-                    );
-
-                    await controller.start();
-
-                    if (controller.isStarted()) {
-                        vscode.window.showTextDocument(editor, column);
-                        var folder = vscode.workspace.workspaceFolders?.[0].uri.fsPath || "";
-
-                        fs.writeFileSync(path.join(folder, ".ocp_vscode"), JSON.stringify({ "port": port }));
-
-                        vscode.window.showInformationMessage(
-                            `Using port ${port} and "show" should detect it automatically. If not, call ocp_vscode's "set_port(${port})" in Python first`
+                if (preset_port) {
+                    if (await isPortInUse(port)) {
+                        vscode.window.showErrorMessage(
+                            `OCP CAD Viewer could not start on port ${port} preconfigured in settings.json or env variable OCP_PORT`
                         );
-
-                        statusManager.refresh(port.toString());
-
-                        output.show();
-                        output.debug("Command OCP CAD Viewer registered");
-                        controller.logo();
-                        break;
-                    } else {
-                        if (preset_port) {
-                            vscode.window.showErrorMessage(
-                                `OCP CAD Viewer could not start on port ${port} preconfigured in settings.json or env variable OCP_PORT`
-                            );
-                            break;
-                        } else {
+                        return
+                    }
+                } else {
+                    while (port < 49152) {
+                        if (await isPortInUse(port)) {
+                            output.info(`Port ${port} already in use`);
                             port++;
-                            output.info(`Trying port ${port} ...`);
+                        } else {
+                            break;
                         }
                     }
+                }
+                controller = new OCPCADController(
+                    context,
+                    port,
+                    statusManager,
+                    statusBarItem,
+                );
+
+                await controller.start();
+
+                if (controller.isStarted()) {
+                    vscode.window.showTextDocument(document, column);
+                    var [folder, isWorkspace] = getCurrentFolder();
+                    output.debug(`ocpCadViewer ${port}, ${folder}, ${path.dirname(document.fileName)}`);
+                    var folders = (vscode.workspace?.workspaceFolders) ? vscode.workspace.workspaceFolders.map(f => f.uri.fsPath) : [];
+                    updateState(port, "roots", folders, true);
+
+                    vscode.window.showInformationMessage(
+                        `Using port ${port} and "show" should detect it automatically. ` +
+                        `If not, call ocp_vscode's "set_port(${port})" in Python first`
+                    );
+
+                    statusManager.refresh(port.toString());
+
+                    output.show();
+                    output.debug("Command OCP CAD Viewer registered");
+                    controller.logo();
+
+                    if (fs.existsSync(path.join(folder, ".ocp_vscode"))) {
+                        vscode.window.showInformationMessage(`Found .ocp_vscode in ${folder}. ` +
+                            `This file will be ignored and ${await getConfigFile()} used instead!`);
+                    }
+                } else {
+                    vscode.window.showErrorMessage(`OCP CAD Viewer could not start on port ${port}`);
                 }
             }
         )
@@ -289,7 +304,7 @@ export async function activate(context: vscode.ExtensionContext) {
         vscode.commands.registerCommand(
             "ocpCadViewer.downloadExamples",
             async (library: Library) => {
-                let root = getCurrentFolder();
+                let root = getCurrentFolder()[0];
                 if (root === "") {
                     vscode.window.showInformationMessage("First open a file in your project");
                     return;
@@ -385,6 +400,47 @@ export async function activate(context: vscode.ExtensionContext) {
     );
 
     context.subscriptions.push(
+        vscode.commands.registerCommand("ocpCadViewer.openConsole", async () => {
+            output.debug("Trying to open Jupyter console");
+            var folder = getCurrentFolder()[0];
+            if (!folder) {
+                return;
+            }
+            const state = await getState(folder);
+            const connectionFile = state?.state?.connection_file;
+
+            output.debug(`connectionFile: ${connectionFile}`);
+            if (connectionFile) {
+                if (fs.existsSync(connectionFile)) {
+                    let iopubPort = JSON.parse(fs.readFileSync(connectionFile).toString())["iopub_port"];
+                    output.debug(`iopubPort: ${iopubPort}`);
+                    net.createConnection(iopubPort, "localhost").on("connect", () => {
+                        let terminal = vscode.window.createTerminal({
+                            name: 'Jupyter Console',
+                            location: vscode.TerminalLocation.Editor,
+                            shellPath: (os.platform() === "win32") ? process.env.COMSPEC : undefined
+                        });
+                        terminal.show();
+                        const delay = vscode.workspace.getConfiguration("OcpCadViewer.advanced")[
+                            "terminalDelay"
+                        ];
+                        setTimeout(() => {
+                            terminal.sendText(`jupyter console --existing ${connectionFile}`);
+                            output.debug(`jupyter console --existing ${connectionFile} started`);
+                        }, delay);
+                    }).on("error", function (e) {
+                        vscode.window.showErrorMessage(`Kernel not running. Is the Interactive Window open and initialized?`);
+                    });
+                } else {
+                    vscode.window.showErrorMessage(`Connection file ${connectionFile} not found`);
+                }
+            } else {
+                vscode.window.showErrorMessage(`Connection file not found. Is the Interactive Window open and initialized?`);
+            }
+        })
+    );
+
+    context.subscriptions.push(
         vscode.commands.registerCommand(
             "ocpCadViewer.quickstart",
             async (arg) => {
@@ -472,7 +528,10 @@ export async function activate(context: vscode.ExtensionContext) {
     });
 
     vscode.workspace.onDidCloseTextDocument(async (e: vscode.TextDocument) => {
-        if (e.uri.scheme === "output" && e.uri.path.endsWith("OCP CAD Viewer Log")) {
+        if (e.uri.scheme === 'vscode-interactive-input') {
+            // remove the connection_file from the state
+            updateState(controller.port, "connection_file", null);
+        } else if (e.uri.scheme === "output" && e.uri.path.endsWith("OCP CAD Viewer Log")) {
             set_open(false);
         }
     });

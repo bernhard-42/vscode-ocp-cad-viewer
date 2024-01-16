@@ -1,3 +1,5 @@
+"""Color maps for the OCP CAD Viewer"""
+
 from colorsys import hsv_to_rgb, rgb_to_hsv
 from random import randrange, seed, random
 from webcolors import name_to_rgb
@@ -13,11 +15,10 @@ __all__ = [
 
 try:
     import matplotlib as mpl
-    import numpy as np
 
     HAS_MATPLOTLIB = True
 
-except:
+except:  # pylint: disable=bare-except
     HAS_MATPLOTLIB = False
 
 
@@ -25,18 +26,21 @@ COLORMAP = None
 
 
 def get_colormap():
+    """Get the current colormap"""
     if COLORMAP is not None:
         COLORMAP.reset()
     return COLORMAP
 
 
 def set_colormap(colormap):
-    global COLORMAP
+    """Set the current colormap"""
+    global COLORMAP  # pylint: disable=global-statement
     COLORMAP = colormap
 
 
 def unset_colormap():
-    global COLORMAP
+    """Unset the current colormap"""
+    global COLORMAP  # pylint: disable=global-statement
     COLORMAP = None
 
 
@@ -217,10 +221,12 @@ colormaps = {
 
 
 def hsv_mapper(t, saturation=0.6, value=0.95):
+    """Map a value to a color using HSV"""
     return hsv_to_rgb(t, saturation, value)
 
 
 def matplotlib_mapper(t, name):
+    """Map a value to a color using a matplotlib colormap"""
     if not HAS_MATPLOTLIB:
         raise RuntimeError("matplotlib is not installed")
 
@@ -238,6 +244,7 @@ def matplotlib_mapper(t, name):
 
 
 def random_rgb_mapper(lower=0, upper=255, brightness=1):
+    """Map a value to a random color"""
     r = randrange(lower, upper) / 255
     g = randrange(lower, upper) / 255
     b = randrange(lower, upper) / 255
@@ -247,11 +254,14 @@ def random_rgb_mapper(lower=0, upper=255, brightness=1):
 
 
 def web_to_rgb(name):
+    """Convert a web color name to RGB"""
     rgb = name_to_rgb(name)
     return (rgb.red / 255, rgb.green / 255, rgb.blue / 255)
 
 
 class BaseColorMap:
+    """Base class for color maps"""
+
     def __init__(self):
         self.index = 0
         self.alpha = 1.0
@@ -259,20 +269,26 @@ class BaseColorMap:
     def __iter__(self):
         return self
 
+    def __next__(self):
+        raise NotImplementedError()
+
     def reset(self):
+        """Reset the color map"""
         self.index = 0
 
 
 class ListedColorMap(BaseColorMap):
+    """A colormap with a list of colors"""
+
     def __init__(self, colors, alpha=1.0, reverse=False):
         super().__init__()
 
         self.colors = []
-        for i in range(len(colors)):
-            if isinstance(colors[i], str):
-                self.colors.append(web_to_rgb(colors[i]))
+        for color in colors:
+            if isinstance(color, str):
+                self.colors.append(web_to_rgb(color))
             else:
-                self.colors.append(colors[i])
+                self.colors.append(color)
         if reverse:
             self.colors = list(reversed(self.colors))
 
@@ -288,6 +304,8 @@ class ListedColorMap(BaseColorMap):
 
 
 class SegmentedColorMap(BaseColorMap):
+    """A segemented colormap"""
+
     def __init__(self, length, mapper, alpha=1.0, reverse=False, **params):
         super().__init__()
 
@@ -309,6 +327,8 @@ class SegmentedColorMap(BaseColorMap):
 
 
 class GoldenRatioColormap(BaseColorMap):
+    """A colormap based on the golden ratio"""
+
     def __init__(self, mapper, alpha=1.0, reverse=False, **params):
         super().__init__()
 
@@ -329,6 +349,8 @@ class GoldenRatioColormap(BaseColorMap):
 
 
 class SeededColormap(BaseColorMap):
+    """A colormap based on a seed value"""
+
     def __init__(self, seed_value, mapper, alpha=1.0, no_param=False, **params):
         super().__init__()
 
@@ -353,56 +375,71 @@ class SeededColormap(BaseColorMap):
 
 
 class ColorMap:
+    """A collection of colormaps"""
+
     @staticmethod
     def accent(alpha=1.0, reverse=False):
+        """Accent colormap"""
         return ListedColorMap(colormaps["Accent"], alpha=alpha, reverse=reverse)
 
     @staticmethod
     def dark2(alpha=1.0, reverse=False):
+        """Dark2 colormap"""
         return ListedColorMap(colormaps["Dark2"], alpha=alpha, reverse=reverse)
 
     @staticmethod
     def paired(alpha=1.0, reverse=False):
+        """Paired colormap"""
         return ListedColorMap(colormaps["Paired"], alpha=alpha, reverse=reverse)
 
     @staticmethod
     def pastel1(alpha=1.0, reverse=False):
+        """Pastel1 colormap"""
         return ListedColorMap(colormaps["Pastel1"], alpha=alpha, reverse=reverse)
 
     @staticmethod
     def pastel2(alpha=1.0, reverse=False):
+        """Pastel2 colormap"""
         return ListedColorMap(colormaps["Pastel2"], alpha=alpha, reverse=reverse)
 
     @staticmethod
     def set1(alpha=1.0, reverse=False):
+        """Set1 colormap"""
         return ListedColorMap(colormaps["Set1"], alpha=alpha, reverse=reverse)
 
     @staticmethod
     def set2(alpha=1.0, reverse=False):
+        """Set2 colormap"""
         return ListedColorMap(colormaps["Set2"], alpha=alpha, reverse=reverse)
 
     @staticmethod
     def set3(alpha=1.0, reverse=False):
+        """Set3 colormap"""
         return ListedColorMap(colormaps["Set3"], alpha=alpha, reverse=reverse)
 
     @staticmethod
     def tab10(alpha=1.0, reverse=False):
+        """Tab10 colormap"""
         return ListedColorMap(colormaps["tab10"], alpha=alpha, reverse=reverse)
 
     @staticmethod
     def tab20(alpha=1.0, reverse=False):
+        """Tab20 colormap"""
         return ListedColorMap(colormaps["tab20"], alpha=alpha, reverse=reverse)
 
     @staticmethod
     def tab20b(alpha=1.0, reverse=False):
+        """Tab20b colormap"""
         return ListedColorMap(colormaps["tab20b"], alpha=alpha, reverse=reverse)
 
     @staticmethod
     def tab20c(alpha=1.0, reverse=False):
+        """Tab20c colormap"""
         return ListedColorMap(colormaps["tab20c"], alpha=alpha, reverse=reverse)
 
     @staticmethod
     def golden_ratio(colormap="hsv", alpha=1.0, reverse=False):
+        """Create a colormap based on the golden ratio"""
         if colormap == "hsv":
             return GoldenRatioColormap(hsv_mapper, alpha=alpha, reverse=reverse)
         elif colormap.startswith("mpl"):
@@ -413,6 +450,7 @@ class ColorMap:
 
     @staticmethod
     def seeded(seed_value=42, colormap="hsv", alpha=1.0, **params):
+        """Create a colormap based on a seed value"""
         if colormap == "hsv":
             return SeededColormap(seed_value, hsv_mapper, alpha=alpha)
         elif colormap == "rgb":
@@ -425,37 +463,39 @@ class ColorMap:
 
     @staticmethod
     def segmented(length=10, colormap="hsv", alpha=1.0, reverse=False):
+        """Create a colormap with the given length from a matplotlib colormap"""
         if colormap == "hsv":
             return SegmentedColorMap(length, hsv_mapper, alpha=alpha, reverse=reverse)
         elif colormap.startswith("mpl"):
             _, name = colormap.split(":")
             if not isinstance(mpl.colormaps[name], mpl.colors.LinearSegmentedColormap):
                 raise ValueError(
-                    f"{name} is not a segemented matplotlib colormap, use ColorMap.listed({length}, {colormap}))"
+                    f"{name} is not a segemented matplotlib colormap,"
+                    f", use ColorMap.listed({length}, {colormap}))"
                 )
-                name = default
             return SegmentedColorMap(
                 length, matplotlib_mapper, alpha=alpha, name=name, reverse=reverse
             )
 
     @staticmethod
     def listed(length=10, colormap="mpl:plasma", colors=None, alpha=1.0, reverse=False):
-        if colors is not None:
-            return ListedColorMap(
-                colors,
-                alpha=alpha,
-                reverse=reverse,
-            )
-        else:
+        """Create a colormap with the given length from a matplotlib colormap"""
+        if colors is None:
             _, name = colormap.split(":")
             colormap = mpl.colormaps[name]
             if not isinstance(colormap, mpl.colors.ListedColormap):
-                f"{name} is not a listed matplotlib colormap, use ColorMap.segmented({length}, {colormap}))"
+                raise RuntimeError(
+                    f"{name} is not a listed matplotlib colormap, "
+                    f"use ColorMap.segmented({length}, {colormap}))"
+                )
 
             interval = len(colormap.colors) // (length - 1)
+            colors = [
+                colormap.colors[i] for i in range(0, len(colormap.colors), interval)
+            ]
 
-            return ListedColorMap(
-                [colormap.colors[i] for i in range(0, len(colormap.colors), interval)],
-                alpha=alpha,
-                reverse=reverse,
-            )
+        return ListedColorMap(
+            colors,
+            alpha=alpha,
+            reverse=reverse,
+        )
