@@ -60,7 +60,7 @@ function isLockStale(mtime: number, staleMilliseconds: number): boolean {
 async function removeLock(lockfile: string) {
     try {
         await fs.rmdir(lockfile);
-        output.debug(`Lockfile ${lockfile} removed`);
+        output.debug(`Lock file ${lockfile} removed`);
     } catch (error: any) {
         if (error.code === "ENOENT") {
             output.debug(`Lock file ${lockfile} not found`);
@@ -79,7 +79,7 @@ async function acquireLock(
 ) {
     try {
         await fs.mkdir(lockfile);
-        output.debug(`Lock ${lockfile} acquired`);
+        output.debug(`Lock file ${lockfile} acquired`);
     } catch (error: any) {
         if (error.code === "EEXIST") {
             output.debug(`Lock file ${lockfile} already exists`);

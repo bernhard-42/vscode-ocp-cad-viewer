@@ -218,7 +218,7 @@ export async function activate(context: vscode.ExtensionContext) {
                 if (controller.isStarted()) {
                     vscode.window.showTextDocument(document, column);
                     var [folder, isWorkspace] = getCurrentFolder();
-                    output.debug(`ocpCadViewer ${port}, ${folder}, ${path.dirname(document.fileName)}`);
+                    output.debug(`OCP Cad Viewer port: ${port}, folder: ${folder}, ${path.dirname(document.fileName)}`);
                     var folders = (vscode.workspace?.workspaceFolders) ? vscode.workspace.workspaceFolders.map(f => f.uri.fsPath) : [];
                     updateState(port, "roots", folders, true);
 
