@@ -700,7 +700,7 @@ def show_clear():
     send_data(data)
 
 
-def show_all(variables=None, exclude=None, force=False, **kwargs):
+def show_all(variables=None, exclude=None, classes=None, force=False, **kwargs):
     """Show all variables in the current scope"""
     import inspect  # pylint: disable=import-outside-toplevel
 
@@ -731,7 +731,7 @@ def show_all(variables=None, exclude=None, force=False, **kwargs):
         ):
             continue  # ignore classes and jupyter variables
 
-        if name not in exclude:
+        if name not in exclude and (classes is None or isinstance(obj, tuple(classes))):
             if (
                 hasattr(obj, "_obj")
                 and obj._obj is None  # pylint: disable=protected-access
