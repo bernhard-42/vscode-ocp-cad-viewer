@@ -730,6 +730,9 @@ def show_all(variables=None, exclude=None, classes=None, force=False, **kwargs):
             or re.search("_\\d+", name) is not None
         ):
             continue  # ignore classes and jupyter variables
+        if hasattr(obj, "area") and obj.area > 1e99:  # inifinite face
+            print(f"infinite face {name} skipped")
+            continue
 
         if name not in exclude and (classes is None or isinstance(obj, tuple(classes))):
             if (
