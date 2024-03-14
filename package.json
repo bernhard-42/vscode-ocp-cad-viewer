@@ -472,11 +472,17 @@
                     "description": "Whether to start the viewer when opening Python files or not",
                     "order": 52
                 },
+                "OcpCadViewer.advanced.autohideTerminal": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Whether to autohide the Terminal on viewer start or not",
+                    "order": 53
+                },
                 "OcpCadViewer.advanced.initialPort": {
                     "type": "number",
                     "default": 3939,
                     "description": "The start port where OCP CAD Viewer will start to search for a free port",
-                    "order": 53
+                    "order": 54
                 },
                 "OcpCadViewer.advanced.quickstartCommands": {
                     "type": "object",

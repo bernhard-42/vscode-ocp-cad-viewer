@@ -249,9 +249,14 @@ export class OCPCADController {
         const delay = vscode.workspace.getConfiguration("OcpCadViewer.advanced")[
             "terminalDelay"
         ];
+        const autohide = vscode.workspace.getConfiguration("OcpCadViewer.advanced")[
+            "autohideTerminal"
+        ];
         setTimeout(() => {
             pythonBackendTerminal.sendText(`${python} ${this.getBackendPath()} --port ${this.port}`);
-            pythonBackendTerminal.hide();
+            if (autohide) {
+                pythonBackendTerminal.hide();
+            }
         }, delay);
         this.pythonBackendTerminal = pythonBackendTerminal;
     }
