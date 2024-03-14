@@ -74,6 +74,7 @@ export class OCPCADController {
             "control": options.get("orbit_control") ? "orbit" : "trackball",
             "up": options.get("up"),
             "glass": options.get("glass"),
+            "new_tree_behavior": options.get("new_tree_behavior"),
             "tools": options.get("tools"),
             "rotate_speed": options.get("rotate_speed"),
             "zoom_speed": options.get("zoom_speed"),

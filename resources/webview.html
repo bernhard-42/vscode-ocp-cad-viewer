@@ -52,6 +52,7 @@
             quaternion: null,
             target: null,
             control: '{ control }',
+            newTreeBehavior: true,
         };
 
         const renderDefaultOptions = {
@@ -254,6 +255,7 @@
             const tools = preset(_config, "tools", displayDefaultOptions.tools);
             const treeWidth = glass ? 0 : preset(_config, "treeWidth", displayDefaultOptions.treeWidth);
             const keymap = preset(_config, "modifier_keys", viewerDefaultOptions.keymap);
+            const newTreeBehavior = preset(_config, "new_tree_behavior", viewerDefaultOptions.newTreeBehavior);
             return {
                 glass: glass,
                 treeWidth: treeWidth,
@@ -262,6 +264,7 @@
                 theme: theme,
                 tools: tools,
                 keymap: keymap,
+                newTreeBehavior: newTreeBehavior,
             }
         }
 

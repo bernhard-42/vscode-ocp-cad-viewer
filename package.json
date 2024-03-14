@@ -253,6 +253,12 @@
                     "description": "Show toolbar (default: true)",
                     "order": 2
                 },
+                "OcpCadViewer.view.new_tree_behavior": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "With the new behaviour the eye controls both icons, the mesh icon only the mesh behavior (default: true)",
+                    "order": 2
+                },
                 "OcpCadViewer.view.dark": {
                     "type": "boolean",
                     "default": false,
