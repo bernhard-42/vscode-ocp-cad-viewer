@@ -216,7 +216,7 @@
             if (viewer != null && viewer.treeview != null) {
                 // ensure to clone the object
                 const states_json = JSON.stringify(viewer.treeview.states);
-                const states = JSON.parse(states_json); 
+                const states = JSON.parse(states_json);
                 if (oldStates == null || JSON.stringify(oldStates) != states_json) {
                     message["states"] = states;
                     oldStates = states;
