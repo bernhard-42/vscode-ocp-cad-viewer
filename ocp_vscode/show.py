@@ -700,16 +700,16 @@ def show_clear():
     send_data(data)
 
 
-def show_all(variables=None, exclude=None, force=False, **kwargs):
+def show_all(variables=None, exclude=None, classes=None, _visual_debug=False, **kwargs):
     """Show all variables in the current scope"""
     import inspect  # pylint: disable=import-outside-toplevel
 
     global LAST_CALL  # pylint: disable=global-statement
 
-    if force:
+    if not _visual_debug:
         LAST_CALL = "other"
 
-    if LAST_CALL == "show":
+    if _visual_debug and LAST_CALL == "show":
         LAST_CALL = "other"
         print("\nSkip visual debug step after a show() command")
         return
@@ -730,8 +730,11 @@ def show_all(variables=None, exclude=None, force=False, **kwargs):
             or re.search("_\\d+", name) is not None
         ):
             continue  # ignore classes and jupyter variables
+        if hasattr(obj, "area") and obj.area > 1e99:  # inifinite face
+            print(f"infinite face {name} skipped")
+            continue
 
-        if name not in exclude:
+        if name not in exclude and (classes is None or isinstance(obj, tuple(classes))):
             if (
                 hasattr(obj, "_obj")
                 and obj._obj is None  # pylint: disable=protected-access
@@ -789,7 +792,7 @@ def show_all(variables=None, exclude=None, force=False, **kwargs):
             *objects,
             names=names,
             collapse=Collapse.ROOT,
-            _force_in_debug=True,
+            _force_in_debug=_visual_debug,
             **kwargs,
         )
     else:

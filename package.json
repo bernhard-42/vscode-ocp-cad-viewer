@@ -253,6 +253,12 @@
                     "description": "Show toolbar (default: true)",
                     "order": 2
                 },
+                "OcpCadViewer.view.new_tree_behavior": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "With the new behaviour the eye controls both icons, the mesh icon only the mesh behavior (default: true)",
+                    "order": 2
+                },
                 "OcpCadViewer.view.dark": {
                     "type": "boolean",
                     "default": false,
@@ -456,7 +462,7 @@
                 },
                 "OcpCadViewer.advanced.watchCommands": {
                     "type": "string",
-                    "default": "from ocp_vscode import show_all, get_port; show_all(locals(), port=get_port())",
+                    "default": "from ocp_vscode import show_all, get_port; show_all(locals(), port=get_port(), _visual_debug=True)",
                     "description": "Command to be executed when debugger halts. Needs to include locals()",
                     "order": 50
                 },
@@ -472,11 +478,17 @@
                     "description": "Whether to start the viewer when opening Python files or not",
                     "order": 52
                 },
+                "OcpCadViewer.advanced.autohideTerminal": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Whether to autohide the Terminal on viewer start or not",
+                    "order": 53
+                },
                 "OcpCadViewer.advanced.initialPort": {
                     "type": "number",
                     "default": 3939,
                     "description": "The start port where OCP CAD Viewer will start to search for a free port",
-                    "order": 53
+                    "order": 54
                 },
                 "OcpCadViewer.advanced.quickstartCommands": {
                     "type": "object",
@@ -770,7 +782,7 @@
         "follow-redirects": "^1.15.2",
         "@vscode/python-extension": "^1.0.0",
         "semver": "^7.5.1",
-        "three-cad-viewer": "2.1.2",
+        "three-cad-viewer": "./three-cad-viewer-v2.2.0.tgz",
         "ws": "^8.13.0"
     }
 }
