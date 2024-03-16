@@ -305,6 +305,7 @@ def show(
     collapse=None,
     explode=None,
     ticks=None,
+    center_grid=None,
     up=None,
     zoom=None,
     position=None,
@@ -374,6 +375,7 @@ def show(
                                  Collapse.NONE: expand all nodes
                                  (default=Collapse.LEAVES)
         ticks:                   Hint for the number of ticks in both directions (default=10)
+        center_grid:             Center the grid at the origin or center of mass (default=False)
         up:                      Use z-axis ('Z') or y-axis ('Y') as up direction for the camera (default="Z")
         explode:                 Turn on explode mode (default=False)
 
@@ -539,6 +541,7 @@ def show_object(
     orbit_control=None,
     collapse=None,
     ticks=None,
+    center_grid=None,
     up=None,
     zoom=None,
     position=None,
@@ -611,6 +614,7 @@ def show_object(
                                  Collapse.NONE: expand all nodes
                                  (default=Collapse.LEAVES)
         ticks:                   Hint for the number of ticks in both directions (default=10)
+        center_grid:             Center the grid at the origin or center of mass (default=False)
         up:                      Use z-axis ('Z') or y-axis ('Y') as up direction for the camera (default="Z")
 
         zoom:                    Zoom factor of view (default=1.0)

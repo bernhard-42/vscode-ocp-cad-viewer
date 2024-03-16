@@ -52,6 +52,7 @@
             quaternion: null,
             target: null,
             control: '{ control }',
+            centerGrid: false,
             newTreeBehavior: true,
         };
 
@@ -312,6 +313,7 @@
                 collapse: preset(_config, "collapse", viewerDefaultOptions.collapse),
                 ortho: preset(_config, "ortho", viewerDefaultOptions.ortho),
                 ticks: preset(_config, "ticks", viewerDefaultOptions.ticks),
+                centerGrid: preset(_config, "center_grid", viewerDefaultOptions.centerGrid),
                 timeit: preset(_config, "timeit", viewerDefaultOptions.timeit),
                 tools: preset(_config, "tools", viewerDefaultOptions.tools),
                 glass: preset(_config, "glass", viewerDefaultOptions.glass),

@@ -74,6 +74,7 @@ CONFIG_WORKSPACE_KEYS = CONFIG_UI_KEYS + [
     "measure_tools",
     "orbit_control",
     "ticks",
+    "center_grid",
     "tools",
     "tree_width",
     "up",
@@ -151,6 +152,7 @@ DEFAULTS = {
     "show_sketch_local": True,
     "timeit": False,
     "reset_camera": Camera.RESET,
+    "center_grid": False,
     "debug": False,
 }
 
@@ -218,6 +220,7 @@ def set_defaults(
     orbit_control=None,
     collapse=None,
     ticks=None,
+    center_grid=None,
     up=None,
     explode=None,
     zoom=None,
@@ -269,6 +272,7 @@ def set_defaults(
                            Collapse.NONE: expand all nodes
                            (default=Collapse.LEAVES)
         ticks:             Hint for the number of ticks in both directions (default=10)
+        center_grid:       Center the grid at the origin or center of mass (default=False)
         up:                Use z-axis ('Z') or y-axis ('Y') as up direction for the camera (default="Z")
         explode:           Turn on explode mode (default=False)
 

@@ -44,6 +44,7 @@ Valid keywords to configure the viewer (**kwargs):
                                 Collapse.NONE: expand all nodes
                                 (default=Collapse.LEAVES)
     ticks:                   Hint for the number of ticks in both directions (default=10)
+    center_grid:             Center the grid at the origin or center of mass (default=False)
     up:                      Use z-axis ('Z') or y-axis ('Y') as up direction for the camera (default="Z")
     explode:                 Turn on explode mode (default=False)
 
