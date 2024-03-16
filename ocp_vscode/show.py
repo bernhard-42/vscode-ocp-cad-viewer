@@ -125,6 +125,9 @@ def _tessellate(
                 "default_color", changed_config.get("default_color")
             ),
             show_parent=kwargs.get("show_parent", changed_config.get("show_parent")),
+            show_sketch_local=kwargs.get(
+                "show_sketch_local", changed_config.get("show_sketch_local")
+            ),
             progress=progress,
         )
 
@@ -328,6 +331,7 @@ def show(
     render_mates=None,
     render_joints=None,
     show_parent=None,
+    show_sketch_local=None,
     parallel=None,
     helper_scale=None,
     mate_scale=None,  # DEPRECATED
@@ -406,7 +410,8 @@ def show(
         render_mates:            Render mates for MAssemblies (default=False)
         render_joints:           Render build123d joints (default=False)
         parallel:                Tessellate objects in parallel (default=False)
-        show_parent:             Render parent of faces, edges or vertices as wireframe
+        show_parent:             Render parent of faces, edges or vertices as wireframe (default=False)
+        show_sketch_local:       In build123d show local sketch in addition to relocate sketch (default=True)
         helper_scale:            Scale of rendered helpers (locations, axis, mates for MAssemblies) (default=1)
 
     - Debug
@@ -561,6 +566,7 @@ def show_object(
     render_joints=None,
     parallel=None,
     show_parent=None,
+    show_sketch_local=None,
     helper_scale=None,
     mate_scale=None,  # DEPRECATED
     debug=None,
@@ -641,7 +647,8 @@ def show_object(
         render_mates:            Render mates for MAssemblies (default=False)
         render_joints:           Render build123d joints (default=False)
         parallel:                Tessellate objects in parallel (default=False)
-        show_parent:             Render parent of faces, edges or vertices as wireframe
+        show_parent:             Render parent of faces, edges or vertices as wireframe (default=False)
+        show_sketch_local:       In build123d show local sketch in addition to relocate sketch (default=True)
         helper_scale:            Scale of rendered helpers (locations, axis, mates for MAssemblies) (default=1)
 
     - Debug

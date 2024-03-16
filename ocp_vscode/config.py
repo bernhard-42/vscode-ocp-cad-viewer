@@ -107,6 +107,8 @@ CONFIG_CONTROL_KEYS = [
     "render_joints",
     "render_normals",
     "reset_camera",
+    "show_parent",
+    "show_sketch_local",
     "timeit",
 ]
 
@@ -145,6 +147,8 @@ DEFAULTS = {
     "render_mates": False,
     "render_joints": False,
     "helper_scale": 1.0,
+    "show_parent": False,
+    "show_sketch_local": True,
     "timeit": False,
     "reset_camera": Camera.RESET,
     "debug": False,
@@ -234,6 +238,8 @@ def set_defaults(
     render_normals=None,
     render_mates=None,
     render_joints=None,
+    show_parent=None,
+    show_sketch_local=None,
     helper_scale=None,
     mate_scale=None,  # DEPRECATED
     debug=None,
@@ -294,6 +300,8 @@ def set_defaults(
         render_normals:    Render normals (default=False)
         render_mates:      Render mates for MAssemblies (default=False)
         render_joints:     Render mates for MAssemblies (default=False)
+        show_parent:             Render parent of faces, edges or vertices as wireframe (default=False)
+        show_sketch_local:       In build123d show local sketch in addition to relocate sketch (default=True)
         helper_scale:      Scale of rendered helpers (locations, axis, mates for MAssemblies) (default=1)
 
     - Debug

@@ -83,7 +83,8 @@ Valid keywords to configure the viewer (**kwargs):
     render_mates:            Render mates for MAssemblies (default=False)
     render_joints:           Render build123d joints (default=False)
     parallel:                Tessellate objects in parallel (default=False)
-    show_parent:             Render parent of faces, edges or vertices as wireframe
+    show_parent:             Render parent of faces, edges or vertices as wireframe (default=False)
+    show_sketch_local:       In build123d show local sketch in addition to relocate sketch (default=True)
     helper_scale:            Scale of rendered helpers (locations, axis, mates for MAssemblies) (default=1)
 
 - Debug
