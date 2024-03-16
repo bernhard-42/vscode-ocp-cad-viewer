@@ -40,13 +40,13 @@ eye = Plane.XZ * Pos(0, -20, 0) * eye
 # show(
 #     logo,
 #     eye,
-#     colors=[(85, 160, 227), "#333"],
+#     colors=[(85, 160, 227), (51,51,51)],
 #     names=["OCP", "Eye"],
 #     grid=(True, False, False),
 #     ortho=False,
 #     axes0=True,
-#     zoom=1.2,
-#     position=[77.0, -82.0, -1.0],
+#     zoom=0.8,
+#     position=[92.4, -99.3, -6.6],
 #     quaternion=[0.6047, 0.2156, 0.2603, 0.7212],
 # )
 
@@ -58,8 +58,8 @@ c = _convert(
     grid=(True, False, False),
     ortho=False,
     axes0=True,
-    zoom=1.2,
-    position=[77.0, -82.0, -1.0],
+    zoom=0.8,
+    position=[92.4, -99.3, -6.6],
     quaternion=[0.6047, 0.2156, 0.2603, 0.7212],
 )
 
