@@ -462,7 +462,7 @@
                 },
                 "OcpCadViewer.advanced.watchCommands": {
                     "type": "string",
-                    "default": "from ocp_vscode import show_all, get_port; show_all(locals(), port=get_port())",
+                    "default": "from ocp_vscode import show_all, get_port; show_all(locals(), port=get_port(), _visual_debug=True)",
                     "description": "Command to be executed when debugger halts. Needs to include locals()",
                     "order": 50
                 },

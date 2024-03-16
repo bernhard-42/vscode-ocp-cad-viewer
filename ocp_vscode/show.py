@@ -700,16 +700,16 @@ def show_clear():
     send_data(data)
 
 
-def show_all(variables=None, exclude=None, classes=None, force=False, **kwargs):
+def show_all(variables=None, exclude=None, classes=None, _visual_debug=False, **kwargs):
     """Show all variables in the current scope"""
     import inspect  # pylint: disable=import-outside-toplevel
 
     global LAST_CALL  # pylint: disable=global-statement
 
-    if force:
+    if not _visual_debug:
         LAST_CALL = "other"
 
-    if LAST_CALL == "show":
+    if _visual_debug and LAST_CALL == "show":
         LAST_CALL = "other"
         print("\nSkip visual debug step after a show() command")
         return
@@ -792,7 +792,7 @@ def show_all(variables=None, exclude=None, classes=None, force=False, **kwargs):
             *objects,
             names=names,
             collapse=Collapse.ROOT,
-            _force_in_debug=True,
+            _force_in_debug=_visual_debug,
             **kwargs,
         )
     else:
