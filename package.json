@@ -782,7 +782,7 @@
         "follow-redirects": "^1.15.2",
         "@vscode/python-extension": "^1.0.0",
         "semver": "^7.5.1",
-        "three-cad-viewer": "2.1.2",
+        "three-cad-viewer": "./three-cad-viewer-v2.2.0.tgz",
         "ws": "^8.13.0"
     }
 }
