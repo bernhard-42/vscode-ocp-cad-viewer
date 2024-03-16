@@ -254,7 +254,7 @@ class Assembly(Compound):
 
     def joint_location(self, obj, joint, **kwargs):
         if isinstance(joint, RevoluteJoint):
-            loc = obj.location * joint.relative_axis.to_location()
+            loc = obj.location * joint.relative_axis.location
         elif isinstance(joint, RigidJoint):
             loc = obj.location * joint.relative_location
         else:
