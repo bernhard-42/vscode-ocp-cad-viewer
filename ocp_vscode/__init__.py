@@ -1,4 +1,5 @@
 """ocp_vscode - OCC viewer for VSCode"""
+
 #
 # Copyright 2023 Bernhard Walter
 #
@@ -22,3 +23,4 @@ from .comms import *
 
 from .colors import *
 from .animation import Animation
+from ocp_tessellate.cad_objects import ImageFace
