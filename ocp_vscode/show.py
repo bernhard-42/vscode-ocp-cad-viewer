@@ -731,12 +731,18 @@ def ocp_group(obj, name):
                     sub_group.add(new_obj)
             group.add(sub_group)
         else:
-            if is_wrapped(obj) or is_build123d(obj) or is_cadquery(obj):
+            if (
+                (is_wrapped(obj) and not obj.__class__.__name__ == "Color")
+                or is_build123d(obj)
+                or is_cadquery(obj)
+            ):
                 new_obj = conv(obj)
                 new_obj.name = name
                 group.add(new_obj)
             else:
-                print(f"Unknown type {type(obj)} for name {name}")
+                print(
+                    f"show_all: Type {type(obj)} for name {name} cannot be visualized"
+                )
 
     group = OCP_PartGroup([], name=name)
     to_group(obj, name, group)
@@ -827,10 +833,6 @@ def show_all(variables=None, exclude=None, classes=None, _visual_debug=False, **
                 names.append(name)
 
             elif isinstance(obj, (list, tuple, dict)):
-                print(
-                    "==>",
-                    name,
-                )
                 obj = ocp_group(obj, name)
                 objects.append(obj)
                 obj.name = name
