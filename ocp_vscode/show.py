@@ -833,10 +833,18 @@ def show_all(variables=None, exclude=None, classes=None, _visual_debug=False, **
                 names.append(name)
 
             elif isinstance(obj, (list, tuple, dict)):
-                obj = ocp_group(obj, name)
-                objects.append(obj)
-                obj.name = name
-                names.append(name)
+                if not name in [
+                    "_ih",
+                    "_oh",
+                    "_dh",
+                    "Out",
+                    "In",
+                ]:  # no IPython dicts and lists
+                    obj = ocp_group(obj, name)
+                    if len(obj.objects) > 0:
+                        objects.append(obj)
+                        obj.name = name
+                        names.append(name)
 
     if len(objects) > 0:
         show(
