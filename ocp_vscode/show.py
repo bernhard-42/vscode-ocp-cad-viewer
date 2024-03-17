@@ -25,6 +25,7 @@ from ocp_tessellate.convert import (
     combined_bb,
     to_assembly,
     mp_get_results,
+    conv,
 )
 from ocp_tessellate.utils import numpy_to_buffer_json, Timer, Color
 from ocp_tessellate.ocp_utils import (
@@ -36,6 +37,7 @@ from ocp_tessellate.ocp_utils import (
     is_cadquery_sketch,
     is_build123d,
     is_toploc_location,
+    is_wrapped,
 )
 
 from ocp_tessellate.mp_tessellator import init_pool, keymap, close_pool
@@ -711,6 +713,36 @@ def show_clear():
     send_data(data)
 
 
+def ocp_group(obj, name):
+
+    def to_group(obj, name, group):
+        if isinstance(obj, list):
+            sub_group = OCP_PartGroup([], name=name)
+            for i, el in enumerate(obj):
+                new_obj = to_group(el, f"{name}[{i}]", sub_group)
+                if new_obj is not None:
+                    sub_group.add(new_obj)
+            group.add(sub_group)
+        elif isinstance(obj, dict):
+            sub_group = OCP_PartGroup([], name=name)
+            for name, el in obj.items():
+                new_obj = to_group(el, name, sub_group)
+                if new_obj is not None:
+                    sub_group.add(new_obj)
+            group.add(sub_group)
+        else:
+            if is_wrapped(obj) or is_build123d(obj) or is_cadquery(obj):
+                new_obj = conv(obj)
+                new_obj.name = name
+                group.add(new_obj)
+            else:
+                print(f"Unknown type {type(obj)} for name {name}")
+
+    group = OCP_PartGroup([], name=name)
+    to_group(obj, name, group)
+    return group.objects[0]
+
+
 def show_all(variables=None, exclude=None, classes=None, _visual_debug=False, **kwargs):
     """Show all variables in the current scope"""
     import inspect  # pylint: disable=import-outside-toplevel
@@ -738,6 +770,7 @@ def show_all(variables=None, exclude=None, classes=None, _visual_debug=False, **
         if (
             isinstance(obj, type)
             or name in ["_", "__", "___"]
+            or name.startswith("__")
             or re.search("_\\d+", name) is not None
         ):
             continue  # ignore classes and jupyter variables
@@ -772,11 +805,6 @@ def show_all(variables=None, exclude=None, classes=None, _visual_debug=False, **
                 or is_build123d(obj)
                 or is_cadquery_assembly(obj)
                 or (
-                    isinstance(obj, (list, tuple))
-                    and len(obj) > 0
-                    and hasattr(obj[0], "wrapped")
-                )
-                or (
                     hasattr(obj, "wrapped")
                     and hasattr(obj, "position")
                     and hasattr(obj, "direction")
@@ -796,6 +824,16 @@ def show_all(variables=None, exclude=None, classes=None, _visual_debug=False, **
                 pg = to_assembly([obj], names=[name])
                 pg.name = name
                 objects.append(pg)
+                names.append(name)
+
+            elif isinstance(obj, (list, tuple, dict)):
+                print(
+                    "==>",
+                    name,
+                )
+                obj = ocp_group(obj, name)
+                objects.append(obj)
+                obj.name = name
                 names.append(name)
 
     if len(objects) > 0:
