@@ -17,6 +17,7 @@ v2.2.0
 -   Viewer keeps clipping settings when `reset_camera`is set to `Camera.KEEP`or `Camera.CENTER` ([#43](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/43))
 -   Material configurator now has a reset button "R" to get back to initial values
 -   `show_all` now converts nested dicts and lists into viewer hierarchies
+-   `set_viewer_config` is documented in README
 -   Fix: `show_parent` now supported by `show_defaults` ([#64](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/64))
 -   Fix: `show_all()` now works in non visual debugging mode (removed `force` parameter from `show_all`) 
 -   Fix: `show_all()` now doesn't break when an array of `Colors` is in the `locals` variable list ([#45](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/45))
