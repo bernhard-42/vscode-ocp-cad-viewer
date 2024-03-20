@@ -52,6 +52,8 @@ class Collapse(Enum):
     ROOT = 3
 
 
+COLLAPSE_MAPPING = ["E", "1", "C", "R"]
+
 CONFIG_UI_KEYS = [
     "axes",
     "axes0",
@@ -214,14 +216,27 @@ def set_viewer_config(
     clip_intersection=None,
     clip_planes=None,
     clip_object_colors=None,
+    port=None,
 ):
     """Set viewer config"""
+    if port is None:
+        port = get_port()
+
     config = {k: v for k, v in locals().items() if v is not None}
+    if config.get("collapse") is not None:
+        config["collapse"] = COLLAPSE_MAPPING[config["collapse"].value]
     data = {
         "type": "ui",
         "config": config,
     }
-    send_config(data)
+
+    try:
+        send_config(data, port)
+
+    except Exception as ex:
+        raise RuntimeError(
+            "Cannot set viewer config. Is the viewer running?\n" + str(ex.args)
+        ) from ex
 
 
 def get_default(key):
