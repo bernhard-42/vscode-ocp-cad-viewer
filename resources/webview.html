@@ -678,7 +678,7 @@
                             viewer.display.reset();
                         }
                     } else if (key === "explode") {
-                        viewer.display.setExplode({ target: { checked: data.config[key] } })
+                        viewer.display.setExplode("", data.config[key])
                         viewer.display.setExplodeCheck(data.config[key])
                     } else if (key === "states") {
                         const states = Object.keys(viewer.treeview.states);
