@@ -17,6 +17,9 @@
         var _position = null;
         var _quaternion = null;
         var _target = null;
+        var _clipping = {
+            sliders: [], normals: [], planeHelpers: null, objectColors: null, intersection: null,
+        };
         var oldStates = null;
         var viewerOptions = {};
         var last_bb_radius = null;
@@ -203,6 +206,33 @@
             if (change.target !== undefined) {
                 _target = change.target.new;
             }
+            if (change.clip_intersection !== undefined) {
+                _clipping.intersection = change.clip_intersection.new;
+            }
+            if (change.clip_planes !== undefined) {
+                _clipping.planeHelpers = change.clip_planes.new;
+            }
+            if (change.clip_object_colors !== undefined) {
+                _clipping.objectColors = change.clip_object_colors.new;
+            }
+            if (change.clip_slider_0 !== undefined) {
+                _clipping.sliders[0] = change.clip_slider_0.new;
+            }
+            if (change.clip_slider_1 !== undefined) {
+                _clipping.sliders[1] = change.clip_slider_1.new;
+            }
+            if (change.clip_slider_2 !== undefined) {
+                _clipping.sliders[2] = change.clip_slider_2.new;
+            }
+            if (change.clip_normal_0 !== undefined) {
+                _clipping.normals[0] = change.clip_normal_0.new;
+            }
+            if (change.clip_normal_1 !== undefined) {
+                _clipping.normals[1] = change.clip_normal_1.new;
+            }
+            if (change.clip_normal_2 !== undefined) {
+                _clipping.normals[2] = change.clip_normal_2.new;
+            }
 
             var changed = false;
             Object.keys(change).forEach((k) => {
@@ -324,6 +354,15 @@
                 panSpeed: preset(_config, "pan_speed", viewerDefaultOptions.panSpeed),
                 zoomSpeed: preset(_config, "zoom_speed", viewerDefaultOptions.zoomSpeed),
                 rotateSpeed: preset(_config, "rotate_speed", viewerDefaultOptions.rotateSpeed),
+                clipSlider0: preset(_config, "clip_slider_0", viewerDefaultOptions.clipSlider0),
+                clipSlider1: preset(_config, "clip_slider_1", viewerDefaultOptions.clipSlider1),
+                clipSlider2: preset(_config, "clip_slider_2", viewerDefaultOptions.clipSlider2),
+                clipNormal0: preset(_config, "clip_normal_0", viewerDefaultOptions.clipNormal0),
+                clipNormal1: preset(_config, "clip_normal_1", viewerDefaultOptions.clipNormal1),
+                clipNormal2: preset(_config, "clip_normal_2", viewerDefaultOptions.clipNormal2),
+                clipIntersection: preset(_config, "clip_intersection", viewerDefaultOptions.clipIntersection),
+                clipPlaneHelpers: preset(_config, "clip_plane_helpers", viewerDefaultOptions.clipPlaneHelpers),
+                clipObjectColors: preset(_config, "clip_object_colors", viewerDefaultOptions.clipObjectColors)
             };
 
             var reset_camera = preset(_config, "reset_camera", "reset");
@@ -354,6 +393,7 @@
 
             if (reset_camera === "reset") {
                 // even if reset is requested, respect the position settings from the object
+
                 if (_config.zoom !== undefined) {
                     viewerOptions.zoom = _config.zoom;
                 }
@@ -365,6 +405,33 @@
                 }
                 if (_config.target !== undefined) {
                     viewerOptions.target = _config.target;
+                }
+                if (_config.clip_slider_0 != undefined) {
+                    viewerOptions.clipSlider0 = _config.clip_slider_0;
+                }
+                if (_config.clip_slider_1 != undefined) {
+                    viewerOptions.clipSlider1 = _config.clip_slider_1;
+                }
+                if (_config.clip_slider_2 != undefined) {
+                    viewerOptions.clipSlider2 = _config.clip_slider_2;
+                }
+                if (_config.clip_normal_0 != undefined) {
+                    viewerOptions.clipNormal0 = _config.clip_normal_0;
+                }
+                if (_config.clip_normal_1 != undefined) {
+                    viewerOptions.clipNormal1 = _config.clip_normal_1;
+                }
+                if (_config.clip_normal_2 != undefined) {
+                    viewerOptions.clipNormal2 = _config.clip_normal_2;
+                }
+                if (_config.clip_intersection != undefined) {
+                    viewerOptions.clipIntersection = _config.clip_intersection;
+                }
+                if (_config.clip_plane_helpers != undefined) {
+                    viewerOptions.clipPlaneHelpers = _config.clip_plane_helpers;
+                }
+                if (_config.clip_object_colors != undefined) {
+                    viewerOptions.clipObjectColors = _config.clip_object_colors;
                 }
 
             } else {
@@ -406,6 +473,52 @@
                 } else if (_zoom) {
                     viewerOptions.zoom = _zoom;
                 }
+
+                if (_config.clip_slider_0 != undefined) {
+                    viewerOptions.clipSlider0 = _config.clip_slider_0;
+                } else {
+                    viewerOptions.clipSlider0 = _clipping.sliders[0];
+                }
+                if (_config.clip_slider_1 != undefined) {
+                    viewerOptions.clipSlider1 = _config.clip_slider_1;
+                } else {
+                    viewerOptions.clipSlider1 = _clipping.sliders[1];
+                }
+                if (_config.clip_slider_2 != undefined) {
+                    viewerOptions.clipSlider2 = _config.clip_slider_2;
+                } else {
+                    viewerOptions.clipSlider2 = _clipping.sliders[2];
+                }
+                if (_config.clip_normal_0 != undefined) {
+                    viewerOptions.clipNormal0 = _config.clip_normal_0;
+                } else {
+                    viewerOptions.clipNormal0 = _clipping.normals[0];
+                }
+                if (_config.clip_normal_1 != undefined) {
+                    viewerOptions.clipNormal1 = _config.clip_normal_1;
+                } else {
+                    viewerOptions.clipNormal1 = _clipping.normals[1];
+                }
+                if (_config.clip_normal_2 != undefined) {
+                    viewerOptions.clipNormal2 = _config.clip_normal_2;
+                } else {
+                    viewerOptions.clipNormal2 = _clipping.normals[2];
+                }
+                if (_config.clip_intersection != undefined) {
+                    viewerOptions.clipIntersection = _config.clip_intersection;
+                } else {
+                    viewerOptions.clipIntersection = _clipping.intersection;
+                }
+                if (_config.clip_plane_helpers != undefined) {
+                    viewerOptions.clipPlaneHelpers = _config.clip_plane_helpers;
+                } else {
+                    viewerOptions.clipPlaneHelpers = _clipping.planeHelpers;
+                }
+                if (_config.clip_object_colors != undefined) {
+                    viewerOptions.clipObjectColors = _config.clip_object_colors;
+                } else {
+                    viewerOptions.clipObjectColors = _clipping.objectColors;
+                }
             }
 
             if (_config.debug) {
@@ -422,7 +535,13 @@
             _quaternion = message["quaternion"] = viewer.getCameraQuaternion();
             _target = message["target"] = viewer.controls.getTarget().toArray();
             _zoom = message["zoom"] = viewer.getCameraZoom();
-
+            _clipping = {
+                "sliders": [viewer.getClipSlider(0), viewer.getClipSlider(1), viewer.getClipSlider(2)],
+                "normals": [viewer.getClipNormal(0), viewer.getClipNormal(1), viewer.getClipNormal(2)],
+                "planeHelpers": viewer.getClipPlaneHelpers(),
+                "objectColors": viewer.getObjectColorCaps(),
+                "intersection": viewer.getClipIntersection()
+            }
             send('status', message);
 
             if (_config.explode) {
@@ -568,6 +687,20 @@
                                 viewer.setState(key2, data.config[key][key2]);
                             }
                         });
+                    } else if (key === "tab") {
+                        viewer.display.selectTabByName(data.config[key]);
+                    } else if (key === "clip_intersection") {
+                        viewer.setClipIntersection(data.config[key]);
+                    } else if (key.startsWith("clip_slider")) {
+                        const index = parseInt(key.slice(-1));
+                        viewer.setClipSlider(index, data.config[key]);
+                    } else if (key.startsWith("clip_normal")) {
+                        const index = parseInt(key.slice(-1));
+                        viewer.setClipNormal(index, data.config[key]);
+                    } else if (key === "clip_planes") {
+                        viewer.setClipPlaneHelpers(data.config[key]);
+                    } else if (key === "clip_object_colors") {
+                        viewer.setClipObjectColorCaps(data.config[key]);
                     }
                 })
 

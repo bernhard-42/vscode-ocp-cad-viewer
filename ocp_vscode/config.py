@@ -64,6 +64,15 @@ CONFIG_UI_KEYS = [
     "direct_intensity",
     "metalness",
     "roughness",
+    "clip_slider_0",
+    "clip_slider_1",
+    "clip_slider_2",
+    "clip_normal_0",
+    "clip_normal_1",
+    "clip_normal_2",
+    "clip_planes",
+    "clip_intersection",
+    "clip_object_colors",
 ]
 
 CONFIG_WORKSPACE_KEYS = CONFIG_UI_KEYS + [
@@ -140,6 +149,16 @@ CONFIG_SET_KEYS = [
     "tools",
     "tree_width",
     "collapse",
+    "tab",
+    "clip_slider_0",
+    "clip_slider_1",
+    "clip_slider_2",
+    "clip_normal_0",
+    "clip_normal_1",
+    "clip_normal_2",
+    "clip_intersection",
+    "clip_plane_helpers",
+    "clip_object_colors",
 ]
 
 DEFAULTS = {
@@ -185,6 +204,16 @@ def set_viewer_config(
     collapse=None,
     reset_camera=None,
     states=None,
+    tab=None,
+    clip_slider_0=None,
+    clip_slider_1=None,
+    clip_slider_2=None,
+    clip_normal_0=None,
+    clip_normal_1=None,
+    clip_normal_2=None,
+    clip_intersection=None,
+    clip_planes=None,
+    clip_object_colors=None,
 ):
     """Set viewer config"""
     config = {k: v for k, v in locals().items() if v is not None}
@@ -345,7 +374,7 @@ def status(port=None, debug=False):
         if debug:
             return response.get("_debugStarted", False)
         else:
-            return response.get("text", {})
+            return dict(sorted(response.get("text", {}).items()))
 
     except Exception as ex:
         raise RuntimeError(
@@ -370,7 +399,7 @@ def workspace_config(port=None):
             "R": Collapse.ROOT,
         }
         conf["collapse"] = mapping[conf["collapse"]]
-        return conf
+        return dict(sorted(conf.items()))
 
     except Exception as ex:
         raise RuntimeError(
@@ -405,7 +434,7 @@ def combined_config(port=None, use_status=True):
     wspace_config.update(DEFAULTS)
     if use_status:
         wspace_config.update(ui_filter(wspace_status))
-    return wspace_config
+    return dict(sorted(wspace_config.items()))
 
 
 def get_changed_config(key=None):
