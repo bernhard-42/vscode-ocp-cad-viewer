@@ -2,8 +2,31 @@
 
 All notable changes to the "OCP CAD Viewer" extension will be documented in this file.
 
+v2.2.0
+-   Clipping now works with caps (default: red, green, blue cap faces). For assemblies the cap faces can use the associated object colors
+-   Grid now can be centered (parameter: `center_grid=True`): 
+    With axes0==True centered at the origin `(0,0,0)`, i.e absolute units
+    With axes0==False centered at the center of mass, i.e relative units
+-   Grid now has numbers at the gridlines serving as a ruler ([#60](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/60))
+-   `ocp_vscode` now has a class `ImageFace`. It works like an OCP rectangle, but can get an image path and a location ([#28](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/28)). 
+    Usage: `plane = ImageFace(image_path, width, location=Location((x, y, z), (ax, ay, az)))`
+-   The CAD tree changed behavior: The eye icon toggles both faces and edges. The mesh icon toggles the mesh (edges) only  ([#56](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/56))
+    This can be switched back to old behavior in the VS Code workspace settings _"OCP CAD Viewer > View:New_tree_behavior"_
+-   New parameter `show_sketch_local`: when set to `False`, `build123d` local sketches will not be shown (works eith `set_defaults`) ([#59](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/59))
+-   New parameter _"OCP CAD Viewer > Advanced:Autohide Terminal"_ in the VS Code workspace settings to control whether terminal will be hid when the viewer starts or not ([#61](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/61))
+-   Viewer keeps clipping settings when `reset_camera`is set to `Camera.KEEP`or `Camera.CENTER` ([#43](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/43))
+-   Material configurator now has a reset button "R" to get back to initial values
+-   `show_all` now converts nested dicts and lists into viewer hierarchies
+-   Fix: `show_parent` now supported by `show_defaults` ([#64](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/64))
+-   Fix: `show_all()` now works in non visual debugging mode (removed `force` parameter from `show_all`) 
+-   Fix: `show_all()` now doesn't break when an array of `Colors` is in the `locals` variable list ([#45](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/45))
+-   Fix: `show_all` now ignores unknown types in lists or dicts without raising an error and only printing a warning ([#67](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/67))
+-   Fix: The `serialize` and `deserialize` commands don't crash on Windows any more ([#65](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/65))
+-   Fix: Status notifications for grid work again ([#66](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/66))
+
+
 v2.1.1
--   Fix Jupyter Console for non-worpkspace mode
+-   Fix Jupyter Console for non-workspace mode
 -   Enforce using latest ocp-tesellate 2.0.6
 
 v2.1.0
