@@ -14,7 +14,7 @@ v2.2.0
     This can be switched back to old behavior in the VS Code workspace settings _"OCP CAD Viewer > View:New_tree_behavior"_
 -   New parameter `show_sketch_local`: when set to `False`, `build123d` local sketches will not be shown (works eith `set_defaults`) ([#59](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/59))
 -   New parameter _"OCP CAD Viewer > Advanced:Autohide Terminal"_ in the VS Code workspace settings to control whether terminal will be hid when the viewer starts or not ([#61](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/61))
--   Viewer keeps clipping settings when `reset_camera`is set to `Camera.KEEP`or `Camera.CENTER` ([#43](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/43))
+-   Viewer keeps clipping settings when `reset_camera` is set to `Camera.KEEP`or `Camera.CENTER` ([#43](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/43))
 -   Material configurator now has a reset button "R" to get back to initial values
 -   `show_all` now converts nested dicts and lists into viewer hierarchies
 -   `set_viewer_config` is documented in README
