@@ -32,6 +32,8 @@ show_object(
     box,
     # Clear stack of objects
     clear=True,
+    center_grid=True,
+    grid=(True, False, False),
 )
 
 # %%

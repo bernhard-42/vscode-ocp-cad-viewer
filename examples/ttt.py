@@ -1,3 +1,4 @@
+# %%
 from build123d import *
 from ocp_vscode import *
 
@@ -13,7 +14,7 @@ for sign in (1, -1):
     c = Vector(sign * 31, 0)
     l = PolarLine(c, sign * 6, sign * a)
     l2 = PolarLine(l @ 1, 100, sign * a - 90)
-    vertices.append(c100.intersections(Plane.XY, l2.edges()[0])[1])
+    vertices.append(c100.intersections(l2.edge()))
     lines.append(l2)
 
 # combine to a wire and face
@@ -52,3 +53,5 @@ for loc in PolarLocations(31, 6):
 t -= Hole(20, depth=16)
 
 show(t)
+
+# %%
