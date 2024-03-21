@@ -805,9 +805,10 @@ def ocp_group(obj, name):
                 new_obj.name = name
                 group.add(new_obj)
             else:
-                print(
-                    f"show_all: Type {type(obj)} for name {name} cannot be visualized"
-                )
+                ...
+                # print(
+                #     f"show_all: Type {type(obj)} for name {name} cannot be visualized"
+                # )
 
     group = OCP_PartGroup([], name=name)
     to_group(obj, name, group)
