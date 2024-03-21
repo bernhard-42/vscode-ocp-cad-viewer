@@ -55,9 +55,19 @@ Valid keywords to configure the viewer (**kwargs):
     quaternion:              Camera orientation as quaternion
     target:                  Camera look at target
     reset_camera:            Camera.RESET: Reset camera position, rotation, toom and target
-                                Camera.CENTER: Keep camera position, rotation, toom, but look at center
-                                Camera.KEEP: Keep camera position, rotation, toom, and target
-                                (default=Camera.RESET)
+                             Camera.CENTER: Keep camera position, rotation, toom, but look at center
+                             Camera.KEEP: Keep camera position, rotation, toom, and target
+                             (default=Camera.RESET)
+
+    clip_slider_0:           Setting of clipping slider 0 (default=None)
+    clip_slider_1:           Setting of clipping slider 1 (default=None)
+    clip_slider_2:           Setting of clipping slider 2 (default=None)
+    clip_normal_0:           Setting of clipping normal 0 (default=[-1,0,0])
+    clip_normal_1:           Setting of clipping normal 1 (default=[0,-1,0])
+    clip_normal_2:           Setting of clipping normal 2 (default=[0,0,-1])
+    clip_intersection:       Use clipping intersection mode (default=[False])
+    clip_planes:             Show clipping plane helpers (default=False)
+    clip_object_colors:      Use object color for clipping caps (default=False)
 
     pan_speed:               Speed of mouse panning (default=1)
     rotate_speed:            Speed of mouse rotate (default=1)

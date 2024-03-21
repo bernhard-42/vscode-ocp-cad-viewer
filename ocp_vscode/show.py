@@ -103,6 +103,27 @@ def _tessellate(
     else:
         oc.VERTEX_COLOR = Color(conf["default_vertexcolor"]).percentage
 
+    # only use clipping settings when reset_camera is not RESET
+    if reset_camera == Camera.RESET:
+        if conf.get("clip_slider_0") is not None:
+            del conf["clip_slider_0"]
+        if conf.get("clip_slider_1") is not None:
+            del conf["clip_slider_1"]
+        if conf.get("clip_slider_2") is not None:
+            del conf["clip_slider_2"]
+        if conf.get("clip_normal_0") is not None:
+            del conf["clip_normal_0"]
+        if conf.get("clip_normal_1") is not None:
+            del conf["clip_normal_1"]
+        if conf.get("clip_normal_2") is not None:
+            del conf["clip_normal_2"]
+        if conf.get("clip_intersection") is not None:
+            del conf["clip_intersection"]
+        if conf.get("clip_planes") is not None:
+            del conf["clip_planes"]
+        if conf.get("clip_object_colors") is not None:
+            del conf["clip_object_colors"]
+
     timeit = preset("timeit", kwargs.get("timeit"))
 
     if timeit is None:
@@ -321,7 +342,7 @@ def show(
     clip_normal_1=None,
     clip_normal_2=None,
     clip_intersection=None,
-    clip_plane_helpers=None,
+    clip_planes=None,
     clip_object_colors=None,
     pan_speed=None,
     rotate_speed=None,
@@ -406,7 +427,7 @@ def show(
         clip_normal_1:           Setting of clipping normal 1 (default=None)
         clip_normal_2:           Setting of clipping normal 2 (default=None)
         clip_intersection:       Use clipping intersection mode (default=False)
-        clip_plane_helpers:      Show clipping plane helpers (default=False)
+        clip_planes:             Show clipping plane helpers (default=False)
         clip_object_colors:      Use object color for clipping caps (default=False)
 
         pan_speed:               Speed of mouse panning (default=1)
@@ -576,7 +597,7 @@ def show_object(
     clip_normal_1=None,
     clip_normal_2=None,
     clip_intersection=None,
-    clip_plane_helpers=None,
+    clip_planes=None,
     clip_object_colors=None,
     pan_speed=None,
     rotate_speed=None,
@@ -663,7 +684,7 @@ def show_object(
         clip_normal_1:           Setting of clipping normal 1 (default=[0,-1,0])
         clip_normal_2:           Setting of clipping normal 2 (default=[0,0,-1])
         clip_intersection:       Use clipping intersection mode (default=[False])
-        clip_plane_helpers:      Show clipping plane helpers (default=False)
+        clip_planes:             Show clipping plane helpers (default=False)
         clip_object_colors:      Use object color for clipping caps (default=False)
 
         pan_speed:               Speed of mouse panning (default=1)

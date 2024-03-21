@@ -159,7 +159,7 @@ CONFIG_SET_KEYS = [
     "clip_normal_1",
     "clip_normal_2",
     "clip_intersection",
-    "clip_plane_helpers",
+    "clip_planes",
     "clip_object_colors",
 ]
 

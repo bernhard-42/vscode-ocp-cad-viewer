@@ -361,7 +361,7 @@
                 clipNormal1: preset(_config, "clip_normal_1", viewerDefaultOptions.clipNormal1),
                 clipNormal2: preset(_config, "clip_normal_2", viewerDefaultOptions.clipNormal2),
                 clipIntersection: preset(_config, "clip_intersection", viewerDefaultOptions.clipIntersection),
-                clipPlaneHelpers: preset(_config, "clip_plane_helpers", viewerDefaultOptions.clipPlaneHelpers),
+                clipPlaneHelpers: preset(_config, "clip_planes", viewerDefaultOptions.clipPlaneHelpers),
                 clipObjectColors: preset(_config, "clip_object_colors", viewerDefaultOptions.clipObjectColors)
             };
 
@@ -427,8 +427,8 @@
                 if (_config.clip_intersection != undefined) {
                     viewerOptions.clipIntersection = _config.clip_intersection;
                 }
-                if (_config.clip_plane_helpers != undefined) {
-                    viewerOptions.clipPlaneHelpers = _config.clip_plane_helpers;
+                if (_config.clip_planes != undefined) {
+                    viewerOptions.clipPlaneHelpers = _config.clip_planes;
                 }
                 if (_config.clip_object_colors != undefined) {
                     viewerOptions.clipObjectColors = _config.clip_object_colors;
@@ -509,8 +509,8 @@
                 } else {
                     viewerOptions.clipIntersection = _clipping.intersection;
                 }
-                if (_config.clip_plane_helpers != undefined) {
-                    viewerOptions.clipPlaneHelpers = _config.clip_plane_helpers;
+                if (_config.clip_planes != undefined) {
+                    viewerOptions.clipPlaneHelpers = _config.clip_planes;
                 } else {
                     viewerOptions.clipPlaneHelpers = _clipping.planeHelpers;
                 }
