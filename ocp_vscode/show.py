@@ -56,6 +56,7 @@ from .config import (
     workspace_config,
     combined_config,
     get_default,
+    get_defaults,
     Camera,
     Collapse,
     check_deprecated,
@@ -104,7 +105,10 @@ def _tessellate(
         oc.VERTEX_COLOR = Color(conf["default_vertexcolor"]).percentage
 
     # only use clipping settings when reset_camera is not RESET
-    if reset_camera == Camera.RESET:
+    if reset_camera == Camera.RESET or kwargs.get("reset_camera") == Camera.RESET:
+        clip_defaults = {
+            k: v for k, v in get_defaults().items() if k.startswith("clip")
+        }
         if conf.get("clip_slider_0") is not None:
             del conf["clip_slider_0"]
         if conf.get("clip_slider_1") is not None:
@@ -112,17 +116,19 @@ def _tessellate(
         if conf.get("clip_slider_2") is not None:
             del conf["clip_slider_2"]
         if conf.get("clip_normal_0") is not None:
-            del conf["clip_normal_0"]
+            conf["clip_normal_0"] = [-1, 0, 0]
         if conf.get("clip_normal_1") is not None:
-            del conf["clip_normal_1"]
+            conf["clip_normal_1"] = [0, -1, 0]
         if conf.get("clip_normal_2") is not None:
-            del conf["clip_normal_2"]
+            conf["clip_normal_2"] = [0, 0, -1]
         if conf.get("clip_intersection") is not None:
-            del conf["clip_intersection"]
+            conf["clip_intersection"] = False
         if conf.get("clip_planes") is not None:
-            del conf["clip_planes"]
+            conf["clip_planes"] = False
         if conf.get("clip_object_colors") is not None:
-            del conf["clip_object_colors"]
+            conf["clip_object_colors"] = False
+
+        conf.update(clip_defaults)
 
     timeit = preset("timeit", kwargs.get("timeit"))
 
