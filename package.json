@@ -2,7 +2,7 @@
     "name": "ocp-cad-viewer",
     "displayName": "OCP CAD Viewer",
     "description": "An integrated OCP CAD viewer for CadQuery and build123d",
-    "version": "2.2.0",
+    "version": "2.2.1",
     "publisher": "bernhard-42",
     "icon": "resources/ocp-logo.png",
     "license": "Apache-2.0",
@@ -552,10 +552,10 @@
                         },
                         "ocp_tessellate": {
                             "pip": [
-                                "{python} -m pip install --upgrade \"ocp_tessellate>=2.2.0,<2.3.0\""
+                                "{python} -m pip install --upgrade \"ocp_tessellate>=2.2.1,<2.3.0\""
                             ],
                             "poetry": [
-                                "poetry add ocp_tessellate@~2.2.0"
+                                "poetry add ocp_tessellate@~2.2.1"
                             ]
                         },
                         "ipykernel": {
@@ -782,7 +782,7 @@
         "adm-zip": "^0.5.10",
         "follow-redirects": "^1.15.2",
         "semver": "^7.5.1",
-        "three-cad-viewer": "2.2.0",
+        "three-cad-viewer": "2.2.1",
         "ws": "^8.13.0"
     }
 }
