@@ -1,6 +1,10 @@
 # Change Log
 
 All notable changes to the "OCP CAD Viewer" extension will be documented in this file.
+v2.2.1
+-   Fix: Wrong back material color for faces
+-   Improve parameters of Imageface
+-   Improve clipping when faces are deselected
 
 v2.2.0
 -   Clipping now works with caps (default: red, green, blue cap faces). For assemblies the cap faces can use the associated object colors

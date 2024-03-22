@@ -187,6 +187,11 @@ You can also use "Library Manager" in the _OCP CAD Viewer_ sidebar to manage the
 
 ## Changes
 
+v2.2.1
+-   Fix: Wrong back material color for faces
+-   Improve parameters of Imageface
+-   Improve clipping when faces are deselected
+
 v2.2.0
 -   Clipping now works with caps (default: red, green, blue cap faces). For assemblies the cap faces can use the associated object colors
 -   Grid now can be centered (parameter: `center_grid=True`): 
