@@ -187,6 +187,9 @@ You can also use "Library Manager" in the _OCP CAD Viewer_ sidebar to manage the
 
 ## Changes
 
+v2.2.2
+- Fix regression in measure tools
+
 v2.2.1
 -   Fix: Wrong back material color for faces
 -   Improve parameters of Imageface

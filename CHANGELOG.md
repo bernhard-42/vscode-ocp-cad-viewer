@@ -1,6 +1,10 @@
 # Change Log
 
 All notable changes to the "OCP CAD Viewer" extension will be documented in this file.
+
+v2.2.2
+- Fix regression in measure tools
+
 v2.2.1
 -   Fix: Wrong back material color for faces
 -   Improve parameters of Imageface
