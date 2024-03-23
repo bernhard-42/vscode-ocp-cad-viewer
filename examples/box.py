@@ -13,7 +13,7 @@ set_defaults(
 box = cq.Workplane().box(1, 2, 1).edges().chamfer(0.4)
 
 reset_show()
-show_object(box, name="Box", options={"alpha": 0.5})
+show_object(box, name="Box", options={"alpha": 0.5}, measure_tools=True)
 
 # %%
 sphere = cq.Workplane().sphere(0.6)
