@@ -93,10 +93,42 @@
             return i === bytes.length ? bytes : bytes.slice(0, i);
         }
 
+        function fromB64(s) {
+            let bytes = atob(s);
+            let uint = new Uint8Array(bytes.length);
+            for (var i = 0; i < bytes.length; i++) uint[i] = bytes[i].charCodeAt(0);
+            return uint;
+        }
+
         function decode(data, measureTools) {
             function convert(obj) {
-                let buffer = fromHex(obj.buffer);
-                return new Float32Array(buffer.buffer);
+                var result;
+                if (typeof obj.buffer == "string") {
+                    var buffer;
+                    if (obj.codec === "b64") {
+                        buffer = fromB64(obj.buffer);
+                    } else {
+                        buffer = fromHex(obj.buffer);
+                    }
+                    if (obj.dtype === "float32") {
+                        result = new Float32Array(buffer.buffer);
+                    } else if (obj.dtype === "int32") {
+                        result = new Uint32Array(buffer.buffer);
+                    } else if (obj.dtype === "uint32") {
+                        result = new Uint32Array(buffer.buffer);
+                    } else {
+                        console.log("Error: unknown dtype", obj.dtype);
+                    }
+                } else if (Array.isArray(obj)) {
+                    result = [];
+                    for (var arr of obj) {
+                        result.push(convert(arr));
+                    }
+                    return result;
+                } else {
+                    console.log("Error: unknown buffer type", obj.buffer);
+                }
+                return result;
             }
 
             function combineFloatArrays(input) {
@@ -130,7 +162,12 @@
                                 obj.shape.vertices = convert(obj.shape.vertices);
                                 obj.shape.obj_vertices = convert(obj.shape.obj_vertices);
                                 obj.shape.normals = convert(obj.shape.normals);
-                                obj.shape.edges = obj.shape.edges.map((edge) => Array.from(convert(edge)));
+                                obj.shape.edge_types = convert(obj.shape.edge_types);
+                                obj.shape.face_types = convert(obj.shape.face_types);
+                                obj.shape.triangles = convert(obj.shape.triangles);
+                                obj.shape.triangles_per_face = convert(obj.shape.triangles_per_face);
+                                obj.shape.edges = convert(obj.shape.edges);
+                                obj.shape.segments_per_edge = convert(obj.shape.segments_per_edge);
                             } else {
                                 const ind = obj.shape.ref;
                                 if (ind !== undefined) {
@@ -153,7 +190,12 @@
                 instance.vertices = convert(instance.vertices);
                 instance.obj_vertices = convert(instance.obj_vertices);
                 instance.normals = convert(instance.normals);
-                instance.edges = instance.edges.map((edge) => Array.from(convert(edge)));
+                instance.edge_types = convert(instance.edge_types);
+                instance.face_types = convert(instance.face_types);
+                instance.triangles = convert(instance.triangles);
+                instance.triangles_per_face = convert(instance.triangles_per_face);
+                instance.edges = convert(instance.edges);
+                instance.segments_per_edge = convert(instance.segments_per_edge);
             });
 
             walk(data.data.shapes);
