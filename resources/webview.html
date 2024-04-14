@@ -318,7 +318,7 @@
         }
 
         function preset(config, key, val) {
-            return ((config === undefined) || (config[key] === undefined)) ? val : config[key];
+            return ((config == null) || (config[key] == null)) ? val : config[key];
         }
 
         function getDisplayOptions() {
