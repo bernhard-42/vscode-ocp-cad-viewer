@@ -131,10 +131,11 @@ def _send(data, message_type, port=None, timeit=False):
                     result = json.loads(ws.recv())
                 except Exception as ex:  # pylint: disable=broad-except
                     print(ex)
-            try:
-                ws.close()
-            except:  # pylint: disable=bare-except
-                pass
+
+            # try:
+            #     ws.close()
+            # except Exception as ex:  # pylint: disable=bare-except
+            #     pass
 
             return result
 
