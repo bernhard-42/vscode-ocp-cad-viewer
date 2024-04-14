@@ -361,7 +361,7 @@
             container.innerHTML = ""
             viewer = new Viewer(container, displayOptions, nc);
 
-            render();
+            if (_shapes) render();
             // viewer.trimUI(["axes", "axes0", "grid", "ortho", "more", "help"])           
         }
 
@@ -659,6 +659,8 @@
             }
             else if (data.type === "clear") {
                 viewer.clear();
+            } else if (data.type === "show") {
+                showViewer();
             } else if (data.type === "ui") {
                 if (data.config.debug) {
                     console.log(data.config)
