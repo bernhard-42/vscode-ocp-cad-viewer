@@ -137,7 +137,7 @@ def _send(data, message_type, port=None, timeit=False):
             # except Exception as ex:  # pylint: disable=bare-except
             #     pass
 
-            return result
+        return result
 
     except Exception as ex:  # pylint: disable=broad-except
         print(
