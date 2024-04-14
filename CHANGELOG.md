@@ -2,6 +2,11 @@
 
 All notable changes to the "OCP CAD Viewer" extension will be documented in this file.
 
+v2.3.0
+- Add newest ocp-tessellate to allow using native tessellator from ocp_addons
+- Fine tune communication to ensure the memory view of buffers will be passed through to javascript for performance
+- Use of the new protocol v3 of three-cad-viewer
+
 v2.2.2
 - Fix regression in measure tools
 
