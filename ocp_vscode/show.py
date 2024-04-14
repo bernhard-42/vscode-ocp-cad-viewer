@@ -140,7 +140,7 @@ def _tessellate(
 
     with Timer(timeit, "", "to_assembly", 1):
         changed_config = get_changed_config()
-        part_group = to_assembly(
+        part_group, instances = to_assembly(
             *cad_objs,
             names=names,
             colors=colors,
@@ -216,7 +216,7 @@ def _tessellate(
             keymap.reset()
 
         instances, shapes, states, mapping = tessellate_group(
-            part_group, params, progress, params.get("timeit")
+            part_group, instances, params, progress, params.get("timeit")
         )
 
         if parallel:
@@ -272,14 +272,15 @@ def _convert(
         config["explode"] = kwargs["explode"]
 
     with Timer(timeit, "", "create data obj", 1):
-        return {
+        result = {
             "data": numpy_to_buffer_json(
-                dict(instances=instances, shapes=shapes, states=states)
+                dict(instances=instances, shapes=shapes, states=states),
             ),
             "type": "data",
             "config": config,
             "count": count_shapes,
         }, mapping
+    return result
 
 
 class Progress:
