@@ -64,6 +64,7 @@ export class OCPCADController {
 
     public logo() {
         this.view?.postMessage(logo);
+        // this.view?.postMessage(JSON.stringify({ "type": "show" }));
     }
 
     public config() {
