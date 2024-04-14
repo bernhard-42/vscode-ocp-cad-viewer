@@ -607,15 +607,17 @@
             var data = JSON.parse(event.data);
 
             if (data.type === "data") {
+                const timer = new Timer("webView", data.config.timeit);
+
                 decode(data, data.config.measure_tools);
+                timer.split("data decoded");
 
                 var old_states = (viewer == null) ? {} : (viewer.treeview == null) ? {} : viewer.treeview.states;
 
                 let meshData = data.data;
                 let config = data.config;
-                showViewer(meshData.shapes, meshData.states, config);
 
-                var time = performance.now();
+                showViewer(meshData.shapes, meshData.states, config);
 
                 var new_states = meshData.states;
 
@@ -637,6 +639,7 @@
                     }
                     new_states = new_s;
                 }
+                timer.split("measure tools set up");
 
                 const new_keys = Object.keys(new_states);
 
@@ -652,12 +655,13 @@
                         }
                     }
                 });
-                console.log("state update", performance.now() - time);
+                timer.split("states updated");
+
+                timer.stop()
 
             } else if (data.type === "backend_response") {
                 viewer.handleBackendResponse(data);
-            }
-            else if (data.type === "clear") {
+            } else if (data.type === "clear") {
                 viewer.clear();
             } else if (data.type === "show") {
                 showViewer();
