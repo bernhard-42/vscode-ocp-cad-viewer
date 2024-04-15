@@ -17,6 +17,7 @@
 #
 
 import re
+import types
 
 from ocp_tessellate import PartGroup
 from ocp_tessellate.convert import (
@@ -794,21 +795,6 @@ def show_all(
     _test=False,
     **kwargs,
 ):
-                new_obj = conv(obj)
-                new_obj.name = name
-                group.add(new_obj)
-            else:
-                ...
-                # print(
-                #     f"show_all: Type {type(obj)} for name {name} cannot be visualized"
-                # )
-
-    group = OCP_PartGroup([], name=name)
-    to_group(obj, name, group)
-    return group.objects[0]
-
-
-def show_all(variables=None, exclude=None, classes=None, _visual_debug=False, **kwargs):
     """Show all variables in the current scope"""
     import inspect  # pylint: disable=import-outside-toplevel
 
@@ -833,22 +819,23 @@ def show_all(variables=None, exclude=None, classes=None, _visual_debug=False, **
     names = []
     for name, obj in variables.items():
         if (
+            # ignore classes and ipython and jupyter variables
             isinstance(obj, type)
-            or name in ["_", "__", "___"]
+            or name in exclude + ["_", "__", "___", "_ih", "_oh", "_dh", "Out", "In"]
             or name.startswith("__")
             or re.search("_\\d+", name) is not None
+            # pylint: disable=protected-access
+            or (hasattr(obj, "_obj") and obj._obj is None)
+            or callable(obj)
+            or isinstance(obj, (int, float, str, bool, types.ModuleType))
         ):
-            continue  # ignore classes and jupyter variables
+            continue
+
         if hasattr(obj, "area") and obj.area > 1e99:  # inifinite face
             print(f"infinite face {name} skipped")
             continue
 
-        if name not in exclude and (classes is None or isinstance(obj, tuple(classes))):
-            if (
-                hasattr(obj, "_obj")
-                and obj._obj is None  # pylint: disable=protected-access
-            ):
-                continue
+        if classes is None or isinstance(obj, tuple(classes)):
 
             if hasattr(obj, "locations") and hasattr(obj, "local_locations"):
                 obj = obj.locations
@@ -874,6 +861,7 @@ def show_all(variables=None, exclude=None, classes=None, _visual_debug=False, **
                     and hasattr(obj, "position")
                     and hasattr(obj, "direction")
                 )
+                or isinstance(obj, (list, tuple, dict))
             ):
                 objects.append(obj)
                 names.append(name)
@@ -891,33 +879,25 @@ def show_all(variables=None, exclude=None, classes=None, _visual_debug=False, **
                 objects.append(pg)
                 names.append(name)
 
-            elif isinstance(obj, (list, tuple, dict)):
-                if not name in [
-                    "_ih",
-                    "_oh",
-                    "_dh",
-                    "Out",
-                    "In",
-                ]:  # no IPython dicts and lists
-                    obj = ocp_group(obj, name)
-                    if len(obj.objects) > 0:
-                        objects.append(obj)
-                        obj.name = name
-                        names.append(name)
+            else:
+                print(
+                    f"show_all: Type {type(obj)} for name {name} cannot be visualized"
+                )
 
     if len(objects) > 0:
-        show(
-            *objects,
-            names=names,
-            collapse=Collapse.ROOT,
-            _force_in_debug=_visual_debug,
+        try:
+            result = show(
+                *objects,
+                names=names,
+                collapse=Collapse.ROOT,
+                _force_in_debug=_visual_debug,
                 _test=_test,
-            **kwargs,
-        )
+                **kwargs,
+            )
             if _test:
                 return result
-        # except Exception as ex:  # pylint: disable=broad-exception-caught
-        #     print("show_all:", ex)
+        except Exception as ex:  # pylint: disable=broad-exception-caught
+            print("show_all:", ex)
     else:
         if _test:
             return None
