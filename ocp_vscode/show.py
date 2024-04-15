@@ -244,6 +244,7 @@ def _convert(
     colors=None,
     alphas=None,
     progress=None,
+    _test=False,
     **kwargs,
 ):
     timeit = preset("timeit", kwargs.get("timeit"))
@@ -272,6 +273,9 @@ def _convert(
         config["explode"] = kwargs["explode"]
 
     with Timer(timeit, "", "create data obj", 1):
+        if _test:
+            return (instances, shapes, states, config, count_shapes), mapping
+
         return {
             "data": numpy_to_buffer_json(
                 dict(instances=instances, shapes=shapes, states=states)
@@ -377,6 +381,7 @@ def show(
     debug=None,
     timeit=None,
     _force_in_debug=False,
+    _test=False,
 ):
     # pylint: disable=line-too-long
     """Show CAD objects in Visual Studio Code
@@ -551,6 +556,9 @@ def show(
             LAST_CALL = "show"
         else:
             LAST_CALL = "other"
+
+    if _test:
+        return t, mapping
 
     with Timer(timeit, "", "send"):
         send_data(t, port=port, timeit=timeit)
@@ -778,29 +786,14 @@ def show_clear():
     send_data(data)
 
 
-def ocp_group(obj, name):
-
-    def to_group(obj, name, group):
-        if isinstance(obj, list):
-            sub_group = OCP_PartGroup([], name=name)
-            for i, el in enumerate(obj):
-                new_obj = to_group(el, f"{name}[{i}]", sub_group)
-                if new_obj is not None:
-                    sub_group.add(new_obj)
-            group.add(sub_group)
-        elif isinstance(obj, dict):
-            sub_group = OCP_PartGroup([], name=name)
-            for name, el in obj.items():
-                new_obj = to_group(el, name, sub_group)
-                if new_obj is not None:
-                    sub_group.add(new_obj)
-            group.add(sub_group)
-        else:
-            if (
-                (is_wrapped(obj) and not obj.__class__.__name__ == "Color")
-                or is_build123d(obj)
-                or is_cadquery(obj)
-            ):
+def show_all(
+    variables=None,
+    exclude=None,
+    classes=None,
+    _visual_debug=False,
+    _test=False,
+    **kwargs,
+):
                 new_obj = conv(obj)
                 new_obj.name = name
                 group.add(new_obj)
@@ -918,7 +911,14 @@ def show_all(variables=None, exclude=None, classes=None, _visual_debug=False, **
             names=names,
             collapse=Collapse.ROOT,
             _force_in_debug=_visual_debug,
+                _test=_test,
             **kwargs,
         )
+            if _test:
+                return result
+        # except Exception as ex:  # pylint: disable=broad-exception-caught
+        #     print("show_all:", ex)
     else:
+        if _test:
+            return None
         show_clear()
