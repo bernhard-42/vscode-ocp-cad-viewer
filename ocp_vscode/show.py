@@ -17,6 +17,7 @@
 #
 
 import re
+import types
 
 from ocp_tessellate import PartGroup
 from ocp_tessellate.convert import (
@@ -244,6 +245,7 @@ def _convert(
     colors=None,
     alphas=None,
     progress=None,
+    _test=False,
     **kwargs,
 ):
     timeit = preset("timeit", kwargs.get("timeit"))
@@ -272,7 +274,10 @@ def _convert(
         config["explode"] = kwargs["explode"]
 
     with Timer(timeit, "", "create data obj", 1):
-        result = {
+        if _test:
+            return (instances, shapes, states, config, count_shapes), mapping
+
+        return {
             "data": numpy_to_buffer_json(
                 dict(instances=instances, shapes=shapes, states=states),
             ),
@@ -378,6 +383,7 @@ def show(
     debug=None,
     timeit=None,
     _force_in_debug=False,
+    _test=False,
 ):
     # pylint: disable=line-too-long
     """Show CAD objects in Visual Studio Code
@@ -552,6 +558,9 @@ def show(
             LAST_CALL = "show"
         else:
             LAST_CALL = "other"
+
+    if _test:
+        return t, mapping
 
     with Timer(timeit, "", "send"):
         send_data(t, port=port, timeit=timeit)
@@ -779,44 +788,14 @@ def show_clear():
     send_data(data)
 
 
-def ocp_group(obj, name):
-
-    def to_group(obj, name, group):
-        if isinstance(obj, list):
-            sub_group = OCP_PartGroup([], name=name)
-            for i, el in enumerate(obj):
-                new_obj = to_group(el, f"{name}[{i}]", sub_group)
-                if new_obj is not None:
-                    sub_group.add(new_obj)
-            group.add(sub_group)
-        elif isinstance(obj, dict):
-            sub_group = OCP_PartGroup([], name=name)
-            for name, el in obj.items():
-                new_obj = to_group(el, name, sub_group)
-                if new_obj is not None:
-                    sub_group.add(new_obj)
-            group.add(sub_group)
-        else:
-            if (
-                (is_wrapped(obj) and not obj.__class__.__name__ == "Color")
-                or is_build123d(obj)
-                or is_cadquery(obj)
-            ):
-                new_obj = conv(obj)
-                new_obj.name = name
-                group.add(new_obj)
-            else:
-                ...
-                # print(
-                #     f"show_all: Type {type(obj)} for name {name} cannot be visualized"
-                # )
-
-    group = OCP_PartGroup([], name=name)
-    to_group(obj, name, group)
-    return group.objects[0]
-
-
-def show_all(variables=None, exclude=None, classes=None, _visual_debug=False, **kwargs):
+def show_all(
+    variables=None,
+    exclude=None,
+    classes=None,
+    _visual_debug=False,
+    _test=False,
+    **kwargs,
+):
     """Show all variables in the current scope"""
     import inspect  # pylint: disable=import-outside-toplevel
 
@@ -841,22 +820,23 @@ def show_all(variables=None, exclude=None, classes=None, _visual_debug=False, **
     names = []
     for name, obj in variables.items():
         if (
+            # ignore classes and ipython and jupyter variables
             isinstance(obj, type)
-            or name in ["_", "__", "___"]
+            or name in exclude + ["_", "__", "___", "_ih", "_oh", "_dh", "Out", "In"]
             or name.startswith("__")
             or re.search("_\\d+", name) is not None
+            # pylint: disable=protected-access
+            or (hasattr(obj, "_obj") and obj._obj is None)
+            or callable(obj)
+            or isinstance(obj, (int, float, str, bool, types.ModuleType))
         ):
-            continue  # ignore classes and jupyter variables
+            continue
+
         if hasattr(obj, "area") and obj.area > 1e99:  # inifinite face
             print(f"infinite face {name} skipped")
             continue
 
-        if name not in exclude and (classes is None or isinstance(obj, tuple(classes))):
-            if (
-                hasattr(obj, "_obj")
-                and obj._obj is None  # pylint: disable=protected-access
-            ):
-                continue
+        if classes is None or isinstance(obj, tuple(classes)):
 
             if hasattr(obj, "locations") and hasattr(obj, "local_locations"):
                 obj = obj.locations
@@ -882,6 +862,7 @@ def show_all(variables=None, exclude=None, classes=None, _visual_debug=False, **
                     and hasattr(obj, "position")
                     and hasattr(obj, "direction")
                 )
+                or isinstance(obj, (list, tuple, dict))
             ):
                 objects.append(obj)
                 names.append(name)
@@ -899,27 +880,26 @@ def show_all(variables=None, exclude=None, classes=None, _visual_debug=False, **
                 objects.append(pg)
                 names.append(name)
 
-            elif isinstance(obj, (list, tuple, dict)):
-                if not name in [
-                    "_ih",
-                    "_oh",
-                    "_dh",
-                    "Out",
-                    "In",
-                ]:  # no IPython dicts and lists
-                    obj = ocp_group(obj, name)
-                    if len(obj.objects) > 0:
-                        objects.append(obj)
-                        obj.name = name
-                        names.append(name)
+            else:
+                print(
+                    f"show_all: Type {type(obj)} for name {name} cannot be visualized"
+                )
 
     if len(objects) > 0:
-        show(
-            *objects,
-            names=names,
-            collapse=Collapse.ROOT,
-            _force_in_debug=_visual_debug,
-            **kwargs,
-        )
+        try:
+            result = show(
+                *objects,
+                names=names,
+                collapse=Collapse.ROOT,
+                _force_in_debug=_visual_debug,
+                _test=_test,
+                **kwargs,
+            )
+            if _test:
+                return result
+        except Exception as ex:  # pylint: disable=broad-exception-caught
+            print("show_all:", ex)
     else:
+        if _test:
+            return None
         show_clear()
