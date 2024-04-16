@@ -135,7 +135,7 @@ class ShowTests(Tests):
         )
         self.assertListEqual(
             [el.get("color") for el in self.shapes["parts"]],
-            ["#000000", "#00ffff", "#ba55d3", "#c0c0c0", None],
+            ["#000000", "#00ffff", "#7b2d06", "#c0c0c0", None],
         )
 
         self.assertEqual(len(self.mapping["parts"]), 5)
@@ -243,7 +243,7 @@ class ShowAllTests(Tests):
                 "#006400",
                 ["#ff0000", "#008000", "#0000ff"],
                 None,
-                "#ba55d3",
+                "#7b2d06",
             ],
         )
 
