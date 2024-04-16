@@ -185,6 +185,19 @@ You can also use "Library Manager" in the _OCP CAD Viewer_ sidebar to manage the
     -   `reset_camera=Camera.KEEP` will keep position, rotation and panning. However, panning can be problematic. When the next object to be shown is much larger or smaller and the object before was panned, it can happen that nothing is visible (the new object at the pan location is outside of the viewer frustum). OCP CAD Viewer checks whether the bounding box of an object is 2x smaller or larger than the one of the last shown object. If so, it falls back to `Camera.CENTER`. A notification is written to the OCP CAD Viewer output panel.
     -   `reset_camera=Camera.RESET` will ensure that position, rotation and panning will be reset to the initial default
 
+## Development
+
+Testing:
+Native tessellator can be set via `NATIVE_TESSELLATOR=1`and Python tessellator via `NATIVE_TESSELLATOR=0`
+When `OCP_VSCODE_PYTEST=1` is set, show will not send the tessellated results to the viewer, but return it to the caller for inspection.
+
+A full test cycle consist of:
+
+```bash
+NATIVE_TESSELLATOR=0 OCP_VSCODE_PYTEST=1 pytest -v -s pytests/
+NATIVE_TESSELLATOR=1 OCP_VSCODE_PYTEST=1 pytest -v -s pytests/
+```
+
 ## Changes
 
 v2.3.0
