@@ -51,7 +51,7 @@ from ocp_tessellate.cad_objects import (
 )
 import ocp_tessellate.convert as oc
 
-from .config import (
+from ocp_vscode.config import (
     preset,
     get_changed_config,
     workspace_config,
@@ -62,8 +62,8 @@ from .config import (
     Collapse,
     check_deprecated,
 )
-from .comms import send_backend, send_data
-from .colors import get_colormap, web_to_rgb, BaseColorMap
+from ocp_vscode.comms import send_backend, send_data
+from ocp_vscode.colors import get_colormap, web_to_rgb, BaseColorMap
 
 __all__ = ["show", "show_object", "reset_show", "show_all", "show_clear"]
 
