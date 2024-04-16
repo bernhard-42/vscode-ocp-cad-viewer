@@ -63,7 +63,7 @@ from ocp_vscode.config import (
     Collapse,
     check_deprecated,
 )
-from ocp_vscode.comms import send_backend, send_data
+from ocp_vscode.comms import send_backend, send_data, is_pytest
 from ocp_vscode.colors import get_colormap, web_to_rgb, BaseColorMap
 
 __all__ = ["show", "show_object", "reset_show", "show_all", "show_clear"]
@@ -71,10 +71,6 @@ __all__ = ["show", "show_object", "reset_show", "show_all", "show_clear"]
 OBJECTS = {"objs": [], "names": [], "colors": [], "alphas": []}
 
 LAST_CALL = "other"
-
-
-def is_pytest():
-    return os.environ.get("OCP_VSCODE_PYTEST") == "1"
 
 
 def _tessellate(

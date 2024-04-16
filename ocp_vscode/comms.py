@@ -20,6 +20,7 @@ from ocp_tessellate.ocp_utils import (
 )
 from .state import get_state, update_state, get_config_file
 
+
 # pylint: disable=unused-import
 try:
     from IPython import get_ipython
@@ -33,6 +34,7 @@ CMD_URL = "ws://127.0.0.1"
 CMD_PORT = 3939
 
 INIT_DONE = False
+
 
 #
 # Send data to the viewer
@@ -58,7 +60,12 @@ __all__ = [
     "set_port",
     "get_port",
     "listener",
+    "is_pytest",
 ]
+
+
+def is_pytest():
+    return os.environ.get("OCP_VSCODE_PYTEST") == "1"
 
 
 def port_check(port):
@@ -85,6 +92,9 @@ def default(obj):
 
 def get_port():
     """Get the port"""
+    if is_pytest():
+        return 3939
+
     if not INIT_DONE:
         find_and_set_port()
         set_connection_file()

@@ -18,7 +18,7 @@
 
 from enum import Enum
 
-from .comms import send_command, send_config, get_port
+from .comms import send_command, send_config, get_port, is_pytest
 
 __all__ = [
     "workspace_config",
@@ -401,6 +401,10 @@ def ui_filter(conf):
 
 def status(port=None, debug=False):
     """Get viewer status"""
+
+    if is_pytest():
+        return {}
+
     if port is None:
         port = get_port()
     try:
@@ -418,6 +422,16 @@ def status(port=None, debug=False):
 
 def workspace_config(port=None):
     """Get viewer workspace config"""
+
+    if is_pytest():
+        return {
+            "measure_tools": False,
+            "_splash": False,
+            "default_facecolor": (1, 234, 56),
+            "default_thickedgecolor": (123, 45, 6),
+            "default_vertexcolor": (123, 45, 6),
+        }
+
     if port is None:
         port = get_port()
     try:
