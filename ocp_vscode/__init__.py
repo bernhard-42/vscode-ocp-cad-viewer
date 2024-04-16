@@ -24,3 +24,21 @@ from .comms import *
 from .colors import *
 from .animation import Animation
 from ocp_tessellate.cad_objects import ImageFace
+
+try:
+    from ocp_tessellate.tessellator import (
+        enable_native_tessellator,
+        disable_native_tessellator,
+        is_native_tessellator_enabled,
+    )
+
+    if is_native_tessellator_enabled():
+        print(
+            "Enabled native tessellator, to disable, call `disable_native_tessellator()`\n"
+        )
+    else:
+        print(
+            "Found native tessellator, to ansable, call `enable_native_tessellator()`\n"
+        )
+except:
+    pass
