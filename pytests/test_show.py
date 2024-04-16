@@ -11,12 +11,6 @@ import ocp_tessellate as ot
 # %%
 
 
-@pytest.fixture(scope="session", autouse=True)
-def cleanup(request):
-    """Cleanup a testing directory once we are finished."""
-    print("STOP")
-
-
 class Tests(unittest.TestCase):
     def get(self, result):
         self.result = result
