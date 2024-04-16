@@ -296,7 +296,7 @@ class Progress:
 
     def __init__(self, levels=None):
         if levels is None:
-            self.levels = ["+", "c", "-"]
+            self.levels = ["+c-*"]
         else:
             self.levels = levels
 
@@ -327,7 +327,7 @@ def show(
     colors=None,
     alphas=None,
     port=None,
-    progress="-+c",
+    progress="-+*c",
     glass=None,
     tools=None,
     measure_tools=None,
@@ -397,8 +397,11 @@ def show(
         colors:                  List of colors for the cad_objs. Needs to have the same length as cad_objs
         alphas:                  List of alpha values for the cad_objs. Needs to have the same length as cad_objs
         port:                    The port the viewer listens to. Typically use 'set_port(port)' instead
-        progress:                Show progress of tessellation with None is no progress indicator. (default="-+c")
-                                 for object: "-": is reference, "+": gets tessellated, "c": from cache
+        progress:                Show progress of tessellation with None is no progress indicator. (default="-+*c")
+                                 for object: "-": is reference,
+                                             "+": gets tessellated with Python code,
+                                             "*": gets tessellated with native code,
+                                             "c": from cache
 
     Valid keywords to configure the viewer (**kwargs):
     - UI
@@ -586,7 +589,7 @@ def show_object(
     parent=None,
     clear=False,
     port=None,
-    progress="-+c",
+    progress="-+*c",
     glass=None,
     tools=None,
     measure_tools=None,
@@ -658,8 +661,12 @@ def show_object(
         clear:                   In interactice mode, clear the stack of objects to be shown
                                  (typically used for the first object)
         port:                    The port the viewer listens to. Typically use 'set_port(port)' instead
-        progress:                Show progress of tessellation with None is no progress indicator. (default="-+c")
-                                 for object: "-": is reference, "+": gets tessellated, "c": from cache
+        progress:                Show progress of tessellation with None is no progress indicator. (default="-+*c")
+                                 for object: "-": is reference,
+                                             "+": gets tessellated with Python code,
+                                             "*": gets tessellated with native code,
+                                             "c": from cache
+
 
     Valid keywords to configure the viewer (**kwargs):
     - UI
