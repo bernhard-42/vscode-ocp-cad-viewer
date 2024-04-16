@@ -19,8 +19,11 @@ Keywords for show:
     colors:                  List of colors for the cad_objs. Needs to have the same length as cad_objs
     alphas:                  List of alpha values for the cad_objs. Needs to have the same length as cad_objs
     port:                    The port the viewer listens to. Typically use 'set_port(port)' instead
-    progress:                Show progress of tessellation with None is no progress indicator. (default="-+c")
-                                for object: "-": is reference, "+": gets tessellated, "c": from cache
+    progress:                Show progress of tessellation with None is no progress indicator. (default="-+*c")
+                                for object: "-": is reference,
+                                            "+": gets tessellated with Python code,
+                                            "*": gets tessellated with native code,
+                                            "c": from cache
 
 Valid keywords to configure the viewer (**kwargs):
 - UI
