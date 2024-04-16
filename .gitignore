@@ -7,7 +7,6 @@ node_modules
 vsc-extension-quickstart.md
 ipc
 ocp_vscode.egg-info
-ocp_vscode/__pycache__
 build
 dist
 .DS_Store
@@ -17,5 +16,5 @@ three-cad-viewer-*.tgz
 ocp-vscode-backend.log
 ocp_tessellate.log
 .ocp_vscode
-test/__pycache__/
+**/__pycache__/
 main.py
