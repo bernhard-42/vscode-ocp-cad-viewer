@@ -72,6 +72,10 @@ OBJECTS = {"objs": [], "names": [], "colors": [], "alphas": []}
 LAST_CALL = "other"
 
 
+def is_pytest():
+    return os.environ.get("OCP_VSCODE_PYTEST") == "1"
+
+
 def _tessellate(
     *cad_objs, names=None, colors=None, alphas=None, progress=None, **kwargs
 ):
@@ -245,7 +249,6 @@ def _convert(
     colors=None,
     alphas=None,
     progress=None,
-    _test=False,
     **kwargs,
 ):
     timeit = preset("timeit", kwargs.get("timeit"))
@@ -274,7 +277,7 @@ def _convert(
         config["explode"] = kwargs["explode"]
 
     with Timer(timeit, "", "create data obj", 1):
-        if _test:
+        if is_pytest():
             return (instances, shapes, states, config, count_shapes), mapping
 
         return {
@@ -383,7 +386,6 @@ def show(
     debug=None,
     timeit=None,
     _force_in_debug=False,
-    _test=False,
 ):
     # pylint: disable=line-too-long
     """Show CAD objects in Visual Studio Code
@@ -559,7 +561,7 @@ def show(
         else:
             LAST_CALL = "other"
 
-    if _test:
+    if is_pytest():
         return t, mapping
 
     with Timer(timeit, "", "send"):
@@ -793,7 +795,6 @@ def show_all(
     exclude=None,
     classes=None,
     _visual_debug=False,
-    _test=False,
     **kwargs,
 ):
     """Show all variables in the current scope"""
@@ -892,14 +893,13 @@ def show_all(
                 names=names,
                 collapse=Collapse.ROOT,
                 _force_in_debug=_visual_debug,
-                _test=_test,
                 **kwargs,
             )
-            if _test:
+            if is_pytest():
                 return result
         except Exception as ex:  # pylint: disable=broad-exception-caught
             print("show_all:", ex)
     else:
-        if _test:
+        if is_pytest():
             return None
         show_clear()
