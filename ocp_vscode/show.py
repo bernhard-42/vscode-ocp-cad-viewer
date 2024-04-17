@@ -232,7 +232,13 @@ def _tessellate(
     )
 
     with Timer(timeit, "", "bb", 1):
-        bb = combined_bb(shapes).to_dict()
+        bb = combined_bb(shapes)
+        if bb is None:
+            bb = dict(
+                xmin=-1e-6, ymin=-1e-6, zmin=-1e-6, xmax=1e-6, ymax=1e-6, zmax=1e-6
+            )
+        else:
+            bb = bb.to_dict()
 
     # add global bounding box
     shapes["bb"] = bb
