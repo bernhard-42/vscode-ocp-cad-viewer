@@ -196,8 +196,142 @@ class ShowTests(Tests):
 
 
 class ShowAllTests(Tests):
+    def test_show_aligns(self):
+        MIDDLE = (Align.CENTER, Align.CENTER)
 
-    def test_show_all(self):
+        r = show_all()
+
+        self.get(r)
+        self.assertEqual(len(self.instances), 0)
+        self.assertEqual(len(self.parts), 0)
+
+    def test_show_pos_list(self):
+        a = [Pos(1, 1)]
+
+        r = show_all()
+
+        self.get(r)
+        self.assertEqual(len(self.instances), 0)
+        self.assertEqual(len(self.parts), 1)
+        self.assertEqual(self.parts[0]["name"], "a")
+        self.assertListEqual(
+            [el.get("id") for el in self.shapes["parts"]],
+            ["/Group/a"],
+        )
+
+    def test_show_pos(self):
+        a = Pos(1, 1)
+
+        r = show_all()
+
+        self.get(r)
+        self.assertEqual(len(self.instances), 0)
+        self.assertEqual(len(self.parts), 1)
+        self.assertEqual(self.parts[0]["name"], "a")
+        self.assertListEqual(
+            [el.get("id") for el in self.shapes["parts"]],
+            ["/Group/a"],
+        )
+
+    def test_show_color(self):
+        p = Sphere(1)
+        p.color = Color(0x00FF00)
+
+        r = show_all()
+
+        self.get(r)
+        self.assertEqual(len(self.instances), 1)
+        self.assertEqual(len(self.parts), 1)
+        self.assertEqual(self.parts[0]["name"], "p")
+        self.assertListEqual(
+            [el.get("id") for el in self.shapes["parts"]],
+            ["/Group/p"],
+        )
+
+    def test_show_color_in_list(self):
+        p = Sphere(1)
+        p.color = Color(0x00FF00)
+        p = [p]
+
+        r = show_all()
+
+        self.get(r)
+        self.assertEqual(len(self.instances), 1)
+        self.assertEqual(len(self.parts), 1)
+        self.assertEqual(self.parts[0]["name"], "p")
+        self.assertListEqual(
+            [el.get("id") for el in self.shapes["parts"]],
+            ["/Group/p"],
+        )
+
+    def test_show_tuple(self):
+        p = (Circle(1),)
+
+        r = show_all()
+
+        self.get(r)
+        self.assertEqual(len(self.instances), 0)
+        self.assertEqual(len(self.parts), 1)
+        self.assertEqual(self.parts[0]["name"], "p")
+        self.assertListEqual(
+            [el.get("id") for el in self.shapes["parts"]],
+            ["/Group/p"],
+        )
+
+    def test_show_gridlocations(self):
+        loc = GridLocations(1, 1, 5, 5)
+
+        r = show_all()
+
+        self.get(r)
+        self.assertEqual(len(self.instances), 0)
+        self.assertEqual(len(self.parts), 25)
+        self.assertEqual(self.parts[0]["name"], "loc")
+        self.assertListEqual(
+            [el.get("id") for el in self.shapes["parts"]],
+            [
+                "/loc/loc",
+                "/loc/loc(2)",
+                "/loc/loc(3)",
+                "/loc/loc(4)",
+                "/loc/loc(5)",
+                "/loc/loc(6)",
+                "/loc/loc(7)",
+                "/loc/loc(8)",
+                "/loc/loc(9)",
+                "/loc/loc(10)",
+                "/loc/loc(11)",
+                "/loc/loc(12)",
+                "/loc/loc(13)",
+                "/loc/loc(14)",
+                "/loc/loc(15)",
+                "/loc/loc(16)",
+                "/loc/loc(17)",
+                "/loc/loc(18)",
+                "/loc/loc(19)",
+                "/loc/loc(20)",
+                "/loc/loc(21)",
+                "/loc/loc(22)",
+                "/loc/loc(23)",
+                "/loc/loc(24)",
+                "/loc/loc(25)",
+            ],
+        )
+
+    def test_show_empty(self):
+        s = Circle(1) - Circle(1)
+
+        r = show_all()
+        self.get(r)
+        print(self.shapes)
+        self.assertEqual(len(self.instances), 0)
+        self.assertEqual(self.parts[0]["name"], "s (empty)")
+        self.assertListEqual(
+            [el.get("id") for el in self.shapes["parts"]],
+            ["/Group/s (empty)"],
+        )
+
+    def test_show_multi(self):
         box = Box(1, 2, 3)
         box.color = "black"
         cyl = Cylinder(0.3, 4)
@@ -297,6 +431,46 @@ class SimpleShowTests(Tests):
 
         self.get(r)
         self.assertEqual(len(self.parts), 3)
+
+    def test_show_vector(self):
+
+        r = show(Vector(1, 2, 3), Vector(4, 5, 6), names=["a", "b"])
+
+        self.get(r)
+        self.assertEqual(len(self.parts), 2)
+
+    def test_show_vector(self):
+
+        r = show(Vector(1, 2, 3), Vector(4, 5, 6), names=["a"])
+
+        self.get(r)
+        self.assertEqual(len(self.parts), 2)
+        self.assertPartsList(
+            "id",
+            ["/Group/a", "/Group/Vertex"],
+        )
+
+    def test_show_dict(self):
+
+        r = show(dict(b=Box(1, 2, 3), c=Cylinder(0.1, 5)))
+
+        self.get(r)
+        self.assertEqual(len(self.parts), 2)
+        self.assertPartsList(
+            "id",
+            ["/Dict/b", "/Dict/c"],
+        )
+
+    def test_show_named_dict(self):
+
+        r = show(dict(b=Box(1, 2, 3), c=Cylinder(0.1, 5)), names=["boxcyl"])
+
+        self.get(r)
+        self.assertEqual(len(self.parts), 2)
+        self.assertPartsList(
+            "id",
+            ["/boxcyl/b", "/boxcyl/c"],
+        )
 
 
 class ConfigTests(Tests):
