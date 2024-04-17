@@ -48,20 +48,16 @@ class Tests(unittest.TestCase):
             self.assertAlmostEqual(i, j, places, msg=msg)
 
     def assertLocationEqual(self, ind, translation, quaternion, places=6):
-        self.assertTupleAlmostEquals(
-            self.shapes["parts"][ind]["loc"][0], translation, places
-        )
-        self.assertTupleAlmostEquals(
-            self.shapes["parts"][ind]["loc"][1], quaternion, places
-        )
+        self.assertTupleAlmostEquals(self.parts[ind]["loc"][0], translation, places)
+        self.assertTupleAlmostEquals(self.parts[ind]["loc"][1], quaternion, places)
 
     def assertBboxEqual(self, expected, places=6, msg=None):
         actual = self.shapes["bb"]
         for key in expected.keys():
             self.assertAlmostEqual(expected[key], actual[key], places, msg=msg)
 
-    def assertPartsList(self, key, expected):
-        self.assertListEqual([el.get(key) for el in self.shapes["parts"]], expected)
+    def assertPartsElementsEqual(self, key, expected):
+        self.assertListEqual([el.get(key) for el in self.parts], expected)
 
     def assertShapesEqual(self, key, value):
         self.assertEqual(self.shapes[key], value)
@@ -123,8 +119,8 @@ class ShowTests(Tests):
         self.assertEqual(self.shapes["version"], 3)
         self.assertEqual(len(self.shapes["parts"]), 5)
 
-        self.assertListEqual(
-            [el.get("id") for el in self.shapes["parts"]],
+        self.assertPartsElementsEqual(
+            "id",
             [
                 "/Group/Solid",
                 "/Group/Solid(2)",
@@ -133,8 +129,8 @@ class ShowTests(Tests):
                 "/Group/List",
             ],
         )
-        self.assertListEqual(
-            [el.get("color") for el in self.shapes["parts"]],
+        self.assertPartsElementsEqual(
+            "color",
             ["#000000", "#00ffff", "#7b2d06", "#c0c0c0", None],
         )
 
@@ -183,8 +179,8 @@ class ShowTests(Tests):
         )
 
         self.get(r)
-        self.assertListEqual(
-            [el.get("id") for el in self.shapes["parts"]],
+        self.assertPartsElementsEqual(
+            "id",
             [
                 "/Group/box",
                 "/Group/cyl",
@@ -214,8 +210,8 @@ class ShowAllTests(Tests):
         self.assertEqual(len(self.instances), 0)
         self.assertEqual(len(self.parts), 1)
         self.assertEqual(self.parts[0]["name"], "a")
-        self.assertListEqual(
-            [el.get("id") for el in self.shapes["parts"]],
+        self.assertPartsElementsEqual(
+            "id",
             ["/Group/a"],
         )
 
@@ -228,8 +224,8 @@ class ShowAllTests(Tests):
         self.assertEqual(len(self.instances), 0)
         self.assertEqual(len(self.parts), 1)
         self.assertEqual(self.parts[0]["name"], "a")
-        self.assertListEqual(
-            [el.get("id") for el in self.shapes["parts"]],
+        self.assertPartsElementsEqual(
+            "id",
             ["/Group/a"],
         )
 
@@ -243,9 +239,13 @@ class ShowAllTests(Tests):
         self.assertEqual(len(self.instances), 1)
         self.assertEqual(len(self.parts), 1)
         self.assertEqual(self.parts[0]["name"], "p")
-        self.assertListEqual(
-            [el.get("id") for el in self.shapes["parts"]],
+        self.assertPartsElementsEqual(
+            "id",
             ["/Group/p"],
+        )
+        self.assertPartsElementsEqual(
+            "color",
+            ["#00ff00"],
         )
 
     def test_show_color_in_list(self):
@@ -259,9 +259,13 @@ class ShowAllTests(Tests):
         self.assertEqual(len(self.instances), 1)
         self.assertEqual(len(self.parts), 1)
         self.assertEqual(self.parts[0]["name"], "p")
-        self.assertListEqual(
-            [el.get("id") for el in self.shapes["parts"]],
+        self.assertPartsElementsEqual(
+            "id",
             ["/Group/p"],
+        )
+        self.assertPartsElementsEqual(
+            "color",
+            ["#00ff00"],
         )
 
     def test_show_tuple(self):
@@ -273,8 +277,8 @@ class ShowAllTests(Tests):
         self.assertEqual(len(self.instances), 0)
         self.assertEqual(len(self.parts), 1)
         self.assertEqual(self.parts[0]["name"], "p")
-        self.assertListEqual(
-            [el.get("id") for el in self.shapes["parts"]],
+        self.assertPartsElementsEqual(
+            "id",
             ["/Group/p"],
         )
 
@@ -287,8 +291,8 @@ class ShowAllTests(Tests):
         self.assertEqual(len(self.instances), 0)
         self.assertEqual(len(self.parts), 25)
         self.assertEqual(self.parts[0]["name"], "loc")
-        self.assertListEqual(
-            [el.get("id") for el in self.shapes["parts"]],
+        self.assertPartsElementsEqual(
+            "id",
             [
                 "/loc/loc",
                 "/loc/loc(2)",
@@ -323,11 +327,10 @@ class ShowAllTests(Tests):
 
         r = show_all()
         self.get(r)
-        print(self.shapes)
         self.assertEqual(len(self.instances), 0)
         self.assertEqual(self.parts[0]["name"], "s (empty)")
-        self.assertListEqual(
-            [el.get("id") for el in self.shapes["parts"]],
+        self.assertPartsElementsEqual(
+            "id",
             ["/Group/s (empty)"],
         )
 
@@ -356,7 +359,7 @@ class ShowAllTests(Tests):
         self.assertEqual(len(self.instances), 4)
         self.assertEqual(self.shapes["version"], 3)
         self.assertEqual(len(self.parts), 7)
-        self.assertPartsList(
+        self.assertPartsElementsEqual(
             "id",
             [
                 "/Group/box",
@@ -368,7 +371,7 @@ class ShowAllTests(Tests):
                 "/Group/emptyObject (empty)",
             ],
         )
-        self.assertPartsList(
+        self.assertPartsElementsEqual(
             "color",
             [
                 "#000000",
@@ -445,7 +448,7 @@ class SimpleShowTests(Tests):
 
         self.get(r)
         self.assertEqual(len(self.parts), 2)
-        self.assertPartsList(
+        self.assertPartsElementsEqual(
             "id",
             ["/Group/a", "/Group/Vertex"],
         )
@@ -456,7 +459,7 @@ class SimpleShowTests(Tests):
 
         self.get(r)
         self.assertEqual(len(self.parts), 2)
-        self.assertPartsList(
+        self.assertPartsElementsEqual(
             "id",
             ["/Dict/b", "/Dict/c"],
         )
@@ -467,7 +470,7 @@ class SimpleShowTests(Tests):
 
         self.get(r)
         self.assertEqual(len(self.parts), 2)
-        self.assertPartsList(
+        self.assertPartsElementsEqual(
             "id",
             ["/boxcyl/b", "/boxcyl/c"],
         )
