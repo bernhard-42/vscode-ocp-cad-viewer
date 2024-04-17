@@ -188,8 +188,10 @@ You can also use "Library Manager" in the _OCP CAD Viewer_ sidebar to manage the
 ## Development
 
 Testing:
-Native tessellator can be set via `NATIVE_TESSELLATOR=1`and Python tessellator via `NATIVE_TESSELLATOR=0`
-When `OCP_VSCODE_PYTEST=1` is set, show will not send the tessellated results to the viewer, but return it to the caller for inspection.
+
+Native tessellator can be set via `NATIVE_TESSELLATOR=1`and Python tessellator via `NATIVE_TESSELLATOR=0`.
+
+When `OCP_VSCODE_PYTEST=1` is set, `show` will not send the tessellated results to the viewer, but return it to the caller for inspection.
 
 A full test cycle consist of:
 
