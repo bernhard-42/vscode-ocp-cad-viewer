@@ -202,6 +202,10 @@ NATIVE_TESSELLATOR=1 OCP_VSCODE_PYTEST=1 pytest -v -s pytests/
 
 ## Changes
 
+v2.3.1
+- Add latest ocp-tessellate to fixed regression with handlingen instances
+- Make native default if ocp-addons exists
+
 v2.3.0
 - Add newest ocp-tessellate to allow using native tessellator from ocp_addons
 - Fine tune communication to ensure the memory view of buffers will be passed through to javascript for performance
