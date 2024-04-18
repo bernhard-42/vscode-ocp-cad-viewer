@@ -35,11 +35,9 @@ try:
     enable_native_tessellator()
 
     print(
-            "Enabled native tessellator, to disable, call `disable_native_tessellator()`\n"
-        )
-    else:
-        print(
-            "Found native tessellator, to ansable, call `enable_native_tessellator()`\n"
-        )
+        "Found and enabled native tessellator.\n"
+        "To disable, call `disable_native_tessellator()`\n"
+        "To enable, call `enable_native_tessellator()`\n"
+    )
 except:
     pass
