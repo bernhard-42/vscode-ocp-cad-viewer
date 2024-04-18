@@ -32,8 +32,9 @@ try:
         is_native_tessellator_enabled,
     )
 
-    if is_native_tessellator_enabled():
-        print(
+    enable_native_tessellator()
+
+    print(
             "Enabled native tessellator, to disable, call `disable_native_tessellator()`\n"
         )
     else:
