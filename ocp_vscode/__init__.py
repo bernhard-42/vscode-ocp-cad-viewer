@@ -17,7 +17,8 @@
 #
 __version__ = "2.3.1"
 
-from os import environ
+import os
+
 from .show import *
 from .config import *
 from .comms import *
@@ -33,7 +34,7 @@ try:
         is_native_tessellator_enabled,
     )
 
-    if environ.get("NATIVE_TESSELLATOR") == "0":
+    if os.environ.get("NATIVE_TESSELLATOR") == "0":
         disable_native_tessellator()
     else:
         enable_native_tessellator()
