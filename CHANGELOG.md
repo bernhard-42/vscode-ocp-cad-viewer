@@ -3,7 +3,7 @@
 All notable changes to the "OCP CAD Viewer" extension will be documented in this file.
 
 v2.3.1
-- Add latest ocp-tessellate to fixed regression with handlingen instances
+- Add latest ocp-tessellate to fixed regression with handling instances
 - Make native default if ocp-addons exists
 
 v2.3.0
