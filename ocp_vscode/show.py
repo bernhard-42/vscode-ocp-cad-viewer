@@ -42,7 +42,6 @@ from ocp_tessellate.ocp_utils import (
     is_wrapped,
 )
 
-from ocp_tessellate.mp_tessellator import init_pool, keymap, close_pool
 from ocp_tessellate.cad_objects import (
     OCP_PartGroup,
     OCP_Edges,
@@ -201,29 +200,13 @@ def _tessellate(
                 continue
             params[k] = v
 
-    parallel = preset("parallel", params.get("parallel"))
-    if parallel and not any(
-        [isinstance(obj, OCP_PartGroup) for obj in part_group.objects]
-    ):
-        print("parallel only works for assemblies, setting it to False")
-        parallel = False
-        params["parallel"] = False
-
     if kwargs.get("debug") is not None and kwargs["debug"]:
         print("\ntessellation parameters:\n", params)
 
     with Timer(timeit, "", "tessellate", 1):
-        if parallel:
-            init_pool()
-            keymap.reset()
-
         instances, shapes, states, mapping = tessellate_group(
             part_group, instances, params, progress, params.get("timeit")
         )
-
-        if parallel:
-            instances, shapes = mp_get_results(instances, shapes, progress)
-            close_pool()
 
     params["normal_len"] = get_normal_len(
         preset("render_normals", params.get("render_normals")),
@@ -383,7 +366,6 @@ def show(
     render_joints=None,
     show_parent=None,
     show_sketch_local=None,
-    parallel=None,
     helper_scale=None,
     mate_scale=None,  # DEPRECATED
     debug=None,
@@ -474,7 +456,6 @@ def show(
         render_normals:          Render normals (default=False)
         render_mates:            Render mates for MAssemblies (default=False)
         render_joints:           Render build123d joints (default=False)
-        parallel:                Tessellate objects in parallel (default=False)
         show_parent:             Render parent of faces, edges or vertices as wireframe (default=False)
         show_sketch_local:       In build123d show local sketch in addition to relocate sketch (default=True)
         helper_scale:            Scale of rendered helpers (locations, axis, mates for MAssemblies) (default=1)
@@ -642,7 +623,6 @@ def show_object(
     render_normals=None,
     render_mates=None,
     render_joints=None,
-    parallel=None,
     show_parent=None,
     show_sketch_local=None,
     helper_scale=None,
@@ -739,7 +719,6 @@ def show_object(
         render_normals:          Render normals (default=False)
         render_mates:            Render mates for MAssemblies (default=False)
         render_joints:           Render build123d joints (default=False)
-        parallel:                Tessellate objects in parallel (default=False)
         show_parent:             Render parent of faces, edges or vertices as wireframe (default=False)
         show_sketch_local:       In build123d show local sketch in addition to relocate sketch (default=True)
         helper_scale:            Scale of rendered helpers (locations, axis, mates for MAssemblies) (default=1)
