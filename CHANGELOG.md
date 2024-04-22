@@ -7,9 +7,10 @@ v2.3.1
 - Make native default if ocp-addons exists
 
 v2.3.0
-- Add newest ocp-tessellate to allow using native tessellator from ocp_addons
-- Fine tune communication to ensure the memory view of buffers will be passed through to javascript for performance
-- Use of the new protocol v3 of three-cad-viewer
+Fine tune communication to ensure the memory view of buffers will be passed through to javascript for performance (*)
+Use of the new protocol v3 of three-cad-viewer
+Fix show_all regressions https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/71. It should also properly catch exceptions now to not interrupt viausl debugging
+Add newest ocp-tessellate to allow using native tessellator from ocp_addons
 
 v2.2.2
 - Fix regression in measure tools
