@@ -26,7 +26,6 @@ from ocp_tessellate.convert import (
     get_normal_len,
     combined_bb,
     to_assembly,
-    mp_get_results,
     conv,
 )
 from ocp_tessellate.utils import numpy_to_buffer_json, Timer, Color
