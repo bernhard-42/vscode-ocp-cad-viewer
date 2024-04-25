@@ -12,7 +12,7 @@ setup_args = {
         "requests",
         "ipykernel",
         "orjson",
-        "websockets @ git+https://github.com/python-websockets/websockets.git@f0398141d2efd28f64d8e1d6d9adc179a9e5e334",
+        "websockets>=12.0",
     ],
     "packages": find_packages(),
     "zip_safe": False,
