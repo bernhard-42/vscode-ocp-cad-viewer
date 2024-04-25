@@ -8,7 +8,10 @@ import socket
 
 from pathlib import Path
 
-from websockets.sync.client import connect
+# TODO:
+# As soon as websockets 12.1 is released, replace with
+#   "from websockets.sync.client import connect"
+from .daemonize import connect
 
 import orjson
 from ocp_tessellate.utils import Timer
