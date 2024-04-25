@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup_args = {
     "name": "ocp_vscode",
-    "version": "2.3.1",
+    "version": "2.3.2",
     "description": "OCP CAD Viewer for VSCode",
     "long_description": "An extension to show OCP cad CAD objects (CadQuery, build123d) in VS Code via threejs",
     "include_package_data": True,
