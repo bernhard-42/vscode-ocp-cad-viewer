@@ -2,6 +2,9 @@
 
 All notable changes to the "OCP CAD Viewer" extension will be documented in this file.
 
+v2.3.2
+- Fix regression that Python script hang in threading before exit ([#73](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/60))
+
 v2.3.1
 - Add latest ocp-tessellate to fixed regression with handling instances
 - Make native default if ocp-addons exists
