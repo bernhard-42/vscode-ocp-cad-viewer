@@ -34,7 +34,7 @@ CMD_URL = "ws://127.0.0.1"
 CMD_PORT = 3939
 
 INIT_DONE = False
-
+WS = None
 
 #
 # Send data to the viewer
@@ -110,6 +110,8 @@ def set_port(port):
 
 def _send(data, message_type, port=None, timeit=False):
     """Send data to the viewer"""
+    global WS
+
     if port is None:
         if not INIT_DONE:
             find_and_set_port()
@@ -132,13 +134,14 @@ def _send(data, message_type, port=None, timeit=False):
                 j = b"S:" + j
 
         with Timer(timeit, "", f"websocket send {len(j)/1024/1024:.3f} MB", 1):
-            ws = connect(f"{CMD_URL}:{port}")
-            ws.send(j)
+            if WS is None:
+                WS = connect(f"{CMD_URL}:{port}")
+            WS.send(j)
 
             result = None
             if message_type == MessageType.COMMAND:
                 try:
-                    result = json.loads(ws.recv())
+                    result = json.loads(WS.recv())
                 except Exception as ex:  # pylint: disable=broad-except
                     print(ex)
 
