@@ -200,6 +200,25 @@ NATIVE_TESSELLATOR=0 OCP_VSCODE_PYTEST=1 pytest -v -s pytests/
 NATIVE_TESSELLATOR=1 OCP_VSCODE_PYTEST=1 pytest -v -s pytests/
 ```
 
+
+## Troubleshooting
+
+- **CAD Models almost always are invisible in the OCP viewer window**
+
+    ```bash
+    three-cad-viewer.esm.js:20276 THREE.WebGLProgram: Shader Error 0 - VALIDATE_STATUS false
+
+    Material Name: 
+    Material Type: LineBasicMaterial
+
+    Program Info Log: Program binary could not be loaded. Binary is not compatible with current driver/hardware combination. Driver build date Mar 19 2024. Please check build information of source that generated the binary.
+    Location of variable pc_fragColor conflicts with another variable.
+    ```
+
+    VS Code internal browser that renders the viewer component uses a cache for code and other artifacts. This includes WebGL artefacts like compiled shaders. It can happen that e.g. due to a graphic driver update the compiled version in the cache does not fit to the new driver. Then this error message appears.
+
+    **Solution:** [Delete the VS Code browser cache on Linux](https://bobbyhadz.com/blog/vscode-clear-cache) (go to the section for your operating system)
+
 ## Changes
 
 v2.3.2
