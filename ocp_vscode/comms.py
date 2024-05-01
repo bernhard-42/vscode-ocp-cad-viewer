@@ -34,7 +34,6 @@ CMD_URL = "ws://127.0.0.1"
 CMD_PORT = 3939
 
 INIT_DONE = False
-WS = None
 
 #
 # Send data to the viewer
@@ -145,7 +144,7 @@ def _send(data, message_type, port=None, timeit=False):
                 except Exception as ex:  # pylint: disable=broad-except
                     print(ex)
             try:
-                WS.close()
+                ws.close()
             except Exception as ex:  # pylint: disable=bare-except
                 pass
 
