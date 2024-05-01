@@ -8,10 +8,7 @@ import socket
 
 from pathlib import Path
 
-# TODO:
-# As soon as websockets 12.1 is released, replace with
-#   "from websockets.sync.client import connect"
-from .daemonize import connect
+from websockets.sync.client import connect
 
 import orjson
 from ocp_tessellate.utils import Timer
@@ -136,22 +133,21 @@ def _send(data, message_type, port=None, timeit=False):
             elif message_type == MessageType.CONFIG:
                 j = b"S:" + j
 
-        with Timer(timeit, "", f"websocket send {len(j)/1024/1024:.3f} MB", 1):
-            if WS is None:
-                WS = connect(f"{CMD_URL}:{port}")
-            WS.send(j)
+        with Timer(timeit, "", f"websocket connect ({message_type.name})", 1):
+            ws = connect(f"{CMD_URL}:{port}")
+            ws.send(j)
 
+        with Timer(timeit, "", f"websocket send {len(j)/1024/1024:.3f} MB", 1):
             result = None
             if message_type == MessageType.COMMAND:
                 try:
-                    result = json.loads(WS.recv())
+                    result = json.loads(ws.recv())
                 except Exception as ex:  # pylint: disable=broad-except
                     print(ex)
-
-            # try:
-            #     ws.close()
-            # except Exception as ex:  # pylint: disable=bare-except
-            #     pass
+            try:
+                WS.close()
+            except Exception as ex:  # pylint: disable=bare-except
+                pass
 
         return result
 
