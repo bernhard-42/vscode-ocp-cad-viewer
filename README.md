@@ -221,6 +221,10 @@ NATIVE_TESSELLATOR=1 OCP_VSCODE_PYTEST=1 pytest -v -s pytests/
 
 ## Changes
 
+v2.3.3
+- Fix regression that visual debug hangs
+- Fix regression that build123d sketches are not draw correctly any more (fix in ocp-tessellate)
+
 v2.3.2
 - Fix regression that Python script hang in threading before exit ([#73](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/60))
 
