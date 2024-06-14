@@ -144,7 +144,7 @@ You can also use "Library Manager" in the _OCP CAD Viewer_ sidebar to manage the
     from ocp_vscode import *
     set_port(3939)
 
-    set_defaults(reset_camera=False, helper_scale=5)
+    set_defaults(reset_camera=Camera.KEEP, helper_scale=5)
 
     # %%
     ...
