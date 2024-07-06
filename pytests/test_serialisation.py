@@ -340,7 +340,7 @@ class ObjectTests(DirectApiTestCase):
         for edge in get_edges(box):
             fillet.Add(0.2, edge)
         fillet.Build()
-        box = Solid(fillet.Shape())
+        box = fillet.Shape()
         _, mapping = _convert(box)
         data = {"model": mapping}
         j = json.dumps(data, default=default).encode("utf-8")
