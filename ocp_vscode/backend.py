@@ -301,16 +301,22 @@ class ViewerBackend:
         first = (
             Plane(shape1)
             if isinstance(shape1, Face)
-            else Plane(shape1 @ 0, z_dir=shape1.normal())
-            if isinstance(shape1, Edge) and shape1.geom_type() in ["CIRCLE", "ELLIPSE"]
-            else shape1 % 0
+            else (
+                Plane(shape1 @ 0, z_dir=shape1.normal())
+                if isinstance(shape1, Edge)
+                and shape1.geom_type() in ["CIRCLE", "ELLIPSE"]
+                else shape1 % 0
+            )
         )
         second = (
             Plane(shape2)
             if isinstance(shape2, Face)
-            else Plane(shape2 @ 0, z_dir=shape2.normal())
-            if isinstance(shape2, Edge) and shape2.geom_type() in ["CIRCLE", "ELLIPSE"]
-            else shape2 % 0
+            else (
+                Plane(shape2 @ 0, z_dir=shape2.normal())
+                if isinstance(shape2, Edge)
+                and shape2.geom_type() in ["CIRCLE", "ELLIPSE"]
+                else shape2 % 0
+            )
         )
         if isinstance(first, Plane) and isinstance(second, Plane):
             angle = first.z_dir.get_angle(second.z_dir)
