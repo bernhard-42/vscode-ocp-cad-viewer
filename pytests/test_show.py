@@ -125,14 +125,16 @@ class ShowTests(Tests):
                 "/Group/Solid",
                 "/Group/Solid(2)",
                 "/Group/Object (empty)",
-                "/Group/sphere",
                 "/Group/List",
+                "/Group/List(2)",
             ],
         )
+        self.assertEqual(self.parts[3]["parts"][0]["id"], "/Group/List/sphere")
         self.assertPartsElementsEqual(
             "color",
-            ["#000000", "#00ffff", "#7b2d06", "#c0c0c0", None],
+            ["#000000", "#00ffff", "#000000", None, None],
         )
+        self.assertEqual(self.parts[3]["parts"][0]["color"], "#c0c0c0")
 
         self.assertEqual(len(self.mapping["parts"]), 5)
         self.assertEqual(len(self.mapping["parts"][4]["parts"][1]["parts"]), 25)
@@ -197,9 +199,7 @@ class ShowAllTests(Tests):
 
         r = show_all()
 
-        self.get(r)
-        self.assertEqual(len(self.instances), 0)
-        self.assertEqual(len(self.parts), 0)
+        self.assertIsNone(r)
 
     def test_show_pos_list(self):
         a = [Pos(1, 1)]
@@ -209,10 +209,10 @@ class ShowAllTests(Tests):
         self.get(r)
         self.assertEqual(len(self.instances), 0)
         self.assertEqual(len(self.parts), 1)
-        self.assertEqual(self.parts[0]["name"], "a")
+        self.assertEqual(self.parts[0]["name"], "Location")
         self.assertPartsElementsEqual(
             "id",
-            ["/Group/a"],
+            ["/a/Location"],
         )
 
     def test_show_pos(self):
@@ -258,10 +258,10 @@ class ShowAllTests(Tests):
         self.get(r)
         self.assertEqual(len(self.instances), 1)
         self.assertEqual(len(self.parts), 1)
-        self.assertEqual(self.parts[0]["name"], "p")
+        self.assertEqual(self.parts[0]["name"], "Solid")
         self.assertPartsElementsEqual(
             "id",
-            ["/Group/p"],
+            ["/p/Solid"],
         )
         self.assertPartsElementsEqual(
             "color",
@@ -274,13 +274,10 @@ class ShowAllTests(Tests):
         r = show_all()
 
         self.get(r)
-        self.assertEqual(len(self.instances), 0)
+        self.assertEqual(len(self.instances), 1)
         self.assertEqual(len(self.parts), 1)
-        self.assertEqual(self.parts[0]["name"], "p")
-        self.assertPartsElementsEqual(
-            "id",
-            ["/Group/p"],
-        )
+        self.assertEqual(self.parts[0]["name"], "Face")
+        self.assertPartsElementsEqual("id", ["/p/Face"])
 
     def test_show_gridlocations(self):
         loc = GridLocations(1, 1, 5, 5)
@@ -290,35 +287,35 @@ class ShowAllTests(Tests):
         self.get(r)
         self.assertEqual(len(self.instances), 0)
         self.assertEqual(len(self.parts), 25)
-        self.assertEqual(self.parts[0]["name"], "loc")
+        self.assertEqual(self.parts[0]["name"], "Location")
         self.assertPartsElementsEqual(
             "id",
             [
-                "/loc/loc",
-                "/loc/loc(2)",
-                "/loc/loc(3)",
-                "/loc/loc(4)",
-                "/loc/loc(5)",
-                "/loc/loc(6)",
-                "/loc/loc(7)",
-                "/loc/loc(8)",
-                "/loc/loc(9)",
-                "/loc/loc(10)",
-                "/loc/loc(11)",
-                "/loc/loc(12)",
-                "/loc/loc(13)",
-                "/loc/loc(14)",
-                "/loc/loc(15)",
-                "/loc/loc(16)",
-                "/loc/loc(17)",
-                "/loc/loc(18)",
-                "/loc/loc(19)",
-                "/loc/loc(20)",
-                "/loc/loc(21)",
-                "/loc/loc(22)",
-                "/loc/loc(23)",
-                "/loc/loc(24)",
-                "/loc/loc(25)",
+                "/loc/Location",
+                "/loc/Location(2)",
+                "/loc/Location(3)",
+                "/loc/Location(4)",
+                "/loc/Location(5)",
+                "/loc/Location(6)",
+                "/loc/Location(7)",
+                "/loc/Location(8)",
+                "/loc/Location(9)",
+                "/loc/Location(10)",
+                "/loc/Location(11)",
+                "/loc/Location(12)",
+                "/loc/Location(13)",
+                "/loc/Location(14)",
+                "/loc/Location(15)",
+                "/loc/Location(16)",
+                "/loc/Location(17)",
+                "/loc/Location(18)",
+                "/loc/Location(19)",
+                "/loc/Location(20)",
+                "/loc/Location(21)",
+                "/loc/Location(22)",
+                "/loc/Location(23)",
+                "/loc/Location(24)",
+                "/loc/Location(25)",
             ],
         )
 
@@ -378,12 +375,20 @@ class ShowAllTests(Tests):
                 "#00ffff",
                 "#c0c0c0",
                 "#006400",
-                ["#ff0000", "#008000", "#0000ff"],
                 None,
-                "#7b2d06",
+                None,
+                "#000000",
             ],
         )
-
+        self.assertListEqual(
+            self.parts[4]["parts"][0]["color"], ["#ff0000", "#008000", "#0000ff"]
+        )
+        self.assertListEqual(
+            self.parts[5]["parts"][0]["color"], ["#ff0000", "#008000", "#0000ff"]
+        )
+        self.assertListEqual(
+            self.parts[5]["parts"][24]["color"], ["#ff0000", "#008000", "#0000ff"]
+        )
         self.assertEqual(len(self.mapping["parts"]), 7)
         self.assertEqual(len(self.mapping["parts"][5]["parts"]), 25)
 
@@ -401,7 +406,7 @@ class SimpleShowTests(Tests):
         self.assertEqual(len(self.instances), 1)
         self.assertEqual(self.parts[0]["shape"].get("ref"), 0)
         self.assertEqual(self.parts[1]["shape"].get("ref"), 0)
-        self.assertNotEqual(self.parts[2]["shape"].get("ref"), 0)
+        self.assertEqual(self.parts[2]["shape"].get("ref"), 0)
 
     def test_show_part_solid(self):
         with BuildPart() as obj:
