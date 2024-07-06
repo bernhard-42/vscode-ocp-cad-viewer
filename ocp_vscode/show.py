@@ -25,8 +25,7 @@ from ocp_tessellate.convert import (
     tessellate_group,
     get_normal_len,
     combined_bb,
-    to_assembly,
-    conv,
+    to_ocpgroup,
 )
 from ocp_tessellate.utils import numpy_to_buffer_json, Timer, Color
 from ocp_tessellate.ocp_utils import (
@@ -138,9 +137,9 @@ def _tessellate(
     if progress is None:
         progress = Progress([c for c in "-+c"])
 
-    with Timer(timeit, "", "to_assembly", 1):
+    with Timer(timeit, "", "to_ocpgroup", 1):
         changed_config = get_changed_config()
-        part_group, instances = to_assembly(
+        part_group, instances = to_ocpgroup(
             *cad_objs,
             names=names,
             colors=colors,
@@ -864,7 +863,7 @@ def show_all(
                 names.append(name)
 
             elif is_cadquery_sketch(obj):
-                pg = to_assembly([obj], names=[name])
+                pg = to_ocpgroup([obj], names=[name])
                 pg.name = name
                 objects.append(pg)
                 names.append(name)
