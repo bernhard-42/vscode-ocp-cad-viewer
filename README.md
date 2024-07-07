@@ -65,7 +65,7 @@ _OCP CAD Viewer_ for VS Code is an extension to show [CadQuery](https://github.c
     - Install the Python extension in VS Code
     - Continue with 1. above
 
-
+**Note:** Do not use the *OCP CAD Viewer* logo to verify your *OCP CAD Viewer* settings! The logo overwrites all your settings in VS Code with its own settings to always look the same on each instance. Use a simple own model for checking your conmfiguration
 
 ## Usage
 
