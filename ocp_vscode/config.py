@@ -173,7 +173,6 @@ DEFAULTS = {
     "show_sketch_local": True,
     "timeit": False,
     "reset_camera": Camera.RESET,
-    "center_grid": False,
     "debug": False,
 }
 

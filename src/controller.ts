@@ -84,6 +84,7 @@ export class OCPCADController {
             "axes0": options.get("axes0"),
             "black_edges": options.get("black_edges"),
             "grid": [options.get("grid_XY"), options.get("grid_XZ"), options.get("grid_YZ")],
+            "center_grid": options.get("center_grid"),
             "collapse": options.get("collapse"),
             "ortho": options.get("ortho"),
             "ticks": options.get("ticks"),

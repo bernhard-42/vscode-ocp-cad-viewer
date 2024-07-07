@@ -336,6 +336,12 @@
                     "description": "Show grid on XZ plane (default: false)",
                     "order": 14
                 },
+                "OcpCadViewer.view.center_grid": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Show grid planes crossing at center of object or global origin(default: false)",
+                    "order": 15
+                },
                 "OcpCadViewer.view.collapse": {
                     "type": "string",
                     "enum": [
@@ -346,19 +352,19 @@
                     ],
                     "default": "1",
                     "description": "leaves: collapse all leaf nodes, all: collapse all nodes, none: expand all nodes, root: expand root only (default: leaves)",
-                    "order": 15
+                    "order": 16
                 },
                 "OcpCadViewer.view.ortho": {
                     "type": "boolean",
                     "default": true,
                     "description": "Use orthographic camera (default: true)",
-                    "order": 16
+                    "order": 17
                 },
                 "OcpCadViewer.view.ticks": {
                     "type": "number",
                     "default": 10,
                     "description": "Default number of ticks (default: 10)",
-                    "order": 17
+                    "order": 18
                 },
                 "OcpCadViewer.view.transparent": {
                     "type": "boolean",
