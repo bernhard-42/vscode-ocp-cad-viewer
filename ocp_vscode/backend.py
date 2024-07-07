@@ -218,9 +218,16 @@ class ViewerBackend:
                     loc = (
                         Location().wrapped if v["loc"] is None else tq_to_loc(*v["loc"])
                     )
-                    compound = deserialize(
-                        base64.b64decode(v["shape"]["obj"].encode("utf-8"))
-                    )
+                    if isinstance(v["shape"], dict):
+                        compound = deserialize(
+                            base64.b64decode(v["shape"]["obj"].encode("utf-8"))
+                        )
+                    else:
+                        shape = [
+                            deserialize(base64.b64decode(s.encode("utf-8")))
+                            for s in v["shape"]
+                        ]
+                        compound = make_compound(shape) if len(shape) > 1 else shape[0]
                     self.model[id_] = Compound(compound.Moved(loc))
                     faces = get_faces(compound)
                     for i, face in enumerate(faces):
