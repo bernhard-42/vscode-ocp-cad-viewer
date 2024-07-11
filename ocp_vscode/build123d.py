@@ -28,7 +28,7 @@ from OCP.gp import gp_Dir, gp_Pnt, gp_Trsf, gp_Vec, gp_GTrsf, gp_Ax3, gp_EulerSe
 from OCP.GProp import GProp_GProps
 from OCP.Standard import Standard_Failure, Standard_NoSuchObject
 from OCP.TopLoc import TopLoc_Location
-from OCP.TopoDS import TopoDS, TopoDS_Vertex
+from OCP.TopoDS import TopoDS, TopoDS_Vertex, TopoDS_Iterator
 from OCP.GeomAPI import GeomAPI_ProjectPointOnSurf
 from ocp_tessellate.ocp_utils import get_faces, get_edges, get_vertices
 
@@ -402,7 +402,7 @@ class Shape:
             ta.TopAbs_EDGE: Edge,
             # ta.TopAbs_WIRE: Wire,
             ta.TopAbs_FACE: Face,
-            # ta.TopAbs_SHELL: Shell,
+            ta.TopAbs_SHELL: Shell,
             ta.TopAbs_SOLID: Solid,
             ta.TopAbs_COMPOUND: Compound,
         }
@@ -445,8 +445,34 @@ class Shape:
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 
+def unwrapped_shapetype(obj: Shape):
+    """Return Shape's TopAbs_ShapeEnum"""
+    if isinstance(obj, Compound):
+        shapetypes = set(shapetype(o.wrapped) for o in obj)
+        if len(shapetypes) == 1:
+            result = shapetypes.pop()
+        else:
+            result = shapetype(obj)
+    else:
+        result = shapetype(obj.wrapped)
+    return result
+
+
 class Compound(Shape):
-    ...
+    def center(self):
+        properties = GProp_GProps()
+        calc_function = shape_properties_LUT[unwrapped_shapetype(self)]
+        if calc_function:
+            calc_function(self.wrapped, properties)
+            middle = Vector(properties.CentreOfMass())
+        return middle
+
+    def __iter__(self):
+        iterator = TopoDS_Iterator(self.wrapped)
+
+        while iterator.More():
+            yield Shape.cast(iterator.Value())
+            iterator.Next()
 
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -455,7 +481,27 @@ class Compound(Shape):
 
 
 class Solid(Shape):
-    ...
+    def center(self):
+        properties = GProp_GProps()
+        calc_function = shape_properties_LUT[shapetype(self.wrapped)]
+        if calc_function:
+            calc_function(self.wrapped, properties)
+            middle = Vector(properties.CentreOfMass())
+        else:
+            raise NotImplementedError
+        return middle
+
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# Shell(Shape)
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+
+class Shell(Shape):
+    def center(self):
+        properties = GProp_GProps()
+        BRepGProp.LinearProperties_s(self.wrapped, properties)
+        return Vector(properties.CentreOfMass())
 
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #

@@ -559,8 +559,7 @@ def show(
     with Timer(timeit, "", "send"):
         send_data(t, port=port, timeit=timeit)
 
-    if measure_tools:
-        send_backend({"model": mapping}, port=port, timeit=timeit)
+    send_backend({"model": mapping}, port=port, timeit=timeit)
 
 
 def reset_show():

@@ -378,7 +378,7 @@
                 edgeColor: preset(_config, "default_edgecolor", renderDefaultOptions.defaultEdgecolor),
                 defaultOpacity: preset(_config, "default_opacity", renderDefaultOptions.defaultOpacity),
                 normalLen: preset(_config, "normal_len", renderDefaultOptions.normalLen),
-                measureTools: preset(_config, "measure_tools", viewerDefaultOptions.measureTools),
+                measureTools: true,
             };
 
             viewerOptions = {
@@ -393,7 +393,7 @@
                 timeit: preset(_config, "timeit", viewerDefaultOptions.timeit),
                 tools: preset(_config, "tools", viewerDefaultOptions.tools),
                 glass: preset(_config, "glass", viewerDefaultOptions.glass),
-                measureTools: preset(_config, "measure_tools", viewerDefaultOptions.measureTools),
+                measureTools: true,
                 up: preset(_config, "up", viewerDefaultOptions.up),
                 transparent: preset(_config, "transparent", viewerDefaultOptions.transparent),
                 control: preset(_config, "control", viewerDefaultOptions.control),
@@ -419,11 +419,12 @@
                 console.log("reset_camera", reset_camera);
             }
 
-            var shapesAndTree = viewer.renderTessellatedShapes(_shapes, _states, renderOptions)
-            const bbox = shapesAndTree[0].boundingBox();
-            const center = bbox.center();
+            // var shapesAndTree = viewer.renderTessellatedShapes(_shapes, _states, renderOptions)
+            const bbox = _shapes["bb"];
+            const center = [(bbox.xmax-bbox.xmin)/2, (bbox.ymax-bbox.ymin)/2, (bbox.zmax-bbox.zmin)/2];
             let bb_radius = Math.max(
-                bbox.boundingSphere().radius,
+                // bbox.boundingSphere().radius,
+                Math.sqrt(Math.pow(bbox.xmax - bbox.xmin, 2), Math.pow(bbox.ymax - bbox.ymin, 2), Math.pow(bbox.zmax - bbox.zmin, 2)),
                 length(center)
             );
 
@@ -572,8 +573,9 @@
             }
 
             viewer.render(
-                ...shapesAndTree,
+                _shapes,
                 _states,
+                renderOptions,
                 viewerOptions,
             );
 
