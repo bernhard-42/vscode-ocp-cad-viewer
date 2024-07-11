@@ -558,10 +558,10 @@
                         },
                         "ocp_tessellate": {
                             "pip": [
-                                "{python} -m pip install --upgrade \"ocp_tessellate>=2.3.3,<2.4.0\""
+                                "{python} -m pip install --upgrade \"ocp_tessellate>=3.0.0,<3.1.0\""
                             ],
                             "poetry": [
-                                "poetry add ocp_tessellate@~2.3.3"
+                                "poetry add ocp_tessellate@~3.0.0"
                             ]
                         },
                         "ipykernel": {
@@ -788,7 +788,7 @@
         "adm-zip": "^0.5.10",
         "follow-redirects": "^1.15.2",
         "semver": "^7.5.1",
-        "three-cad-viewer": "2.3.0",
+        "three-cad-viewer": "./three-cad-viewer-v3.0.1.tgz",
         "ws": "^8.13.0"
     }
 }
