@@ -187,7 +187,13 @@ export async function activate(context: vscode.ExtensionContext) {
 
                     return;
                 }
-                const column = vscode.window?.activeTextEditor?.viewColumn;
+                
+                var column = vscode.ViewColumn.One;
+                if(vscode.window?.activeTextEditor?.viewColumn) {
+                    column = vscode.window.activeTextEditor.viewColumn
+                } else if(vscode.window?.activeNotebookEditor?.viewColumn) {
+                    column =vscode.window.activeNotebookEditor.viewColumn 
+                }
 
                 if (preset_port) {
                     if (await isPortInUse(port)) {

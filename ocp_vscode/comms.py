@@ -138,7 +138,9 @@ def _send(data, message_type, port=None, timeit=False):
 
         with Timer(timeit, "", f"websocket send {len(j)/1024/1024:.3f} MB", 1):
             result = None
-            if message_type == MessageType.COMMAND:
+            if message_type == MessageType.COMMAND and not (
+                isinstance(data, dict) and data["type"] == "screenshot"
+            ):
                 try:
                     result = json.loads(ws.recv())
                 except Exception as ex:  # pylint: disable=broad-except

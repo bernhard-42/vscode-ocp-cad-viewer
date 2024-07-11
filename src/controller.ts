@@ -64,7 +64,6 @@ export class OCPCADController {
 
     public logo() {
         this.view?.postMessage(logo);
-        // this.view?.postMessage(JSON.stringify({ "type": "show" }));
     }
 
     public config() {
@@ -130,7 +129,7 @@ export class OCPCADController {
 
                     this.view.onDidReceiveMessage(
                         message => {
-                            const msg = JSON.parse(message);
+                            const msg = message;
                             if (msg.command === "status") {
                                 this.viewer_message = message;
                             } else {
@@ -138,7 +137,7 @@ export class OCPCADController {
                             }
                             if (this.pythonListener !== undefined) {
                                 // output.debug("Sending message to python: " + message);
-                                this.pythonListener.send(message);
+                                this.pythonListener.send(JSON.stringify(message));
                             }
                         });
 
@@ -161,11 +160,13 @@ export class OCPCADController {
                         const messageType = raw_data.substring(0, 1)
                         var data = message.toString().substring(2);
                         if (messageType === "C") {
-                            data = JSON.parse(data);
-                            if (data === "status") {
-                                socket.send(this.viewer_message);
-                            } else if (data === "config") {
+                            var cmd = JSON.parse(data);
+                            if (cmd === "status") {
+                                socket.send(JSON.stringify(this.viewer_message));
+                            } else if (cmd === "config") {
                                 socket.send(JSON.stringify(this.config()));
+                            } else if (cmd.type === "screenshot") {
+                                this.view?.postMessage(JSON.stringify(cmd));
                             }
 
                         } else if (messageType === "D") {

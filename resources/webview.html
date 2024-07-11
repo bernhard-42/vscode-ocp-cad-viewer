@@ -226,10 +226,10 @@
         }
 
         function send(command, message) {
-            vscode.postMessage(JSON.stringify({
+            vscode.postMessage({
                 command: command,
                 text: message
-            }));
+            });
         }
 
         function nc(change) {
@@ -301,6 +301,10 @@
             }
         }
 
+        function handleImage(image) {
+            send("screenshot", {"filename": _screenshot_filename, "data":image.src});
+        }
+
         function normalizeWidth(width, glass) {
             const treeWidth = glass ? 0 : preset(_config, "treeWidth", displayDefaultOptions.treeWidth);
             return Math.max(minWidth, width - treeWidth - 42);
@@ -359,7 +363,7 @@
 
             const container = document.getElementById("cad_viewer");
             container.innerHTML = ""
-            viewer = new Viewer(container, displayOptions, nc);
+            viewer = new Viewer(container, displayOptions, nc, handleImage);
 
             if (_shapes) render();
             // viewer.trimUI(["axes", "axes0", "grid", "ortho", "more", "help"])           
@@ -658,7 +662,9 @@
                 timer.split("states updated");
 
                 timer.stop()
-
+            } else if (data.type === "screenshot") {
+                _screenshot_filename = data.filename;
+                viewer.pinAsPng();
             } else if (data.type === "backend_response") {
                 viewer.handleBackendResponse(data);
             } else if (data.type === "clear") {

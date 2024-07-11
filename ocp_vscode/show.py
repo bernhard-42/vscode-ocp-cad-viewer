@@ -60,10 +60,17 @@ from ocp_vscode.config import (
     Collapse,
     check_deprecated,
 )
-from ocp_vscode.comms import send_backend, send_data, is_pytest
+from ocp_vscode.comms import send_backend, send_data, send_command, is_pytest
 from ocp_vscode.colors import get_colormap, web_to_rgb, BaseColorMap
 
-__all__ = ["show", "show_object", "reset_show", "show_all", "show_clear"]
+__all__ = [
+    "show",
+    "show_object",
+    "reset_show",
+    "show_all",
+    "show_clear",
+    "save_screenshot",
+]
 
 OBJECTS = {"objs": [], "names": [], "colors": [], "alphas": []}
 
@@ -890,3 +897,12 @@ def show_all(
         if is_pytest():
             return None
         show_clear()
+
+
+def save_screenshot(filename, port=None):
+    """Save a screenshot of the current view"""
+    if os.sep in filename:
+        raise ValueError(
+            "Filename should not contain path separators, VS Code extension can write png to working folder only."
+        )
+    send_command({"type": "screenshot", "filename": filename}, port=port)
