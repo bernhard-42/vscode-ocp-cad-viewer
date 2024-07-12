@@ -898,8 +898,8 @@ def show_all(
 
 def save_screenshot(filename, port=None):
     """Save a screenshot of the current view"""
-    if os.sep in filename:
+    if filename.startswith(os.sep):
         raise ValueError(
-            "Filename should not contain path separators, VS Code extension can write png to working folder only."
+            "Filename cannot be a absolute path, a VS Code extension can only write to the working folder hierarchy."
         )
     send_command({"type": "screenshot", "filename": filename}, port=port)
