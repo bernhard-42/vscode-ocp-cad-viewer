@@ -788,7 +788,7 @@
         "adm-zip": "^0.5.10",
         "follow-redirects": "^1.15.2",
         "semver": "^7.5.1",
-        "three-cad-viewer": "./three-cad-viewer-v3.0.1.tgz",
+        "three-cad-viewer": "3.0.2",
         "ws": "^8.13.0"
     }
 }
