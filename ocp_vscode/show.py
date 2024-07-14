@@ -22,48 +22,47 @@ import re
 import time
 import types
 
+import ocp_tessellate.convert as oc
 from ocp_tessellate import OcpGroup
-from ocp_tessellate.convert import (
-    tessellate_group,
-    get_normal_len,
-    combined_bb,
-    to_ocpgroup,
-)
-from ocp_tessellate.utils import numpy_to_buffer_json, Timer, Color
-from ocp_tessellate.ocp_utils import (
-    is_vector,
-    is_topods_shape,
-    is_topods_compound,
-    is_cadquery,
-    is_cadquery_assembly,
-    is_cadquery_sketch,
-    is_build123d,
-    is_toploc_location,
-    is_wrapped,
-)
-
 from ocp_tessellate.cad_objects import (
-    OCP_PartGroup,
     OCP_Edges,
     OCP_Faces,
     OCP_Part,
+    OCP_PartGroup,
     OCP_Vertices,
 )
-import ocp_tessellate.convert as oc
+from ocp_tessellate.convert import (
+    combined_bb,
+    get_normal_len,
+    tessellate_group,
+    to_ocpgroup,
+)
+from ocp_tessellate.ocp_utils import (
+    is_build123d,
+    is_cadquery,
+    is_cadquery_assembly,
+    is_cadquery_sketch,
+    is_toploc_location,
+    is_topods_compound,
+    is_topods_shape,
+    is_vector,
+    is_wrapped,
+)
+from ocp_tessellate.utils import Color, Timer, numpy_to_buffer_json
 
+from ocp_vscode.colors import BaseColorMap, get_colormap, web_to_rgb
+from ocp_vscode.comms import is_pytest, send_backend, send_command, send_data
 from ocp_vscode.config import (
-    preset,
-    get_changed_config,
-    workspace_config,
-    combined_config,
-    get_default,
-    get_defaults,
     Camera,
     Collapse,
     check_deprecated,
+    combined_config,
+    get_changed_config,
+    get_default,
+    get_defaults,
+    preset,
+    workspace_config,
 )
-from ocp_vscode.comms import send_backend, send_data, send_command, is_pytest
-from ocp_vscode.colors import get_colormap, web_to_rgb, BaseColorMap
 
 __all__ = [
     "show",
