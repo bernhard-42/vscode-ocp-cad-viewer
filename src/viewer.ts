@@ -15,11 +15,9 @@
 */
 
 import * as fs from "fs";
-import * as path from "path";
 import * as vscode from "vscode";
 import { OCPCADController } from "./controller";
 import * as output from "./output";
-import { getCurrentFolder } from "./utils";
 
 export class OCPCADViewer {
     /**
@@ -99,14 +97,18 @@ export class OCPCADViewer {
                         return;
                     case "screenshot":
                         var data;
-                        if (typeof message.text.data === 'string' || message.text.data instanceof String){
+                        if (typeof message.text.data === 'string' || message.text.data instanceof String) {
                             data = Buffer.from(message.text.data.replace('data:image/png;base64,', ''), "base64");
                         } else {
                             data = message.text.data;
                         }
-                        var folder = getCurrentFolder()[0];
                         var filename = message.text.filename;
-                        fs.writeFileSync(path.join(folder, filename), data);
+                        try {
+                            fs.writeFileSync(filename, data);
+                            vscode.window.showInformationMessage(`Screenshot saved as\n${filename}`);
+                        } catch (error) {
+                            vscode.window.showErrorMessage(`Error saving screenshot as\n${filename}`);
+                        }
                         return;
                 }
             },

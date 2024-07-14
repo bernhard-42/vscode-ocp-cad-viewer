@@ -20,7 +20,6 @@
         var _clipping = {
             sliders: [], normals: [], planeHelpers: null, objectColors: null, intersection: null,
         };
-        var _screenshot_filename = "";
         var oldStates = null;
         var viewerOptions = {};
         var last_bb_radius = null;
@@ -302,10 +301,6 @@
             }
         }
 
-        function handleImage(image) {
-            send("screenshot", {"filename": _screenshot_filename, "data":image.src});
-        }
-
         function normalizeWidth(width, glass) {
             const treeWidth = glass ? 0 : preset(_config, "treeWidth", displayDefaultOptions.treeWidth);
             return Math.max(minWidth, width - treeWidth - 42);
@@ -364,7 +359,7 @@
 
             const container = document.getElementById("cad_viewer");
             container.innerHTML = ""
-            viewer = new Viewer(container, displayOptions, nc, handleImage);
+            viewer = new Viewer(container, displayOptions, nc, null);
 
             if (_shapes) render();
             // viewer.trimUI(["axes", "axes0", "grid", "ortho", "more", "help"])           
@@ -666,8 +661,10 @@
 
                 timer.stop()
             } else if (data.type === "screenshot") {
-                _screenshot_filename = data.filename;
-                viewer.pinAsPng();
+                var promise = viewer.getImage(data.filename);
+                promise.then((result) => {
+                    send("screenshot", {"filename": result.task, "data":result.dataUrl});
+                });
             } else if (data.type === "backend_response") {
                 viewer.handleBackendResponse(data);
             } else if (data.type === "clear") {

@@ -17,7 +17,9 @@
 #
 
 import os
+import pathlib
 import re
+import time
 import types
 
 from ocp_tessellate import OcpGroup
@@ -898,8 +900,23 @@ def show_all(
 
 def save_screenshot(filename, port=None):
     """Save a screenshot of the current view"""
-    if filename.startswith(os.sep):
-        raise ValueError(
-            "Filename cannot be a absolute path, a VS Code extension can only write to the working folder hierarchy."
-        )
-    send_command({"type": "screenshot", "filename": filename}, port=port)
+    if not filename.startswith(os.sep):
+        prefix = pathlib.Path(".").absolute()
+        full_path = str(prefix / filename)
+    else:
+        full_path = filename
+    p = pathlib.Path(full_path)
+    mtime = p.stat().st_mtime if p.exists() else 0
+
+    send_command({"type": "screenshot", "filename": f"{full_path}"}, port=port)
+
+    done = False
+    for i in range(20):
+        if p.exists() and p.stat().st_mtime > mtime:
+            print("Screenshot saved to ", full_path)
+            done = True
+            break
+        time.sleep(0.1)
+
+    if not done:
+        "Screenshot not found in 2 seconds, aborting"
