@@ -12,7 +12,8 @@
 
 import copy
 import math
-
+from enum import Enum, auto
+from typing import Iterable
 
 import OCP.GeomAbs as ga
 import OCP.TopAbs as ta
@@ -24,13 +25,48 @@ from OCP.BRepLib import BRepLib_FindSurface
 from OCP.BRepTools import BRepTools
 from OCP.GCPnts import GCPnts_AbscissaPoint
 from OCP.Geom import Geom_Plane
-from OCP.gp import gp_Dir, gp_Pnt, gp_Trsf, gp_Vec, gp_GTrsf, gp_Ax3, gp_EulerSequence
+from OCP.gp import (
+    gp_Dir,
+    gp_Pnt,
+    gp_Trsf,
+    gp_Vec,
+    gp_GTrsf,
+    gp_Ax1,
+    gp_Ax3,
+    gp_EulerSequence,
+    gp_Quaternion,
+)
 from OCP.GProp import GProp_GProps
 from OCP.Standard import Standard_Failure, Standard_NoSuchObject
 from OCP.TopLoc import TopLoc_Location
 from OCP.TopoDS import TopoDS, TopoDS_Vertex, TopoDS_Iterator
 from OCP.GeomAPI import GeomAPI_ProjectPointOnSurf
 from ocp_tessellate.ocp_utils import get_faces, get_edges, get_vertices
+
+
+class GeomType(Enum):
+    """CAD geometry object type"""
+
+    PLANE = auto()
+    CYLINDER = auto()
+    CONE = auto()
+    SPHERE = auto()
+    TORUS = auto()
+    BEZIER = auto()
+    BSPLINE = auto()
+    REVOLUTION = auto()
+    EXTRUSION = auto()
+    OFFSET = auto()
+    LINE = auto()
+    CIRCLE = auto()
+    ELLIPSE = auto()
+    HYPERBOLA = auto()
+    PARABOLA = auto()
+    OTHER = auto()
+
+    def __repr__(self):
+        return f"<{self.__class__.__name__}.{self.name}>"
+
 
 downcast_LUT = {
     ta.TopAbs_VERTEX: TopoDS.Vertex_s,
@@ -238,34 +274,106 @@ class Matrix:
 
 
 class Location:
-    def __init__(self, obj=None):
-        transform = gp_Trsf()
-        if isinstance(obj, Plane):
-            coordinate_system = gp_Ax3(
-                obj.origin.to_pnt(),
-                obj.z_dir.to_dir(),
-                obj.x_dir.to_dir(),
-            )
-            transform.SetTransformation(coordinate_system)
-            transform.Invert()
-
-        self.wrapped = TopLoc_Location(transform)
-
-    def __mul__(self, other):
-        return Location(self.wrapped * other.wrapped)
 
     @property
     def position(self):
         return Vector(self.to_tuple()[0])
 
-    @property
-    def orientation(self):
-        return Vector(self.to_tuple()[1])
+    def __init__(self, *args):
+        # pylint: disable=too-many-branches
+        transform = gp_Trsf()
+
+        if len(args) == 0:
+            pass
+
+        elif len(args) == 1:
+            translation = args[0]
+
+            if isinstance(translation, (Vector, Iterable)):
+                transform.SetTranslationPart(Vector(translation).wrapped)
+            elif isinstance(translation, Plane):
+                coordinate_system = gp_Ax3(
+                    translation.origin.to_pnt(),
+                    translation.z_dir.to_dir(),
+                    translation.x_dir.to_dir(),
+                )
+                transform.SetTransformation(coordinate_system)
+                transform.Invert()
+            elif isinstance(args[0], Location):
+                self.wrapped = translation.wrapped
+                return
+            elif isinstance(translation, TopLoc_Location):
+                self.wrapped = translation
+                return
+            elif isinstance(translation, gp_Trsf):
+                transform = translation
+            else:
+                raise TypeError("Unexpected parameters")
+
+        elif len(args) == 2:
+            if isinstance(args[0], (Vector, Iterable)):
+                if isinstance(args[1], (Vector, Iterable)):
+                    rotation = [math.radians(a) for a in args[1]]
+                    quaternion = gp_Quaternion()
+                    quaternion.SetEulerAngles(
+                        gp_EulerSequence.gp_Intrinsic_XYZ, *rotation
+                    )
+                    transform.SetRotation(quaternion)
+                elif isinstance(args[0], (Vector, tuple)) and isinstance(
+                    args[1], (int, float)
+                ):
+                    angle = math.radians(args[1])
+                    quaternion = gp_Quaternion()
+                    quaternion.SetEulerAngles(
+                        gp_EulerSequence.gp_Intrinsic_XYZ, 0, 0, angle
+                    )
+                    transform.SetRotation(quaternion)
+
+                # set translation part after setting rotation (if exists)
+                transform.SetTranslationPart(Vector(args[0]).wrapped)
+            else:
+                translation, origin = args
+                coordinate_system = gp_Ax3(
+                    Vector(origin).to_pnt(),
+                    translation.z_dir.to_dir(),
+                    translation.x_dir.to_dir(),
+                )
+                transform.SetTransformation(coordinate_system)
+                transform.Invert()
+        elif len(args) == 3:
+            if (
+                isinstance(args[0], (Vector, Iterable))
+                and isinstance(args[1], (Vector, Iterable))
+                and isinstance(args[2], (int, float))
+            ):
+                translation, axis, angle = args
+                transform.SetRotation(
+                    gp_Ax1(Vector().to_pnt(), Vector(axis).to_dir()),
+                    math.radians(angle),
+                )
+            else:
+                raise TypeError("Unsupported argument types for Location")
+
+            transform.SetTranslationPart(Vector(translation).wrapped)
+        self.wrapped = TopLoc_Location(transform)
 
     def inverse(self):
         return Location(self.wrapped.Inverted())
 
-    def to_tuple(self):
+    def __mul__(self, other):
+        if hasattr(other, "wrapped") and not isinstance(
+            other.wrapped, TopLoc_Location
+        ):  # Shape
+            result = other.moved(self)
+        elif isinstance(other, Iterable) and all(
+            isinstance(o, Location) for o in other
+        ):
+            result = [Location(self.wrapped * loc.wrapped) for loc in other]
+        else:
+            result = Location(self.wrapped * other.wrapped)
+        return result
+
+    def to_tuple(self) -> tuple[tuple[float, float, float], tuple[float, float, float]]:
         transformation = self.wrapped.Transformation()
         trans = transformation.TranslationPart()
         rot = transformation.GetRotation()
@@ -282,6 +390,11 @@ class Location:
         position_str = ", ".join((f"{v:.2f}" for v in self.to_tuple()[0]))
         orientation_str = ", ".join((f"{v:.2f}" for v in self.to_tuple()[1]))
         return f"(p=({position_str}), o=({orientation_str}))"
+
+    def __str__(self):
+        position_str = ", ".join((f"{v:.2f}" for v in self.to_tuple()[0]))
+        orientation_str = ", ".join((f"{v:.2f}" for v in self.to_tuple()[1]))
+        return f"Location: (position=({position_str}), orientation=({orientation_str}))"
 
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -363,17 +476,18 @@ class Shape:
     def __init__(self, obj):
         self.wrapped = downcast(obj)
 
+    @property
     def geom_type(self):
-        topo_abs = geom_LUT[shapetype(self.wrapped)]
+        shape = shapetype(self.wrapped)
 
-        if isinstance(topo_abs, str):
-            return_value = topo_abs
-        elif topo_abs is BRepAdaptor_Curve:
-            return_value = geom_LUT_EDGE[topo_abs(self.wrapped).GetType()]
+        if shape == ta.TopAbs_EDGE:
+            geom = geom_LUT_EDGE[BRepAdaptor_Curve(self.wrapped).GetType()]
+        elif shape == ta.TopAbs_FACE:
+            geom = geom_LUT_FACE[BRepAdaptor_Surface(self.wrapped).GetType()]
         else:
-            return_value = geom_LUT_FACE[topo_abs(self.wrapped).GetType()]
+            geom = GeomType.OTHER
 
-        return return_value
+        return geom
 
     @property
     def area(self):
@@ -516,7 +630,7 @@ class Face(Shape):
     @property
     def length(self):
         result = None
-        if self.geom_type() == "PLANE":
+        if self.geom_type == "PLANE":
             flat_face = Plane(self).to_local_coords(self)
             face_vertices = flat_face.vertices().sort_by(Axis.X)
             result = face_vertices[-1].X - face_vertices[0].X
@@ -525,7 +639,7 @@ class Face(Shape):
     @property
     def width(self):
         result = None
-        if self.geom_type() == "PLANE":
+        if self.geom_type == "PLANE":
             flat_face = Plane(self).to_local_coords(self)
             face_vertices = flat_face.vertices().sort_by(Axis.Y)
             result = face_vertices[-1].Y - face_vertices[0].Y
@@ -535,7 +649,7 @@ class Face(Shape):
         return BRepTools.UVBounds_s(self.wrapped)
 
     def center(self):
-        if self.geom_type() == "PLANE":
+        if self.geom_type == "PLANE":
             properties = GProp_GProps()
             BRepGProp.SurfaceProperties_s(self.wrapped, properties)
             center_point = properties.CentreOfMass()
@@ -589,7 +703,7 @@ class Edge(Shape):
 
     def normal(self):
         curve = self._geom_adaptor()
-        gtype = self.geom_type()
+        gtype = self.geom_type
 
         if gtype == "CIRCLE":
             circ = curve.Circle()
@@ -633,7 +747,7 @@ class Edge(Shape):
 
     @property
     def arc_center(self):
-        geom_type = self.geom_type()
+        geom_type = self.geom_type
         geom_adaptor = self._geom_adaptor()
 
         if geom_type == "CIRCLE":

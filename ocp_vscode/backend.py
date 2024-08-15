@@ -13,6 +13,7 @@ from ocp_tessellate.tessellator import (
     get_vertices,
 )
 from ocp_tessellate.trace import Trace
+
 from ocp_vscode.build123d import (
     Compound,
     Edge,
@@ -24,6 +25,7 @@ from ocp_vscode.build123d import (
     Vector,
     Vertex,
     downcast,
+    GeomType,
 )
 
 from ocp_vscode.comms import MessageType, listener, send_response, set_port
@@ -127,6 +129,7 @@ class PropertiesResponse(MeasureReponse):
     area: float = None
     volume: float = None
     radius: float = None
+    radius2: float = None
     geom_type: str = None
 
 
@@ -270,13 +273,20 @@ class ViewerBackend:
             response.vertex_coords = shape.to_tuple()
 
         elif isinstance(shape, Edge):
-            response.radius = shape.radius if shape.geom_type() in ["CIRCLE"] else None
+            response.radius = None
+            response.major_radius = None
+            response.minor_radius = None
+            if shape.geom_type == "CIRCLE":
+                response.radius = shape.radius
+            elif shape.geom_type == "ELLIPSE":
+                response.radius = shape._geom_adaptor().Ellipse().MajorRadius()
+                response.radius2 = shape._geom_adaptor().Ellipse().MinorRadius()
+
             response.length = shape.length
 
         elif isinstance(shape, Face):
-            if shape.geom_type() == "CYLINDER":
-                circle = shape.edges().filter_by("CIRCLE")[0]
-                response.radius = circle.radius
+            if shape.geom_type == "CYLINDER":
+                response.radius = shape._geom_adaptor().Cylinder().Radius()
 
             response.length = shape.length
             response.width = shape.width
@@ -285,8 +295,7 @@ class ViewerBackend:
         elif isinstance(shape, (Solid, Compound)):
             response.volume = shape.volume
 
-        geom_type = shape.geom_type().capitalize()
-        response.geom_type = geom_type if geom_type != "Vertex" else None
+        response.geom_type = shape.geom_type if not isinstance(shape, Vertex) else None
         center, info = self.get_center(shape, False)
         response.center = center.to_tuple()
         response.vertex_coords = response.center
@@ -311,7 +320,7 @@ class ViewerBackend:
             else (
                 Plane(shape1 @ 0, z_dir=shape1.normal())
                 if isinstance(shape1, Edge)
-                and shape1.geom_type() in ["CIRCLE", "ELLIPSE"]
+                and shape1.geom_type() in [GeomType.CIRCLE, GeomType.ELLIPSE]
                 else shape1 % 0
             )
         )
@@ -321,7 +330,7 @@ class ViewerBackend:
             else (
                 Plane(shape2 @ 0, z_dir=shape2.normal())
                 if isinstance(shape2, Edge)
-                and shape2.geom_type() in ["CIRCLE", "ELLIPSE"]
+                and shape2.geom_type() in [GeomType.CIRCLE, GeomType.ELLIPSE]
                 else shape2 % 0
             )
         )
@@ -360,7 +369,7 @@ class ViewerBackend:
         if isinstance(shape, Vertex):
             return shape.center(), SelectedCenterInfo.vertex
         elif isinstance(shape, Edge):
-            if shape.geom_type() in [
+            if shape.geom_type in [
                 "CIRCLE",
                 "ELLIPSE",
             ]:
@@ -370,11 +379,11 @@ class ViewerBackend:
                     return shape.center(), SelectedCenterInfo.geom
 
         elif isinstance(shape, Face):
-            if shape.geom_type() in ["CYLINDER"]:
+            if shape.geom_type in ["CYLINDER"]:
                 if not for_distance:
                     return shape.center(), SelectedCenterInfo.geom
 
-                extremity_edges = shape.edges().filter_by("CIRCLE")
+                extremity_edges = shape.edges().filter_by(GeomType.CIRCLE)
                 if len(extremity_edges) == 2:
                     return (
                         extremity_edges[0].arc_center
