@@ -90,7 +90,7 @@ def _tessellate(
 
     conf["reset_camera"] = reset_camera.value
 
-    collapse = conf.get("collapse", Collapse.LEAVES)
+    collapse = conf.get("collapse", Collapse.ROOT)
     conf["collapse"] = collapse.value
 
     if kwargs.get("default_facecolor") is not None:
@@ -412,7 +412,7 @@ def show(
                                  Collapse.ROOT: expand root only,
                                  Collapse.ALL: collapse all nodes,
                                  Collapse.NONE: expand all nodes
-                                 (default=Collapse.LEAVES)
+                                 (default=Collapse.ROOT)
         ticks:                   Hint for the number of ticks in both directions (default=10)
         center_grid:             Center the grid at the origin or center of mass (default=False)
         up:                      Use z-axis ('Z') or y-axis ('Y') as up direction for the camera (default="Z")
@@ -674,7 +674,7 @@ def show_object(
                                  Collapse.ROOT: expand root only,
                                  Collapse.ALL: collapse all nodes,
                                  Collapse.NONE: expand all nodes
-                                 (default=Collapse.LEAVES)
+                                 (default=Collapse.ROOT)
         ticks:                   Hint for the number of ticks in both directions (default=10)
         center_grid:             Center the grid at the origin or center of mass (default=False)
         up:                      Use z-axis ('Z') or y-axis ('Y') as up direction for the camera (default="Z")

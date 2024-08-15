@@ -173,6 +173,7 @@ DEFAULTS = {
     "show_sketch_local": True,
     "timeit": False,
     "reset_camera": Camera.RESET,
+    "collapse": Collapse.ROOT,
     "debug": False,
 }
 
@@ -322,7 +323,7 @@ def set_defaults(
                            Collapse.ROOT: expand root only,
                            Collapse.ALL: collapse all nodes,
                            Collapse.NONE: expand all nodes
-                           (default=Collapse.LEAVES)
+                           (default=Collapse.ROOT)
         ticks:             Hint for the number of ticks in both directions (default=10)
         center_grid:       Center the grid at the origin or center of mass (default=False)
         up:                Use z-axis ('Z') or y-axis ('Y') as up direction for the camera (default="Z")
