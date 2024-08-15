@@ -21,6 +21,8 @@ import pathlib
 import re
 import time
 import types
+from enum import Enum
+from logging import Logger
 
 import ocp_tessellate.convert as oc
 from ocp_tessellate import OcpGroup
@@ -822,6 +824,13 @@ def show_all(
             or (hasattr(obj, "_obj") and obj._obj is None)
             or callable(obj)
             or isinstance(obj, (int, float, str, bool, types.ModuleType))
+            or obj is None
+            or isinstance(obj, Enum)
+            or (
+                obj.__class__.__name__ == "_Feature"
+                and obj.__class__.__module__ == "__future__"
+            )
+            or isinstance(obj, Logger)
         ):
             continue
 
