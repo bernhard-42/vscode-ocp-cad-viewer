@@ -341,9 +341,8 @@
             }
         }
 
-        function showViewer(shapes, states, config) {
+        function showViewer(shapes, config) {
             _shapes = shapes;
-            _states = states;
             _config = config;
 
             if (_config == null) {
@@ -570,7 +569,6 @@
 
             viewer.render(
                 _shapes,
-                _states,
                 renderOptions,
                 viewerOptions,
             );
@@ -619,47 +617,8 @@
                 let meshData = data.data;
                 let config = data.config;
 
-                showViewer(meshData.shapes, meshData.states, config);
+                showViewer(meshData.shapes, config);
 
-                var new_states = meshData.states;
-
-                // in measure mode, we only want to update the states of the nodes that have changed
-                // and we move one level up to avoid updating the states of the nodes that have already changed
-                // (propagation in the tree)
-                if (data.config.measure_tools) {
-                    var old_s = {};
-                    var short = "";
-                    for (var s in old_states) {
-                        short = s.split("/").slice(0, -1).join("/");
-                        old_s[short] = old_states[s]
-                    }
-                    old_states = old_s;
-                    var new_s = {};
-                    for (s in meshData.states) {
-                        short = s.split("/").slice(0, -1).join("/");
-                        new_s[short] = new_states[s]
-                    }
-                    new_states = new_s;
-                }
-                timer.split("measure tools set up");
-
-                const new_keys = Object.keys(new_states);
-
-                Object.keys(old_states).forEach((key) => {
-                    if (new_keys.includes(key)) {
-                        if (new_states[key][0] !== old_states[key][0] || new_states[key][1] !== old_states[key][1]) {
-                            if (data.config.measure_tools) {
-                                viewer.treeview.handleStateChange("node", key, 0, old_states[key][0])
-                                viewer.treeview.handleStateChange("node", key, 1, old_states[key][1])
-                            } else {
-                                viewer.setState(key, old_states[key]);
-                            }
-                        }
-                    }
-                });
-                timer.split("states updated");
-
-                timer.stop()
             } else if (data.type === "screenshot") {
                 var promise = viewer.getImage(data.filename);
                 promise.then((result) => {
