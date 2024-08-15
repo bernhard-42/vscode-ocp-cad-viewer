@@ -208,7 +208,7 @@ def _tessellate(
         print("\ntessellation parameters:\n", params)
 
     with Timer(timeit, "", "tessellate", 1):
-        instances, shapes, states, mapping = tessellate_group(
+        instances, shapes, mapping = tessellate_group(
             part_group, instances, params, progress, params.get("timeit")
         )
 
@@ -230,7 +230,7 @@ def _tessellate(
     # add global bounding box
     shapes["bb"] = bb
 
-    return instances, shapes, states, params, part_group.count_shapes(), mapping
+    return instances, shapes, params, part_group.count_shapes(), mapping
 
 
 def _convert(
@@ -246,7 +246,7 @@ def _convert(
     if progress is None:
         progress = Progress([c for c in "-+c"])
 
-    instances, shapes, states, config, count_shapes, mapping = _tessellate(
+    instances, shapes, config, count_shapes, mapping = _tessellate(
         *cad_objs,
         names=names,
         colors=colors,
@@ -268,11 +268,11 @@ def _convert(
 
     with Timer(timeit, "", "create data obj", 1):
         if is_pytest():
-            return (instances, shapes, states, config, count_shapes), mapping
+            return (instances, shapes, config, count_shapes), mapping
 
         return {
             "data": numpy_to_buffer_json(
-                dict(instances=instances, shapes=shapes, states=states),
+                dict(instances=instances, shapes=shapes),
             ),
             "type": "data",
             "config": config,
