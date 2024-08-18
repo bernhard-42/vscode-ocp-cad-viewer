@@ -44,30 +44,6 @@ from OCP.GeomAPI import GeomAPI_ProjectPointOnSurf
 from ocp_tessellate.ocp_utils import get_faces, get_edges, get_vertices
 
 
-class GeomType(Enum):
-    """CAD geometry object type"""
-
-    PLANE = auto()
-    CYLINDER = auto()
-    CONE = auto()
-    SPHERE = auto()
-    TORUS = auto()
-    BEZIER = auto()
-    BSPLINE = auto()
-    REVOLUTION = auto()
-    EXTRUSION = auto()
-    OFFSET = auto()
-    LINE = auto()
-    CIRCLE = auto()
-    ELLIPSE = auto()
-    HYPERBOLA = auto()
-    PARABOLA = auto()
-    OTHER = auto()
-
-    def __repr__(self):
-        return f"<{self.__class__.__name__}.{self.name}>"
-
-
 downcast_LUT = {
     ta.TopAbs_VERTEX: TopoDS.Vertex_s,
     ta.TopAbs_EDGE: TopoDS.Edge_s,
@@ -455,7 +431,7 @@ class Plane:
 
 class ShapeList(list):
     def filter_by(self, geom_type):
-        return [obj for obj in self if obj.geom_type() == geom_type]
+        return [obj for obj in self if obj.geom_type == geom_type]
 
     def sort_by(self, axis, reverse=False):
         axis_as_location = axis.location.inverse()
