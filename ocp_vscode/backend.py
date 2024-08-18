@@ -25,7 +25,6 @@ from ocp_vscode.build123d import (
     Vector,
     Vertex,
     downcast,
-    GeomType,
 )
 
 from ocp_vscode.comms import MessageType, listener, send_response, set_port
@@ -320,7 +319,7 @@ class ViewerBackend:
             else (
                 Plane(shape1 @ 0, z_dir=shape1.normal())
                 if isinstance(shape1, Edge)
-                and shape1.geom_type() in [GeomType.CIRCLE, GeomType.ELLIPSE]
+                and shape1.geom_type in ["CIRCLE", "ELLIPSE"]
                 else shape1 % 0
             )
         )
@@ -330,7 +329,7 @@ class ViewerBackend:
             else (
                 Plane(shape2 @ 0, z_dir=shape2.normal())
                 if isinstance(shape2, Edge)
-                and shape2.geom_type() in [GeomType.CIRCLE, GeomType.ELLIPSE]
+                and shape2.geom_type in ["CIRCLE", "ELLIPSE"]
                 else shape2 % 0
             )
         )
@@ -383,7 +382,7 @@ class ViewerBackend:
                 if not for_distance:
                     return shape.center(), SelectedCenterInfo.geom
 
-                extremity_edges = shape.edges().filter_by(GeomType.CIRCLE)
+                extremity_edges = shape.edges().filter_by("CIRCLE")
                 if len(extremity_edges) == 2:
                     return (
                         extremity_edges[0].arc_center
