@@ -175,7 +175,8 @@
                                 }
                             }
                         } else if (type === "edges") {
-                            obj.shape.edges = obj.shape.edges.map((edge) => Array.from(convert(edge)));
+                            obj.shape.edges = convert(obj.shape.edges);
+                            obj.shape.segments_per_edge = convert(obj.shape.segments_per_edge);
                             obj.shape.obj_vertices = convert(obj.shape.obj_vertices);
                         } else {
                             obj.shape.obj_vertices = convert(obj.shape.obj_vertices);
