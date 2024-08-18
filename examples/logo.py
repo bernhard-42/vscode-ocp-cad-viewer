@@ -5,6 +5,8 @@ from ocp_vscode.show import _convert
 import json
 
 # %%
+
+# %%
 a, b, thickness, distance, fontsize, depth = 13.6, 8.0, 1.0, 0.3, 20, 2
 
 pts = ((-a, 0), (0, b), (a, 0))
@@ -36,7 +38,7 @@ eye = eye + center
 
 logo = Plane.XZ * Pos(0, -20, 0) * logo
 eye = Plane.XZ * Pos(0, -20, 0) * eye
-
+# %%
 # show(
 #     logo,
 #     eye,
