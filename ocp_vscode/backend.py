@@ -14,6 +14,7 @@ from ocp_tessellate.tessellator import (
 )
 from ocp_tessellate.trace import Trace
 
+from ocp_vscode.backend_logo import logo
 from ocp_vscode.build123d import (
     Compound,
     Edge,
@@ -162,6 +163,8 @@ class ViewerBackend:
         Start the backend
         """
         print("Viewer backend started")
+        backend.load_model(logo)
+        print("Logo model loaded")
         listener(self.handle_event)()
 
     @error_handler

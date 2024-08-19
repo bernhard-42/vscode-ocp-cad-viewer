@@ -3,6 +3,8 @@ from build123d import *
 from ocp_vscode import show, set_port
 from ocp_vscode.show import _convert
 import json
+import orjson
+from ocp_vscode.comms import default
 
 # %%
 
@@ -70,3 +72,5 @@ with open("logo.txt", "w") as fp:
     fp.write(json.dumps(c[0], separators=(",", ":")))
 
 # %%
+with open("mapping.txt", "w") as fp:
+    fp.write(orjson.dumps(c[1], default=default).decode("utf-8"))
