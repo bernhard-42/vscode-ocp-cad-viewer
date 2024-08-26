@@ -106,13 +106,13 @@ Valid keywords to configure the viewer (**kwargs):
 
 ### Typically useful parameters
 
--   Reset the object stack:
+- Reset the object stack:
 
-    `reset_show()`
+  `reset_show()`
 
--   Restart a new objects stack
+- Restart a new objects stack
 
-    `show_object(obj, clear=True)`
+  `show_object(obj, clear=True)`
 
 For more detail, see [show](show.md)
 
