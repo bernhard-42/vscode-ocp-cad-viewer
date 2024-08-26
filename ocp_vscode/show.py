@@ -322,7 +322,6 @@ def show(
     progress="-+*c",
     glass=None,
     tools=None,
-    measure_tools=None,
     tree_width=None,
     axes=None,
     axes0=None,
@@ -397,7 +396,6 @@ def show(
     Valid keywords to configure the viewer (**kwargs):
     - UI
         glass:                   Use glass mode where tree is an overlay over the cad object (default=False)
-        measure_tools:           Show measure tools (default=False)
         tools:                   Show tools (default=True)
         tree_width:              Width of the object tree (default=240)
 
@@ -496,17 +494,7 @@ def show(
 
     timeit = preset("timeit", timeit)
 
-    if measure_tools is None:
-        measure_tools = get_default("measure_tools")
-        if measure_tools is None:
-            conf = workspace_config()
-            measure_tools = conf["measure_tools"]
-    kwargs["measure_tools"] = measure_tools
-
-    if measure_tools and kwargs.get("collapse") is None:
-        kwargs["collapse"] = Collapse.ROOT
-
-    names = align_attrs(names, len(cad_objs), None, "names", explode=measure_tools)
+    names = align_attrs(names, len(cad_objs), None, "names")
 
     # Handle colormaps
 
@@ -581,7 +569,6 @@ def show_object(
     progress="-+*c",
     glass=None,
     tools=None,
-    measure_tools=None,
     tree_width=None,
     axes=None,
     axes0=None,
@@ -659,7 +646,6 @@ def show_object(
     Valid keywords to configure the viewer (**kwargs):
     - UI
         glass:                   Use glass mode where tree is an overlay over the cad object (default=False)
-        measure_tools:           Show measure tools (default=False)
         tools:                   Show tools (default=True)
         tree_width:              Width of the object tree (default=240)
 

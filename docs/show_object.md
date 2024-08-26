@@ -31,7 +31,6 @@ Keywords for show_object:
 Valid keywords to configure the viewer (**kwargs):
 - UI
     glass:                   Use glass mode where tree is an overlay over the cad object (default=False)
-    measure_tools:           Show measure tools (default=False)
     tools:                   Show tools (default=True)
     tree_width:              Width of the object tree (default=240)
 

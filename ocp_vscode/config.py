@@ -82,7 +82,6 @@ CONFIG_WORKSPACE_KEYS = CONFIG_UI_KEYS + [
     "collapse",
     "dark",
     "glass",
-    "measure_tools",
     "orbit_control",
     "ticks",
     "center_grid",
@@ -106,7 +105,6 @@ CONFIG_WORKSPACE_KEYS = CONFIG_UI_KEYS + [
     "default_vertexcolor",
     "default_opacity",
     "deviation",
-    "measure_tools",
     "modifier_keys",
 ]
 
@@ -252,7 +250,6 @@ def get_defaults():
 def set_defaults(
     glass=None,
     tools=None,
-    measure_tools=None,
     tree_width=None,
     axes=None,
     axes0=None,
@@ -307,7 +304,6 @@ def set_defaults(
     - UI
         glass:             Use glass mode where tree is an overlay over the cad object (default=False)
         tools:             Show tools (default=True)
-        measure_tools:     Show measure tools (default=False)
         tree_width:        Width of the object tree (default=240)
 
     - Viewer
@@ -425,7 +421,6 @@ def workspace_config(port=None):
 
     if is_pytest():
         return {
-            "measure_tools": False,
             "_splash": False,
             "default_facecolor": (1, 234, 56),
             "default_thickedgecolor": (123, 45, 6),
@@ -477,7 +472,6 @@ def combined_config(port=None, use_status=True):
         wspace_config["ortho"] = False
         wspace_config["transparent"] = False
         wspace_config["black_edges"] = False
-        wspace_config["measure_tools"] = False
 
     wspace_config.update(DEFAULTS)
     if use_status:

@@ -90,7 +90,6 @@ export class OCPCADController {
             "default_opacity": options.get("default_opacity"),
             "transparent": options.get("transparent"),
             "explode": options.get("explode"),
-            "measure_tools": options.get("measure_tools"),
             "modifier_keys": options.get("modifier_keys"),
         }
         options = vscode.workspace.getConfiguration("OcpCadViewer.render");

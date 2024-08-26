@@ -48,7 +48,6 @@
             timeit: false,
             tools: { tools },
             glass: { glass },
-            measure_tools: false,
             up: '{ up }',
             zoom: 1.0,
             position: null,
@@ -100,7 +99,7 @@
             return uint;
         }
 
-        function decode(data, measureTools) {
+        function decode(data) {
             function convert(obj) {
                 var result;
                 if (typeof obj.buffer == "string") {
@@ -610,7 +609,7 @@
             if (data.type === "data") {
                 const timer = new Timer("webView", data.config.timeit);
 
-                decode(data, data.config.measure_tools);
+                decode(data);
                 timer.split("data decoded");
 
                 var old_states = (viewer == null) ? {} : (viewer.treeview == null) ? {} : viewer.treeview.states;
