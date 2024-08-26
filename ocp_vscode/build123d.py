@@ -460,8 +460,12 @@ class Shape:
             geom = geom_LUT_EDGE[BRepAdaptor_Curve(self.wrapped).GetType()]
         elif shape == ta.TopAbs_FACE:
             geom = geom_LUT_FACE[BRepAdaptor_Surface(self.wrapped).GetType()]
+        elif shape == ta.TopAbs_VERTEX:
+            geom = "VERTEX"
+        elif shape == ta.TopAbs_SOLID:
+            geom = "SOLID"
         else:
-            geom = GeomType.OTHER
+            geom = "UNKNOWN"
 
         return geom
 

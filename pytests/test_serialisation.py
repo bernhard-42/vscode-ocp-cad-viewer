@@ -349,9 +349,9 @@ class ObjectTests(DirectApiTestCase):
         backend.load_model(json.loads(j)["model"])
 
         self.assertEqual(
-            [v.geom_type() for k, v in backend.model.items()],
+            [v.geom_type for k, v in backend.model.items()],
             [
-                "Solid",
+                "SOLID",
                 "PLANE",
                 "CYLINDER",
                 "CYLINDER",
@@ -434,30 +434,30 @@ class ObjectTests(DirectApiTestCase):
                 "OTHER",
                 "OTHER",
                 "OTHER",
-                "Vertex",
-                "Vertex",
-                "Vertex",
-                "Vertex",
-                "Vertex",
-                "Vertex",
-                "Vertex",
-                "Vertex",
-                "Vertex",
-                "Vertex",
-                "Vertex",
-                "Vertex",
-                "Vertex",
-                "Vertex",
-                "Vertex",
-                "Vertex",
-                "Vertex",
-                "Vertex",
-                "Vertex",
-                "Vertex",
-                "Vertex",
-                "Vertex",
-                "Vertex",
-                "Vertex",
+                "VERTEX",
+                "VERTEX",
+                "VERTEX",
+                "VERTEX",
+                "VERTEX",
+                "VERTEX",
+                "VERTEX",
+                "VERTEX",
+                "VERTEX",
+                "VERTEX",
+                "VERTEX",
+                "VERTEX",
+                "VERTEX",
+                "VERTEX",
+                "VERTEX",
+                "VERTEX",
+                "VERTEX",
+                "VERTEX",
+                "VERTEX",
+                "VERTEX",
+                "VERTEX",
+                "VERTEX",
+                "VERTEX",
+                "VERTEX",
             ],
         )
         vec = [v.to_tuple() for v in backend.model.values() if isinstance(v, Vertex)]
@@ -493,7 +493,7 @@ class ObjectTests(DirectApiTestCase):
         )
 
         vec = [
-            (v.radius if v.geom_type() in ["CIRCLE"] else -1, v.length)
+            (v.radius if v.geom_type in ["CIRCLE"] else -1, v.length)
             for v in backend.model.values()
             if isinstance(v, Edge)
         ]
