@@ -384,12 +384,6 @@
                     "description": "Turn explode mode on (default: false)",
                     "order": 32
                 },
-                "OcpCadViewer.view.measure_tools": {
-                    "type": "boolean",
-                    "default": false,
-                    "description": "Run on measure tools by default",
-                    "order": 33
-                },
                 "OcpCadViewer.view.modifier_keys": {
                     "type": "object",
                     "default": {
