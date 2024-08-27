@@ -259,6 +259,12 @@ def web_to_rgb(name):
     return (rgb.red / 255, rgb.green / 255, rgb.blue / 255)
 
 
+def hex_to_rgb(hexcolor):
+    """Convert a hex color name to RGB"""
+    rgb = hex_to_rgb(hexcolor)
+    return (rgb.red / 255, rgb.green / 255, rgb.blue / 255)
+
+
 class BaseColorMap:
     """Base class for color maps"""
 

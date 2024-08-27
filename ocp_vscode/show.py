@@ -52,7 +52,7 @@ from ocp_tessellate.ocp_utils import (
 )
 from ocp_tessellate.utils import Color, Timer, numpy_to_buffer_json
 
-from ocp_vscode.colors import BaseColorMap, get_colormap, web_to_rgb
+from ocp_vscode.colors import BaseColorMap, get_colormap
 from ocp_vscode.comms import is_pytest, send_backend, send_command, send_data
 from ocp_vscode.config import (
     Camera,
@@ -511,19 +511,18 @@ def show(
         map_colors = [next(colormap) for _ in range(len(cad_objs))]
 
     for i in range(len(cad_objs)):
-        if isinstance(colors[i], str):
-            colors[i] = web_to_rgb(colors[i])
-        if colors[i] is None and map_colors is not None:
-            colors[i] = map_colors[i][:3]
-            if alphas[i] is None and len(map_colors[i]) == 4:
-                alphas[i] = map_colors[i][3]
-        elif colors[i] is not None:
-            if alphas[i] is None and len(colors[i]) == 4:
-                alphas[i] = colors[i][3]
-            colors[i] = colors[i][:3]
+        if colors[i] is None:
+            if map_colors is not None:
+                colors[i] = Color(map_colors[i][:3])
+                if alphas[i] is not None:
+                    colors[i].a = alphas[i]
+        else:
+            colors[i] = Color(colors[i])
+            if alphas[i] is not None:
+                colors[i].a = alphas[i]
 
     if default_edgecolor is not None:
-        default_edgecolor = Color(default_edgecolor).web_color
+        default_edgecolor = Color(default_edgecolor)
 
     progress = Progress([] if progress is None else [c for c in progress])
 
