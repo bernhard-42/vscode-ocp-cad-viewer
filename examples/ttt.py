@@ -14,7 +14,7 @@ for sign in (1, -1):
     c = Vector(sign * 31, 0)
     l = PolarLine(c, sign * 6, sign * a)
     l2 = PolarLine(l @ 1, 100, sign * a - 90)
-    vertices.append(c100.intersections(l2.edge()))
+    vertices.append(c100.find_intersection_points(l2.edge()))
     lines.append(l2)
 
 # combine to a wire and face

@@ -37,3 +37,11 @@ show_object(
 )
 
 # %%
+
+set_defaults(
+    axes=False,
+    transparent=False,
+    collapse=Collapse.ROOT,
+    reset_camera=Camera.RESET,
+    grid=(False, False, False),
+)

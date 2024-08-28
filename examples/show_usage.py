@@ -186,7 +186,10 @@ show(b, c, ambient_intensity=0.1)
 # %%
 # Make the direct lights brighter
 
-show(b, c, direct_intensity=0.9)
+show(b, c, direct_intensity=0.2)
+
+# %%
+reset_defaults()
 
 # %%
 # Set pan speed to very fast
