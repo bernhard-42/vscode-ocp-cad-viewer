@@ -2,6 +2,8 @@
 
 ![Measurement mode](../screenshots/measure.gif)
 
+Note: The parameter measure_tools is not needed any more
+
 ## Tools
 
 There are three tools:

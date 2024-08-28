@@ -221,52 +221,29 @@ NATIVE_TESSELLATOR=1 OCP_VSCODE_PYTEST=1 pytest -v -s pytests/
 
 ## Changes
 
-v2.3.3
-- Fix regression that visual debug hangs
-- Fix regression that build123d sketches are not draw correctly any more (fix in ocp-tessellate)
+v2.4.0
 
-v2.3.2
-- Fix regression that Python script hang in threading before exit ([#73](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/60))
+New features
 
-v2.3.1
-- Add latest ocp-tessellate to fixed regression with handling instances
-- Make native default if ocp-addons exists
+- Removed `measure_tools` parameter and integrated switching between normal and measure mode into the [three-cad-viewer](https://github.com/bernhard-42/three-cad-viewer/blob/master/src/treeview.js) ([#58](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/58)).
+- Rewrote the CAD view tree to use lazy loading (switching to measure mode can increase number of nodes by more then 100 times). This changed the input format for the viewer component (states integrated into object tree now), which is a breaking change if you use threee-cad-viewer directly, but no changes for users of vscode-ocp-cad-viewer.
+- Rewrote converter of [ocp-tessellate](https://github.com/bernhard-42/ocp-tessellate/blob/main/ocp_tessellate/convert.py) to be more consistent and easier to maintain. All solids and faces can now be instances. Breaking changes if you use ocp_tessellate directly, but no changes for users of vscode-ocp-cad-viewer.
+- Added `center_grid` to workspace configuration to ensure grid planes always go through world origin ([#77](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/77)).
+- Added `save_screenshot(filename)` to save a PNG of the currently shown object(s). Canvas only, no CAD tools ([#86](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/86)).
+- Support viewing of build123d `LocationList`s.
 
-v2.3.0
-Fine tune communication to ensure the memory view of buffers will be passed through to javascript for performance (*)
-Use of the new protocol v3 of three-cad-viewer
-Fix show_all regressions https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/71. It should also properly catch exceptions now to not interrupt viausl debugging
-Add newest ocp-tessellate to allow using native tessellator from ocp_addons
+Fixes
 
-v2.2.2
-- Fix regression in measure tools
-
-v2.2.1
--   Fix: Wrong back material color for faces
--   Improve parameters of Imageface
--   Improve clipping when faces are deselected
-
-v2.2.0
--   Clipping now works with caps (default: red, green, blue cap faces). For assemblies the cap faces can use the associated object colors
--   Grid now can be centered (parameter: `center_grid=True`): 
-    With axes0==True centered at the origin `(0,0,0)`, i.e absolute units
-    With axes0==False centered at the center of mass, i.e relative units
--   Grid now has numbers at the gridlines serving as a ruler ([#60](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/60))
--   `ocp_vscode` now has a class `ImageFace`. It works like an OCP rectangle, but can get an image path and a location ([#28](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/28)). 
-    Usage: `plane = ImageFace(image_path, width, location=Location((x, y, z), (ax, ay, az)))`
--   The CAD tree changed behavior: The eye icon toggles both faces and edges. The mesh icon toggles the mesh (edges) only  ([#56](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/56))
-    This can be switched back to old behavior in the VS Code workspace settings _"OCP CAD Viewer > View:New_tree_behavior"_
--   New parameter `show_sketch_local`: when set to `False`, `build123d` local sketches will not be shown (works eith `set_defaults`) ([#59](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/59))
--   New parameter _"OCP CAD Viewer > Advanced:Autohide Terminal"_ in the VS Code workspace settings to control whether terminal will be hid when the viewer starts or not ([#61](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/61))
--   Viewer keeps clipping settings when `reset_camera`is set to `Camera.KEEP`or `Camera.CENTER` ([#43](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/43))
--   Material configurator now has a reset button "R" to get back to initial values
--   `show_all` now converts nested dicts and lists into viewer hierarchies
--   `set_viewer_config` is documented in README
--   Fix: `show_parent` now supported by `show_defaults` ([#64](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/64))
--   Fix: `show_all()` now works in non visual debugging mode (removed `force` parameter from `show_all`) 
--   Fix: `show_all()` now doesn't break when an array of `Colors` is in the `locals` variable list ([#45](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/45))
--   Fix: `show_all` now ignores unknown types in lists or dicts without raising an error and only printing a warning ([#67](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/67))
--   Fix: The `serialize` and `deserialize` commands don't crash on Windows any more ([#65](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/65))
--   Fix: Status notifications for grid work again ([#66](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/66))
+- Fixed the mini-build123d `Location` class used by measurement backend.
+- Measure mode cannot work on clipped object, so disabled clipping tab when measure mode is turned on ([#55](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/55), [#70](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/70))
+- Removed using `to_tuple` for build123d Color objects ([#69](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/69)).
+- Made color handling more consistent (sometime `color` or `alpha` was ignored).
+- Fixed opening duplivcate Jupyter notebooks ([#78](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/78)).
+- Fixed measure tool related regression. ([#81](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/81), [82](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/82),).
+- Fixed ImageFace aspect ratio bug ([#83](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/83)).
+- Fixed `show_all` failing on empty ShapeList ([#90](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/90)).
+- Fixed to display ShapeList of Compound correctly ([#91](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/91)).
+- Fixed ShapeList containing different object types ([#92](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/92)).
+- Fixed measure tools to work with 1D objects ([#93](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/93)).
 
 full change log see [CHANGELOG.md](./CHANGELOG.md)
