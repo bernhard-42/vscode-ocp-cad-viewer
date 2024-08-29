@@ -533,10 +533,15 @@ def show(
                 colors[i] = Color(map_colors[i][:3])
                 if alphas[i] is not None:
                     colors[i].a = alphas[i]
+
+            if hasattr(cad_objs[i], "color") and cad_objs[i].color is not None:
+                # ensure that the explicitely given color is kept
+                colors[i] = Color(cad_objs[i].color)
         else:
             colors[i] = Color(colors[i])
-            if alphas[i] is not None:
-                colors[i].a = alphas[i]
+
+        if colors[i] is not None and alphas[i] is not None:
+            colors[i].a = alphas[i]
 
     if default_edgecolor is not None:
         default_edgecolor = Color(default_edgecolor)
