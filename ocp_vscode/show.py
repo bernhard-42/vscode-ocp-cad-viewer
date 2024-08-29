@@ -470,6 +470,23 @@ def show(
     """
     global LAST_CALL  # pylint: disable=global-statement
 
+    if (
+        cad_objs is None
+        or len(cad_objs) == 0
+        or (
+            len(cad_objs) == 1
+            and (
+                cad_objs[0] is None
+                or (
+                    isinstance(cad_objs[0], (dict, list, tuple, set))
+                    and len(cad_objs[0]) == 0
+                )
+            )
+        )
+    ):
+        print("show: No CAD objects to show")
+        return
+
     kwargs = {
         k: v
         for k, v in locals().items()
