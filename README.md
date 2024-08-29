@@ -21,7 +21,7 @@ _OCP CAD Viewer_ for VS Code is an extension to show [CadQuery](https://github.c
 
 ### Installation
 
-1. Open the VS Code Marketplace, and search and install _OCP CAD Viewer 2.4.0_.
+1. Open the VS Code Marketplace, and search and install _OCP CAD Viewer 2.4.1_.
 
    Afterwards the OCP viewer is available in the VS Code sidebar:
 
@@ -225,7 +225,7 @@ v2.4.1
 - Fix colormap handling to keep color of objects when .color attribute is set
 - show() ands gracefully and empty lists are treated correctly
 
-v2.4.0
+v2.4.1
 
 New features
 
