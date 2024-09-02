@@ -225,7 +225,7 @@ v2.4.1
 - Fix colormap handling to keep color of objects when .color attribute is set
 - show() ends gracefully and empty lists are treated correctly
 
-v2.4.1
+v2.4.0
 
 New features
 
