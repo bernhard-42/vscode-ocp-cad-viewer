@@ -223,7 +223,7 @@ NATIVE_TESSELLATOR=1 OCP_VSCODE_PYTEST=1 pytest -v -s pytests/
 v2.4.1
 
 - Fix colormap handling to keep color of objects when .color attribute is set
-- show() ands gracefully and empty lists are treated correctly
+- show() ends gracefully and empty lists are treated correctly
 
 v2.4.1
 

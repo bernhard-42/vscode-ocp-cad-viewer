@@ -5,7 +5,7 @@ All notable changes to the "OCP CAD Viewer" extension will be documented in this
 v2.4.1
 
 - Fix colormap handling to keep color of objects when .color attribute is set
-- show() ands gracefully and empty lists are treated correctly
+- show() ends gracefully and empty lists are treated correctly
 
 v2.4.0
 
