@@ -280,7 +280,6 @@ def _convert(
             "config": config,
             "count": count_shapes,
         }, mapping
-    return result
 
 
 class Progress:
