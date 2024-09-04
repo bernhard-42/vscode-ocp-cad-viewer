@@ -356,6 +356,12 @@
                 console.log("displayOptions", displayOptions);
             }
 
+            // Turn of animation loop of last viewer
+            if (viewer != null) {
+              viewer.hasAnimationLoop = false;
+              viewer.continueAnimation = false;
+            }
+
             const container = document.getElementById("cad_viewer");
             container.innerHTML = ""
             viewer = new Viewer(container, displayOptions, nc, null);
