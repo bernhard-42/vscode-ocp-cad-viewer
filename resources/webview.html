@@ -183,7 +183,7 @@
                     }
                 }
             }
-
+            
             const instances = data.data.instances;
 
             data.data.instances.forEach((instance) => {
@@ -604,6 +604,21 @@
         console.log("resize listener registered");
 
         window.addEventListener('message', event => {
+            function getStates(meshData) {
+                const states = {};
+                function walk(meshData) {
+                    if (meshData.parts != null) {
+                        for (var i in meshData.parts) {
+                            walk(meshData.parts[i]);
+                        }
+                    } else {
+                        states[meshData.id] = meshData.state;
+                    }
+                }
+                walk(meshData);
+                return states;
+            }
+
             var data = JSON.parse(event.data);
 
             if (data.type === "data") {
@@ -612,12 +627,31 @@
                 decode(data);
                 timer.split("data decoded");
 
-                var old_states = (viewer == null) ? {} : (viewer.treeview == null) ? {} : viewer.treeview.states;
+                var old_states = (viewer == null) ? {} : (viewer.treeview == null) ? {} : viewer.treeview.getStates();
 
                 let meshData = data.data;
                 let config = data.config;
 
                 showViewer(meshData.shapes, config);
+                var new_states = getStates(meshData.shapes);
+
+                const new_keys = Object.keys(new_states);
+
+                Object.keys(old_states).forEach((key) => {
+                    if (new_keys.includes(key)) {
+                        if (new_states[key][0] !== old_states[key][0] || new_states[key][1] !== old_states[key][1]) {
+                            if (data.config.measure_tools) {
+                                viewer.treeview.handleStateChange("node", key, 0, old_states[key][0])
+                                viewer.treeview.handleStateChange("node", key, 1, old_states[key][1])
+                            } else {
+                                viewer.setState(key, old_states[key]);
+                            }
+                        }
+                    }
+                });
+                timer.split("states updated");
+
+                timer.stop()                
 
             } else if (data.type === "screenshot") {
                 var promise = viewer.getImage(data.filename);
@@ -694,7 +728,7 @@
                         viewer.display.setExplode("", data.config[key])
                         viewer.display.setExplodeCheck(data.config[key])
                     } else if (key === "states") {
-                        const states = Object.keys(viewer.treeview.states);
+                        const states = Object.keys(viewer.treeview.getStates());
                         Object.keys(data.config[key]).forEach((key2) => {
                             if (states.includes(key2)) {
                                 viewer.setState(key2, data.config[key][key2]);
