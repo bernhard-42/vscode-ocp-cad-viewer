@@ -256,7 +256,7 @@ export class OCPCADController {
             "autohideTerminal"
         ];
         setTimeout(() => {
-            pythonBackendTerminal.sendText(`${python} ${this.getBackendPath()} --port ${this.port}`);
+            pythonBackendTerminal.sendText(`'${python}' '${this.getBackendPath()}' --port ${this.port}`);
             if (autohide) {
                 pythonBackendTerminal.hide();
             }
