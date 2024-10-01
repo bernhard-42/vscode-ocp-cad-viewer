@@ -9,6 +9,8 @@ ocp_vscode.egg-info/
 .ocp_vscode
 .pytest_cache
 .vscode
+.mypy_cache
+ocp_vscode/.mypy_cache
 main.py
 setup.cfg
 setup.py
