@@ -303,7 +303,7 @@
 
         function normalizeWidth(width, glass) {
             const treeWidth = glass ? 0 : preset(_config, "treeWidth", displayDefaultOptions.treeWidth);
-            return Math.max(minWidth, width - treeWidth - 42);
+            return Math.max(minWidth - treeWidth, width - treeWidth - 20);
         }
 
         function normalizeHeight(height) {
@@ -329,10 +329,11 @@
             const treeWidth = glass ? 0 : preset(_config, "treeWidth", displayDefaultOptions.treeWidth);
             const keymap = preset(_config, "modifier_keys", viewerDefaultOptions.keymap);
             const newTreeBehavior = preset(_config, "new_tree_behavior", viewerDefaultOptions.newTreeBehavior);
+            const cadWidth = normalizeWidth(size.width, glass);
             return {
                 glass: glass,
                 treeWidth: treeWidth,
-                cadWidth: normalizeWidth(size.width, glass),
+                cadWidth: cadWidth,
                 height: normalizeHeight(size.height),
                 theme: theme,
                 tools: tools,
@@ -778,7 +779,7 @@
     </script>
 </head>
 
-<body>
+<body style="padding:0px; width:fit-content;">
     <div id="cad_viewer"></div>
 </body>
 
