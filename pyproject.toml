@@ -39,6 +39,54 @@ dependencies = [
 "Homepage" = "https://github.com/bernhard-42/vscode-ocp-cad-viewer"
 "Bug Tracker" = "https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues"
 
+# black settings
+
 [tool.black]
 target-version = ["py39", "py310", "py311", "py312"]
 line-length = 88
+
+# bump-my-version settings
+
+[tool.bumpversion]
+current_version = "2.4.1"
+commit = false
+tag = false
+parse = "(?P<major>\\d+)\\.(?P<minor>\\d+)\\.(?P<patch>\\d+)(?P<release>\\d*)(?P<build>\\d*)"
+serialize = ["{major}.{minor}.{patch}"]
+allow_dirty = true
+message = "Bump version: {current_version} → {new_version}"
+search = "{current_version}"
+replace = "{new_version}"
+regex = false
+ignore_missing_version = false
+ignore_missing_files = false
+sign_tags = false
+commit_args = ""
+setup_hooks = []
+pre_commit_hooks = []
+post_commit_hooks = []
+
+[[tool.bumpversion.files]]
+filename = "pyproject.toml"
+search = 'version = "{current_version}"'
+replace = 'version = "{new_version}"'
+
+[[tool.bumpversion.files]]
+filename = "ocp_vscode/__init__.py"
+search = '__version__ = "{current_version}"'
+replace = '__version__ = "{new_version}"'
+
+[[tool.bumpversion.files]]
+filename = "src/version.ts"
+search = 'version = "{current_version}"'
+replace = 'version = "{new_version}"'
+
+[[tool.bumpversion.files]]
+filename = "package.json"
+search = '"version": "{current_version}"'
+replace = '"version": "{new_version}"'
+
+[[tool.bumpversion.files]]
+filename = "README.md"
+search = 'OCP CAD Viewer {current_version}'
+replace = 'OCP CAD Viewer {new_version}'
