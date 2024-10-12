@@ -35,6 +35,9 @@ dependencies = [
     "websockets>=12.0",
 ]
 
+[project.optional-dependencies]
+dev = ["questionary~=1.10.0", "bump-my-version", "black", "twine"]
+
 [project.urls]
 "Homepage" = "https://github.com/bernhard-42/vscode-ocp-cad-viewer"
 "Bug Tracker" = "https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues"
