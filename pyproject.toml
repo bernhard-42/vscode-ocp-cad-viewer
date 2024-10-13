@@ -35,6 +35,9 @@ dependencies = [
     "websockets>=12.0",
 ]
 
+[tool.setuptools.packages.find]
+where = ["."]
+
 [project.optional-dependencies]
 dev = ["questionary~=1.10.0", "bump-my-version", "black", "twine"]
 
