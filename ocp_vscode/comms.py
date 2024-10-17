@@ -5,6 +5,7 @@ import enum
 import json
 import os
 import socket
+import warnings
 
 from pathlib import Path
 
@@ -34,6 +35,18 @@ CMD_URL = "ws://127.0.0.1"
 CMD_PORT = 3939
 
 INIT_DONE = False
+
+
+warnings.simplefilter("once", UserWarning)
+
+
+def warn_once(message):
+    def warning_on_one_line(message, category, filename, lineno, file=None, line=None):
+        return "%s: %s\n" % (category.__name__, message)
+
+    warnings.formatwarning = warning_on_one_line
+    warnings.warn(message, UserWarning)
+
 
 #
 # Send data to the viewer
@@ -133,8 +146,19 @@ def _send(data, message_type, port=None, timeit=False):
                 j = b"S:" + j
 
         with Timer(timeit, "", f"websocket connect ({message_type.name})", 1):
-            ws = connect(f"{CMD_URL}:{port}")
-            ws.send(j)
+            try:
+                ws = connect(f"{CMD_URL}:{port}")
+                ws.send(j)
+            except Exception as ex:
+                warn_once("The viewer doesn't seem to run")
+                # set some dummy values to avoid errors
+                return {
+                    "collapse": "none",
+                    "_splash": False,
+                    "default_facecolor": (1, 234, 56),
+                    "default_thickedgecolor": (123, 45, 6),
+                    "default_vertexcolor": (123, 45, 6),
+                }
 
         with Timer(timeit, "", f"websocket send {len(j)/1024/1024:.3f} MB", 1):
             result = None
@@ -257,10 +281,11 @@ def find_and_set_port():
                     "The right viewer cannot be auto detected, use set_port(port) in your code."
                 )
             else:
-                raise RuntimeError(
-                    "No port found via config file\n"
-                    "To change the port, use set_port(port) in your code"
-                )
+                warn_once("The viewer doesn't seem to run")
+                # raise RuntimeError(
+                #     "No port found via config file\n"
+                #     "To change the port, use set_port(port) in your code"
+                # )
 
         return port
 
@@ -270,7 +295,8 @@ def find_and_set_port():
         print(f"Using predefined port {port} taken from environment variable OCP_PORT")
     else:
         port = find_port()
-        print(f"Using port {port} taken from config file")
+        if port is not None:
+            print(f"Using port {port} taken from config file")
 
     set_port(port)
 
