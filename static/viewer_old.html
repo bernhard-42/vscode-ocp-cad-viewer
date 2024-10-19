@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Viewer</title>
+</head>
+<body>
+    <h2>Viewer Content</h2>
+    <p>This is the content inside the iframe.</p>
+    <button id="sendMessage">Send Message to Parent</button>
+    <script type="module">
+        import { postMessage } from './js/comms.js';
+
+        window.addEventListener('message', function(event) {
+            console.log('Message received from parent:', event.data);
+            // Handle the message from the parent
+        });
+
+        document.getElementById('sendMessage').addEventListener('click', function() {
+            postMessage('Hello from iframe!');
+        });
+    </script>
+</body>
+</html>
