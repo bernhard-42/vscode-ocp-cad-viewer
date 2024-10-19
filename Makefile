@@ -29,7 +29,7 @@ endif
 
 dist:
 	@echo Version: $(CURRENT_VERSION)
-	@python -m build -w -n
+	@python -m build -n
 	vsce package --yarn
 	@ls -l dist/
 
