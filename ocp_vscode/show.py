@@ -99,19 +99,23 @@ def _tessellate(
         oc.FACE_COLOR = Color(kwargs["default_facecolor"]).percentage
         del kwargs["default_facecolor"]
     else:
-        oc.FACE_COLOR = Color(conf["default_facecolor"]).percentage
+        oc.FACE_COLOR = Color(conf.get("default_facecolor", oc.FACE_COLOR)).percentage
 
     if kwargs.get("default_thickedgecolor") is not None:
         oc.THICK_EDGE_COLOR = Color(kwargs["default_thickedgecolor"]).percentage
         del kwargs["default_thickedgecolor"]
     else:
-        oc.THICK_EDGE_COLOR = Color(conf["default_thickedgecolor"]).percentage
+        oc.THICK_EDGE_COLOR = Color(
+            conf.get("default_thickedgecolor", oc.THICK_EDGE_COLOR)
+        ).percentage
 
     if kwargs.get("default_vertexcolor") is not None:
         oc.VERTEX_COLOR = Color(kwargs["default_vertexcolor"]).percentage
         del kwargs["default_vertexcolor"]
     else:
-        oc.VERTEX_COLOR = Color(conf["default_vertexcolor"]).percentage
+        oc.VERTEX_COLOR = Color(
+            conf.get("default_vertexcolor", oc.VERTEX_COLOR)
+        ).percentage
 
     # only use clipping settings when reset_camera is not RESET
     if reset_camera == Camera.RESET or kwargs.get("reset_camera") == Camera.RESET:

@@ -441,7 +441,7 @@ def workspace_config(port=None):
             "C": Collapse.ALL,
             "R": Collapse.ROOT,
         }
-        conf["collapse"] = mapping[conf["collapse"]]
+        conf["collapse"] = mapping[conf.get("collapse", "R")]
         return dict(sorted(conf.items()))
 
     except Exception as ex:

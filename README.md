@@ -21,7 +21,7 @@ _OCP CAD Viewer_ for VS Code is an extension to show [CadQuery](https://github.c
 
 ### Installation
 
-1. Open the VS Code Marketplace, and search and install _OCP CAD Viewer 2.4.1_.
+1. Open the VS Code Marketplace, and search and install _OCP CAD Viewer 2.5.0_.
 
    Afterwards the OCP viewer is available in the VS Code sidebar:
 
@@ -45,7 +45,7 @@ _OCP CAD Viewer_ for VS Code is an extension to show [CadQuery](https://github.c
 
      ![](screenshots/cadquery_installed.png)
 
-   - Ignore the quick starts and use the "Library Manager" to install the libraries. Doing so, _OCP CAD Viewer_ let's you select whether to use `pip`, `mamba`, `conda` or `poetry`. Install the needed library by pressing the green down-arrow behind the library name in the "Library Manager" section of the _OCP CAD Viewer_ sidebar. For more details, see [here](./docs/install.md)
+   - Ignore the quick starts and use the "Library Manager" to install the libraries. Doing so, _OCP CAD Viewer_ let's you select whether to use `pip`, `mamba`, `conda` or `poetry`. Install the needed library by pressing the down-arrow behind the library name (hover over the library name to see the button) in the "Library Manager" section of the _OCP CAD Viewer_ sidebar. For more details, see [here](./docs/install.md)
 
    The Quickstarts will also
 
@@ -71,7 +71,7 @@ _OCP CAD Viewer_ for VS Code is an extension to show [CadQuery](https://github.c
 
 ### Running code using Jupyter
 
-- Start the _OCP CAD Viewer_ by pressing the green box-arrow button in the "Viewer Manager" section of the _OCP CAD Viewer_ sidebar
+- Start the _OCP CAD Viewer_ by pressing the box-arrow button in the "Viewer Manager" section of the _OCP CAD Viewer_ sidebar (hover over the `ocp_vscode` entry to see the button).
 - Import ocp_vscode and the CAD library by using the paste button behing the library names in the "Viewer Manager" section
 - Use the usual Run menu to run the code
 
@@ -91,7 +91,7 @@ Note:
 
 ### Library Manager
 
-You can also use "Library Manager" in the _OCP CAD Viewer_ sidebar to manage the Python libraries for _build123d_, _cadquery_, _ipython_ and _ocp_tessellate_ (Presse the green arrow whenhovering over a library to install/upgrade it)
+You can also use "Library Manager" in the _OCP CAD Viewer_ sidebar to manage the Python libraries for _build123d_, _cadquery_, _ipython_ and _ocp_tessellate_ (Presse the down-arrow when hovering over a library name to install/upgrade it)
 
 ### Extra topics
 
@@ -126,7 +126,7 @@ You can also use "Library Manager" in the _OCP CAD Viewer_ sidebar to manage the
 
   There are 3 levels:
 
-  - Workspace configuration (part of the VS Code settings, you can access them e.g. via the green gear symbol in OCP CAD Viewer's "Viewer Manager")
+  - Workspace configuration (part of the VS Code settings, you can access them e.g. via the gear symbol in OCP CAD Viewer's "Viewer Manager" when you hover over the label "VIEWER MANAGER" to see the button)
   - Defaults set with the command `set_defaults` per Python file
   - Parameters in `show` or `show_object` per command
 
@@ -220,34 +220,19 @@ NATIVE_TESSELLATOR=1 OCP_VSCODE_PYTEST=1 pytest -v -s pytests/
 
 ## Changes
 
-v2.4.1
-
-- Fix colormap handling to keep color of objects when .color attribute is set
-- show() ends gracefully and empty lists are treated correctly
-
-v2.4.0
+v2.5.0
 
 New features
 
-- Removed `measure_tools` parameter and integrated switching between normal and measure mode into the [three-cad-viewer](https://github.com/bernhard-42/three-cad-viewer/blob/master/src/treeview.js) ([#58](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/58)).
-- Rewrote the CAD view tree to use lazy loading (switching to measure mode can increase number of nodes by more then 100 times). This changed the input format for the viewer component (states integrated into object tree now), which is a breaking change if you use threee-cad-viewer directly, but no changes for users of vscode-ocp-cad-viewer.
-- Rewrote converter of [ocp-tessellate](https://github.com/bernhard-42/ocp-tessellate/blob/main/ocp_tessellate/convert.py) to be more consistent and easier to maintain. All solids and faces can now be instances. Breaking changes if you use ocp_tessellate directly, but no changes for users of vscode-ocp-cad-viewer.
-- Added `center_grid` to workspace configuration to ensure grid planes always go through world origin ([#77](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/77)).
-- Added `save_screenshot(filename)` to save a PNG of the currently shown object(s). Canvas only, no CAD tools ([#86](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/86)).
-- Support viewing of build123d `LocationList`s.
+- New click-to-center feature: shift-meta left-click at any point will take this point projected on the objects as the viewing target ([#95](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/95))
+- Measure selections can be fully deselected on right mouse click ([#94](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/94))
+- The command `show` now warns only when viewer is not running to allow export objects without viewing ([#98](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/98))
 
-Fixes
+Fixes:
 
-- Fixed the mini-build123d `Location` class used by measurement backend.
-- Measure mode cannot work on clipped object, so disabled clipping tab when measure mode is turned on ([#55](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/55), [#70](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/70))
-- Removed using `to_tuple` for build123d Color objects ([#69](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/69)).
-- Made color handling more consistent (sometime `color` or `alpha` was ignored).
-- Fixed opening duplivcate Jupyter notebooks ([#78](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/78)).
-- Fixed measure tool related regression. ([#81](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/81), [82](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/82),).
-- Fixed ImageFace aspect ratio bug ([#83](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/83)).
-- Fixed `show_all` failing on empty ShapeList ([#90](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/90)).
-- Fixed to display ShapeList of Compound correctly ([#91](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/91)).
-- Fixed ShapeList containing different object types ([#92](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/92)).
-- Fixed measure tools to work with 1D objects ([#93](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/93)).
+- Change `reset_camera=Camera.KEEP` to adapt zoom so that view doesn not "jump" ([#105](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/105))
+- Use cachetools 5.5.0 to support Python 3.12. Additionally the resize button will now always resize to zoom level 1.0 ([#107](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/107))
+- Python paths in the extension are now quoted to allow paths with spaces ([#102](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/102))
+- The viewer window was slightly shifted to the left and did not fit the VSCode window ([#101](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/101))
 
 full change log see [CHANGELOG.md](./CHANGELOG.md)

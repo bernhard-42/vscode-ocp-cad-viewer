@@ -1,788 +1,788 @@
 {
-    "name": "ocp-cad-viewer",
-    "displayName": "OCP CAD Viewer",
-    "description": "An integrated OCP CAD viewer for CadQuery and build123d",
-    "version": "2.4.1",
-    "publisher": "bernhard-42",
-    "icon": "resources/ocp-logo.png",
-    "license": "Apache-2.0",
-    "repository": "https://github.com/bernhard-42/vscode-ocp-cad-viewer",
-    "engines": {
-        "vscode": "^1.87.0"
-    },
-    "categories": [
-        "Other"
-    ],
-    "activationEvents": [
-        "onLanguage:python",
-        "onWebviewPanel:OcpCadViewer"
-    ],
-    "main": "./out/extension.js",
-    "contributes": {
-        "commands": [
-            {
-                "command": "ocpCadViewer.toggleWatch",
-                "title": "OCP CAD Viewer: Toggle visually watching the CAD model"
-            },
-            {
-                "command": "ocpCadViewer.ocpCadViewer",
-                "title": "OCP CAD Viewer: Open viewer"
-            },
-            {
-                "command": "ocpCadViewer.openViewer",
-                "title": "OCP CAD Viewer: Open viewer (button)",
-                "icon": {
-                    "light": "resources/light/open.svg",
-                    "dark": "resources/dark/open.svg"
-                }
-            },
-            {
-                "command": "ocpCadViewer.openConsole",
-                "title": "OCP CAD Viewer: Open Jupyter Console (button)",
-                "icon": {
-                    "light": "resources/light/open.svg",
-                    "dark": "resources/dark/open.svg"
-                }
-            },
-            {
-                "command": "ocpCadViewer.installLibrary",
-                "title": "OCP CAD Viewer: Install library",
-                "icon": {
-                    "light": "resources/light/install.svg",
-                    "dark": "resources/dark/install.svg"
-                }
-            },
-            {
-                "command": "ocpCadViewer.installPythonModule",
-                "title": "OCP CAD Viewer: Install ocp_vscode library",
-                "icon": {
-                    "light": "resources/light/install.svg",
-                    "dark": "resources/dark/install.svg"
-                }
-            },
-            {
-                "command": "ocpCadViewer.installJupyterExtension",
-                "title": "OCP CAD Viewer: Install Jupyter extension 'ms-toolsai.jupyter'",
-                "icon": {
-                    "light": "resources/light/install.svg",
-                    "dark": "resources/dark/install.svg"
-                }
-            },
-            {
-                "command": "ocpCadViewer.installVscodeSnippets",
-                "title": "OCP CAD Viewer: Install CAD snippets into <project>/.vscode/"
-            },
-            {
-                "command": "ocpCadViewer.downloadExamples",
-                "title": "OCP CAD Viewer: Download examples for a specific library",
-                "icon": {
-                    "light": "resources/light/install.svg",
-                    "dark": "resources/dark/install.svg"
-                }
-            },
-            {
-                "command": "ocpCadViewer.pasteSnippet",
-                "title": "OCP CAD Viewer: Paste code snippet",
-                "icon": {
-                    "light": "resources/light/paste.svg",
-                    "dark": "resources/dark/paste.svg"
-                }
-            },
-            {
-                "command": "ocpCadViewer.refreshLibraries",
-                "title": "OCP CAD Viewer: Refresh libraries list",
-                "icon": {
-                    "light": "resources/light/refresh.svg",
-                    "dark": "resources/dark/refresh.svg"
-                }
-            },
-            {
-                "command": "ocpCadViewer.preferences",
-                "title": "OCP CAD Viewer: Open preferences",
-                "icon": {
-                    "light": "resources/light/settings.svg",
-                    "dark": "resources/dark/settings.svg"
-                }
-            },
-            {
-                "command": "ocpCadViewer.output",
-                "title": "OCP CAD Viewer: Toggle OCP CAD Viewer output panel",
-                "icon": {
-                    "light": "resources/light/output.svg",
-                    "dark": "resources/dark/output.svg"
-                }
-            },
-            {
-                "command": "ocpCadViewer.quickstart",
-                "title": "OCP CAD Viewer: Quickstart installation",
-                "args": [
-                    {
-                        "name": "app",
-                        "type": "string",
-                        "description": "cadquery or build123d"
-                    }
-                ]
-            }
-        ],
-        "viewsContainers": {
-            "activitybar": [
-                {
-                    "id": "ocpCadHome",
-                    "title": "OCP CAD Viewer",
-                    "icon": "resources/ocp-icon.svg"
-                }
-            ]
-        },
-        "views": {
-            "ocpCadHome": [
-                {
-                    "id": "ocpCadStatus",
-                    "name": "Viewer Manager"
-                },
-                {
-                    "id": "ocpCadSetup",
-                    "name": "Library Manager"
-                }
-            ]
-        },
-        "viewsWelcome": [
-            {
-                "view": "ocpCadStatus",
-                "contents": "Install all libraries for build123d:\n[Quickstart build123d](command:ocpCadViewer.quickstart?%5B%22build123d%22%5D)"
-            },
-            {
-                "view": "ocpCadStatus",
-                "contents": "Install all libraries for CadQuery:\n[Quickstart CadQuery](command:ocpCadViewer.quickstart?%5B%22cadquery%22%5D)"
-            },
-            {
-                "view": "ocpCadStatus",
-                "contents": "Further libraries can be installed or re-installed in the Library Manager below.\n\nAvailable libraries and their install (and import) commands can be found in the 'OCP CAD Viewer' preferences of VS Code."
-            },
-            {
-                "view": "ocpCadStatus",
-                "contents": "[Open OCP CAD Viewer Preferences](command:workbench.action.openSettings?%5B%22OCP%20CAD%20Viewer%22%5D)"
-            }
-        ],
-        "menus": {
-            "view/title": [
-                {
-                    "command": "ocpCadViewer.refreshLibraries",
-                    "when": "view == ocpCadSetup",
-                    "group": "navigation@1"
-                },
-                {
-                    "command": "ocpCadViewer.preferences",
-                    "when": "view == ocpCadStatus",
-                    "group": "navigation@2"
-                },
-                {
-                    "command": "ocpCadViewer.output",
-                    "when": "view == ocpCadStatus",
-                    "group": "navigation@1"
-                }
-            ],
-            "view/item/context": [
-                {
-                    "command": "ocpCadViewer.installLibrary",
-                    "when": "view == ocpCadSetup && viewItem == library",
-                    "group": "inline@0"
-                },
-                {
-                    "command": "ocpCadViewer.installJupyterExtension",
-                    "when": "view == ocpCadStatus && viewItem == jupyterExtMissing",
-                    "group": "inline@0"
-                },
-                {
-                    "command": "ocpCadViewer.downloadExamples",
-                    "when": "view == ocpCadSetup && viewItem == examples",
-                    "group": "inline@0"
-                },
-                {
-                    "command": "ocpCadViewer.pasteSnippet",
-                    "when": "view == ocpCadStatus && viewItem == library",
-                    "group": "inline@1"
-                },
-                {
-                    "command": "ocpCadViewer.pasteSnippet",
-                    "when": "view == ocpCadStatus && viewItem == status",
-                    "group": "inline@1"
-                },
-                {
-                    "command": "ocpCadViewer.pasteSnippet",
-                    "when": "view == ocpCadStatus && viewItem == open",
-                    "group": "inline@1"
-                },
-                {
-                    "command": "ocpCadViewer.openViewer",
-                    "when": "view == ocpCadStatus && viewItem == status",
-                    "group": "inline@0"
-                },
-                {
-                    "command": "ocpCadViewer.openConsole",
-                    "when": "view == ocpCadStatus && viewItem == console",
-                    "group": "inline@0"
-                }
-            ]
-        },
-        "keybindings": [
-            {
-                "command": "ocpCadViewer.ocpCadViewer",
-                "key": "ctrl+k v",
-                "mac": "cmd+k v",
-                "when": "editorTextFocus && editorLangId=='python'"
-            }
-        ],
-        "configuration": {
-            "title": "OCP CAD Viewer",
-            "properties": {
-                "OcpCadViewer.view.tree_width": {
-                    "type": "integer",
-                    "default": 240,
-                    "description": "OCP CAD Viewer navigation tree width (default: 240)",
-                    "order": 0
-                },
-                "OcpCadViewer.view.glass": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "Use glass mode with transparent navigation tree (default: true)",
-                    "order": 1
-                },
-                "OcpCadViewer.view.tools": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "Show toolbar (default: true)",
-                    "order": 2
-                },
-                "OcpCadViewer.view.new_tree_behavior": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "With the new behaviour the eye controls both icons, the mesh icon only the mesh behavior (default: true)",
-                    "order": 2
-                },
-                "OcpCadViewer.view.dark": {
-                    "type": "boolean",
-                    "default": false,
-                    "description": "Use dark mode (default: false)",
-                    "order": 3
-                },
-                "OcpCadViewer.view.orbit_control": {
-                    "type": "boolean",
-                    "default": false,
-                    "description": "Use 'orbit' control mode instead of 'trackball' (default: false)",
-                    "order": 4
-                },
-                "OcpCadViewer.view.up": {
-                    "type": "string",
-                    "enum": [
-                        "Z",
-                        "Y",
-                        "L"
-                    ],
-                    "default": "Z",
-                    "description": "Provides up direction, 'Z', 'Y' or 'L' (legacy) (default: Z)",
-                    "order": 5
-                },
-                "OcpCadViewer.view.rotate_speed": {
-                    "type": "number",
-                    "default": 1,
-                    "description": "Rotation speed (default: 1)",
-                    "order": 6
-                },
-                "OcpCadViewer.view.zoom_speed": {
-                    "type": "number",
-                    "default": 1,
-                    "description": "Zoom speed (default: 1)",
-                    "order": 7
-                },
-                "OcpCadViewer.view.pan_speed": {
-                    "type": "number",
-                    "default": 1,
-                    "description": "Pan speed (default: 1)",
-                    "order": 8
-                },
-                "OcpCadViewer.view.axes": {
-                    "type": "boolean",
-                    "default": false,
-                    "description": "Show axes (default: false)",
-                    "order": 9
-                },
-                "OcpCadViewer.view.axes0": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "Show axes at the origin (0, 0, 0) (default: true)",
-                    "order": 10
-                },
-                "OcpCadViewer.view.black_edges": {
-                    "type": "boolean",
-                    "default": false,
-                    "description": "Show edges in black (default: false)",
-                    "order": 11
-                },
-                "OcpCadViewer.view.grid_XY": {
-                    "type": "boolean",
-                    "default": false,
-                    "description": "Show grid on XY plane (default: false)",
-                    "order": 12
-                },
-                "OcpCadViewer.view.grid_YZ": {
-                    "type": "boolean",
-                    "default": false,
-                    "description": "Show grid on YZ plane (default: false)",
-                    "order": 13
-                },
-                "OcpCadViewer.view.grid_XZ": {
-                    "type": "boolean",
-                    "default": false,
-                    "description": "Show grid on XZ plane (default: false)",
-                    "order": 14
-                },
-                "OcpCadViewer.view.center_grid": {
-                    "type": "boolean",
-                    "default": false,
-                    "description": "Show grid planes crossing at center of object or global origin(default: false)",
-                    "order": 15
-                },
-                "OcpCadViewer.view.collapse": {
-                    "type": "string",
-                    "enum": [
-                        "none",
-                        "leaves",
-                        "all",
-                        "root"
-                    ],
-                    "default": "1",
-                    "description": "leaves: collapse all leaf nodes, all: collapse all nodes, none: expand all nodes, root: expand root only (default: leaves)",
-                    "order": 16
-                },
-                "OcpCadViewer.view.ortho": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "Use orthographic camera (default: true)",
-                    "order": 17
-                },
-                "OcpCadViewer.view.ticks": {
-                    "type": "number",
-                    "default": 10,
-                    "description": "Default number of ticks (default: 10)",
-                    "order": 18
-                },
-                "OcpCadViewer.view.transparent": {
-                    "type": "boolean",
-                    "default": false,
-                    "description": "Show objects transparent (default: false)",
-                    "order": 30
-                },
-                "OcpCadViewer.view.default_opacity": {
-                    "type": "number",
-                    "default": 0.5,
-                    "description": "Default opacity for transparent objects (default: 0.5)",
-                    "order": 31
-                },
-                "OcpCadViewer.view.explode": {
-                    "type": "boolean",
-                    "default": false,
-                    "description": "Turn explode mode on (default: false)",
-                    "order": 32
-                },
-                "OcpCadViewer.view.modifier_keys": {
-                    "type": "object",
-                    "default": {
-                        "shift": "shiftKey",
-                        "ctrl": "ctrlKey",
-                        "meta": "metaKey"
-                    },
-                    "description": "Mapping of modifier keys shift, ctrl and meta (cmd on Mac, Windows on Windows)",
-                    "order": 33
-                },
-                "OcpCadViewer.render.angular_tolerance": {
-                    "type": "number",
-                    "default": 0.2,
-                    "description": "Angular tolerance for tessellation algorithm (default: 0.2)",
-                    "order": 34
-                },
-                "OcpCadViewer.render.deviation": {
-                    "type": "number",
-                    "default": 0.1,
-                    "description": "Deviation of for tessellation algorithm (default: 0.1)",
-                    "order": 35
-                },
-                "OcpCadViewer.render.default_color": {
-                    "type": "string",
-                    "default": "#e8b024",
-                    "description": "Default shape color, CSS3 color names are allowed (default: #e8b024)",
-                    "order": 36
-                },
-                "OcpCadViewer.render.default_edgecolor": {
-                    "type": "string",
-                    "default": "#707070",
-                    "description": "Default color of the edges of shapes, CSS3 color names are allowed (default: #707070)",
-                    "order": 37
-                },
-                "OcpCadViewer.render.default_thickedgecolor": {
-                    "type": "string",
-                    "default": "MediumOrchid",
-                    "description": "Default color of lines, CSS3 color names are allowed (default: MediumOrchid)",
-                    "order": 38
-                },
-                "OcpCadViewer.render.default_facecolor": {
-                    "type": "string",
-                    "default": "Violet",
-                    "description": "Default color of faces, CSS3 color names are allowed (default: Violet)",
-                    "order": 39
-                },
-                "OcpCadViewer.render.default_vertexcolor": {
-                    "type": "string",
-                    "default": "MediumOrchid",
-                    "description": "Default color of vertices, CSS3 color names are allowed (default: MediumOrchid)",
-                    "order": 40
-                },
-                "OcpCadViewer.render.ambient_intensity": {
-                    "type": "number",
-                    "default": 1,
-                    "description": "Intensity of ambient light (default: 1.00)",
-                    "order": 41
-                },
-                "OcpCadViewer.render.direct_intensity": {
-                    "type": "number",
-                    "default": 1.1,
-                    "description": "Intensity of direct light (default: 1.10)",
-                    "order": 42
-                },
-                "OcpCadViewer.render.metalness": {
-                    "type": "number",
-                    "default": 0.3,
-                    "description": "Metalness property of material (default: 0.30)",
-                    "order": 43
-                },
-                "OcpCadViewer.render.roughness": {
-                    "type": "number",
-                    "default": 0.65,
-                    "description": "Roughness property of material (default: 0.65)",
-                    "order": 44
-                },
-                "OcpCadViewer.advanced.watchCommands": {
-                    "type": "string",
-                    "default": "from ocp_vscode import show_all, get_port; show_all(locals(), port=get_port(), _visual_debug=True)",
-                    "description": "Command to be executed when debugger halts. Needs to include locals()",
-                    "order": 50
-                },
-                "OcpCadViewer.advanced.watchByDefault": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "Whether to have visual debugging (OCP: on) as the default or not",
-                    "order": 51
-                },
-                "OcpCadViewer.advanced.autostart": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "Whether to start the viewer when opening Python files or not",
-                    "order": 52
-                },
-                "OcpCadViewer.advanced.autohideTerminal": {
-                    "type": "boolean",
-                    "default": false,
-                    "description": "Whether to autohide the Terminal on viewer start or not",
-                    "order": 53
-                },
-                "OcpCadViewer.advanced.initialPort": {
-                    "type": "number",
-                    "default": 3939,
-                    "description": "The start port where OCP CAD Viewer will start to search for a free port",
-                    "order": 54
-                },
-                "OcpCadViewer.advanced.quickstartCommands": {
-                    "type": "object",
-                    "description": "Shell commands to install the quickstart recipes. The values for placeholders {python}, {conda_env}, {ocp_vscode_version} will be replaced accordingly during execution",
-                    "default": {
-                        "cadquery": {
-                            "appleSilicon": [
-                                "mamba install -y -n {conda_env} -c cadquery -c conda-forge cadquery=master",
-                                "{python} -m pip install ocp_vscode=={ocp_vscode_version}"
-                            ],
-                            "others": [
-                                "{unset_conda} {python} -m pip install ocp_vscode=={ocp_vscode_version} git+https://github.com/cadquery/cadquery.git"
-                            ]
-                        },
-                        "build123d": {
-                            "appleSilicon": [
-                                "mamba install -y -n {conda_env} -c cadquery -c conda-forge cadquery=master",
-                                "{python} -m pip install --no-deps git+https://github.com/gumyr/build123d 'typing_extensions>=4.6.0,<5' 'numpy>=1.24.1,<2' 'svgpathtools>=1.5.1,<2' 'svgwrite' 'svgelements' 'anytree>=2.8.0,<3' 'ezdxf>=1.0.0,<2' 'numpy-stl>=3.0.0,<4' 'ipython>=8.0.0,<9' 'py_lib3mf>=2.3.1' 'ocpsvg' 'trianglesolver'",
-                                "{python} -m pip install ocp_vscode=={ocp_vscode_version}"
-                            ],
-                            "others": [
-                                "{python} -m pip install ocp_vscode=={ocp_vscode_version} git+https://github.com/gumyr/build123d"
-                            ]
-                        }
-                    },
-                    "order": 52
-                },
-                "OcpCadViewer.advanced.installCommands": {
-                    "type": "object",
-                    "description": "Shell commands to install Python libraries. The values for placeholders {python}, {conda_env}, {ocp_vscode_version} will be replaced accordingly during execution",
-                    "default": {
-                        "cadquery": {
-                            "pip": [
-                                "{unset_conda} {python} -m pip install git+https://github.com/cadquery/cadquery.git"
-                            ],
-                            "conda": [
-                                "conda install -y -n {conda_env} -c conda-forge -c cadquery cadquery=master"
-                            ],
-                            "mamba": [
-                                "mamba install -y -n {conda_env} -c conda-forge -c cadquery cadquery=master"
-                            ],
-                            "poetry": [
-                                "poetry add git+https://github.com/cadquery/cadquery.git"
-                            ]
-                        },
-                        "build123d": {
-                            "pip": [
-                                "{python} -m pip install git+https://github.com/gumyr/build123d.git"
-                            ],
-                            "poetry": [
-                                "poetry add git+https://github.com/gumyr/build123d.git"
-                            ]
-                        },
-                        "ocp_vscode": {
-                            "pip": [
-                                "{python} -m pip install ocp_vscode=={ocp_vscode_version}"
-                            ],
-                            "poetry": [
-                                "poetry add ocp_vscode=={ocp_vscode_version}"
-                            ]
-                        },
-                        "ocp_tessellate": {
-                            "pip": [
-                                "{python} -m pip install --upgrade \"ocp_tessellate>=3.0.4,<3.1.0\""
-                            ],
-                            "poetry": [
-                                "poetry add ocp_tessellate@~3.0.4"
-                            ]
-                        },
-                        "ipykernel": {
-                            "pip": [
-                                "{python} -m pip install --upgrade ipykernel"
-                            ],
-                            "conda": [
-                                "conda install -y -n {conda_env} -c conda-forge ipykernel"
-                            ],
-                            "mamba": [
-                                "mamba install -y -n {conda_env} -c conda-forge ipykernel"
-                            ],
-                            "poetry": [
-                                "poetry add ipykernel"
-                            ]
-                        },
-                        "jupyter_console": {
-                            "pip": [
-                                "{python} -m pip install --upgrade jupyter_console"
-                            ],
-                            "conda": [
-                                "conda install -y -n {conda_env} -c conda-forge jupyter_console"
-                            ],
-                            "mamba": [
-                                "mamba install -y -n {conda_env} -c conda-forge jupyter_console"
-                            ],
-                            "poetry": [
-                                "poetry add jupyter_console"
-                            ]
-                        }
-                    },
-                    "order": 54
-                },
-                "OcpCadViewer.advanced.codeSnippets": {
-                    "type": "object",
-                    "description": "Python snippets to import the Python libraries",
-                    "default": {
-                        "cadquery": [
-                            "import cadquery as cq"
-                        ],
-                        "build123d": [
-                            "from build123d import *"
-                        ],
-                        "ocp_vscode": [
-                            "from ocp_vscode import show, show_object, reset_show, set_port, set_defaults, get_defaults"
-                        ],
-                        "jupyter": [
-                            "\n# %%\n"
-                        ]
-                    },
-                    "order": 55
-                },
-                "OcpCadViewer.advanced.exampleDownloads": {
-                    "type": "object",
-                    "description": "Github download path for repository zip archives",
-                    "default": {
-                        "cadquery": {
-                            "zip": "https://github.com/CadQuery/cadquery/archive/refs/heads/master.zip",
-                            "example_path": "cadquery-master/examples"
-                        },
-                        "build123d": {
-                            "zip": "https://github.com/gumyr/build123d/archive/refs/heads/dev.zip",
-                            "example_path": "build123d-dev/examples"
-                        }
-                    },
-                    "order": 56
-                },
-                "OcpCadViewer.snippets.dotVscodeSnippets": {
-                    "type": "object",
-                    "description": "Python snippets to help writing CAD code",
-                    "default": {
-                        "build123d": {
-                            "BuildPart": {
-                                "scope": "python",
-                                "prefix": "bd_p",
-                                "body": [
-                                    "with {prefix}BuildPart() as ${1:partname}:",
-                                    "    $0"
-                                ]
-                            },
-                            "BuildSketch": {
-                                "scope": "python",
-                                "prefix": "bd_s",
-                                "body": [
-                                    "with {prefix}BuildSketch() as ${1:sketchname}:",
-                                    "    $0"
-                                ]
-                            },
-                            "BuildLine": {
-                                "scope": "python",
-                                "prefix": "bd_l",
-                                "body": [
-                                    "with {prefix}BuildLine() as ${1:linename}:",
-                                    "    $0"
-                                ]
-                            },
-                            "Part": {
-                                "scope": "python",
-                                "prefix": "bd_bp",
-                                "body": [
-                                    "with {prefix}BuildPart() as ${1:partname}:",
-                                    "    {prefix}${2:class}(${3:params}, align=({prefix}Align.CENTER, {prefix}Align.CENTER, {prefix}Align.CENTER))",
-                                    "    $0"
-                                ]
-                            },
-                            "Sketch": {
-                                "scope": "python",
-                                "prefix": "bd_bs",
-                                "body": [
-                                    "with {prefix}BuildSketch() as ${1:sketchname}:",
-                                    "    {prefix}${2:class}(${3:params}, align=({prefix}Align.CENTER, {prefix}Align.CENTER))",
-                                    "    $0"
-                                ]
-                            },
-                            "Line": {
-                                "scope": "python",
-                                "prefix": "bd_bl",
-                                "body": [
-                                    "with {prefix}BuildLine() as ${1:linename}:",
-                                    "    {prefix}${2:class}(${3:params})",
-                                    "    $0"
-                                ]
-                            },
-                            "LineChain": {
-                                "scope": "python",
-                                "prefix": "bd_lchain",
-                                "body": [
-                                    "with {prefix}BuildLine() as ${1:linename}:",
-                                    "    ${2:l1} = {prefix}Line((${3:start}), (${4:end}))",
-                                    "    ${5:l2} = {prefix}Line(${2:l1} @ 0, (${6:end}))",
-                                    "    ${7:l3} = {prefix}Line(${5:l2} @ 0, (${8:end}))",
-                                    "    $0"
-                                ]
-                            },
-                            "PartSketch": {
-                                "scope": "python",
-                                "prefix": "bd_pask",
-                                "body": [
-                                    "with {prefix}BuildPart() as ${1:partname}:",
-                                    "    with {prefix}BuildSketch() as ${2:sketchname}:",
-                                    "        {prefix}${3:class}(${4:params}, align=({prefix}Align.CENTER, {prefix}Align.CENTER))",
-                                    "        ${1:partname}.edges()",
-                                    "    $0"
-                                ]
-                            },
-                            "SketchLine": {
-                                "scope": "python",
-                                "prefix": "bd_skli",
-                                "body": [
-                                    "with {prefix}BuildSketch() as ${1:sketchname}:",
-                                    "    with {prefix}BuildLine() as ${2:linename}:",
-                                    "        {prefix}${3:class}(${4:params})",
-                                    "    make_face()",
-                                    "    $0"
-                                ]
-                            },
-                            "ExtrudeLine": {
-                                "scope": "python",
-                                "prefix": "bd_exli",
-                                "body": [
-                                    "with {prefix}BuildPart() as ${1:partname}:",
-                                    "    with {prefix}BuildSketch() as ${2:sketchname}:",
-                                    "        with {prefix}BuildLine() as ${3:linename}:",
-                                    "            {prefix}${4:class}(${5:params})",
-                                    "        {prefix}make_face()",
-                                    "    {prefix}extrude(amount=${6:amount})",
-                                    "    $0"
-                                ]
-                            },
-                            "ExtrudeSketch": {
-                                "scope": "python",
-                                "prefix": "bd_exsk",
-                                "body": [
-                                    "with {prefix}BuildPart() as ${1:partname}:",
-                                    "    with {prefix}BuildSketch() as ${2:sketchname}:",
-                                    "        {prefix}${3:class}(${4:params}, align=({prefix}Align.CENTER, {prefix}Align.CENTER))",
-                                    "    {prefix}extrude(amount=${5:amount})",
-                                    "    $0"
-                                ]
-                            }
-                        }
-                    },
-                    "order": 57
-                },
-                "OcpCadViewer.advanced.terminalDelay": {
-                    "type": "number",
-                    "default": 1000,
-                    "description": "Delay until terminal command is started (default: 1000)",
-                    "order": 58
-                }
-            }
+  "name": "ocp-cad-viewer",
+  "displayName": "OCP CAD Viewer",
+  "description": "An integrated OCP CAD viewer for CadQuery and build123d",
+  "version": "2.5.0",
+  "publisher": "bernhard-42",
+  "icon": "resources/ocp-logo.png",
+  "license": "Apache-2.0",
+  "repository": "https://github.com/bernhard-42/vscode-ocp-cad-viewer",
+  "engines": {
+    "vscode": "^1.87.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onLanguage:python",
+    "onWebviewPanel:OcpCadViewer"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "ocpCadViewer.toggleWatch",
+        "title": "OCP CAD Viewer: Toggle visually watching the CAD model"
+      },
+      {
+        "command": "ocpCadViewer.ocpCadViewer",
+        "title": "OCP CAD Viewer: Open viewer"
+      },
+      {
+        "command": "ocpCadViewer.openViewer",
+        "title": "OCP CAD Viewer: Open viewer (button)",
+        "icon": {
+          "light": "resources/light/open.svg",
+          "dark": "resources/dark/open.svg"
         }
-    },
-    "scripts": {
-        "vscode:prepublish": "yarn run compile",
-        "compile": "tsc -p ./",
-        "watch": "tsc -watch -p ./",
-        "pretest": "yarn run compile && yarn run lint",
-        "lint": "eslint src --ext ts",
-        "test": "node ./out/test/runTest.js"
-    },
-    "extensionDependencies": [
-        "ms-python.python"
+      },
+      {
+        "command": "ocpCadViewer.openConsole",
+        "title": "OCP CAD Viewer: Open Jupyter Console (button)",
+        "icon": {
+          "light": "resources/light/open.svg",
+          "dark": "resources/dark/open.svg"
+        }
+      },
+      {
+        "command": "ocpCadViewer.installLibrary",
+        "title": "OCP CAD Viewer: Install library",
+        "icon": {
+          "light": "resources/light/install.svg",
+          "dark": "resources/dark/install.svg"
+        }
+      },
+      {
+        "command": "ocpCadViewer.installPythonModule",
+        "title": "OCP CAD Viewer: Install ocp_vscode library",
+        "icon": {
+          "light": "resources/light/install.svg",
+          "dark": "resources/dark/install.svg"
+        }
+      },
+      {
+        "command": "ocpCadViewer.installJupyterExtension",
+        "title": "OCP CAD Viewer: Install Jupyter extension 'ms-toolsai.jupyter'",
+        "icon": {
+          "light": "resources/light/install.svg",
+          "dark": "resources/dark/install.svg"
+        }
+      },
+      {
+        "command": "ocpCadViewer.installVscodeSnippets",
+        "title": "OCP CAD Viewer: Install CAD snippets into <project>/.vscode/"
+      },
+      {
+        "command": "ocpCadViewer.downloadExamples",
+        "title": "OCP CAD Viewer: Download examples for a specific library",
+        "icon": {
+          "light": "resources/light/install.svg",
+          "dark": "resources/dark/install.svg"
+        }
+      },
+      {
+        "command": "ocpCadViewer.pasteSnippet",
+        "title": "OCP CAD Viewer: Paste code snippet",
+        "icon": {
+          "light": "resources/light/paste.svg",
+          "dark": "resources/dark/paste.svg"
+        }
+      },
+      {
+        "command": "ocpCadViewer.refreshLibraries",
+        "title": "OCP CAD Viewer: Refresh libraries list",
+        "icon": {
+          "light": "resources/light/refresh.svg",
+          "dark": "resources/dark/refresh.svg"
+        }
+      },
+      {
+        "command": "ocpCadViewer.preferences",
+        "title": "OCP CAD Viewer: Open preferences",
+        "icon": {
+          "light": "resources/light/settings.svg",
+          "dark": "resources/dark/settings.svg"
+        }
+      },
+      {
+        "command": "ocpCadViewer.output",
+        "title": "OCP CAD Viewer: Toggle OCP CAD Viewer output panel",
+        "icon": {
+          "light": "resources/light/output.svg",
+          "dark": "resources/dark/output.svg"
+        }
+      },
+      {
+        "command": "ocpCadViewer.quickstart",
+        "title": "OCP CAD Viewer: Quickstart installation",
+        "args": [
+          {
+            "name": "app",
+            "type": "string",
+            "description": "cadquery or build123d"
+          }
+        ]
+      }
     ],
-    "devDependencies": {
-        "@types/adm-zip": "^0.5.0",
-        "@types/follow-redirects": "^1.14.1",
-        "@types/glob": "^8.1.0",
-        "@types/mocha": "^10.0.1",
-        "@types/node": "^18.14.6",
-        "@types/vscode": "^1.85.0",
-        "@types/ws": "^8.5.4",
-        "@typescript-eslint/eslint-plugin": "^5.31.0",
-        "@typescript-eslint/parser": "^5.31.0",
-        "@vscode/test-electron": "^2.1.5",
-        "@vscode/vsce": "^2.19.0",
-        "eslint": "^8.20.0",
-        "glob": "^8.1.0",
-        "mocha": "^10.0.0",
-        "typescript": "4.9"
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "ocpCadHome",
+          "title": "OCP CAD Viewer",
+          "icon": "resources/ocp-icon.svg"
+        }
+      ]
     },
-    "dependencies": {
-        "@vscode/python-extension": "^1.0.0",
-        "adm-zip": "^0.5.10",
-        "follow-redirects": "^1.15.2",
-        "semver": "^7.5.1",
-        "three-cad-viewer": "^3.1.6",
-        "ws": "^8.13.0"
+    "views": {
+      "ocpCadHome": [
+        {
+          "id": "ocpCadStatus",
+          "name": "Viewer Manager"
+        },
+        {
+          "id": "ocpCadSetup",
+          "name": "Library Manager"
+        }
+      ]
+    },
+    "viewsWelcome": [
+      {
+        "view": "ocpCadStatus",
+        "contents": "Install all libraries for build123d:\n[Quickstart build123d](command:ocpCadViewer.quickstart?%5B%22build123d%22%5D)"
+      },
+      {
+        "view": "ocpCadStatus",
+        "contents": "Install all libraries for CadQuery:\n[Quickstart CadQuery](command:ocpCadViewer.quickstart?%5B%22cadquery%22%5D)"
+      },
+      {
+        "view": "ocpCadStatus",
+        "contents": "Further libraries can be installed or re-installed in the Library Manager below.\n\nAvailable libraries and their install (and import) commands can be found in the 'OCP CAD Viewer' preferences of VS Code."
+      },
+      {
+        "view": "ocpCadStatus",
+        "contents": "[Open OCP CAD Viewer Preferences](command:workbench.action.openSettings?%5B%22OCP%20CAD%20Viewer%22%5D)"
+      }
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "ocpCadViewer.refreshLibraries",
+          "when": "view == ocpCadSetup",
+          "group": "navigation@1"
+        },
+        {
+          "command": "ocpCadViewer.preferences",
+          "when": "view == ocpCadStatus",
+          "group": "navigation@2"
+        },
+        {
+          "command": "ocpCadViewer.output",
+          "when": "view == ocpCadStatus",
+          "group": "navigation@1"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "ocpCadViewer.installLibrary",
+          "when": "view == ocpCadSetup && viewItem == library",
+          "group": "inline@0"
+        },
+        {
+          "command": "ocpCadViewer.installJupyterExtension",
+          "when": "view == ocpCadStatus && viewItem == jupyterExtMissing",
+          "group": "inline@0"
+        },
+        {
+          "command": "ocpCadViewer.downloadExamples",
+          "when": "view == ocpCadSetup && viewItem == examples",
+          "group": "inline@0"
+        },
+        {
+          "command": "ocpCadViewer.pasteSnippet",
+          "when": "view == ocpCadStatus && viewItem == library",
+          "group": "inline@1"
+        },
+        {
+          "command": "ocpCadViewer.pasteSnippet",
+          "when": "view == ocpCadStatus && viewItem == status",
+          "group": "inline@1"
+        },
+        {
+          "command": "ocpCadViewer.pasteSnippet",
+          "when": "view == ocpCadStatus && viewItem == open",
+          "group": "inline@1"
+        },
+        {
+          "command": "ocpCadViewer.openViewer",
+          "when": "view == ocpCadStatus && viewItem == status",
+          "group": "inline@0"
+        },
+        {
+          "command": "ocpCadViewer.openConsole",
+          "when": "view == ocpCadStatus && viewItem == console",
+          "group": "inline@0"
+        }
+      ]
+    },
+    "keybindings": [
+      {
+        "command": "ocpCadViewer.ocpCadViewer",
+        "key": "ctrl+k v",
+        "mac": "cmd+k v",
+        "when": "editorTextFocus && editorLangId=='python'"
+      }
+    ],
+    "configuration": {
+      "title": "OCP CAD Viewer",
+      "properties": {
+        "OcpCadViewer.view.tree_width": {
+          "type": "integer",
+          "default": 240,
+          "description": "OCP CAD Viewer navigation tree width (default: 240)",
+          "order": 0
+        },
+        "OcpCadViewer.view.glass": {
+          "type": "boolean",
+          "default": true,
+          "description": "Use glass mode with transparent navigation tree (default: true)",
+          "order": 1
+        },
+        "OcpCadViewer.view.tools": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show toolbar (default: true)",
+          "order": 2
+        },
+        "OcpCadViewer.view.new_tree_behavior": {
+          "type": "boolean",
+          "default": true,
+          "description": "With the new behaviour the eye controls both icons, the mesh icon only the mesh behavior (default: true)",
+          "order": 2
+        },
+        "OcpCadViewer.view.dark": {
+          "type": "boolean",
+          "default": false,
+          "description": "Use dark mode (default: false)",
+          "order": 3
+        },
+        "OcpCadViewer.view.orbit_control": {
+          "type": "boolean",
+          "default": false,
+          "description": "Use 'orbit' control mode instead of 'trackball' (default: false)",
+          "order": 4
+        },
+        "OcpCadViewer.view.up": {
+          "type": "string",
+          "enum": [
+            "Z",
+            "Y",
+            "L"
+          ],
+          "default": "Z",
+          "description": "Provides up direction, 'Z', 'Y' or 'L' (legacy) (default: Z)",
+          "order": 5
+        },
+        "OcpCadViewer.view.rotate_speed": {
+          "type": "number",
+          "default": 1,
+          "description": "Rotation speed (default: 1)",
+          "order": 6
+        },
+        "OcpCadViewer.view.zoom_speed": {
+          "type": "number",
+          "default": 1,
+          "description": "Zoom speed (default: 1)",
+          "order": 7
+        },
+        "OcpCadViewer.view.pan_speed": {
+          "type": "number",
+          "default": 1,
+          "description": "Pan speed (default: 1)",
+          "order": 8
+        },
+        "OcpCadViewer.view.axes": {
+          "type": "boolean",
+          "default": false,
+          "description": "Show axes (default: false)",
+          "order": 9
+        },
+        "OcpCadViewer.view.axes0": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show axes at the origin (0, 0, 0) (default: true)",
+          "order": 10
+        },
+        "OcpCadViewer.view.black_edges": {
+          "type": "boolean",
+          "default": false,
+          "description": "Show edges in black (default: false)",
+          "order": 11
+        },
+        "OcpCadViewer.view.grid_XY": {
+          "type": "boolean",
+          "default": false,
+          "description": "Show grid on XY plane (default: false)",
+          "order": 12
+        },
+        "OcpCadViewer.view.grid_YZ": {
+          "type": "boolean",
+          "default": false,
+          "description": "Show grid on YZ plane (default: false)",
+          "order": 13
+        },
+        "OcpCadViewer.view.grid_XZ": {
+          "type": "boolean",
+          "default": false,
+          "description": "Show grid on XZ plane (default: false)",
+          "order": 14
+        },
+        "OcpCadViewer.view.center_grid": {
+          "type": "boolean",
+          "default": false,
+          "description": "Show grid planes crossing at center of object or global origin(default: false)",
+          "order": 15
+        },
+        "OcpCadViewer.view.collapse": {
+          "type": "string",
+          "enum": [
+            "none",
+            "leaves",
+            "all",
+            "root"
+          ],
+          "default": "1",
+          "description": "leaves: collapse all leaf nodes, all: collapse all nodes, none: expand all nodes, root: expand root only (default: leaves)",
+          "order": 16
+        },
+        "OcpCadViewer.view.ortho": {
+          "type": "boolean",
+          "default": true,
+          "description": "Use orthographic camera (default: true)",
+          "order": 17
+        },
+        "OcpCadViewer.view.ticks": {
+          "type": "number",
+          "default": 10,
+          "description": "Default number of ticks (default: 10)",
+          "order": 18
+        },
+        "OcpCadViewer.view.transparent": {
+          "type": "boolean",
+          "default": false,
+          "description": "Show objects transparent (default: false)",
+          "order": 30
+        },
+        "OcpCadViewer.view.default_opacity": {
+          "type": "number",
+          "default": 0.5,
+          "description": "Default opacity for transparent objects (default: 0.5)",
+          "order": 31
+        },
+        "OcpCadViewer.view.explode": {
+          "type": "boolean",
+          "default": false,
+          "description": "Turn explode mode on (default: false)",
+          "order": 32
+        },
+        "OcpCadViewer.view.modifier_keys": {
+          "type": "object",
+          "default": {
+            "shift": "shiftKey",
+            "ctrl": "ctrlKey",
+            "meta": "metaKey"
+          },
+          "description": "Mapping of modifier keys shift, ctrl and meta (cmd on Mac, Windows on Windows)",
+          "order": 33
+        },
+        "OcpCadViewer.render.angular_tolerance": {
+          "type": "number",
+          "default": 0.2,
+          "description": "Angular tolerance for tessellation algorithm (default: 0.2)",
+          "order": 34
+        },
+        "OcpCadViewer.render.deviation": {
+          "type": "number",
+          "default": 0.1,
+          "description": "Deviation of for tessellation algorithm (default: 0.1)",
+          "order": 35
+        },
+        "OcpCadViewer.render.default_color": {
+          "type": "string",
+          "default": "#e8b024",
+          "description": "Default shape color, CSS3 color names are allowed (default: #e8b024)",
+          "order": 36
+        },
+        "OcpCadViewer.render.default_edgecolor": {
+          "type": "string",
+          "default": "#707070",
+          "description": "Default color of the edges of shapes, CSS3 color names are allowed (default: #707070)",
+          "order": 37
+        },
+        "OcpCadViewer.render.default_thickedgecolor": {
+          "type": "string",
+          "default": "MediumOrchid",
+          "description": "Default color of lines, CSS3 color names are allowed (default: MediumOrchid)",
+          "order": 38
+        },
+        "OcpCadViewer.render.default_facecolor": {
+          "type": "string",
+          "default": "Violet",
+          "description": "Default color of faces, CSS3 color names are allowed (default: Violet)",
+          "order": 39
+        },
+        "OcpCadViewer.render.default_vertexcolor": {
+          "type": "string",
+          "default": "MediumOrchid",
+          "description": "Default color of vertices, CSS3 color names are allowed (default: MediumOrchid)",
+          "order": 40
+        },
+        "OcpCadViewer.render.ambient_intensity": {
+          "type": "number",
+          "default": 1,
+          "description": "Intensity of ambient light (default: 1.00)",
+          "order": 41
+        },
+        "OcpCadViewer.render.direct_intensity": {
+          "type": "number",
+          "default": 1.1,
+          "description": "Intensity of direct light (default: 1.10)",
+          "order": 42
+        },
+        "OcpCadViewer.render.metalness": {
+          "type": "number",
+          "default": 0.3,
+          "description": "Metalness property of material (default: 0.30)",
+          "order": 43
+        },
+        "OcpCadViewer.render.roughness": {
+          "type": "number",
+          "default": 0.65,
+          "description": "Roughness property of material (default: 0.65)",
+          "order": 44
+        },
+        "OcpCadViewer.advanced.watchCommands": {
+          "type": "string",
+          "default": "from ocp_vscode import show_all, get_port; show_all(locals(), port=get_port(), _visual_debug=True)",
+          "description": "Command to be executed when debugger halts. Needs to include locals()",
+          "order": 50
+        },
+        "OcpCadViewer.advanced.watchByDefault": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether to have visual debugging (OCP: on) as the default or not",
+          "order": 51
+        },
+        "OcpCadViewer.advanced.autostart": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether to start the viewer when opening Python files or not",
+          "order": 52
+        },
+        "OcpCadViewer.advanced.autohideTerminal": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether to autohide the Terminal on viewer start or not",
+          "order": 53
+        },
+        "OcpCadViewer.advanced.initialPort": {
+          "type": "number",
+          "default": 3939,
+          "description": "The start port where OCP CAD Viewer will start to search for a free port",
+          "order": 54
+        },
+        "OcpCadViewer.advanced.quickstartCommands": {
+          "type": "object",
+          "description": "Shell commands to install the quickstart recipes. The values for placeholders {python}, {conda_env}, {ocp_vscode_version} will be replaced accordingly during execution",
+          "default": {
+            "cadquery": {
+              "appleSilicon": [
+                "mamba install -y -n {conda_env} -c cadquery -c conda-forge cadquery=master",
+                "{python} -m pip install ocp_vscode=={ocp_vscode_version}"
+              ],
+              "others": [
+                "{unset_conda} {python} -m pip install ocp_vscode=={ocp_vscode_version} git+https://github.com/cadquery/cadquery.git"
+              ]
+            },
+            "build123d": {
+              "appleSilicon": [
+                "mamba install -y -n {conda_env} -c cadquery -c conda-forge cadquery=master",
+                "{python} -m pip install --no-deps git+https://github.com/gumyr/build123d 'typing_extensions>=4.6.0,<5' 'numpy>=1.24.1,<2' 'svgpathtools>=1.5.1,<2' 'svgwrite' 'svgelements' 'anytree>=2.8.0,<3' 'ezdxf>=1.0.0,<2' 'numpy-stl>=3.0.0,<4' 'ipython>=8.0.0,<9' 'py_lib3mf>=2.3.1' 'ocpsvg' 'trianglesolver'",
+                "{python} -m pip install ocp_vscode=={ocp_vscode_version}"
+              ],
+              "others": [
+                "{python} -m pip install ocp_vscode=={ocp_vscode_version} git+https://github.com/gumyr/build123d"
+              ]
+            }
+          },
+          "order": 52
+        },
+        "OcpCadViewer.advanced.installCommands": {
+          "type": "object",
+          "description": "Shell commands to install Python libraries. The values for placeholders {python}, {conda_env}, {ocp_vscode_version} will be replaced accordingly during execution",
+          "default": {
+            "cadquery": {
+              "pip": [
+                "{unset_conda} {python} -m pip install git+https://github.com/cadquery/cadquery.git"
+              ],
+              "conda": [
+                "conda install -y -n {conda_env} -c conda-forge -c cadquery cadquery=master"
+              ],
+              "mamba": [
+                "mamba install -y -n {conda_env} -c conda-forge -c cadquery cadquery=master"
+              ],
+              "poetry": [
+                "poetry add git+https://github.com/cadquery/cadquery.git"
+              ]
+            },
+            "build123d": {
+              "pip": [
+                "{python} -m pip install git+https://github.com/gumyr/build123d.git"
+              ],
+              "poetry": [
+                "poetry add git+https://github.com/gumyr/build123d.git"
+              ]
+            },
+            "ocp_vscode": {
+              "pip": [
+                "{python} -m pip install ocp_vscode=={ocp_vscode_version}"
+              ],
+              "poetry": [
+                "poetry add ocp_vscode=={ocp_vscode_version}"
+              ]
+            },
+            "ocp_tessellate": {
+              "pip": [
+                "{python} -m pip install --upgrade \"ocp_tessellate>=3.0.6,<3.1.0\""
+              ],
+              "poetry": [
+                "poetry add ocp_tessellate@~3.0.6"
+              ]
+            },
+            "ipykernel": {
+              "pip": [
+                "{python} -m pip install --upgrade ipykernel"
+              ],
+              "conda": [
+                "conda install -y -n {conda_env} -c conda-forge ipykernel"
+              ],
+              "mamba": [
+                "mamba install -y -n {conda_env} -c conda-forge ipykernel"
+              ],
+              "poetry": [
+                "poetry add ipykernel"
+              ]
+            },
+            "jupyter_console": {
+              "pip": [
+                "{python} -m pip install --upgrade jupyter_console"
+              ],
+              "conda": [
+                "conda install -y -n {conda_env} -c conda-forge jupyter_console"
+              ],
+              "mamba": [
+                "mamba install -y -n {conda_env} -c conda-forge jupyter_console"
+              ],
+              "poetry": [
+                "poetry add jupyter_console"
+              ]
+            }
+          },
+          "order": 54
+        },
+        "OcpCadViewer.advanced.codeSnippets": {
+          "type": "object",
+          "description": "Python snippets to import the Python libraries",
+          "default": {
+            "cadquery": [
+              "import cadquery as cq"
+            ],
+            "build123d": [
+              "from build123d import *"
+            ],
+            "ocp_vscode": [
+              "from ocp_vscode import show, show_object, reset_show, set_port, set_defaults, get_defaults"
+            ],
+            "jupyter": [
+              "\n# %%\n"
+            ]
+          },
+          "order": 55
+        },
+        "OcpCadViewer.advanced.exampleDownloads": {
+          "type": "object",
+          "description": "Github download path for repository zip archives",
+          "default": {
+            "cadquery": {
+              "zip": "https://github.com/CadQuery/cadquery/archive/refs/heads/master.zip",
+              "example_path": "cadquery-master/examples"
+            },
+            "build123d": {
+              "zip": "https://github.com/gumyr/build123d/archive/refs/heads/dev.zip",
+              "example_path": "build123d-dev/examples"
+            }
+          },
+          "order": 56
+        },
+        "OcpCadViewer.snippets.dotVscodeSnippets": {
+          "type": "object",
+          "description": "Python snippets to help writing CAD code",
+          "default": {
+            "build123d": {
+              "BuildPart": {
+                "scope": "python",
+                "prefix": "bd_p",
+                "body": [
+                  "with {prefix}BuildPart() as ${1:partname}:",
+                  "    $0"
+                ]
+              },
+              "BuildSketch": {
+                "scope": "python",
+                "prefix": "bd_s",
+                "body": [
+                  "with {prefix}BuildSketch() as ${1:sketchname}:",
+                  "    $0"
+                ]
+              },
+              "BuildLine": {
+                "scope": "python",
+                "prefix": "bd_l",
+                "body": [
+                  "with {prefix}BuildLine() as ${1:linename}:",
+                  "    $0"
+                ]
+              },
+              "Part": {
+                "scope": "python",
+                "prefix": "bd_bp",
+                "body": [
+                  "with {prefix}BuildPart() as ${1:partname}:",
+                  "    {prefix}${2:class}(${3:params}, align=({prefix}Align.CENTER, {prefix}Align.CENTER, {prefix}Align.CENTER))",
+                  "    $0"
+                ]
+              },
+              "Sketch": {
+                "scope": "python",
+                "prefix": "bd_bs",
+                "body": [
+                  "with {prefix}BuildSketch() as ${1:sketchname}:",
+                  "    {prefix}${2:class}(${3:params}, align=({prefix}Align.CENTER, {prefix}Align.CENTER))",
+                  "    $0"
+                ]
+              },
+              "Line": {
+                "scope": "python",
+                "prefix": "bd_bl",
+                "body": [
+                  "with {prefix}BuildLine() as ${1:linename}:",
+                  "    {prefix}${2:class}(${3:params})",
+                  "    $0"
+                ]
+              },
+              "LineChain": {
+                "scope": "python",
+                "prefix": "bd_lchain",
+                "body": [
+                  "with {prefix}BuildLine() as ${1:linename}:",
+                  "    ${2:l1} = {prefix}Line((${3:start}), (${4:end}))",
+                  "    ${5:l2} = {prefix}Line(${2:l1} @ 0, (${6:end}))",
+                  "    ${7:l3} = {prefix}Line(${5:l2} @ 0, (${8:end}))",
+                  "    $0"
+                ]
+              },
+              "PartSketch": {
+                "scope": "python",
+                "prefix": "bd_pask",
+                "body": [
+                  "with {prefix}BuildPart() as ${1:partname}:",
+                  "    with {prefix}BuildSketch() as ${2:sketchname}:",
+                  "        {prefix}${3:class}(${4:params}, align=({prefix}Align.CENTER, {prefix}Align.CENTER))",
+                  "        ${1:partname}.edges()",
+                  "    $0"
+                ]
+              },
+              "SketchLine": {
+                "scope": "python",
+                "prefix": "bd_skli",
+                "body": [
+                  "with {prefix}BuildSketch() as ${1:sketchname}:",
+                  "    with {prefix}BuildLine() as ${2:linename}:",
+                  "        {prefix}${3:class}(${4:params})",
+                  "    make_face()",
+                  "    $0"
+                ]
+              },
+              "ExtrudeLine": {
+                "scope": "python",
+                "prefix": "bd_exli",
+                "body": [
+                  "with {prefix}BuildPart() as ${1:partname}:",
+                  "    with {prefix}BuildSketch() as ${2:sketchname}:",
+                  "        with {prefix}BuildLine() as ${3:linename}:",
+                  "            {prefix}${4:class}(${5:params})",
+                  "        {prefix}make_face()",
+                  "    {prefix}extrude(amount=${6:amount})",
+                  "    $0"
+                ]
+              },
+              "ExtrudeSketch": {
+                "scope": "python",
+                "prefix": "bd_exsk",
+                "body": [
+                  "with {prefix}BuildPart() as ${1:partname}:",
+                  "    with {prefix}BuildSketch() as ${2:sketchname}:",
+                  "        {prefix}${3:class}(${4:params}, align=({prefix}Align.CENTER, {prefix}Align.CENTER))",
+                  "    {prefix}extrude(amount=${5:amount})",
+                  "    $0"
+                ]
+              }
+            }
+          },
+          "order": 57
+        },
+        "OcpCadViewer.advanced.terminalDelay": {
+          "type": "number",
+          "default": 1000,
+          "description": "Delay until terminal command is started (default: 1000)",
+          "order": 58
+        }
+      }
     }
+  },
+  "scripts": {
+    "vscode:prepublish": "yarn run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "yarn run compile && yarn run lint",
+    "lint": "eslint src --ext ts",
+    "test": "node ./out/test/runTest.js"
+  },
+  "extensionDependencies": [
+    "ms-python.python"
+  ],
+  "devDependencies": {
+    "@types/adm-zip": "^0.5.0",
+    "@types/follow-redirects": "^1.14.1",
+    "@types/glob": "^8.1.0",
+    "@types/mocha": "^10.0.1",
+    "@types/node": "^18.14.6",
+    "@types/vscode": "^1.85.0",
+    "@types/ws": "^8.5.4",
+    "@typescript-eslint/eslint-plugin": "^5.31.0",
+    "@typescript-eslint/parser": "^5.31.0",
+    "@vscode/test-electron": "^2.1.5",
+    "@vscode/vsce": "^2.19.0",
+    "eslint": "^8.20.0",
+    "glob": "^8.1.0",
+    "mocha": "^10.0.0",
+    "typescript": "4.9"
+  },
+  "dependencies": {
+    "@vscode/python-extension": "^1.0.0",
+    "adm-zip": "^0.5.10",
+    "follow-redirects": "^1.15.2",
+    "semver": "^7.5.1",
+    "three-cad-viewer": "3.1.7",
+    "ws": "^8.13.0"
+  }
 }

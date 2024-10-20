@@ -15,6 +15,7 @@
         var _config = null;
         var _zoom = null;
         var _position = null;
+        var _camera_distance = null;
         var _quaternion = null;
         var _target = null;
         var _clipping = {
@@ -303,7 +304,7 @@
 
         function normalizeWidth(width, glass) {
             const treeWidth = glass ? 0 : preset(_config, "treeWidth", displayDefaultOptions.treeWidth);
-            return Math.max(minWidth, width - treeWidth - 42);
+            return Math.max(minWidth - treeWidth, width - treeWidth - 20);
         }
 
         function normalizeHeight(height) {
@@ -329,10 +330,11 @@
             const treeWidth = glass ? 0 : preset(_config, "treeWidth", displayDefaultOptions.treeWidth);
             const keymap = preset(_config, "modifier_keys", viewerDefaultOptions.keymap);
             const newTreeBehavior = preset(_config, "new_tree_behavior", viewerDefaultOptions.newTreeBehavior);
+            const cadWidth = normalizeWidth(size.width, glass);
             return {
                 glass: glass,
                 treeWidth: treeWidth,
-                cadWidth: normalizeWidth(size.width, glass),
+                cadWidth: cadWidth,
                 height: normalizeHeight(size.height),
                 theme: theme,
                 tools: tools,
@@ -429,16 +431,16 @@
                 length(center)
             );
 
-            if ((reset_camera === "keep") && (last_bb_radius != null) && ((bb_radius < last_bb_radius / 2) || (bb_radius > last_bb_radius * 2))) {
-                reset_camera = "center";
-                const msg = `Bounding box 2 times smaller/larger than before, changed reset_camera to Camera.CENTER`;
-                send("info", msg);
-                if (_config.debug) {
-                    console.log(msg);
-                }
-            }
+            // if ((reset_camera === "keep") && (last_bb_radius != null) && ((bb_radius < last_bb_radius / 2) || (bb_radius > last_bb_radius * 2))) {
+            //     reset_camera = "center";
+            //     const msg = `Bounding box 2 times smaller/larger than before, changed reset_camera to Camera.CENTER`;
+            //     send("info", msg);
+            //     if (_config.debug) {
+            //         console.log(msg);
+            //     }
+            // }
             last_bb_radius = bb_radius;
-
+            // console.log("bb_radius", bb_radius)
             if (reset_camera === "reset") {
                 // even if reset is requested, respect the position settings from the object
 
@@ -481,6 +483,7 @@
                 if (_config.clip_object_colors != undefined) {
                     viewerOptions.clipObjectColors = _config.clip_object_colors;
                 }
+                _camera_distance = null;
 
             } else {
                 if (_config.position) {
@@ -578,11 +581,17 @@
                 renderOptions,
                 viewerOptions,
             );
-
+            if (reset_camera === "keep" && _camera_distance != null) {
+                // console.log("camera_distance", _camera_distance, viewer.camera.camera_distance, viewer.camera.camera_distance/_camera_distance);
+                viewer.setCameraZoom((_zoom==null ? 1.0 : _zoom) * viewer.camera.camera_distance / _camera_distance)
+            }
+            console.log("camera", viewer.camera.camera_distance)
             _position = message["position"] = viewer.getCameraPosition();
             _quaternion = message["quaternion"] = viewer.getCameraQuaternion();
             _target = message["target"] = viewer.controls.getTarget().toArray();
             _zoom = message["zoom"] = viewer.getCameraZoom();
+            _camera_distance = viewer.camera.camera_distance;
+            
             _clipping = {
                 "sliders": [viewer.getClipSlider(0), viewer.getClipSlider(1), viewer.getClipSlider(2)],
                 "normals": [viewer.getClipNormal(0), viewer.getClipNormal(1), viewer.getClipNormal(2)],
@@ -603,8 +612,10 @@
         }
 
         window.addEventListener('resize', function (event) {
-            const displayOptions = getDisplayOptions();
-            viewer.resizeCadView(displayOptions.cadWidth, displayOptions.treeWidth, displayOptions.height, displayOptions.glass);
+            if (viewer != null) {
+                const displayOptions = getDisplayOptions();
+                viewer.resizeCadView(displayOptions.cadWidth, displayOptions.treeWidth, displayOptions.height, displayOptions.glass);
+            }
         }, true);
 
         console.log("resize listener registered");
@@ -778,7 +789,7 @@
     </script>
 </head>
 
-<body>
+<body style="padding:0px; width:fit-content;">
     <div id="cad_viewer"></div>
 </body>
 
