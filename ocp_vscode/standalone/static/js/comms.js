@@ -1,34 +1,47 @@
 function handleMessage(message) {
-    console.log("Handling message:", message);
-    window.postMessage(message, window.location.origin);
+  console.log("Handling message");
+  window.postMessage(message, window.location.origin);
 }
 
-function connect() {
-    const socket = new WebSocket("ws://127.0.0.1:5000");
+class Comms {
+  constructor() {
+    this.socket = new WebSocket("ws://127.0.0.1:5000");
+    this.ready = false;
 
-    socket.onopen = function (event) {
-        console.log("WebSocket connection established");
-        sendListening();
+    this.socket.onopen = (event) => {
+      console.log("WebSocket connection established");
+      this.ready = true;
+      this.register();
     };
 
-    socket.onmessage = function (event) {
-        console.log("Message received from server:", event.data);
-        handleMessage(event.data);
-        sendListening();
+    this.socket.onmessage = (event) => {
+      console.log(
+        "Message received from server:",
+        event.data.substring(0, 200) + "..."
+      );
+      handleMessage(event.data);
     };
 
-    socket.onerror = function (error) {
-        console.error("WebSocket error:", error);
+    this.socket.onerror = (error) => {
+      console.error("WebSocket error:", error);
     };
 
-    socket.onclose = function (event) {
-        console.log("WebSocket connection closed");
+    this.socket.onclose = (event) => {
+      console.log("WebSocket connection closed");
     };
+  }
 
-    function sendListening() {
-        socket.send('L:"listening"');
+  register() {
+    const msg = "L:{}";
+    this.socket.send(msg);
+  }
+
+  sendStatus(status) {
+    if (this.ready) {
+      const msg = `U:${JSON.stringify(status)}`;
+      this.socket.send(msg);
     }
-    return socket;
+  }
 }
 
-export { connect };
+export { Comms };

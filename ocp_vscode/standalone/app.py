@@ -5,8 +5,6 @@ from simple_websocket import ConnectionClosed
 
 app = Flask(__name__)
 sock = Sock(app)
-viewer_message = {}
-splash = True
 
 
 def config():
@@ -29,10 +27,46 @@ def index():
 python_client = None
 javascript_client = None
 
+config = {
+    "axes": False,
+    "axes0": False,
+    "grid": [False, False, False],
+    "ortho": True,
+    "transparent": False,
+    "blackEdges": False,
+    "collapse": "R",
+    "clipIntersection": False,
+    "clipPlaneHelpers": False,
+    "clipObjectColors": False,
+    "clipNormal0": [-1, 0, 0],
+    "clipNormal1": [0, -1, 0],
+    "clipNormal2": [0, 0, -1],
+    "clipSlider0": -1,
+    "clipSlider1": -1,
+    "clipSlider2": -1,
+    "control": "orbit",
+    "up": "Z",
+    "ticks": 10,
+    "centerGrid": False,
+    "position": None,
+    "quaternion": None,
+    "target": None,
+    "measureTools": True,
+    "zoom": 1,
+    "panSpeed": 0.5,
+    "rotateSpeed": 1.0,
+    "zoomSpeed": 0.5,
+    "timeit": False,
+    "default_edgecolor": "#808080",
+    "default_color": "#e8b024",
+}
+
+splash = True
+
 
 @sock.route("/")
 def handle_message(ws):
-    global python_client, javascript_client
+    global python_client, javascript_client, config, splash
 
     try:
         while True:
@@ -42,16 +76,17 @@ def handle_message(ws):
 
             message_type = data[0]
             data = data[2:]
-            debug_print("Received data from viewer", message_type)
+            debug_print("Received data from viewer", message_type, data)
 
             if message_type == "C":
                 python_client = ws
                 cmd = orjson.loads(data)
-                print(cmd)
                 if cmd == "status":
-                    python_client.send(orjson.dumps({"text": viewer_message}))
+                    print("status")
+                    python_client.send(orjson.dumps({"text": config}))
                 elif cmd == "config":
-                    python_client.send(orjson.dumps(config()))
+                    config["_splash"] = splash
+                    python_client.send(orjson.dumps(config))
                 elif cmd.type == "screenshot":
                     python_client(orjson.dumps(cmd))
 
@@ -59,9 +94,15 @@ def handle_message(ws):
                 python_client = ws
                 debug_print("Received a new model")
                 javascript_client.send(data)
-                debug_print("Posted model to view")
                 if splash:
                     splash = False
+
+            elif message_type == "U":
+                javascript_client = ws
+                debug_print("Received incremental UI changes")
+                print(data)
+                for key, value in orjson.loads(data).items():
+                    config[key] = value
 
             elif message_type == "S":
                 python_client = ws
@@ -71,7 +112,7 @@ def handle_message(ws):
 
             elif message_type == "L":
                 javascript_client = ws
-                debug_print("Listener registered")
+                debug_print("Listener registered", data)
 
             # elif message_type == "B":
             #     handle_backend(data)
