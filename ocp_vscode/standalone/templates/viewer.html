@@ -30,7 +30,7 @@
         var last_bb_radius = null;
 
         const minWidth = 735;
-        const vscode = {postmessage: window.parent.postMessage};
+        const vscode = {postMessage: (msg) => {window.postMessage(JSON.stringify(msg), window.location.origin)}};
         var message = {};
 
         const displayDefaultOptions = {

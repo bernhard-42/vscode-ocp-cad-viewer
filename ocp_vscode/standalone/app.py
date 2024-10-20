@@ -1,7 +1,7 @@
+import orjson
 from flask import Flask, render_template
 from flask_sock import Sock
 from simple_websocket import ConnectionClosed
-import orjson
 
 app = Flask(__name__)
 sock = Sock(app)
@@ -17,10 +17,6 @@ def debug_print(*msg):
     print("Debug:", *msg)
 
 
-def post_message(msg):
-    print("Posted message: " + msg)
-
-
 def handle_backend(data):
     print("Backend data: " + data)
 
@@ -30,56 +26,72 @@ def index():
     return render_template("viewer.html")
 
 
+python_client = None
+javascript_client = None
+
+
 @sock.route("/")
 def handle_message(ws):
+    global python_client, javascript_client
+
     try:
         while True:
-            data = ws.receive().decode("utf-8")
+            data = ws.receive()
+            if isinstance(data, bytes):
+                data = data.decode("utf-8")
 
-            debug_print("Received data from viewer", data)
             message_type = data[0]
             data = data[2:]
-            debug_print("Message type", message_type)
-            debug_print("Data", data)
+            debug_print("Received data from viewer", message_type)
+
             if message_type == "C":
+                python_client = ws
                 cmd = orjson.loads(data)
+                print(cmd)
                 if cmd == "status":
-                    ws.send(orjson.dumps(viewer_message))
+                    python_client.send(orjson.dumps({"text": viewer_message}))
                 elif cmd == "config":
-                    ws.send(orjson.dumps(config()))
+                    python_client.send(orjson.dumps(config()))
                 elif cmd.type == "screenshot":
-                    post_message(orjson.dumps(cmd))
+                    python_client(orjson.dumps(cmd))
 
             elif message_type == "D":
+                python_client = ws
                 debug_print("Received a new model")
-                post_message(data)
+                javascript_client.send(data)
                 debug_print("Posted model to view")
                 if splash:
                     splash = False
 
             elif message_type == "S":
+                python_client = ws
                 debug_print("Received a config")
-                post_message(data)
+                javascript_client.send(data)
                 debug_print("Posted config to view")
 
             elif message_type == "L":
-                # pythonListener = socket
+                javascript_client = ws
                 debug_print("Listener registered")
 
-            elif message_type == "B":
-                handle_backend(data)
-                debug_print("Model data sent to the backend")
+            # elif message_type == "B":
+            #     handle_backend(data)
+            #     debug_print("Model data sent to the backend")
 
-            elif message_type == "R":
-                post_message(data)
-                debug_print("Backend response received.")
+            # elif message_type == "R":
+            #     python_client = ws
+            #     post_message(data)
+            #     debug_print("Backend response received.")
 
-            if message_type == "C" and not (
-                isinstance(data, dict) and data["type"] == "screenshot"
-            ):
-                ws.send(orjson.dumps({}))
+            # if message_type == "C" and not (
+            #     isinstance(data, dict) and data["type"] == "screenshot"
+            # ):
+            #     ws.send(orjson.dumps({}))
+
     except ConnectionClosed:
         print("Client disconnected")
+
+    except Exception as e:
+        print("Error:", e)
 
 
 if __name__ == "__main__":
