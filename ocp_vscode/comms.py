@@ -133,22 +133,18 @@ def _send(data, message_type, port=None, timeit=False):
                 j = b"S:" + j
 
         with Timer(timeit, "", f"websocket connect ({message_type.name})", 1):
-            ws = connect(f"{CMD_URL}:{port}")
-            ws.send(j)
+            with connect(f"{CMD_URL}:{port}", close_timeout=0.05) as ws:
+                ws.send(j)
 
-        with Timer(timeit, "", f"websocket send {len(j)/1024/1024:.3f} MB", 1):
-            result = None
-            if message_type == MessageType.COMMAND and not (
-                isinstance(data, dict) and data["type"] == "screenshot"
-            ):
-                try:
-                    result = json.loads(ws.recv())
-                except Exception as ex:  # pylint: disable=broad-except
-                    print(ex)
-            try:
-                ws.close()
-            except Exception as ex:  # pylint: disable=bare-except
-                pass
+                with Timer(timeit, "", f"websocket send {len(j)/1024/1024:.3f} MB", 1):
+                    result = None
+                    if message_type == MessageType.COMMAND and not (
+                        isinstance(data, dict) and data["type"] == "screenshot"
+                    ):
+                        try:
+                            result = json.loads(ws.recv())
+                        except Exception as ex:  # pylint: disable=broad-except
+                            print(ex)
 
         return result
 
