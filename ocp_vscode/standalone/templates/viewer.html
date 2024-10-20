@@ -5,10 +5,14 @@
 <head>
     <meta charset="utf-8" />
     <title>OCP CAD Viewer</title>
-    <link rel="stylesheet" href="https://unpkg.com/three-cad-viewer@3.1.6/dist/three-cad-viewer.css" />
-    <script src="https://unpkg.com/browse/three-cad-viewer@3.1.6/dist/three-cad-viewer.esm.js"></script>
+    <link rel="stylesheet" href="static/css//three-cad-viewer.css" />
+    <script type="module"  src="static/js/three-cad-viewer.esm.js"></script>
+    <script type="module" srv="static/js/comms.js"></script>
     <script type="module">
-        // import { Viewer, Timer } from "{ scriptSrc }";
+        import { Viewer, Timer } from "./static/js/three-cad-viewer.esm.js";
+        import { connect } from "./static/js/comms.js";
+        var socket = connect();
+        console.log(socket)
         var viewer = null;
         var _shapes = null;
         var _states = null;
@@ -785,12 +789,12 @@
             }
         });
         console.log("message listener registered");
-
+        window.showViewer = showViewer;
     </script>
 </head>
 
-<body style="padding:0px; width:fit-content;">
-    <div id="cad_viewer"></div>
+<body style="padding:0px; width:fit-content;" onload="showViewer()">
+    <div id="cad_viewer">Loaded...</div>
 </body>
 
 </html>
