@@ -21,7 +21,7 @@ _OCP CAD Viewer_ for VS Code is an extension to show [CadQuery](https://github.c
 
 ### Installation
 
-1. Open the VS Code Marketplace, and search and install _OCP CAD Viewer 2.5.1_.
+1. Open the VS Code Marketplace, and search and install _OCP CAD Viewer 2.5.3_.
 
    Afterwards the OCP viewer is available in the VS Code sidebar:
 
@@ -220,12 +220,9 @@ NATIVE_TESSELLATOR=1 OCP_VSCODE_PYTEST=1 pytest -v -s pytests/
 
 ## Changes
 
-v2.5.1 
+v2.5.3
 
-Fixes:
-
-- Fix regression that backend did not start any more on Windows
-
+- Fix regression that backend couldn't start on Windows (wrong quotes)
 
 v2.5.0
 
