@@ -2,6 +2,13 @@
 
 All notable changes to the "OCP CAD Viewer" extension will be documented in this file.
 
+v2.5.1 
+
+Fixes:
+
+- Fix regression that backend did not start any more on Windows
+
+
 v2.5.0
 
 New features

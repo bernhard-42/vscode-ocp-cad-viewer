@@ -220,6 +220,13 @@ NATIVE_TESSELLATOR=1 OCP_VSCODE_PYTEST=1 pytest -v -s pytests/
 
 ## Changes
 
+v2.5.1 
+
+Fixes:
+
+- Fix regression that backend did not start any more on Windows
+
+
 v2.5.0
 
 New features
