@@ -33,7 +33,6 @@
         const minWidth = 735;
         const comms = new Comms();
         const vscode = {postMessage: (msg) => {
-            // window.postMessage(JSON.stringify(msg), window.location.origin)}
                 comms.sendStatus(msg);
             }
         };

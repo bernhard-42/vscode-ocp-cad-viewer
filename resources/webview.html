@@ -585,7 +585,7 @@
                 // console.log("camera_distance", _camera_distance, viewer.camera.camera_distance, viewer.camera.camera_distance/_camera_distance);
                 viewer.setCameraZoom((_zoom==null ? 1.0 : _zoom) * viewer.camera.camera_distance / _camera_distance)
             }
-            console.log("camera", viewer.camera.camera_distance)
+
             _position = message["position"] = viewer.getCameraPosition();
             _quaternion = message["quaternion"] = viewer.getCameraQuaternion();
             _target = message["target"] = viewer.controls.getTarget().toArray();

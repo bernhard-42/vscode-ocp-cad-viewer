@@ -60,7 +60,7 @@ config = {
     "default_edgecolor": "#808080",
     "default_color": "#e8b024",
 }
-
+status = {}
 splash = True
 
 
@@ -82,8 +82,7 @@ def handle_message(ws):
                 python_client = ws
                 cmd = orjson.loads(data)
                 if cmd == "status":
-                    print("status")
-                    python_client.send(orjson.dumps({"text": config}))
+                    python_client.send(orjson.dumps({"text": status}))
                 elif cmd == "config":
                     config["_splash"] = splash
                     python_client.send(orjson.dumps(config))
@@ -102,7 +101,7 @@ def handle_message(ws):
                 debug_print("Received incremental UI changes")
                 print(data)
                 for key, value in orjson.loads(data).items():
-                    config[key] = value
+                    status[key] = value
 
             elif message_type == "S":
                 python_client = ws
