@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ocp_vscode"
-version = "2.5.2"
+version = "2.5.3"
 authors = [{ name = "Bernhard Walter", email = "b_walter@arcor.de" }]
 description = "OCP CAD Viewer for VSCode"
 readme = "README.md"
@@ -54,7 +54,7 @@ line-length = 88
 # bump-my-version settings
 
 [tool.bumpversion]
-current_version = "2.5.2"
+current_version = "2.5.3"
 commit = false
 tag = false
 parse = "(?P<major>\\d+)\\.(?P<minor>\\d+)\\.(?P<patch>\\d+)(?P<release>\\d*)(?P<build>\\d*)"
