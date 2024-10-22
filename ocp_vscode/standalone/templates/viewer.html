@@ -31,7 +31,7 @@
         var last_bb_radius = null;
 
         const minWidth = 735;
-        const comms = new Comms();
+        const comms = new Comms({{ port }});
         const vscode = {postMessage: (msg) => {
                 comms.sendStatus(msg);
             }
@@ -49,10 +49,10 @@
         const displayDefaultOptions = {
             cadWidth: 730,
             height: 525,
-            treeWidth: 240, // { treeWidth },
-            glass: true, // { glass },
-            theme: "light", // '{ theme }',
-            tools: true, // { tools },
+            treeWidth: {{ treeWidth }},
+            glass: {{ glass|tojson }},
+            theme: '{{ theme }}',
+            tools: {{ tools|tojson }},
             pinning: false,
             measureTools: false,
             keymap: {
@@ -64,14 +64,14 @@
 
         const viewerDefaultOptions = {
             timeit: false,
-            tools: true, //{ tools },
-            glass: true, //{ glass },
-            up: "Z", // '{ up }',
+            tools: {{ tools|tojson }},
+            glass: {{ glass|tojson }},
+            up: '{{ up }}',
             zoom: 1.0,
             position: null,
             quaternion: null,
             target: null,
-            control: "trackball", // '{ control }',
+            control: '{{ control }}',
             centerGrid: false,
             newTreeBehavior: true,
         };
