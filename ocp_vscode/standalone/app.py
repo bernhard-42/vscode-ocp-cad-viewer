@@ -1,162 +1,21 @@
 import click
-import orjson
-from flask import Flask, render_template
-from flask_sock import Sock
-from simple_websocket import ConnectionClosed
-from ocp_vscode.backend import ViewerBackend
-from ocp_vscode.backend_logo import logo
-from ocp_vscode.comms import MessageType
-
-
-DEBUG = True
-
-app = Flask(__name__)
-sock = Sock(app)
-backend = None
-
-
-def config():
-    return {"_splash": splash}
-
-
-def debug_print(*msg):
-    if DEBUG:
-        print("Debug:", *msg)
-
-
-python_client = None
-javascript_client = None
-
-config = {
-    "glass": True,
-    "tools": True,
-    "treeWidth": 240,
-    "axes": False,
-    "axes0": False,
-    "grid": [False, False, False],
-    "ortho": True,
-    "transparent": False,
-    "blackEdges": False,
-    "collapse": "R",
-    "clipIntersection": False,
-    "clipPlaneHelpers": False,
-    "clipObjectColors": False,
-    "clipNormal0": [-1, 0, 0],
-    "clipNormal1": [0, -1, 0],
-    "clipNormal2": [0, 0, -1],
-    "clipSlider0": -1,
-    "clipSlider1": -1,
-    "clipSlider2": -1,
-    "control": "orbit",
-    "up": "Z",
-    "ticks": 10,
-    "centerGrid": False,
-    "position": None,
-    "quaternion": None,
-    "target": None,
-    "zoom": 1,
-    "panSpeed": 0.5,
-    "rotateSpeed": 1.0,
-    "zoomSpeed": 0.5,
-    "timeit": False,
-    "default_edgecolor": "#808080",
-    "default_color": "#e8b024",
-    "debug": False,
-}
-status = {}
-splash = True
-port = None
-
-
-@app.route("/viewer")
-def index():
-    return render_template("viewer.html", port=port, **config)
-
-
-@sock.route("/")
-def handle_message(ws):
-    global python_client, javascript_client, config, status, splash
-
-    try:
-        while True:
-            data = ws.receive()
-            if isinstance(data, bytes):
-                data = data.decode("utf-8")
-
-            message_type = data[0]
-            data = data[2:]
-
-            if message_type == "C":
-                python_client = ws
-                cmd = orjson.loads(data)
-                if cmd == "status":
-                    debug_print("Received status command")
-                    python_client.send(orjson.dumps({"text": status}))
-                elif cmd == "config":
-                    debug_print("Received config command")
-                    config["_splash"] = splash
-                    python_client.send(orjson.dumps(config))
-                elif cmd.type == "screenshot":
-                    debug_print("Received screenshot command")
-                    python_client(orjson.dumps(cmd))
-
-            elif message_type == "D":
-                python_client = ws
-                debug_print("Received a new model")
-                javascript_client.send(data)
-                if splash:
-                    splash = False
-
-            elif message_type == "U":
-                javascript_client = ws
-                debug_print("Received incremental UI changes")
-                changes = orjson.loads(data)["text"]
-                for key, value in changes.items():
-                    status[key] = value
-                backend.handle_event(changes, MessageType.UPDATES)
-
-            elif message_type == "S":
-                python_client = ws
-                debug_print("Received a config")
-                javascript_client.send(data)
-                debug_print("Posted config to view")
-
-            elif message_type == "L":
-                javascript_client = ws
-                debug_print("Javascript listener registered", data)
-
-            elif message_type == "B":
-                model = orjson.loads(data)["model"]
-                backend.handle_event(model, MessageType.DATA)
-                debug_print("Model data sent to the backend")
-
-            elif message_type == "R":
-                python_client = ws
-                javascript_client.send(data)
-                debug_print("Backend response received.", data)
-
-    except ConnectionClosed:
-        debug_print("Client disconnected")
-        pass
-
-    except Exception as e:
-        print("Error:", e)
-
-
-def to_camel(s):
-    parts = s.split("_")
-    return parts[0] + "".join(x.title() for x in parts[1:])
+from ocp_vscode.standalone.handler import Viewer
 
 
 @click.command()
 @click.option(
+    "--host",
+    default="127.0.0.1",
+    help="The host to start OCP CAD with",
+)
+@click.option(
     "--port",
     default=3939,
-    help="The port where OCP CAD Viewer will start",
+    help="The port to start OCP CAD with",
 )
 @click.option(
     "--debug",
-    default=False,
+    is_flag=True,
     help="Show debugging information",
 )
 @click.option(
@@ -165,9 +24,9 @@ def to_camel(s):
     help="OCP CAD Viewer navigation tree width (default: 240)",
 )
 @click.option(
-    "--glass",
-    default=True,
-    help="Use glass mode with transparent navigation tree (default: True)",
+    "--no-glass",
+    is_flag=True,
+    help="Use glass mode with transparent navigation tree",
 )
 @click.option(
     "--theme",
@@ -175,27 +34,22 @@ def to_camel(s):
     help="Use theme 'light' or 'dark' (default: 'light')",
 )
 @click.option(
-    "--tools",
-    default=True,
-    help="Show toolbar (default: True)",
+    "--no-tools",
+    is_flag=True,
+    help="Show toolbar",
 )
 @click.option(
     "--tree_width", default=240, help="Width of the CAD navigation tree (default: 240)"
 )
 @click.option(
-    "--new_tree_behavior",
-    default=True,
-    help="With the new behaviour the eye controls both icons, the mesh icon only the mesh behavior (default: True)",
-)
-@click.option(
     "--dark",
-    default=False,
-    help="Use dark mode (default: False)",
+    is_flag=True,
+    help="Use dark mode",
 )
 @click.option(
     "--orbit_control",
-    default=False,
-    help="Use 'orbit' control mode instead of 'trackball' (default: False)",
+    is_flag=True,
+    help="Use 'orbit' control mode instead of 'trackball'",
 )
 @click.option(
     "--up",
@@ -219,37 +73,37 @@ def to_camel(s):
 )
 @click.option(
     "--axes",
-    default=False,
-    help="Show axes (default: False)",
+    is_flag=True,
+    help="Show axes",
 )
 @click.option(
     "--axes0",
-    default=True,
-    help="Show axes at the origin (0, 0, 0) (default: True)",
+    is_flag=True,
+    help="Show axes at the origin (0, 0, 0)",
 )
 @click.option(
     "--black_edges",
     default=False,
-    help="Show edges in black (default: False)",
+    help="Show edges in black",
 )
 @click.option(
     "--grid_XY",
-    default=False,
-    help="Show grid on XY plane (default: False)",
+    is_flag=True,
+    help="Show grid on XY plane",
 )
 @click.option(
     "--grid_YZ",
-    default=False,
-    help="Show grid on YZ plane (default: False)",
+    is_flag=True,
+    help="Show grid on YZ plane",
 )
 @click.option(
     "--grid_XZ",
-    default=False,
-    help="Show grid on XZ plane (default: False)",
+    is_flag=True,
+    help="Show grid on XZ plane",
 )
 @click.option(
     "--center_grid",
-    default=False,
+    is_flag=True,
     help="Show grid planes crossing at center of object or global origin(default: False)",
 )
 @click.option(
@@ -258,9 +112,9 @@ def to_camel(s):
     help="leaves: collapse all leaf nodes, all: collapse all nodes, none: expand all nodes, root: expand root only (default: leaves)",
 )
 @click.option(
-    "--ortho",
-    default=True,
-    help="Use orthographic camera (default: True)",
+    "--perspective",
+    is_flag=True,
+    help="Use perspective camera",
 )
 @click.option(
     "--ticks",
@@ -269,8 +123,8 @@ def to_camel(s):
 )
 @click.option(
     "--transparent",
-    default=False,
-    help="Show objects transparent (default: False)",
+    is_flag=True,
+    help="Show objects transparent",
 )
 @click.option(
     "--default_opacity",
@@ -279,8 +133,8 @@ def to_camel(s):
 )
 @click.option(
     "--explode",
-    default=False,
-    help="Turn explode mode on (default: False)",
+    is_flag=True,
+    help="Turn explode mode on",
 )
 @click.option(
     "--modifier_keys",
@@ -343,21 +197,14 @@ def to_camel(s):
     help="Roughness property of material (default: 0.65)",
 )
 def main(*args, **kwargs):
-    global port, backend
+    viewer = Viewer(kwargs)
 
-    for k, v in kwargs.items():
-        if k == "port":
-            port = v
-        elif k not in []:
-            if k == "collapse":
-                v = str(v)
-            config[k] = v
+    port = kwargs["port"]
+    host = kwargs["host"]
 
-    backend = ViewerBackend(kwargs["port"])
-    backend.load_model(logo)
-    print("Viewer backend initialized")
-    app.run(debug=True, port=kwargs["port"])
-    sock.init_app(app)
+    print(f"\nThe viewer is running at http://{host}:{port}/viewer\n")
+
+    viewer.start()
 
 
 if __name__ == "__main__":
