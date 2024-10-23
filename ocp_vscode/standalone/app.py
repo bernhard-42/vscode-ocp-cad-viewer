@@ -3,9 +3,16 @@ import orjson
 from flask import Flask, render_template
 from flask_sock import Sock
 from simple_websocket import ConnectionClosed
+from ocp_vscode.backend import ViewerBackend
+from ocp_vscode.backend_logo import logo
+from ocp_vscode.comms import MessageType
+
+
+DEBUG = True
 
 app = Flask(__name__)
 sock = Sock(app)
+backend = None
 
 
 def config():
@@ -13,11 +20,8 @@ def config():
 
 
 def debug_print(*msg):
-    print("Debug:", *msg)
-
-
-def handle_backend(data):
-    print("Backend data: " + data)
+    if DEBUG:
+        print("Debug:", *msg)
 
 
 python_client = None
@@ -50,7 +54,6 @@ config = {
     "position": None,
     "quaternion": None,
     "target": None,
-    "measureTools": True,
     "zoom": 1,
     "panSpeed": 0.5,
     "rotateSpeed": 1.0,
@@ -72,7 +75,7 @@ def index():
 
 @sock.route("/")
 def handle_message(ws):
-    global python_client, javascript_client, config, splash
+    global python_client, javascript_client, config, status, splash
 
     try:
         while True:
@@ -82,17 +85,19 @@ def handle_message(ws):
 
             message_type = data[0]
             data = data[2:]
-            debug_print("Received data from viewer", message_type, data)
 
             if message_type == "C":
                 python_client = ws
                 cmd = orjson.loads(data)
                 if cmd == "status":
+                    debug_print("Received status command")
                     python_client.send(orjson.dumps({"text": status}))
                 elif cmd == "config":
+                    debug_print("Received config command")
                     config["_splash"] = splash
                     python_client.send(orjson.dumps(config))
                 elif cmd.type == "screenshot":
+                    debug_print("Received screenshot command")
                     python_client(orjson.dumps(cmd))
 
             elif message_type == "D":
@@ -105,9 +110,10 @@ def handle_message(ws):
             elif message_type == "U":
                 javascript_client = ws
                 debug_print("Received incremental UI changes")
-                print(data)
-                for key, value in orjson.loads(data).items():
+                changes = orjson.loads(data)["text"]
+                for key, value in changes.items():
                     status[key] = value
+                backend.handle_event(changes, MessageType.UPDATES)
 
             elif message_type == "S":
                 python_client = ws
@@ -117,16 +123,17 @@ def handle_message(ws):
 
             elif message_type == "L":
                 javascript_client = ws
-                debug_print("Listener registered", data)
+                debug_print("Javascript listener registered", data)
 
-            # elif message_type == "B":
-            #     handle_backend(data)
-            #     debug_print("Model data sent to the backend")
+            elif message_type == "B":
+                model = orjson.loads(data)["model"]
+                backend.handle_event(model, MessageType.DATA)
+                debug_print("Model data sent to the backend")
 
-            # elif message_type == "R":
-            #     python_client = ws
-            #     post_message(data)
-            #     debug_print("Backend response received.")
+            elif message_type == "R":
+                python_client = ws
+                javascript_client.send(data)
+                debug_print("Backend response received.", data)
 
             # if message_type == "C" and not (
             #     isinstance(data, dict) and data["type"] == "screenshot"
@@ -134,7 +141,8 @@ def handle_message(ws):
             #     ws.send(orjson.dumps({}))
 
     except ConnectionClosed:
-        print("Client disconnected")
+        debug_print("Client disconnected")
+        pass
 
     except Exception as e:
         print("Error:", e)
@@ -340,13 +348,19 @@ def to_camel(s):
     help="Roughness property of material (default: 0.65)",
 )
 def main(*args, **kwargs):
-    global port
+    global port, backend
+
     for k, v in kwargs.items():
         if k == "port":
             port = v
         elif k not in []:
-            config[to_camel(k)] = v
-    print(config)
+            if k == "collapse":
+                v = str(v)
+            config[k] = v
+
+    backend = ViewerBackend(kwargs["port"])
+    backend.load_model(logo)
+    print("Viewer backend initialized")
     app.run(debug=True, port=kwargs["port"])
     sock.init_app(app)
 
