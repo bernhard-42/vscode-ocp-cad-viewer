@@ -135,11 +135,6 @@ def handle_message(ws):
                 javascript_client.send(data)
                 debug_print("Backend response received.", data)
 
-            # if message_type == "C" and not (
-            #     isinstance(data, dict) and data["type"] == "screenshot"
-            # ):
-            #     ws.send(orjson.dumps({}))
-
     except ConnectionClosed:
         debug_print("Client disconnected")
         pass
