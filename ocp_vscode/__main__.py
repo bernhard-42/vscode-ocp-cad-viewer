@@ -1,8 +1,24 @@
 import click
-from ocp_vscode.standalone import Viewer
+import orjson
+import yaml
+from pathlib import Path
+from ocp_vscode.standalone import Viewer, DEFAULTS, CONFIG_FILE
+from ocp_vscode.state import resolve_path
+
+
+def represent_list(dumper, data):
+    return dumper.represent_sequence("tag:yaml.org,2002:seq", data, flow_style=True)
+
+
+yaml.add_representer(list, represent_list)
 
 
 @click.command()
+@click.option(
+    "--create_configfile",
+    is_flag=True,
+    help="Create the configlie .ocpvscode_standalone in the home directory",
+)
 @click.option(
     "--host",
     default="127.0.0.1",
@@ -19,8 +35,12 @@ from ocp_vscode.standalone import Viewer
     help="Show debugging information",
 )
 @click.option(
+    "--timeit",
+    is_flag=True,
+    help="Show timing information",
+)
+@click.option(
     "--tree_width",
-    default=240,
     help="OCP CAD Viewer navigation tree width (default: 240)",
 )
 @click.option(
@@ -42,14 +62,9 @@ from ocp_vscode.standalone import Viewer
     "--tree_width", default=240, help="Width of the CAD navigation tree (default: 240)"
 )
 @click.option(
-    "--dark",
-    is_flag=True,
-    help="Use dark mode",
-)
-@click.option(
-    "--orbit_control",
-    is_flag=True,
-    help="Use 'orbit' control mode instead of 'trackball'",
+    "--control",
+    default="trackball",
+    help="Use control mode 'orbit'or 'trackball'",
 )
 @click.option(
     "--up",
@@ -83,7 +98,7 @@ from ocp_vscode.standalone import Viewer
 )
 @click.option(
     "--black_edges",
-    default=False,
+    is_flag=True,
     help="Show edges in black",
 )
 @click.option(
@@ -135,11 +150,6 @@ from ocp_vscode.standalone import Viewer
     "--explode",
     is_flag=True,
     help="Turn explode mode on",
-)
-@click.option(
-    "--modifier_keys",
-    default="{'shift': 'shiftKey', 'ctrl': 'ctrlKey', 'meta': 'metaKey'}",
-    help="Mapping of modifier keys shift, ctrl and meta (cmd on Mac, Windows on Windows)",
 )
 @click.option(
     "--angular_tolerance",
@@ -197,14 +207,22 @@ from ocp_vscode.standalone import Viewer
     help="Roughness property of material (default: 0.65)",
 )
 def main(*args, **kwargs):
-    viewer = Viewer(kwargs)
+    if kwargs.get("create_configfile"):
 
-    port = kwargs["port"]
-    host = kwargs["host"]
+        config_file = Path(resolve_path(CONFIG_FILE))
+        with open(config_file, "w") as f:
+            f.write(yaml.dump(DEFAULTS))
+        print(f"Created config file {config_file}")
 
-    print(f"\nThe viewer is running at http://{host}:{port}/viewer\n")
+    else:
+        viewer = Viewer(kwargs)
 
-    viewer.start()
+        port = kwargs["port"]
+        host = kwargs["host"]
+
+        print(f"\nThe viewer is running at http://{host}:{port}/viewer\n")
+
+        viewer.start()
 
 
 if __name__ == "__main__":

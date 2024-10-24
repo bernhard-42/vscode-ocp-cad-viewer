@@ -1,10 +1,58 @@
 import orjson
+import yaml
+from pathlib import Path
 from flask import Flask, render_template
 from flask_sock import Sock
 from simple_websocket import ConnectionClosed
 from ocp_vscode.comms import MessageType
 from ocp_vscode.backend import ViewerBackend
 from ocp_vscode.backend_logo import logo
+from ocp_vscode.state import resolve_path
+
+CONFIG_FILE = "~/.ocpvscode_standalone"
+
+DEFAULTS = {
+    "debug": False,
+    "no_glass": False,
+    "no_tools": False,
+    "tree_width": 240,
+    "theme": "light",
+    "control": "trackball",
+    "modifier_keys": {
+        "shift": "shiftKey",
+        "ctrl": "ctrlKey",
+        "meta": "metaKey",
+    },
+    "new_tree_behavior": True,
+    "pan_speed": 0.5,
+    "rotate_speed": 1.0,
+    "zoom_speed": 0.5,
+    "axes": False,
+    "axes0": False,
+    "grid_xy": False,
+    "grid_yz": False,
+    "grid_xz": False,
+    "perspective": False,
+    "transparent": False,
+    "black_edges": False,
+    "collapse": "R",
+    "up": "Z",
+    "ticks": 10,
+    "center_grid": False,
+    "default_opacity": 0.5,
+    "explode": False,
+    "default_edgecolor": "#808080",
+    "default_color": "#e8b024",
+    "default_thickedgecolor": "MediumOrchid",
+    "default_facecolor": "Violet",
+    "default_vertexcolor": "MediumOrchid",
+    "angular_tolerance": 0.2,
+    "deviation": 0.1,
+    "ambient_intensity": 1.0,
+    "direct_intensity": 1.1,
+    "metalness": 0.3,
+    "roughness": 0.65,
+}
 
 SCRIPTS = """
     <script type="module" src="static/js/three-cad-viewer.esm.js"></script>
@@ -43,7 +91,9 @@ INIT = """onload="showViewer()" """
 
 class Viewer:
     def __init__(self, params):
-        print("__init__")
+        self.status = {}
+        self.config = {}
+
         self.configure(params)
 
         self.app = Flask(__name__)
@@ -53,7 +103,6 @@ class Viewer:
 
         self.python_client = None
         self.javascript_client = None
-        self.status = {}
         self.splash = True
 
         self.sock.route("/")(self.handle_message)
@@ -64,47 +113,40 @@ class Viewer:
             print("Debug:", *msg)
 
     def configure(self, params):
-        print("configure")
-        self.config = {
-            "glass": True,
-            "tools": True,
-            "treeWidth": 240,
-            "axes": False,
-            "axes0": False,
-            "grid": [False, False, False],
-            "ortho": True,
-            "transparent": False,
-            "blackEdges": False,
-            "collapse": "R",
-            "clipIntersection": False,
-            "clipPlaneHelpers": False,
-            "clipObjectColors": False,
-            "clipNormal0": [-1, 0, 0],
-            "clipNormal1": [0, -1, 0],
-            "clipNormal2": [0, 0, -1],
-            "clipSlider0": -1,
-            "clipSlider1": -1,
-            "clipSlider2": -1,
-            "control": "orbit",
-            "up": "Z",
-            "ticks": 10,
-            "centerGrid": False,
-            "position": None,
-            "quaternion": None,
-            "target": None,
-            "zoom": 1,
-            "panSpeed": 0.5,
-            "rotateSpeed": 1.0,
-            "zoomSpeed": 0.5,
-            "timeit": False,
-            "default_edgecolor": "#808080",
-            "default_color": "#e8b024",
-            "debug": False,
-        }
+        # Start with defaults
+        local_config = DEFAULTS.copy()
+
+        # Then apply everything from the config file if it exists
+        config_file = Path(resolve_path(CONFIG_FILE))
+        if config_file.exists():
+            with open(config_file, "r") as f:
+                defaults = yaml.safe_load(f)
+                for k, v in defaults.items():
+                    local_config[k] = v
+
+        # Get all params != their default value and apply it
+        grid = [False, False, False]
         for k, v in params.items():
             if k == "port":
                 self.port = v
-            elif k == "debug":
+            elif k == "host":
+                self.host = v
+            elif k not in ["create_configfile"]:
+                if v != DEFAULTS.get(k):
+                    if k == "grid_xy":
+                        grid[0] = True
+                    elif k == "grid_yz":
+                        grid[1] = True
+                    elif k == "grid_xz":
+                        grid[2] = True
+                    else:
+                        local_config[k] = v
+        local_config["grid"] = grid
+
+        for k, v in local_config.items():
+            if k in ["grid_xy", "grid_yz", "grid_xz"]:
+                continue
+            if k == "debug":
                 self.config["debug"] = self.debug = v
             elif k == "collapse":
                 self.config["collapse"] = str(v)
@@ -114,19 +156,18 @@ class Viewer:
                 self.config["tools"] = not v
             elif k == "perspective":
                 self.config["ortho"] = not v
+
             else:
                 self.config[k] = v
 
         self.debug_print("Config:", self.config)
 
     def start(self):
-        print("start")
         self.app.run(debug=self.debug, port=self.port)
         self.sock.init_app(self.app)
         self.backend.load_model(logo)
 
     def index(self):
-        print("index", self.port)
         return render_template(
             "viewer.html",
             standalone_scripts=SCRIPTS,
@@ -135,6 +176,7 @@ class Viewer:
             standalone_init=INIT,
             styleSrc=CSS,
             scriptSrc=JS,
+            treeWidth=self.config["tree_width"],
             **self.config,
         )
 
