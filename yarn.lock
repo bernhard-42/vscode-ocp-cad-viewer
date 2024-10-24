@@ -1880,10 +1880,10 @@ text-table@^0.2.0:
   resolved "https://registry.yarnpkg.com/text-table/-/text-table-0.2.0.tgz#7f5ee823ae805207c00af2df4a84ec3fcfa570b4"
   integrity sha512-N+8UisAXDGk8PFXP4HAzVR9nbfmVJ3zYLAWiTIoqC5v5isinhr+r5uaO8+7r3BMfuNIufIsA7RdpVgacC2cSpw==
 
-three-cad-viewer@3.1.7:
-  version "3.1.7"
-  resolved "https://registry.yarnpkg.com/three-cad-viewer/-/three-cad-viewer-3.1.7.tgz#8810fe493216f3315ed191c70bf6ba4793bb9952"
-  integrity sha512-DL7la4UGY4wbku8cgv0acChq8a7yEBwrAHbyr2NjbSl9Elq00b4u9H85vt1SkXbGw7l7zqk6TYVbWStxrl3LVw==
+three-cad-viewer@3.1.8:
+  version "3.1.8"
+  resolved "https://registry.yarnpkg.com/three-cad-viewer/-/three-cad-viewer-3.1.8.tgz#657ed6c6ed0f1dc364922e6693a9cdbc0bab9673"
+  integrity sha512-LNDDK9M9Gdsl77pkL71wnncvAGLSVEVHo4Bh5kn3xrMeRhGWDinV+LGM6B4ihsSv0mm/ycMvlGLZAep0I3szOA==
   dependencies:
     three "0.169.0"
 
