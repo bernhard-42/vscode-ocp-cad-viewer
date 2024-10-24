@@ -44,9 +44,9 @@ yaml.add_representer(list, represent_list)
     help="OCP CAD Viewer navigation tree width (default: 240)",
 )
 @click.option(
-    "--no-glass",
+    "--no_glass",
     is_flag=True,
-    help="Use glass mode with transparent navigation tree",
+    help="Do not use glass mode with transparent navigation tree",
 )
 @click.option(
     "--theme",
@@ -54,9 +54,9 @@ yaml.add_representer(list, represent_list)
     help="Use theme 'light' or 'dark' (default: 'light')",
 )
 @click.option(
-    "--no-tools",
+    "--no_tools",
     is_flag=True,
-    help="Show toolbar",
+    help="Do not show toolbar",
 )
 @click.option(
     "--tree_width", default=240, help="Width of the CAD navigation tree (default: 240)"
@@ -102,17 +102,17 @@ yaml.add_representer(list, represent_list)
     help="Show edges in black",
 )
 @click.option(
-    "--grid_XY",
+    "--grid_xy",
     is_flag=True,
     help="Show grid on XY plane",
 )
 @click.option(
-    "--grid_YZ",
+    "--grid_yz",
     is_flag=True,
     help="Show grid on YZ plane",
 )
 @click.option(
-    "--grid_XZ",
+    "--grid_xz",
     is_flag=True,
     help="Show grid on XZ plane",
 )
