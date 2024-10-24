@@ -1,5 +1,5 @@
 import click
-from ocp_vscode.standalone.handler import Viewer
+from ocp_vscode.standalone import Viewer
 
 
 @click.command()

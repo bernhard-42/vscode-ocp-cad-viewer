@@ -5,10 +5,12 @@
 <head>
     <meta charset="utf-8" />
     <title>OCP CAD Viewer</title>
-    <link rel="stylesheet" href="{ styleSrc }" />
-
+    <link rel="stylesheet" href="{{ styleSrc }}" />
+    {{ standalone_scripts|safe }}
     <script type="module">
-        import { Viewer, Timer } from "{ scriptSrc }";
+        import { Viewer, Timer } from "{{ scriptSrc }}";
+        {{ standalone_imports|safe }}
+                
         var viewer = null;
         var _shapes = null;
         var _states = null;
@@ -26,16 +28,17 @@
         var last_bb_radius = null;
 
         const minWidth = 735;
-        const vscode = acquireVsCodeApi();
+        {{ standalone_comms|safe }}
+        
         var message = {};
-
+        
         const displayDefaultOptions = {
             cadWidth: 730,
             height: 525,
-            treeWidth: { treeWidth },
-            glass: { glass },
-            theme: '{ theme }',
-            tools: { tools },
+            treeWidth: JSON.parse("{{ treeWidth }}"), // make linter happy
+            glass: JSON.parse("{{ glass|tojson }}"), // make linter happy
+            theme: "{{ theme }}",
+            tools: JSON.parse("{{ tools|tojson }}"), // make linter happy
             pinning: false,
             measureTools: false,
             keymap: {
@@ -47,14 +50,14 @@
 
         const viewerDefaultOptions = {
             timeit: false,
-            tools: { tools },
-            glass: { glass },
-            up: '{ up }',
+            tools: JSON.parse("{{ tools|tojson }}"), // make linter happy
+            glass: JSON.parse("{{ glass|tojson }}"), // make linter happy
+            up: "{{ up }}",
             zoom: 1.0,
             position: null,
             quaternion: null,
             target: null,
-            control: '{ control }',
+            control: "{{ control }}",
             centerGrid: false,
             newTreeBehavior: true,
         };
@@ -367,7 +370,7 @@
             const container = document.getElementById("cad_viewer");
             container.innerHTML = ""
             viewer = new Viewer(container, displayOptions, nc, null);
-
+            
             if (_shapes) render();
             // viewer.trimUI(["axes", "axes0", "grid", "ortho", "more", "help"])           
         }
@@ -785,11 +788,11 @@
             }
         });
         console.log("message listener registered");
-
+        
     </script>
 </head>
 
-<body style="padding:0px; width:fit-content;">
+<body style="padding:0px; width:fit-content;" {{ standalone_init|safe }}>
     <div id="cad_viewer"></div>
 </body>
 

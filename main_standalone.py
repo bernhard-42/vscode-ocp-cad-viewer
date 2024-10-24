@@ -11,4 +11,4 @@ set_port(3939)
 b = Box(1, 2, 3)
 b = fillet(b.edges(), 0.15)
 
-show(b, debug=True)
+show(b, debug=False)

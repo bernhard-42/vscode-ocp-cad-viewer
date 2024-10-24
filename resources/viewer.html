@@ -5,14 +5,11 @@
 <head>
     <meta charset="utf-8" />
     <title>OCP CAD Viewer</title>
-    <link rel="stylesheet" href="static/css//three-cad-viewer.css" />
-    <script type="module" src="static/js/three-cad-viewer.esm.js"></script>
-    <script type="module" srv="static/js/comms.js"></script>
-    <script type="module" srv="static/js/logo.js"></script>
+    <link rel="stylesheet" href="{{ styleSrc }}" />
+    {{ standalone_scripts|safe }}
     <script type="module">
-        import { Viewer, Timer } from "./static/js/three-cad-viewer.esm.js";
-        import { Comms } from "./static/js/comms.js";
-        import { logo } from "./static/js/logo.js";
+        import { Viewer, Timer } from "{{ scriptSrc }}";
+        {{ standalone_imports|safe }}
                 
         var viewer = null;
         var _shapes = null;
@@ -31,28 +28,17 @@
         var last_bb_radius = null;
 
         const minWidth = 735;
-        const comms = new Comms({{ port }});
-        const vscode = {postMessage: (msg) => {
-                comms.sendStatus(msg);
-            }
-        };
-        const standaloneViewer = () => {
-            const ocpLogo = JSON.parse(logo);
-            decode(ocpLogo);
-            
-            viewer = showViewer(ocpLogo.data.shapes, ocpLogo.config);
-        }
-        window.showViewer = standaloneViewer;
+        {{ standalone_comms|safe }}
         
         var message = {};
-
+        
         const displayDefaultOptions = {
             cadWidth: 730,
             height: 525,
-            treeWidth: {{ treeWidth }},
-            glass: {{ glass|tojson }},
-            theme: '{{ theme }}',
-            tools: {{ tools|tojson }},
+            treeWidth: JSON.parse("{{ treeWidth }}"), // make linter happy
+            glass: JSON.parse("{{ glass|tojson }}"), // make linter happy
+            theme: "{{ theme }}",
+            tools: JSON.parse("{{ tools|tojson }}"), // make linter happy
             pinning: false,
             measureTools: false,
             keymap: {
@@ -64,14 +50,14 @@
 
         const viewerDefaultOptions = {
             timeit: false,
-            tools: {{ tools|tojson }},
-            glass: {{ glass|tojson }},
-            up: '{{ up }}',
+            tools: JSON.parse("{{ tools|tojson }}"), // make linter happy
+            glass: JSON.parse("{{ glass|tojson }}"), // make linter happy
+            up: "{{ up }}",
             zoom: 1.0,
             position: null,
             quaternion: null,
             target: null,
-            control: '{{ control }}',
+            control: "{{ control }}",
             centerGrid: false,
             newTreeBehavior: true,
         };
@@ -806,7 +792,7 @@
     </script>
 </head>
 
-<body style="padding:0px; width:fit-content;" onload="showViewer()">
+<body style="padding:0px; width:fit-content;" {{ standalone_init|safe }}>
     <div id="cad_viewer"></div>
 </body>
 

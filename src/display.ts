@@ -17,25 +17,37 @@
 import * as vscode from "vscode";
 import * as fs from "fs";
 
-export function template(styleSrc: vscode.Uri, scriptSrc: vscode.Uri, htmlSrc: vscode.Uri) {
-   let options = vscode.workspace.getConfiguration("OcpCadViewer.view");
+export function template(
+  styleSrc: vscode.Uri,
+  scriptSrc: vscode.Uri,
+  htmlSrc: vscode.Uri
+) {
+  let options = vscode.workspace.getConfiguration("OcpCadViewer.view");
 
-   const theme = options.get("dark") ? "dark" : "light";
-   const treeWidth = options.get("tree_width");
-   const control = options.get("orbit_control") ? "orbit" : "trackball";
-   const up = options.get("up");
-   const glass = options.get("glass");
-   const tools = options.get("tools");
+  const theme = options.get("dark") ? "dark" : "light";
+  const treeWidth = options.get("tree_width");
+  const control = options.get("orbit_control") ? "orbit" : "trackball";
+  const up = options.get("up");
+  const glass = options.get("glass");
+  const tools = options.get("tools");
 
-   let html = fs.readFileSync(htmlSrc.fsPath, "utf8");  // resources/webview.html
-   html = html.replace("{ styleSrc }", styleSrc.toString());
-   html = html.replace("{ scriptSrc }", scriptSrc.toString());
-   html = html.replace("{ theme }", theme);
-   html = html.replace("{ treeWidth }", `${treeWidth}`);
-   html = html.replace("{ control }", control);
-   html = html.replace("{ up }", `${up}`);
-   html = html.replace(/\{ glass \}/g, `${glass}`);
-   html = html.replace(/\{ tools \}/g, `${tools}`);
+  let html = fs.readFileSync(htmlSrc.fsPath, "utf8"); // resources/webview.html
 
-   return html;
+  html = html.replace("{{ standalone_scripts|safe }}", "");
+  html = html.replace("{{ standalone_imports|safe }}", "");
+  html = html.replace(
+    "{{ standalone_comms|safe }}",
+    "const vscode = acquireVsCodeApi();"
+  );
+  html = html.replace("{{ standalone_init|safe }}", "");
+  html = html.replace("{{ styleSrc }}", styleSrc.toString());
+  html = html.replace("{{ scriptSrc }}", scriptSrc.toString());
+  html = html.replace("{{ theme }}", theme);
+  html = html.replace("{{ treeWidth }}", `${treeWidth}`);
+  html = html.replace("{{ control }}", control);
+  html = html.replace("{{ up }}", `${up}`);
+  html = html.replace(/\{\{ glass\|tojson \}\}/g, `${glass}`);
+  html = html.replace(/\{\{ tools\|tojson \}\}/g, `${tools}`);
+
+  return html;
 }

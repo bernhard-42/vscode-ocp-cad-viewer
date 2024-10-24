@@ -120,7 +120,7 @@ export class OCPCADController {
                 if (this.view !== undefined) {
                     const stylePath = vscode.Uri.joinPath(this.context.extensionUri, "node_modules", "three-cad-viewer", "dist", "three-cad-viewer.css");
                     const scriptPath = vscode.Uri.joinPath(this.context.extensionUri, "node_modules", "three-cad-viewer", "dist", "three-cad-viewer.esm.js");
-                    const htmlPath = vscode.Uri.joinPath(this.context.extensionUri, "resources", "webview.html");
+                    const htmlPath = vscode.Uri.joinPath(this.context.extensionUri, "resources", "viewer.html");
                     const styleSrc = this.view.asWebviewUri(stylePath);
                     const scriptSrc = this.view.asWebviewUri(scriptPath);
                     const htmlSrc = this.view.asWebviewUri(htmlPath);

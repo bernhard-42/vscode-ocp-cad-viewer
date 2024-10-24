@@ -6,9 +6,44 @@ from ocp_vscode.comms import MessageType
 from ocp_vscode.backend import ViewerBackend
 from ocp_vscode.backend_logo import logo
 
+SCRIPTS = """
+    <script type="module" src="static/js/three-cad-viewer.esm.js"></script>
+    <script type="module" srv="static/js/comms.js"></script>
+    <script type="module" srv="static/js/logo.js"></script>
+"""
+
+JS = "./static/js/three-cad-viewer.esm.js"
+CSS = "./static/css/three-cad-viewer.css"
+
+STATIC = """
+        import { Comms } from "./static/js/comms.js";
+        import { logo } from "./static/js/logo.js";
+"""
+
+
+def COMMS(port):
+    return f"""
+        const comms = new Comms({port});
+        const vscode = {{postMessage: (msg) => {{
+                comms.sendStatus(msg);
+            }}
+        }};
+        const standaloneViewer = () => {{
+            const ocpLogo = JSON.parse(logo);
+            decode(ocpLogo);
+            
+            viewer = showViewer(ocpLogo.data.shapes, ocpLogo.config);
+        }}
+        window.showViewer = standaloneViewer;
+    """
+
+
+INIT = """onload="showViewer()" """
+
 
 class Viewer:
     def __init__(self, params):
+        print("__init__")
         self.configure(params)
 
         self.app = Flask(__name__)
@@ -29,6 +64,7 @@ class Viewer:
             print("Debug:", *msg)
 
     def configure(self, params):
+        print("configure")
         self.config = {
             "glass": True,
             "tools": True,
@@ -66,9 +102,8 @@ class Viewer:
             "debug": False,
         }
         for k, v in params.items():
-            print(k, v)
             if k == "port":
-                self.config["port"] = self.port = v
+                self.port = v
             elif k == "debug":
                 self.config["debug"] = self.debug = v
             elif k == "collapse":
@@ -81,16 +116,27 @@ class Viewer:
                 self.config["ortho"] = not v
             else:
                 self.config[k] = v
-        print(self.config)
-        print(self.debug)
+
+        self.debug_print("Config:", self.config)
 
     def start(self):
+        print("start")
         self.app.run(debug=self.debug, port=self.port)
         self.sock.init_app(self.app)
         self.backend.load_model(logo)
 
     def index(self):
-        return render_template("viewer.html", **self.config)
+        print("index", self.port)
+        return render_template(
+            "viewer.html",
+            standalone_scripts=SCRIPTS,
+            standalone_imports=STATIC,
+            standalone_comms=COMMS(self.port),
+            standalone_init=INIT,
+            styleSrc=CSS,
+            scriptSrc=JS,
+            **self.config,
+        )
 
     def handle_message(self, ws):
 
