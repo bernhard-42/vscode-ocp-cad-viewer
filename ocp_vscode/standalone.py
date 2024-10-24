@@ -182,67 +182,59 @@ class Viewer:
 
     def handle_message(self, ws):
 
-        try:
-            while True:
-                data = ws.receive()
-                if isinstance(data, bytes):
-                    data = data.decode("utf-8")
+        while True:
+            data = ws.receive()
+            if isinstance(data, bytes):
+                data = data.decode("utf-8")
 
-                message_type = data[0]
-                data = data[2:]
+            message_type = data[0]
+            data = data[2:]
 
-                if message_type == "C":
-                    self.python_client = ws
-                    cmd = orjson.loads(data)
-                    if cmd == "status":
-                        self.debug_print("Received status command")
-                        self.python_client.send(orjson.dumps({"text": self.status}))
-                    elif cmd == "config":
-                        self.debug_print("Received config command")
-                        self.config["_splash"] = self.splash
-                        self.python_client.send(orjson.dumps(self.config))
-                    elif cmd.type == "screenshot":
-                        self.debug_print("Received screenshot command")
-                        self.python_client(orjson.dumps(cmd))
+            if message_type == "C":
+                self.python_client = ws
+                cmd = orjson.loads(data)
+                if cmd == "status":
+                    self.debug_print("Received status command")
+                    self.python_client.send(orjson.dumps({"text": self.status}))
+                elif cmd == "config":
+                    self.debug_print("Received config command")
+                    self.config["_splash"] = self.splash
+                    self.python_client.send(orjson.dumps(self.config))
+                elif cmd.type == "screenshot":
+                    self.debug_print("Received screenshot command")
+                    self.python_client(orjson.dumps(cmd))
 
-                elif message_type == "D":
-                    self.python_client = ws
-                    self.debug_print("Received a new model")
-                    self.javascript_client.send(data)
-                    if self.splash:
-                        self.splash = False
+            elif message_type == "D":
+                self.python_client = ws
+                self.debug_print("Received a new model")
+                self.javascript_client.send(data)
+                if self.splash:
+                    self.splash = False
 
-                elif message_type == "U":
-                    self.javascript_client = ws
-                    changes = orjson.loads(data)["text"]
-                    self.debug_print("Received incremental UI changes", changes)
-                    for key, value in changes.items():
-                        self.status[key] = value
-                    self.backend.handle_event(changes, MessageType.UPDATES)
+            elif message_type == "U":
+                self.javascript_client = ws
+                changes = orjson.loads(data)["text"]
+                self.debug_print("Received incremental UI changes", changes)
+                for key, value in changes.items():
+                    self.status[key] = value
+                self.backend.handle_event(changes, MessageType.UPDATES)
 
-                elif message_type == "S":
-                    self.python_client = ws
-                    self.debug_print("Received a config")
-                    self.javascript_client.send(data)
-                    self.debug_print("Posted config to view")
+            elif message_type == "S":
+                self.python_client = ws
+                self.debug_print("Received a config")
+                self.javascript_client.send(data)
+                self.debug_print("Posted config to view")
 
-                elif message_type == "L":
-                    self.javascript_client = ws
-                    self.debug_print("Javascript listener registered", data)
+            elif message_type == "L":
+                self.javascript_client = ws
+                self.debug_print("Javascript listener registered", data)
 
-                elif message_type == "B":
-                    model = orjson.loads(data)["model"]
-                    self.backend.handle_event(model, MessageType.DATA)
-                    self.debug_print("Model data sent to the backend")
+            elif message_type == "B":
+                model = orjson.loads(data)["model"]
+                self.backend.handle_event(model, MessageType.DATA)
+                self.debug_print("Model data sent to the backend")
 
-                elif message_type == "R":
-                    self.python_client = ws
-                    self.javascript_client.send(data)
-                    self.debug_print("Backend response received.", data)
-
-        except ConnectionClosed:
-            self.debug_print("Client disconnected")
-            pass
-
-        except Exception as e:
-            print("Error:", e)
+            elif message_type == "R":
+                self.python_client = ws
+                self.javascript_client.send(data)
+                self.debug_print("Backend response received.", data)
