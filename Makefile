@@ -29,6 +29,11 @@ endif
 
 dist:
 	@echo Version: $(CURRENT_VERSION)
+	@echo "Copying html, css and js file to standalone locations"
+	@cp resources/viewer.html ocp_vscode/templates
+	@cp node_modules/three-cad-viewer/dist/three-cad-viewer.esm.js ocp_vscode/static/js
+	@cp node_modules/three-cad-viewer/dist/three-cad-viewer.css ocp_vscode/static/css
+	
 	@python -m build -n
 	vsce package --yarn
 	@ls -l dist/
