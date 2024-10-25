@@ -2,6 +2,16 @@
 
 All notable changes to the "OCP CAD Viewer" extension will be documented in this file.
 
+v2.6.0
+
+New features
+
+- Standalone mode without VS Code: `python -m ocp_vscode`. This will start a Flask server and the viewer can be reached under `http://127.0.0.1/viewer`.
+
+Fixes:
+
+- Fix that `show_all` doesn't ignore `_123` and similar variable names
+
 
 v2.5.3
 

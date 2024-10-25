@@ -105,6 +105,76 @@ You can also use "Library Manager" in the _OCP CAD Viewer_ sidebar to manage the
 - [Download examples for build123d or cadquery](docs/examples.md)
 - [Use the build123d snippets](docs/snippets.md)
 
+## Standalone mode
+
+Standalone mode allows to use OCP CAD Viewer without VS Code: `python -m ocp_vscode`. This will start a Flask server and the viewer can be reached under `http://127.0.0.1/viewer`. All client side feature of the VS Code variant (i.e. `show*` features) should be available (including measurement mode) except visual debugging (see above) which relies on VS Code.
+
+Use `python -m ocp_vscode --help` to understand the command line args:
+```
+Usage: python -m ocp_vscode [OPTIONS]
+
+Options:
+  --create_configfile            Create the configlie .ocpvscode_standalone in
+                                 the home directory
+  --host TEXT                    The host to start OCP CAD with
+  --port INTEGER                 The port to start OCP CAD with
+  --debug                        Show debugging information
+  --timeit                       Show timing information
+  --tree_width TEXT              OCP CAD Viewer navigation tree width
+                                 (default: 240)
+  --no_glass                     Do not use glass mode with transparent
+                                 navigation tree
+  --theme TEXT                   Use theme 'light' or 'dark' (default:
+                                 'light')
+  --no_tools                     Do not show toolbar
+  --tree_width INTEGER           Width of the CAD navigation tree (default:
+                                 240)
+  --control TEXT                 Use control mode 'orbit'or 'trackball'
+  --up TEXT                      Provides up direction, 'Z', 'Y' or 'L'
+                                 (legacy) (default: Z)
+  --rotate_speed INTEGER         Rotation speed (default: 1)
+  --zoom_speed INTEGER           Zoom speed (default: 1)
+  --pan_speed INTEGER            Pan speed (default: 1)
+  --axes                         Show axes
+  --axes0                        Show axes at the origin (0, 0, 0)
+  --black_edges                  Show edges in black
+  --grid_xy                      Show grid on XY plane
+  --grid_yz                      Show grid on YZ plane
+  --grid_xz                      Show grid on XZ plane
+  --center_grid                  Show grid planes crossing at center of object
+                                 or global origin(default: False)
+  --collapse INTEGER             leaves: collapse all leaf nodes, all:
+                                 collapse all nodes, none: expand all nodes,
+                                 root: expand root only (default: leaves)
+  --perspective                  Use perspective camera
+  --ticks INTEGER                Default number of ticks (default: 10)
+  --transparent                  Show objects transparent
+  --default_opacity FLOAT        Default opacity for transparent objects
+                                 (default: 0.5)
+  --explode                      Turn explode mode on
+  --angular_tolerance FLOAT      Angular tolerance for tessellation algorithm
+                                 (default: 0.2)
+  --deviation FLOAT              Deviation of for tessellation algorithm
+                                 (default: 0.1)
+  --default_color TEXT           Default shape color, CSS3 color names are
+                                 allowed (default: #e8b024)
+  --default_edgecolor TEXT       Default color of the edges of shapes, CSS3
+                                 color names are allowed (default: #707070)
+  --default_thickedgecolor TEXT  Default color of lines, CSS3 color names are
+                                 allowed (default: MediumOrchid)
+  --default_facecolor TEXT       Default color of faces, CSS3 color names are
+                                 allowed (default: Violet)
+  --default_vertexcolor TEXT     Default color of vertices, CSS3 color names
+                                 are allowed (default: MediumOrchid)
+  --ambient_intensity INTEGER    Intensity of ambient light (default: 1.00)
+  --direct_intensity FLOAT       Intensity of direct light (default: 1.10)
+  --metalness FLOAT              Metalness property of material (default:
+                                 0.30)
+  --roughness FLOAT              Roughness property of material (default:
+                                 0.65)
+  --help                         Show this message and exit.
+```
+
 ## Best practices
 
 - Use the **Jupyter extension** for a more interactive experience. This allows to have one cell (separated by `# %%`) at the beginning to import all libraries
@@ -220,23 +290,12 @@ NATIVE_TESSELLATOR=1 OCP_VSCODE_PYTEST=1 pytest -v -s pytests/
 
 ## Changes
 
-v2.5.3
-
-- Fix regression that backend couldn't start on Windows (wrong quotes)
-
-v2.5.0
+v2.6.0
 
 New features
 
-- New click-to-center feature: shift-meta left-click at any point will take this point projected on the objects as the viewing target ([#95](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/95))
-- Measure selections can be fully deselected on right mouse click ([#94](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/94))
-- The command `show` now warns only when viewer is not running to allow export objects without viewing ([#98](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/98))
+- Standalone mode without VS Code: `python -m ocp_vscode`. This will start a Flask server and the viewer can be reached under `http://127.0.0.1/viewer`.
 
 Fixes:
 
-- Change `reset_camera=Camera.KEEP` to adapt zoom so that view doesn not "jump" ([#105](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/105))
-- Use cachetools 5.5.0 to support Python 3.12. Additionally the resize button will now always resize to zoom level 1.0 ([#107](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/107))
-- Python paths in the extension are now quoted to allow paths with spaces ([#102](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/102))
-- The viewer window was slightly shifted to the left and did not fit the VSCode window ([#101](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/101))
-
-full change log see [CHANGELOG.md](./CHANGELOG.md)
+- Fix that `show_all` doesn't ignore `_123` and similar variable names
