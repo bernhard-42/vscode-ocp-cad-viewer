@@ -39,8 +39,12 @@ dependencies = [
     "click>=8.1,<9.0",
 ]
 
-[tool.setuptools.packages.find]
-where = ["."]
+[tool.setuptools]
+packages = ["ocp_vscode"]
+package-dir = { "" = "." }
+
+[tool.setuptools.package-data]
+ocp_vscode = ["templates/*.html", "static/css/*.css", "static/js/*.js"]
 
 [project.optional-dependencies]
 dev = ["questionary~=1.10.0", "bump-my-version", "black", "twine"]
