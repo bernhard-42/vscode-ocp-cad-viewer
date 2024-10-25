@@ -829,7 +829,7 @@ def show_all(
             isinstance(obj, type)
             or name in exclude + ["_", "__", "___", "_ih", "_oh", "_dh", "Out", "In"]
             or name.startswith("__")
-            or re.search("_\\d+", name) is not None
+            or re.search("^_i\\d+", name) is not None
             # pylint: disable=protected-access
             or (hasattr(obj, "_obj") and obj._obj is None)
             or callable(obj)
