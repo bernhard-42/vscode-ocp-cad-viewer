@@ -32,7 +32,11 @@ dependencies = [
     "requests",
     "ipykernel",
     "orjson",
-    "websockets>=12.0",
+    "websockets>=13.0,<14.0",
+    "pyaml",
+    "flask>=3.0,<4.0",
+    "flask_sock>=0.7,<1.0",
+    "click>=8.1,<9.0",
 ]
 
 [tool.setuptools.packages.find]
