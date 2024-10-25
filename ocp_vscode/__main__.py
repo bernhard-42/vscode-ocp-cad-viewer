@@ -1,5 +1,4 @@
 import click
-import orjson
 import yaml
 from pathlib import Path
 from ocp_vscode.standalone import Viewer, DEFAULTS, CONFIG_FILE
