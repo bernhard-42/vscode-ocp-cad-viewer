@@ -6,7 +6,13 @@ import sys
 import traceback
 from dataclasses import asdict, dataclass, fields
 
-from ocp_tessellate.ocp_utils import deserialize, make_compound, tq_to_loc
+from ocp_tessellate.ocp_utils import (
+    deserialize,
+    make_compound,
+    tq_to_loc,
+    get_surface,
+    get_curve,
+)
 from ocp_tessellate.tessellator import (
     get_edges,
     get_faces,
@@ -281,14 +287,14 @@ class ViewerBackend:
             if shape.geom_type == "CIRCLE":
                 response.radius = shape.radius
             elif shape.geom_type == "ELLIPSE":
-                response.radius = shape._geom_adaptor().Ellipse().MajorRadius()
-                response.radius2 = shape._geom_adaptor().Ellipse().MinorRadius()
+                response.radius = get_curve(shape.wrapped).Ellipse().MajorRadius()
+                response.radius2 = get_curve(shape.wrapped).Ellipse().MinorRadius()
 
             response.length = shape.length
 
         elif isinstance(shape, Face):
             if shape.geom_type == "CYLINDER":
-                response.radius = shape._geom_adaptor().Cylinder().Radius()
+                response.radius = get_surface(shape.wrapped).Cylinder().Radius()
 
             response.length = shape.length
             response.width = shape.width
