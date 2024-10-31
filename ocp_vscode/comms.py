@@ -113,10 +113,11 @@ def get_port():
     return CMD_PORT
 
 
-def set_port(port):
+def set_port(port, host="127.0.0.1"):
     """Set the port"""
-    global CMD_PORT, INIT_DONE  # pylint: disable=global-statement
+    global CMD_PORT, CMD_URL, INIT_DONE  # pylint: disable=global-statement
     CMD_PORT = port
+    CMD_URL = f"ws://{host}"
     INIT_DONE = True
 
 
@@ -163,7 +164,7 @@ def _send(data, message_type, port=None, timeit=False):
                                 print(ex)
 
             except Exception as ex:
-                warn_once("The viewer doesn't seem to run")
+                warn_once("The viewer doesn't seem to run: " + str(ex))
                 # set some dummy values to avoid errors
                 return {
                     "collapse": "none",

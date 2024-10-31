@@ -4,8 +4,8 @@ function handleMessage(message) {
 }
 
 class Comms {
-    constructor(port) {
-        this.socket = new WebSocket(`ws://127.0.0.1:${port}`);
+    constructor(host, port) {
+        this.socket = new WebSocket(`ws://${host}:${port}`);
         this.ready = false;
 
         this.socket.onopen = (event) => {

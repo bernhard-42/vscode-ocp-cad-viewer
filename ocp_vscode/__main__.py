@@ -1,4 +1,5 @@
 import click
+import socket
 import yaml
 from pathlib import Path
 from ocp_vscode.standalone import Viewer, DEFAULTS, CONFIG_FILE
@@ -218,6 +219,10 @@ def main(*args, **kwargs):
 
         port = kwargs["port"]
         host = kwargs["host"]
+
+        if host == "0.0.0.0":
+            hostname = socket.gethostname()
+            host = socket.gethostbyname(hostname)
 
         print(f"\nThe viewer is running at http://{host}:{port}/viewer\n")
 
