@@ -113,6 +113,11 @@ def get_port():
     return CMD_PORT
 
 
+def get_host():
+    """Get the host"""
+    return CMD_URL[5:]
+
+
 def set_port(port, host="127.0.0.1"):
     """Set the port"""
     global CMD_PORT, CMD_URL, INIT_DONE  # pylint: disable=global-statement
