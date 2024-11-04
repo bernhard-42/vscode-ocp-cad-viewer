@@ -2,6 +2,17 @@
 
 All notable changes to the "OCP CAD Viewer" extension will be documented in this file.
 
+v2.6.1
+
+Fixes:
+
+- Standalone viewer can listen to other IP addresses of the machine than 127.0.0.1
+- `show` now uses port 3939 as default when no port could be detected and a service listens to 3939
+- Fixed a bug in ocp-tessellate for cadquery wires ([#116](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/116))
+- Fixed a bug in backend for measures that prevented faces being inspected ([#115](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/115))
+- Fixed a bug that shifted the orientation too high for the logo screen
+
+
 v2.6.0
 
 New features
