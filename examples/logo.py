@@ -1,6 +1,6 @@
 # %%
 from build123d import *
-from ocp_vscode import show, set_port
+from ocp_vscode import *
 from ocp_vscode.show import _convert
 import json
 import orjson
@@ -41,19 +41,20 @@ eye = eye + center
 logo = Plane.XZ * Pos(0, -20, 0) * logo
 eye = Plane.XZ * Pos(0, -20, 0) * eye
 # %%
-# show(
-#     logo,
-#     eye,
-#     colors=[(85, 160, 227), (51,51,51)],
-#     names=["OCP", "Eye"],
-#     grid=(True, False, False),
-#     ortho=False,
-#     axes0=True,
-#     zoom=0.8,
-#     position=[92.4, -99.3, -6.6],
-#     quaternion=[0.6047, 0.2156, 0.2603, 0.7212],
-# )
-
+show(
+    logo,
+    eye,
+    colors=[(85, 160, 227), (51, 51, 51)],
+    names=["OCP", "Eye"],
+    grid=(True, False, False),
+    ortho=False,
+    axes0=True,
+    zoom=0.8,
+    position=[124.5, -114.2, 11.1],
+    quaternion=[0.5754, 0.2463, 0.2856, 0.7255],
+    target=[10.4019, 0.4274, -24.7534],
+)
+# %%
 c = _convert(
     logo,
     eye,
@@ -63,8 +64,9 @@ c = _convert(
     ortho=False,
     axes0=True,
     zoom=0.8,
-    position=[92.4, -99.3, -6.6],
-    quaternion=[0.6047, 0.2156, 0.2603, 0.7212],
+    position=[124.5, -114.2, 11.1],
+    quaternion=[0.5754, 0.2463, 0.2856, 0.7255],
+    target=[10.4019, 0.4274, -24.7534],
 )
 
 # %%
