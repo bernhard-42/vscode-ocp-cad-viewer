@@ -302,6 +302,9 @@ def find_and_set_port():
         port = find_port()
         if port is not None:
             print(f"Using port {port} taken from config file")
+        elif port_check(3939):
+            port = 3939
+            print(f"Port {port} is open, using it")
 
     set_port(port)
 
