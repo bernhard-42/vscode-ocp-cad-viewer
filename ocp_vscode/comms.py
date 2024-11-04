@@ -84,7 +84,7 @@ def port_check(port):
     """Check whether the port is listening"""
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.settimeout(1)
-    result = s.connect_ex(("127.0.0.1", port)) == 0
+    result = s.connect_ex((get_host(), port)) == 0
     if result:
         s.close()
     return result

@@ -112,9 +112,11 @@ class Viewer:
         # get ip address of current machine
         if params.get("host") == "127.0.0.1":
             self.ip_address = "127.0.0.1"
-        else:
+        elif params.get("host") == "0.0.0.0":
             hostname = socket.gethostname()
             self.ip_address = socket.gethostbyname(hostname)
+        else:
+            self.ip_address = params.get("host")
 
     def debug_print(self, *msg):
         if self.debug:
