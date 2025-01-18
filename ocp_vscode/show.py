@@ -567,6 +567,9 @@ def show(
         else:
             LAST_CALL = "other"
 
+    if progress is not None:
+        print()
+
     if is_pytest():
         return t, mapping
 
