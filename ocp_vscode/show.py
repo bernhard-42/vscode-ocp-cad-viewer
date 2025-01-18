@@ -32,6 +32,7 @@ from ocp_tessellate.cad_objects import (
     OCP_Part,
     OCP_PartGroup,
     OCP_Vertices,
+    OcpWrapper,
 )
 from ocp_tessellate.convert import (
     combined_bb,
@@ -890,6 +891,10 @@ def show_all(
                 pg = to_ocpgroup([obj], names=[name])
                 pg.name = name
                 objects.append(pg)
+                names.append(name)
+
+            elif isinstance(obj, OcpWrapper):
+                objects.append(obj)
                 names.append(name)
 
             else:
