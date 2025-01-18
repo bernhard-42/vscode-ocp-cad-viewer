@@ -138,7 +138,6 @@ show_object(
     {"color": (10, 100, 110)},
     # three-cad-viewer args
     collapse="1",
-    reset_camera=False,
     ortho=False
 )
 ```

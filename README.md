@@ -105,6 +105,7 @@ You can also use "Library Manager" in the _OCP CAD Viewer_ sidebar to manage the
 - [Measure mode](docs/measure.md)
 - [Use the `show` command](docs/show.md)
 - [Use the `show_object` command](docs/show_object.md)
+- [Use the `show_all` command](docs/show_all.md)
 - [Use the `set_viewer_config` command](docs/set_viewer_config.md)
 - [Download examples for build123d or cadquery](docs/examples.md)
 - [Use the build123d snippets](docs/snippets.md)

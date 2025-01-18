@@ -805,7 +805,19 @@ def show_all(
     _visual_debug=False,
     **kwargs,
 ):
-    """Show all variables in the current scope"""
+    """
+    Show all variables in the current scope
+
+    Parameters:
+        variables:     Only show objects with names in this list of variable names,
+                       i.e. do not use all from locals()
+        exclude:       List of variable names to exclude from "show_all"
+        classes:       Only show objects which are instances of the classes in this list
+        _visual_debug: private variable, do not use!
+
+    Keywords for show_all:
+        Valid keywords for "show_all" are the same as for "show"
+    """
     import inspect  # pylint: disable=import-outside-toplevel
 
     global LAST_CALL  # pylint: disable=global-statement
