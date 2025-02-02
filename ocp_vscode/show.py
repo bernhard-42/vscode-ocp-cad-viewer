@@ -905,7 +905,7 @@ def show_all(
                 names.append(name)
 
             elif is_cadquery_sketch(obj):
-                pg = to_ocpgroup([obj], names=[name])
+                pg, instances = to_ocpgroup([obj], names=[name])
                 pg.name = name
                 objects.append(pg)
                 names.append(name)
