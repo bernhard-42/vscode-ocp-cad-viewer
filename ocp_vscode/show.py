@@ -175,7 +175,9 @@ def _tessellate(
         )
 
         if len(part_group.objects) == 1 and isinstance(part_group.objects[0], OcpGroup):
+            loc = part_group.loc
             part_group = part_group.objects[0]
+            part_group.loc = loc * part_group.loc
 
     params = {
         k: v
