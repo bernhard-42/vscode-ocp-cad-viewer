@@ -522,24 +522,24 @@
           "default": {
             "cadquery": {
               "pip": [
-                "{unset_conda} {python} -m pip install git+https://github.com/cadquery/cadquery.git"
+                "{unset_conda} {python} -m pip install --upgrade cadquery"
               ],
               "conda": [
-                "conda install -y -n {conda_env} -c conda-forge -c cadquery cadquery=master"
+                "conda install -y -n {conda_env} -c conda-forge cadquery"
               ],
               "mamba": [
-                "mamba install -y -n {conda_env} -c conda-forge -c cadquery cadquery=master"
+                "mamba install -y -n {conda_env} -c conda-forge cadquery"
               ],
               "poetry": [
-                "poetry add git+https://github.com/cadquery/cadquery.git"
+                "poetry add cadquery"
               ]
             },
             "build123d": {
               "pip": [
-                "{python} -m pip install git+https://github.com/gumyr/build123d.git"
+                "{python} -m pip install --upgrade build123d"
               ],
               "poetry": [
-                "poetry add git+https://github.com/gumyr/build123d.git"
+                "poetry add build123d"
               ]
             },
             "ocp_vscode": {
