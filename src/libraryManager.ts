@@ -231,7 +231,7 @@ export class LibraryManagerProvider
 
                 if (process.platform === "win32") {
                     let tempPath = process.env["TEMP"] || ".";
-                    let code = "set CONDA_PREFIX_1=\n";
+                    let code = "set CONDA_PREFIX=\n";
                     code = code + command;
                     command = path.join(tempPath, "__inst_with_pip__.cmd");
                     fs.writeFileSync(command, code);
@@ -239,7 +239,7 @@ export class LibraryManagerProvider
                     output.info("\n" + code);
 
                 } else {
-                    command = "env -u CONDA_PREFIX_1 " + command;
+                    command = "env -u CONDA_PREFIX " + command;
                 }
                 substCmds.push(command);
 
