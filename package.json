@@ -544,7 +544,7 @@
             },
             "ocp_vscode": {
               "pip": [
-                "{python} -m pip install ocp_vscode=={ocp_vscode_version}"
+                "{python} -m pip install --upgrade ocp_vscode=={ocp_vscode_version}"
               ],
               "poetry": [
                 "poetry add ocp_vscode=={ocp_vscode_version}"
