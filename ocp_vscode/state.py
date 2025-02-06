@@ -6,6 +6,7 @@ mechanism for nodejs and Python leveraging "mkdir" to create locks.
 Ideas are taken from the node js library "proper-lockfile"
 (https://github.com/moxystudio/node-proper-lockfile)
 """
+
 import json
 import os
 import time
@@ -161,6 +162,8 @@ def get_state():
                 config = json.loads(config)
         unlock(config_file)
     except FileNotFoundError as ex:
-        raise RuntimeError(f"Unable to open config file {config_file}.") from ex
+        with open(config_file, "w") as fd:
+            fd.write("{}\n")
+        config = {}
 
     return config
