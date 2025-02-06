@@ -286,11 +286,7 @@ def find_and_set_port():
                     "The right viewer cannot be auto detected, use set_port(port) in your code."
                 )
             else:
-                warn_once("The viewer doesn't seem to run")
-                # raise RuntimeError(
-                #     "No port found via config file\n"
-                #     "To change the port, use set_port(port) in your code"
-                # )
+                print(f"Could not find port in config file {get_config_file()}")
 
         return port
 
@@ -304,7 +300,7 @@ def find_and_set_port():
             print(f"Using port {port} taken from config file")
         elif port_check(3939):
             port = 3939
-            print(f"Port {port} is open, using it")
+            print(f"Default port {port} is open, using it")
 
     set_port(port)
 
@@ -324,6 +320,7 @@ def set_connection_file():
         else:
             print("Jupyter kernel not responding")
     elif not JCONSOLE:
-        print("Jupyter console not installed")
+        # print("Jupyter console not installed")
+        pass
     else:
         print("Jupyter kernel not running")
