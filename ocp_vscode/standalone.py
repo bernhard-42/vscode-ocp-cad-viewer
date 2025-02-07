@@ -37,6 +37,7 @@ DEFAULTS = {
     "transparent": False,
     "black_edges": False,
     "collapse": "R",
+    "reset_camera": "RESET",
     "up": "Z",
     "ticks": 10,
     "center_grid": False,
@@ -152,6 +153,7 @@ class Viewer:
                     else:
                         local_config[k] = v
         local_config["grid"] = grid
+        local_config["reset_camera"] = local_config["reset_camera"].upper()
 
         for k, v in local_config.items():
             if k in ["grid_xy", "grid_yz", "grid_xz"]:

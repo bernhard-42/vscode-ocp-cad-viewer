@@ -170,9 +170,9 @@ DEFAULTS = {
     "show_parent": False,
     "show_sketch_local": True,
     "timeit": False,
-    "reset_camera": Camera.RESET,
     "collapse": Collapse.ROOT,
     "debug": False,
+    # "reset_camera": Camera.RESET,
 }
 
 
@@ -442,6 +442,7 @@ def workspace_config(port=None):
             "R": Collapse.ROOT,
         }
         conf["collapse"] = mapping[conf.get("collapse", "R")]
+        conf["reset_camera"] = Camera[conf.get("reset_camera", "RESET")]
         return dict(sorted(conf.items()))
 
     except Exception as ex:
@@ -511,11 +512,13 @@ def reset_defaults():
         "render_mates": False,
         "render_joints": False,
         "helper_scale": 1.0,
+        "show_parent": False,
+        "show_sketch_local": True,
         "timeit": False,
-        "reset_camera": Camera.RESET,
+        "collapse": Collapse.ROOT,
         "debug": False,
+        # "reset_camera": Camera.RESET,
     }
-
 
 def check_deprecated(kwargs):
     """Check for deprecated arguments"""

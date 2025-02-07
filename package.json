@@ -384,6 +384,17 @@
           "description": "Turn explode mode on (default: false)",
           "order": 32
         },
+        "OcpCadViewer.view.reset_camera": {
+          "type": "string",
+          "enum": [
+            "RESET",
+            "KEEP",
+            "CENTER"
+          ],
+          "default": "RESET",
+          "description": "Reset camera (angle and zoom) between show commands",
+          "order": 59
+        },
         "OcpCadViewer.view.modifier_keys": {
           "type": "object",
           "default": {

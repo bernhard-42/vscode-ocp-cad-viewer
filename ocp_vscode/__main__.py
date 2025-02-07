@@ -64,7 +64,12 @@ yaml.add_representer(list, represent_list)
 @click.option(
     "--control",
     default="trackball",
-    help="Use control mode 'orbit'or 'trackball'",
+    help="Use control mode 'orbit' or 'trackball'",
+)
+@click.option(
+    "--reset_camera",
+    default="reset",
+    help="Set camera behavior to 'reset', 'keep' or 'center'",
 )
 @click.option(
     "--up",

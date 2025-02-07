@@ -88,6 +88,7 @@ export class OCPCADController {
             "ortho": options.get("ortho"),
             "ticks": options.get("ticks"),
             "default_opacity": options.get("default_opacity"),
+            "reset_camera": options.get("reset_camera"),
             "transparent": options.get("transparent"),
             "explode": options.get("explode"),
             "modifier_keys": options.get("modifier_keys"),
