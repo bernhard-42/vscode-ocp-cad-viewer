@@ -192,6 +192,11 @@ class Viewer:
             **self.config,
         )
 
+    def not_registered(self):
+        print(
+            "\nNo browser registered. Please open the viewer in a browser or refresh the viewer page\n"
+        )
+
     def handle_message(self, ws):
 
         while True:
@@ -219,6 +224,9 @@ class Viewer:
             elif message_type == "D":
                 self.python_client = ws
                 self.debug_print("Received a new model")
+                if self.javascript_client is None:
+                    self.not_registered()
+                    continue
                 self.javascript_client.send(data)
                 if self.splash:
                     self.splash = False
@@ -234,12 +242,15 @@ class Viewer:
             elif message_type == "S":
                 self.python_client = ws
                 self.debug_print("Received a config")
+                if self.javascript_client is None:
+                    self.not_registered()
+                    continue
                 self.javascript_client.send(data)
                 self.debug_print("Posted config to view")
 
             elif message_type == "L":
                 self.javascript_client = ws
-                self.debug_print("Javascript listener registered", data)
+                print("\nBrowser as viewer client registered\n")
 
             elif message_type == "B":
                 model = orjson.loads(data)["model"]
@@ -248,5 +259,8 @@ class Viewer:
 
             elif message_type == "R":
                 self.python_client = ws
+                if self.javascript_client is None:
+                    self.not_registered()
+                    continue
                 self.javascript_client.send(data)
                 self.debug_print("Backend response received.", data)
