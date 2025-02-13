@@ -388,6 +388,9 @@
             viewer = new Viewer(display, displayOptions, nc, null);
             
             if (_shapes) render();
+
+            return viewer;
+            
             // viewer.trimUI(["axes", "axes0", "grid", "ortho", "more", "help"])           
         }
 
@@ -701,6 +704,9 @@
             } else if (data.type === "show") {
                 showViewer();
             } else if (data.type === "ui") {
+                if (_config["_splash"]) {
+                    return
+                }
                 if (data.config.debug) {
                     console.log(data.config)
                 }
@@ -711,6 +717,8 @@
                         viewer.setAxes0(data.config[key]);
                     } else if (key === "grid") {
                         viewer.setGrids(data.config[key]);
+                    } else if (key === "center_grid") {
+                        viewer.setGridCenter(data.config[key]);                           
                     } else if (key === "ortho") {
                         viewer.setOrtho(data.config[key]);
                     } else if (key === "transparent") {

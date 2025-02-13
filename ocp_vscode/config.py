@@ -181,6 +181,7 @@ def set_viewer_config(
     axes=None,
     axes0=None,
     grid=None,
+    center_grid=None,
     ortho=None,
     transparent=None,
     black_edges=None,
@@ -519,6 +520,7 @@ def reset_defaults():
         "debug": False,
         # "reset_camera": Camera.RESET,
     }
+
 
 def check_deprecated(kwargs):
     """Check for deprecated arguments"""
