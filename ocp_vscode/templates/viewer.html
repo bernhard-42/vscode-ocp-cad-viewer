@@ -8,10 +8,11 @@
     <link rel="stylesheet" href="{{ styleSrc }}" />
     {{ standalone_scripts|safe }}
     <script type="module">
-        import { Viewer, Timer } from "{{ scriptSrc }}";
+        import { Viewer, Display, Timer } from "{{ scriptSrc }}";
         {{ standalone_imports|safe }}
                 
         var viewer = null;
+        var display = null;
         var _shapes = null;
         var _states = null;
         var _config = null;
@@ -305,8 +306,8 @@
             }
         }
 
-        function normalizeWidth(width, glass) {
-            const treeWidth = glass ? 0 : preset(_config, "treeWidth", displayDefaultOptions.treeWidth);
+        function normalizeWidth(width, glass, tools) {
+            const treeWidth = (glass || !tools) ? 0 : preset(_config, "treeWidth", displayDefaultOptions.treeWidth);
             return Math.max(minWidth - treeWidth, width - treeWidth - 20);
         }
 
@@ -330,10 +331,10 @@
             const glass = preset(_config, "glass", displayDefaultOptions.glass);
             const theme = displayDefaultOptions.theme;
             const tools = preset(_config, "tools", displayDefaultOptions.tools);
-            const treeWidth = glass ? 0 : preset(_config, "treeWidth", displayDefaultOptions.treeWidth);
+            const treeWidth = (glass || !tools) ? 0 : preset(_config, "treeWidth", displayDefaultOptions.treeWidth);
             const keymap = preset(_config, "modifier_keys", viewerDefaultOptions.keymap);
             const newTreeBehavior = preset(_config, "new_tree_behavior", viewerDefaultOptions.newTreeBehavior);
-            const cadWidth = normalizeWidth(size.width, glass);
+            const cadWidth = normalizeWidth(size.width, glass, tools);
             return {
                 glass: glass,
                 treeWidth: treeWidth,
@@ -347,14 +348,31 @@
         }
 
         function showViewer(shapes, config) {
+            if (viewer != null) {
+                viewer.hasAnimationLoop = false;
+                viewer.continueAnimation = false;
+                viewer.dispose()
+                viewer = null;
+            }            
+            
             _shapes = shapes;
             _config = config;
+
+            const displayOptions = getDisplayOptions();
+            
+            if (display==null){
+                const container = document.getElementById("cad_viewer");
+                container.innerHTML = ""
+                display = new Display(container, displayOptions)
+            }            
+
+            display.glassMode(displayOptions.glass);
+            display.showTools(displayOptions.tools);
 
             if (_config == null) {
                 console.log("OCP CAD Viewer: config is null");
                 _config = {}
             }
-            const displayOptions = getDisplayOptions();
 
             if (_config.debug) {
                 console.log("_config", _config);
@@ -367,11 +385,12 @@
               viewer.continueAnimation = false;
             }
 
-            const container = document.getElementById("cad_viewer");
-            container.innerHTML = ""
-            viewer = new Viewer(container, displayOptions, nc, null);
+            viewer = new Viewer(display, displayOptions, nc, null);
             
             if (_shapes) render();
+
+            return viewer;
+            
             // viewer.trimUI(["axes", "axes0", "grid", "ortho", "more", "help"])           
         }
 
@@ -685,6 +704,9 @@
             } else if (data.type === "show") {
                 showViewer();
             } else if (data.type === "ui") {
+                if (_config["_splash"]) {
+                    return
+                }
                 if (data.config.debug) {
                     console.log(data.config)
                 }
@@ -695,6 +717,8 @@
                         viewer.setAxes0(data.config[key]);
                     } else if (key === "grid") {
                         viewer.setGrids(data.config[key]);
+                    } else if (key === "center_grid") {
+                        viewer.setGridCenter(data.config[key]);                           
                     } else if (key === "ortho") {
                         viewer.setOrtho(data.config[key]);
                     } else if (key === "transparent") {
