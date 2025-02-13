@@ -95,8 +95,10 @@ class Viewer:
     def __init__(self, params):
         self.status = {}
         self.config = {}
+        self.debug = params.get("debug", False)
+        self.params = params
 
-        self.configure(params)
+        self.configure(self.params)
 
         self.app = Flask(__name__)
         self.sock = Sock(self.app)
@@ -135,15 +137,22 @@ class Viewer:
                 for k, v in defaults.items():
                     local_config[k] = v
 
+        local_config = dict(sorted(local_config.items()))
+        print("\nlocal:config (1):", local_config)
+        print("\nparams", params)
         # Get all params != their default value and apply it
-        grid = [False, False, False]
+        grid = [
+            local_config["grid_xy"],
+            local_config["grid_yz"],
+            local_config["grid_xz"],
+        ]
         for k, v in params.items():
             if k == "port":
                 self.port = v
             elif k == "host":
                 self.host = v
             elif k not in ["create_configfile"]:
-                if v != DEFAULTS.get(k):
+                if v != local_config.get(k):
                     if k == "grid_xy":
                         grid[0] = True
                     elif k == "grid_yz":
@@ -155,12 +164,12 @@ class Viewer:
         local_config["grid"] = grid
         local_config["reset_camera"] = local_config["reset_camera"].upper()
 
+        local_config = dict(sorted(local_config.items()))
+
         for k, v in local_config.items():
             if k in ["grid_xy", "grid_yz", "grid_xz"]:
                 continue
-            if k == "debug":
-                self.config["debug"] = self.debug = v
-            elif k == "collapse":
+            if k == "collapse":
                 self.config["collapse"] = str(v)
             elif k == "no_glass":
                 self.config["glass"] = not v
@@ -172,7 +181,7 @@ class Viewer:
             else:
                 self.config[k] = v
 
-        self.debug_print("Config:", self.config)
+        self.debug_print("\nConfig:", self.config)
 
     def start(self):
         self.app.run(debug=self.debug, port=self.port, host=self.host)
@@ -215,6 +224,7 @@ class Viewer:
                     self.python_client.send(orjson.dumps({"text": self.status}))
                 elif cmd == "config":
                     self.debug_print("Received config command")
+                    self.configure(self.params)
                     self.config["_splash"] = self.splash
                     self.python_client.send(orjson.dumps(self.config))
                 elif cmd.type == "screenshot":
