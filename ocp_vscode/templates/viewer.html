@@ -446,7 +446,7 @@
 
             // var shapesAndTree = viewer.renderTessellatedShapes(_shapes, _states, renderOptions)
             const bbox = _shapes["bb"];
-            const center = [(bbox.xmax-bbox.xmin)/2, (bbox.ymax-bbox.ymin)/2, (bbox.zmax-bbox.zmin)/2];
+            const center = [(bbox.xmax+bbox.xmin)/2, (bbox.ymax+bbox.ymin)/2, (bbox.zmax+bbox.zmin)/2];
             let bb_radius = Math.max(
                 // bbox.boundingSphere().radius,
                 Math.sqrt(Math.pow(bbox.xmax - bbox.xmin, 2), Math.pow(bbox.ymax - bbox.ymin, 2), Math.pow(bbox.zmax - bbox.zmin, 2)),
@@ -511,22 +511,27 @@
                 if (_config.position) {
                     viewerOptions.position = _config.position;
                 } else if (_position) {
-                    const camera_distance = 5 * bb_radius;
+                    if (reset_camera === "keep") {
+                        const camera_distance = 5 * bb_radius;
 
-                    var p = [0, 0, 0];
-                    for (var i = 0; i < 3; i++) {
-                        p[i] = _position[i] - _target[i];
+                        var p = [0, 0, 0];
+                        for (var i = 0; i < 3; i++) {
+                            p[i] = _position[i] - _target[i];
+                        }
+                        p = normalize(p);
+                        var offset = (reset_camera === "keep") ? _target : [0,0,0];
+                        for (var i = 0; i < 3; i++) {
+                            p[i] = p[i] * camera_distance + offset[i];
+                        }                       
+                    } else { // center
+                        var p = [0, 0, 0];
+                        for (var i = 0; i < 3; i++) {
+                            p[i] = _position[i] - _target[i] + center[i];
+                        }
+                        _target = center
                     }
-                    p = normalize(p);
-                    var offset = (reset_camera === "keep") ? _target : center;
-                    for (var i = 0; i < 3; i++) {
-                        p[i] = p[i] * camera_distance + offset[i];
-                    }
-
-                    viewerOptions.position = p;
-
-                    _target = (reset_camera === "keep") ? _target : center;
                 }
+                viewerOptions.position = p;
                 _position = viewerOptions.position;
 
                 if (_config.quaternion) {
