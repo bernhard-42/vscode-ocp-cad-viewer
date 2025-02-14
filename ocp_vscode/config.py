@@ -330,9 +330,9 @@ def set_defaults(
         position:          Camera position
         quaternion:        Camera orientation as quaternion
         target:            Camera look at target
-        reset_camera:      Camera.RESET: Reset camera position, rotation, toom and target
-                           Camera.CENTER: Keep camera position, rotation, toom, but look at center
-                           Camera.KEEP: Keep camera position, rotation, toom, and target
+        reset_camera:      Camera.RESET: Reset camera position, rotation, zoom and target
+                           Camera.CENTER: Keep camera position, rotation, zoom, but look at center
+                           Camera.KEEP: Keep camera position, rotation, zoom, and target
                            (default=Camera.RESET)
         clip_slider_0:     Setting of clipping slider 0 (default=None)
         clip_slider_1:     Setting of clipping slider 1 (default=None)
