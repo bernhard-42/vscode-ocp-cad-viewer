@@ -1,3 +1,4 @@
+import base64
 import orjson
 import socket
 import yaml
@@ -91,6 +92,17 @@ def COMMS(host, port):
 
 
 INIT = """onload="showViewer()" """
+
+
+def save_png_data_url(data_url, output_path):
+    base64_data = data_url.split(",")[1]
+    image_data = base64.b64decode(base64_data)
+    try:
+        with open(output_path, "wb") as f:
+            f.write(image_data)
+        print(f"Write png file to {output_path}")
+    except Exception as ex:
+        print("Cannot save png file:", str(ex))
 
 
 class Viewer:
@@ -224,14 +236,19 @@ class Viewer:
                 if cmd == "status":
                     self.debug_print("Received status command")
                     self.python_client.send(orjson.dumps({"text": self.status}))
+
                 elif cmd == "config":
                     self.debug_print("Received config command")
                     self.configure(self.params)
                     self.config["_splash"] = self.splash
                     self.python_client.send(orjson.dumps(self.config))
-                elif cmd.type == "screenshot":
+
+                elif cmd.get("type") == "screenshot":
                     self.debug_print("Received screenshot command")
-                    self.python_client(orjson.dumps(cmd))
+                    if self.javascript_client is None:
+                        self.not_registered()
+                        continue
+                    self.javascript_client.send(data)
 
             elif message_type == "D":
                 self.python_client = ws
@@ -245,11 +262,18 @@ class Viewer:
 
             elif message_type == "U":
                 self.javascript_client = ws
-                changes = orjson.loads(data)["text"]
-                self.debug_print("Received incremental UI changes", changes)
-                for key, value in changes.items():
-                    self.status[key] = value
-                self.backend.handle_event(changes, MessageType.UPDATES)
+                message = orjson.loads(data)
+                if message["command"] == "screenshot":
+                    filename = message["text"]["filename"]
+                    data_url = message["text"]["data"]
+                    self.debug_print("Received screenshot data for file", filename)
+                    save_png_data_url(data_url, filename)
+                else:
+                    changes = message["text"]
+                    self.debug_print("Received incremental UI changes", changes)
+                    for key, value in changes.items():
+                        self.status[key] = value
+                    self.backend.handle_event(changes, MessageType.UPDATES)
 
             elif message_type == "S":
                 self.python_client = ws
