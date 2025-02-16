@@ -449,7 +449,7 @@
             const center = [(bbox.xmax+bbox.xmin)/2, (bbox.ymax+bbox.ymin)/2, (bbox.zmax+bbox.zmin)/2];
             let bb_radius = Math.max(
                 // bbox.boundingSphere().radius,
-                Math.sqrt(Math.pow(bbox.xmax - bbox.xmin, 2), Math.pow(bbox.ymax - bbox.ymin, 2), Math.pow(bbox.zmax - bbox.zmin, 2)),
+                Math.sqrt(Math.pow(bbox.xmax - bbox.xmin, 2) + Math.pow(bbox.ymax - bbox.ymin, 2) + Math.pow(bbox.zmax - bbox.zmin, 2)),
                 length(center)
             );
 
