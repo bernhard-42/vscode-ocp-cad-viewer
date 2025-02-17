@@ -516,74 +516,26 @@
         },
         "OcpCadViewer.advanced.installCommands": {
           "type": "object",
-          "description": "Shell commands to install Python libraries. The values for placeholders {python}, {conda_env}, {ocp_vscode_version} will be replaced accordingly during execution",
+          "description": "Shell commands to install Python libraries. The values for placeholders {python}, {ocp_vscode_version}, and {unset_conda} will be replaced accordingly during execution",
           "default": {
-            "cadquery": {
-              "pip": [
-                "{unset_conda} {python} -m pip install --upgrade cadquery"
-              ],
-              "conda": [
-                "conda install -y -n {conda_env} -c conda-forge cadquery"
-              ],
-              "mamba": [
-                "mamba install -y -n {conda_env} -c conda-forge cadquery"
-              ],
-              "poetry": [
-                "poetry add cadquery"
-              ]
-            },
-            "build123d": {
-              "pip": [
-                "{python} -m pip install --upgrade build123d"
-              ],
-              "poetry": [
-                "poetry add build123d"
-              ]
-            },
-            "ocp_vscode": {
-              "pip": [
-                "{python} -m pip install --upgrade ocp_vscode=={ocp_vscode_version}"
-              ],
-              "poetry": [
-                "poetry add ocp_vscode=={ocp_vscode_version}"
-              ]
-            },
-            "ocp_tessellate": {
-              "pip": [
-                "{python} -m pip install --upgrade \"ocp_tessellate>=3.0.10,<3.1.0\""
-              ],
-              "poetry": [
-                "poetry add ocp_tessellate@~3.0.10"
-              ]
-            },
-            "ipykernel": {
-              "pip": [
-                "{python} -m pip install --upgrade ipykernel"
-              ],
-              "conda": [
-                "conda install -y -n {conda_env} -c conda-forge ipykernel"
-              ],
-              "mamba": [
-                "mamba install -y -n {conda_env} -c conda-forge ipykernel"
-              ],
-              "poetry": [
-                "poetry add ipykernel"
-              ]
-            },
-            "jupyter_console": {
-              "pip": [
-                "{python} -m pip install --upgrade jupyter_console"
-              ],
-              "conda": [
-                "conda install -y -n {conda_env} -c conda-forge jupyter_console"
-              ],
-              "mamba": [
-                "mamba install -y -n {conda_env} -c conda-forge jupyter_console"
-              ],
-              "poetry": [
-                "poetry add jupyter_console"
-              ]
-            }
+            "cadquery": [
+              "{unset_conda} {python} -m pip install --upgrade cadquery"
+            ],
+            "build123d": [
+              "{python} -m pip install --upgrade build123d"
+            ],
+            "ocp_vscode": [
+              "{python} -m pip install --upgrade ocp_vscode=={ocp_vscode_version}"
+            ],
+            "ocp_tessellate": [
+              "{python} -m pip install --upgrade \"ocp_tessellate>=3.0.10,<3.1.0\""
+            ],
+            "ipykernel": [
+              "{python} -m pip install --upgrade ipykernel"
+            ],
+            "jupyter_console": [
+              "{python} -m pip install --upgrade jupyter_console"
+            ]
           },
           "order": 54
         },

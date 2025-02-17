@@ -461,7 +461,7 @@ export async function activate(context: vscode.ExtensionContext) {
                 } else {
                     commands = commands["others"];
                 }
-                await installLib(libraryManager, "", commands, requiredPythonVersion, requireConda,
+                await installLib(libraryManager, "", commands, requiredPythonVersion,
                     async () => {
                         if (!jupyterExtensionInstalled()) {
                             await vscode.commands.executeCommand("ocpCadViewer.installJupyterExtension");

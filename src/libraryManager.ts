@@ -62,35 +62,20 @@ export async function installLib(
     library: string = "",
     cmds: string[] = [],
     requiredPythonVersion: string = "",
-    condaRequired: boolean = false,
     callback: CallableFunction = () => null
 ) {
-    let commands: string[] = [];
+    if (library === "") return;
 
-    if (library !== "") {
-        let managers = libraryManager.getInstallLibMgrs(library);
-        let manager: string;
-        if (managers.length > 1) {
-            manager = await inquiry(
-                `Select package manager to install "${library}"`,
-                managers
-            );
-            if (manager === "") {
-                return;
-            }
-        } else {
-            manager = managers[0];
-        }
-        commands = await libraryManager.getInstallLibCmds(library, manager);
-    } else {
-        commands = await libraryManager.getInstallLibCmds(library, "", cmds);
-    }
+    let commands: string[] = await libraryManager.getInstallLibCmds(
+        library,
+        cmds
+    );
 
     let python = await getPythonPath();
     let reply =
         (await vscode.window.showQuickPick(["yes", "no"], {
-            placeHolder: `For the installation, use the python interpreter "${python}"?`
-        })) || "";
+        placeHolder: `Is "${python}" the right interpreter for the installation?`,
+     })) || "";
     if (reply === "" || reply === "no") {
         return;
     }
@@ -100,11 +85,6 @@ export async function installLib(
     if (python === "python") {
         vscode.window.showErrorMessage("Select Python Interpreter first!");
         return;
-    }
-
-    if (condaRequired && !isCondaAvailable(python)) {
-        vscode.window.showErrorMessage("Conda required!");
-        return
     }
 
     if (requiredPythonVersion !== "") {
@@ -145,12 +125,12 @@ export async function installLib(
 export class LibraryManagerProvider
     implements vscode.TreeDataProvider<Library>
 {
-    statusManager: StatusManagerProvider;
-    installCommands: any = {};
-    exampleDownloads: any = {};
-    codeSnippets: any = {};
-    installed: Record<string, string[]> = {};
-    terminal: TerminalExecute | undefined;
+  statusManager: StatusManagerProvider;
+  installCommands: any = {};
+  exampleDownloads: any = {};
+  codeSnippets: any = {};
+  installed: Record<string, string[]> = {};
+  terminal: TerminalExecute | undefined;
 
     constructor(statusManger: StatusManagerProvider) {
         this.statusManager = statusManger;
@@ -186,47 +166,24 @@ export class LibraryManagerProvider
         this._onDidChangeTreeData.fire();
     }
 
-    addLib(lib: string, manager: string, version: string, path: string) {
-        this.installed[lib] = [manager, version, path];
-    }
-
     getInstallLibs() {
         return Object.keys(this.installCommands).sort();
     }
 
-    getInstallLibMgrs(lib: string) {
-        let managers = Object.keys(this.installCommands[lib]);
-        let filteredManagers: string[] = [];
-
-        managers.forEach((manager: string) => {
-            const cwd = getCurrentFolder()[0];
-            const poetryLock = fs.existsSync(path.join(cwd, "poetry.lock"));
-            if (manager === "poetry" && !poetryLock) {
-                // ignore
-            } else {
-                filteredManagers.push(manager);
-            }
-        });
-        return filteredManagers;
-    }
-
-    async getInstallLibCmds(lib: string, manager: string, cmds: string[] = []) {
-        let commands: string[] = []
+    async getInstallLibCmds(lib: string, cmds: string[] = []) {
+        let commands: string[] = [];
         if (cmds.length === 0) {
-            commands = this.installCommands[lib][manager];
+            commands = this.installCommands[lib];
         } else {
-            commands = cmds;
+        commands = cmds;
         }
         let python = await getPythonPath();
         let substCmds: string[] = [];
         commands.forEach((command: string) => {
             command = command.replace("{ocp_vscode_version}", ocp_vscode_version);
             command = command.replace("{python}", '"' + python + '"');
-            if (manager === "") {
-                manager = (command.startsWith("conda") || command.startsWith("mamba")) ? command.split(" ")[0] : "pip";
-            }
 
-            if (manager === "pip" && command.indexOf("{unset_conda}") >= 0) {
+            if (command.indexOf("{unset_conda}") >= 0) {
                 command = command.replace("{unset_conda}", "");
 
                 if (process.platform === "win32") {
@@ -237,23 +194,10 @@ export class LibraryManagerProvider
                     fs.writeFileSync(command, code);
                     output.info(`created batch file ${command} with commands:`);
                     output.info("\n" + code);
-
                 } else {
                     command = "env -u CONDA_PREFIX " + command;
                 }
                 substCmds.push(command);
-
-            } else if (manager === "conda" || manager === "mamba") {
-                let paths = python.split(path.sep);
-                let env = "";
-                if (process.platform === "win32") {
-                    env = paths[paths.length - 2];
-                } else {
-                    env = paths[paths.length - 3];
-                }
-                substCmds.push(
-                    command.replace("{conda_env}", env)
-                );
             } else {
                 substCmds.push(command);
             }
