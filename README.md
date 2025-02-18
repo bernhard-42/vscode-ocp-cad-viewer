@@ -11,13 +11,11 @@ _OCP CAD Viewer_ for VS Code is an extension to show [CadQuery](https://github.c
 - Necessary tools:
   - `python` and `pip` available in the Python enviroment that will be used for CAD development
   - The command `git` needs to be available
-  - On a Silicon Apple computer the command `mamba` needs to be available. You might want to consider using [Mambaforge](https://github.com/conda-forge/miniforge#mambaforge).
 
 **Notes**:
 
 - To use OCP CAD Viewer, start VS Code from the commandline in the Python environment you want to use or select the right Python interpreter in VS Code first. **OCP CAD Viewer depends on VS Code using the right Python interpreter** (i.e. mamba / conda / pyenv / poetry / ... environment).
 - For VSCodium, the extension is not available in the VS code market place. You need to download the the vsix file from the [release folder](https://github.com/bernhard-42/vscode-ocp-cad-viewer/releases) and install it manually.
-- Currently, on a Silicon Mac (ARM CPU), _OCP_ and _CadQuery_ can only be installed via `mamba`, see 3. below.
 
 ### Installation
 
@@ -53,21 +51,10 @@ _OCP CAD Viewer_ for VS Code is an extension to show [CadQuery](https://github.c
    - start the OCP viewer
    - create a demo file in a temporary folder to quickly see a simple usage example
 
-3. On Silicon Macs (ARM CPU)
-
-   - Install Miniforge
-     - Option 1: Download and install from the [Miniforge](https://github.com/conda-forge/miniforge?tab=readme-ov-file#download) github page
-     - Option 2: Use `homebrew`: `brew install miniforge`
-   - Initialize your shell for `mamba`: `mamba init $(basename "$SHELL")`
-   - Create an environment, e.g named `code_cad` with Python 3.10: `mamba create -n code_cad python=3.10`
-   - Activate the environment: `mamba activate code_cad`
-   - Start VS Code from your working folder: `code .`
-   - Install the Python extension in VS Code
-   - Continue with 1. above
 
 **Notes:** 
 
-- Do not use the _OCP CAD Viewer_ logo to verify your _OCP CAD Viewer_ settings! The logo overwrites all your settings in VS Code with its own settings to always look the same on each instance. Use a simple own model for checking your conmfiguration
+- Do not use the _OCP CAD Viewer_ logo to verify your _OCP CAD Viewer_ settings! The logo overwrites all your settings in VS Code with its own settings to always look the same on each instance. Use a simple own model for checking your configuration
 
 - If you run into issues, see [Troubleshooting](#troubleshooting)
 
