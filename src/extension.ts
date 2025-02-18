@@ -453,14 +453,6 @@ export async function activate(context: vscode.ExtensionContext) {
                 const conf = vscode.workspace.getConfiguration("OcpCadViewer.advanced")
                 let commands = conf["quickstartCommands"][arg];
                 let requiredPythonVersion = "";
-                let requireConda = false;
-                if (os.platform() === "darwin" && os.arch() === "arm64") {
-                    commands = commands["appleSilicon"];
-                    requiredPythonVersion = "3.9,3.10,3.11";
-                    requireConda = true;
-                } else {
-                    commands = commands["others"];
-                }
                 await installLib(libraryManager, "", commands, requiredPythonVersion,
                     async () => {
                         if (!jupyterExtensionInstalled()) {

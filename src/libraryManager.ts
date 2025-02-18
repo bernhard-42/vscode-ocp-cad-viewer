@@ -64,8 +64,6 @@ export async function installLib(
     requiredPythonVersion: string = "",
     callback: CallableFunction = () => null
 ) {
-    if (library === "") return;
-
     let commands: string[] = await libraryManager.getInstallLibCmds(
         library,
         cmds
@@ -175,7 +173,7 @@ export class LibraryManagerProvider
         if (cmds.length === 0) {
             commands = this.installCommands[lib];
         } else {
-        commands = cmds;
+            commands = cmds;
         }
         let python = await getPythonPath();
         let substCmds: string[] = [];
