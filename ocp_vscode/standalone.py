@@ -97,10 +97,17 @@ INIT = """onload="showViewer()" """
 def save_png_data_url(data_url, output_path):
     base64_data = data_url.split(",")[1]
     image_data = base64.b64decode(base64_data)
+    suffix = "-temp" + hex(int(time.time() * 1e6))[2:]
     try:
-        with open(output_path, "wb") as f:
+        # first write to a temp name to avoid polling is successful before finished ...
+        print("writing", output_path + suffix)
+        with open(output_path + suffix, "wb") as f:
             f.write(image_data)
-        print(f"Write png file to {output_path}")
+        # ... and then rename to the actual filename
+        print("renaming to", output_path)
+        shutil.move(output_path + suffix, output_path)
+
+        print(f"Wrote png file to {output_path}")
     except Exception as ex:
         print("Cannot save png file:", str(ex))
 

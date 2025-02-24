@@ -104,7 +104,11 @@ export class OCPCADViewer {
                         }
                         var filename = message.text.filename;
                         try {
-                            fs.writeFileSync(filename, data);
+                            // first write to a temp name to avoid polling is successful before finished ...
+                            let suffix = "-temp" + Date.now().toString(16)
+                            fs.writeFileSync(filename + suffix, data);
+                            // ... and then rename to the actual filename
+                            fs.renameSync(filename + suffix, filename)
                             vscode.window.showInformationMessage(`Screenshot saved as\n${filename}`);
                         } catch (error) {
                             vscode.window.showErrorMessage(`Error saving screenshot as\n${filename}`);
