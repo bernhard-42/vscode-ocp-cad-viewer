@@ -112,9 +112,9 @@ export async function installLib(
 
         callback();
         listener.dispose();
-    })
-    await new Promise(resolve => setTimeout(resolve, delay));
-    commands.push("exit")
+    });
+    await new Promise((resolve) => setTimeout(resolve, delay));
+    commands.push("exit");
     const command = commands.join(" && ");
     term.sendText(command, true);
 }
