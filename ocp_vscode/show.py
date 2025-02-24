@@ -938,7 +938,7 @@ def show_all(
         show_clear()
 
 
-def save_screenshot(filename, port=None):
+def save_screenshot(filename, port=None, polling=True):
     """Save a screenshot of the current view"""
     if not filename.startswith(os.sep):
         prefix = pathlib.Path(".").absolute()
@@ -950,13 +950,14 @@ def save_screenshot(filename, port=None):
 
     send_command({"type": "screenshot", "filename": f"{full_path}"}, port=port)
 
-    done = False
-    for i in range(20):
-        if p.exists() and p.stat().st_mtime > mtime:
-            print("Screenshot saved to ", full_path)
-            done = True
-            break
-        time.sleep(0.1)
+    if polling:
+        done = False
+        for i in range(20):
+            if p.exists() and p.stat().st_mtime > mtime:
+                print("Screenshot saved to ", full_path)
+                done = True
+                break
+            time.sleep(0.1)
 
-    if not done:
-        "Screenshot not found in 2 seconds, aborting"
+        if not done:
+            print("Warning: Screenshot not found in 2 seconds, aborting")
