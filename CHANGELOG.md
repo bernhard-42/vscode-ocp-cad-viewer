@@ -2,6 +2,49 @@
 
 All notable changes to the "OCP CAD Viewer" extension will be documented in this file.
 
+v2.6.2
+
+Fixes:
+
+-	Installation now uses pip on all platforms - see also "Breaking changes" ([#68](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/68))
+-	Removed special handling of installations on Apple Silicon ([#84](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/84))
+-	Print enter/return after tessellation ([#120](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/120))
+-	Eliminate requirement for `set_port(3939)` in "standalone" mode ([#121](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/121))
+-	Started fixing memory leak - about 90% done ([#123](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/123))
+-	Remove XYZ axes from bottom left corner of save_screenshot ([#124](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/124))
+-	Fixed rendering a compound made of multiple object types ignoring labels and colors ([#125](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/125))
+-	Fixed double clicking a vertex or edge throwing an error in Javascript ([#129](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/129))
+-	The help dialog is height restricted and uses vertical scrollbars on too small screens ([#131](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/131))
+-	Fixed an issue in visual Debugging ([#134](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/134))
+-	Fixed an issue that nested compounds did not render properly ([#135](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/135))
+-	Ensure objects are properly centered when tools are disabled. ([#136](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/136))
+-	ImageFace is shown again with `show_all()` ([#137](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/137))
+-	Ensure that `reset_camera=Camera.CENTER` properly centers the object ([#139](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/139))
+-	Quickstart and libraries now install from pypi and not any more from git  - see also "Breaking changes" ([#143](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/143))
+-	Fixed incorrect display of moved compounds ([#145](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/145))
+-	Added a warning for standalone when browser hasn't been refresh after restart ([#146](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/146))
+-	Fixed `save_screenshot` for standalone server ([#147](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/147))
+
+Features:
+
+-	Introduced a VS Code setting for OCP CAD Viewer reset_camera=Camera.KEEP the default behavior ([#144](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/144))
+
+Docs
+
+-	Provide better documentation for show_all ([#142](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/142))
+  
+Breaking changes:
+
+- The install commands for libraries and the quickstart commands have been simplified. There is just one configurable command now that uses `pip`. For any other package manager, the command needs to be uüdated in settings. The extension identifies the situation where outdated configurations are loaded from the local `settings.json` and provides these error messages:
+
+  - "Your installCommands are outdated.
+     Please update them in your settings.json ('OcpCadViewer.advanced.installCommands')"
+  - "Your Quickstart is outdated.
+     Please update them in your settings.json ('OcpCadViewer.advanced.quickstartCommands')"
+
+Open `settings.json` and remove the old configuration. Then use the VS Code preferences to change the new defaults to your linking.
+
+
 v2.6.1
 
 Fixes:
