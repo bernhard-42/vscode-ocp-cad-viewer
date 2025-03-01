@@ -49,7 +49,11 @@ show(
 )
 # %%
 set_defaults(show_parent=True, reset_camera=Camera.RESET)
-show(Box(1, 2, 3).vertices())
+show(Box(1, 2, 3).faces().edges().vertices())
+# %%
+show(Box(1, 2, 3).faces().edges())
+# %%
+show(Box(1, 2, 3).faces())
 # %%
 with BuildPart() as p:
     Box(0.1, 0.1, 2)
