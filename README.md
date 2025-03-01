@@ -301,7 +301,7 @@ NATIVE_TESSELLATOR=1 OCP_VSCODE_PYTEST=1 pytest -v -s pytests/
 
 v2.6.2
 
-Fixes:
+**Fixes:**
 
 -	Installation now uses pip on all platforms - see also "Breaking changes" ([#68](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/68))
 -	Removed special handling of installations on Apple Silicon ([#84](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/84))
@@ -322,21 +322,28 @@ Fixes:
 -	Added a warning for standalone when browser hasn't been refresh after restart ([#146](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/146))
 -	Fixed `save_screenshot` for standalone server ([#147](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/147))
 
-Features:
+**Features:**
 
 -	Introduced a VS Code setting for OCP CAD Viewer reset_camera=Camera.KEEP the default behavior ([#144](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/144))
 
-Docs
+**Docs:**
 
 -	Provide better documentation for show_all ([#142](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/142))
   
-Breaking changes:
+**Breaking changes:**
 
-- The install commands for libraries and the quickstart commands have been simplified. There is just one configurable command now that uses `pip`. For any other package manager, the command needs to be uüdated in settings. The extension identifies the situation where outdated configurations are loaded from the local `settings.json` and provides these error messages:
-
-  - "Your installCommands are outdated.
-     Please update them in your settings.json ('OcpCadViewer.advanced.installCommands')"
-  - "Your Quickstart is outdated.
-     Please update them in your settings.json ('OcpCadViewer.advanced.quickstartCommands')"
-
+- The install commands for libraries and the quickstart commands have been simplified. There is just one configurable command now that uses `pip`. For any other package manager, the command needs to be outdated in settings. 
 Open `settings.json` and remove the old configuration. Then use the VS Code preferences to change the new defaults to your linking.
+The extension identifies the situation where outdated configurations are loaded from the local `settings.json` and provides these error messages:
+
+  - "Your installCommands are outdated. Please update them in your settings.json ('OcpCadViewer.advanced.installCommands')"
+
+  - "Your Quickstart is outdated. Please update them in your settings.json ('OcpCadViewer.advanced.quickstartCommands')"
+
+- Until cadquery 2.6 is on pypy: When you want to install build123d and cadquery in parallel, you first need to change the cadquery install command to 
+
+  ```bash
+  [
+    "{unset_conda} {python} -m pip install --upgrade git+https://github.com/CadQuery/cadquery.git"
+  ]
+  ```
