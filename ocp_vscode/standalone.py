@@ -102,11 +102,9 @@ def save_png_data_url(data_url, output_path):
     suffix = "-temp" + hex(int(time.time() * 1e6))[2:]
     try:
         # first write to a temp name to avoid polling is successful before finished ...
-        print("writing", output_path + suffix)
         with open(output_path + suffix, "wb") as f:
             f.write(image_data)
         # ... and then rename to the actual filename
-        print("renaming to", output_path)
         shutil.move(output_path + suffix, output_path)
 
         print(f"Wrote png file to {output_path}")
@@ -161,8 +159,7 @@ class Viewer:
                     local_config[k] = v
 
         local_config = dict(sorted(local_config.items()))
-        print("\nlocal:config (1):", local_config)
-        print("\nparams", params)
+
         # Get all params != their default value and apply it
         grid = [
             local_config["grid_xy"],
