@@ -187,12 +187,12 @@ export async function activate(context: vscode.ExtensionContext) {
 
                     return;
                 }
-                
+
                 var column = vscode.ViewColumn.One;
-                if(vscode.window?.activeTextEditor?.viewColumn) {
+                if (vscode.window?.activeTextEditor?.viewColumn) {
                     column = vscode.window.activeTextEditor.viewColumn
-                } else if(vscode.window?.activeNotebookEditor?.viewColumn) {
-                    column =vscode.window.activeNotebookEditor.viewColumn 
+                } else if (vscode.window?.activeNotebookEditor?.viewColumn) {
+                    column = vscode.window.activeNotebookEditor.viewColumn
                 }
 
                 if (preset_port) {
@@ -452,6 +452,10 @@ export async function activate(context: vscode.ExtensionContext) {
             async (arg) => {
                 const conf = vscode.workspace.getConfiguration("OcpCadViewer.advanced")
                 let commands = conf["quickstartCommands"][arg];
+                if (Object.keys(commands).includes("appleSilicon")) {
+                    vscode.window.showErrorMessage("Quickstart config changed.\nPlease remove your local changes from the VS Code preferences ('OcpCadViewer.advanced.quickstartCommands') ")
+                    return;
+                }
                 let requiredPythonVersion = "";
                 await installLib(libraryManager, "", commands, requiredPythonVersion,
                     async () => {
