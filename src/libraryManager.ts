@@ -68,12 +68,14 @@ export async function installLib(
         library,
         cmds
     );
-
+    if (commands.length === 0) {
+        return;
+    }
     let python = await getPythonPath();
     let reply =
         (await vscode.window.showQuickPick(["yes", "no"], {
-        placeHolder: `Is "${python}" the right interpreter for the installation?`,
-     })) || "";
+            placeHolder: `Is "${python}" the right interpreter for the installation?`,
+        })) || "";
     if (reply === "" || reply === "no") {
         return;
     }
@@ -121,14 +123,13 @@ export async function installLib(
 
 
 export class LibraryManagerProvider
-    implements vscode.TreeDataProvider<Library>
-{
-  statusManager: StatusManagerProvider;
-  installCommands: any = {};
-  exampleDownloads: any = {};
-  codeSnippets: any = {};
-  installed: Record<string, string[]> = {};
-  terminal: TerminalExecute | undefined;
+    implements vscode.TreeDataProvider<Library> {
+    statusManager: StatusManagerProvider;
+    installCommands: any = {};
+    exampleDownloads: any = {};
+    codeSnippets: any = {};
+    installed: Record<string, string[]> = {};
+    terminal: TerminalExecute | undefined;
 
     constructor(statusManger: StatusManagerProvider) {
         this.statusManager = statusManger;
@@ -140,6 +141,16 @@ export class LibraryManagerProvider
             vscode.workspace.getConfiguration("OcpCadViewer.advanced")[
             "installCommands"
             ];
+        let outdated = false;
+        for (var lib of Object.keys(this.installCommands)) {
+            if (!Array.isArray(this.installCommands[lib])) {
+                outdated = true;
+                break;
+            }
+        }
+        if (outdated) {
+            vscode.window.showErrorMessage("Your installCommands are outdated.\nPlease update them in your settings.json ('OcpCadViewer.advanced.installCommands')");
+        }
         this.codeSnippets =
             vscode.workspace.getConfiguration("OcpCadViewer.advanced")[
             "codeSnippets"
@@ -174,6 +185,10 @@ export class LibraryManagerProvider
             commands = this.installCommands[lib];
         } else {
             commands = cmds;
+        }
+        if (!Array.isArray(commands)) {
+            vscode.window.showErrorMessage("Your installCommands are outdated.\nPlease update them in your settings.json ('OcpCadViewer.advanced.installCommands')");
+            return [];
         }
         let python = await getPythonPath();
         let substCmds: string[] = [];
