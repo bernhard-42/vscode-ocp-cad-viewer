@@ -37,7 +37,7 @@ All notable changes to the "OCP CAD Viewer" extension will be documented in this
 
 - The install commands for libraries and the quickstart commands have been simplified. There is just one configurable command now that uses `pip`. For any other package manager, the command needs to be outdated in settings. 
 Open `settings.json` and remove the old configuration. Then use the VS Code preferences to change the new defaults to your linking.
-The extension identifies the situation where outdated configurations are loaded from the local `settings.json` and provides these error messages:
+The extension identifies the situation where updated configurations are loaded from the local `settings.json` and provides these error messages:
 
   - "Your installCommands are outdated. Please update them in your settings.json ('OcpCadViewer.advanced.installCommands')"
 
