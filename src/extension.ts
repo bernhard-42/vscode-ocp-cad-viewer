@@ -453,7 +453,7 @@ export async function activate(context: vscode.ExtensionContext) {
                 const conf = vscode.workspace.getConfiguration("OcpCadViewer.advanced")
                 let commands = conf["quickstartCommands"][arg];
                 if (Object.keys(commands).includes("appleSilicon")) {
-                    vscode.window.showErrorMessage("Quickstart config changed.\nPlease update them in your settings.json ('OcpCadViewer.advanced.quickstartCommands') ")
+                    vscode.window.showErrorMessage("Your Quickstart is outdated.\nPlease update them in your settings.json ('OcpCadViewer.advanced.quickstartCommands')")
                     return;
                 }
                 let requiredPythonVersion = "";
