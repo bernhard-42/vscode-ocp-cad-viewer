@@ -9,8 +9,7 @@ _OCP CAD Viewer_ for VS Code is an extension to show [CadQuery](https://github.c
 - A fairly recent version of Microsoft VS Code, e.g. 1.85.0 or newer
 - The [Python extension](https://marketplace.visualstudio.com/items?itemName=ms-python.python) installed in VS Code
 - Necessary tools:
-  - `python` and `pip` available in the Python enviroment that will be used for CAD development
-  - The command `git` needs to be available
+  - `python` and `pip` available in the Python enviroment that will be used for CAD development. Note, even when you use another package manager, `pip ` is needed internallyand needs to be available.
 
 **Notes**:
 
@@ -33,17 +32,17 @@ _OCP CAD Viewer_ for VS Code is an extension to show [CadQuery](https://github.c
 
    - Prepare _OCP CAD Viewer_ for working with [build123d](https://github.com/gumyr/build123d): Presse the _Quickstart build123d_ button.
 
-     This will install _OCP_, _build123d_, _ipykernel_ (_jupyter_client_), _ocp_tessellate_ and _ocp_vscode_ via `pip` (except for Apple Silicon machines that require `mamba` and will also install _cadquery_)
+     This will install _OCP_, _build123d_, _ipykernel_ (_jupyter_client_), _ocp_tessellate_ and _ocp_vscode_ via `pip`
 
      ![](screenshots/build123d_installed.png)
 
    - Prepare _OCP CAD Viewer_ for working with [CadQuery](https://github.com/cadquery/cadquery): Presse the _Quickstart CadQuery_ button.
 
-     This will install _OCP_, _CadQuery_, _ipykernel_ (_jupyter_client_), _ocp_tessellate_ and _ocp_vscode_ via `pip` (except for Apple Silicon machines that require `mamba`)
+     This will install _OCP_, _CadQuery_, _ipykernel_ (_jupyter_client_), _ocp_tessellate_ and _ocp_vscode_ via `pip`
 
      ![](screenshots/cadquery_installed.png)
 
-   - Ignore the quick starts and use the "Library Manager" to install the libraries. Doing so, _OCP CAD Viewer_ let's you select whether to use `pip`, `mamba`, `conda` or `poetry`. Install the needed library by pressing the down-arrow behind the library name (hover over the library name to see the button) in the "Library Manager" section of the _OCP CAD Viewer_ sidebar. For more details, see [here](./docs/install.md)
+   - Ignore the quick starts and use the "Library Manager" to install the libraries via `pip` (per default, this can be changed in the VS Code settings). Install the needed library by pressing the down-arrow behind the library name (hover over the library name to see the button) in the "Library Manager" section of the _OCP CAD Viewer_ sidebar. For more details, see [here](./docs/install.md)
 
    The Quickstarts will also
 
