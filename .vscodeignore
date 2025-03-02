@@ -54,6 +54,7 @@ media/ocp-icon.afdesign
 media/ocp-icon.png
 media/ocp-logo.png
 
+ocp_vscode/
 examples/*
 TODO
 node_modules/@aashutoshrathi
@@ -88,12 +89,14 @@ node_modules/buffer-crc32
 node_modules/call-bind
 node_modules/callsites
 node_modules/camelcase
+node_modules/camel-case
 node_modules/chalk
 node_modules/cheerio
 node_modules/cheerio-select
 node_modules/chokidar
 node_modules/chownr
 node_modules/cliui
+node_modules/clean-css
 node_modules/color-convert
 node_modules/color-name
 node_modules/commander
@@ -160,6 +163,7 @@ node_modules/has-proto
 node_modules/has-symbols
 node_modules/he
 node_modules/hosted-git-info
+node_modules/html-minifier
 node_modules/htmlparser2
 node_modules/http-proxy-agent
 node_modules/https-proxy-agent
@@ -194,6 +198,7 @@ node_modules/linkify-it
 node_modules/locate-path
 node_modules/lodash.merge
 node_modules/log-symbols
+node_modules/lower-case
 node_modules/markdown-it
 node_modules/mdurl
 node_modules/merge2
@@ -210,6 +215,7 @@ node_modules/nanoid
 node_modules/napi-build-utils
 node_modules/natural-compare
 node_modules/natural-compare-lite
+node_modules/no-case
 node_modules/node-abi
 node_modules/node-addon-api
 node_modules/normalize-path
@@ -220,6 +226,7 @@ node_modules/optionator
 node_modules/p-limit
 node_modules/p-locate
 node_modules/pako
+node_modules/param-case
 node_modules/parent-module
 node_modules/parse-semver
 node_modules/parse5
@@ -242,6 +249,7 @@ node_modules/rc
 node_modules/read
 node_modules/readable-stream
 node_modules/readdirp
+node_modules/relateurl
 node_modules/require-directory
 node_modules/resolve-from
 node_modules/reusify
@@ -277,7 +285,9 @@ node_modules/type-fest
 node_modules/typed-rest-client
 node_modules/typescript
 node_modules/uc.micro
+node_modules/uglify-js
 node_modules/underscore
+node_modules/upper-case
 node_modules/uri-js
 node_modules/url-join
 node_modules/util-deprecate
