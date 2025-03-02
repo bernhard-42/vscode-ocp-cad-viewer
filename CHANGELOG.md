@@ -2,6 +2,13 @@
 
 All notable changes to the "OCP CAD Viewer" extension will be documented in this file.
 
+## v2.6.3
+
+**Fixes:**
+
+- Bump version of ocp-tessellate in pyproject.toml to >=3.0.10
+
+
 ## v2.6.2
 
 **Fixes:**
