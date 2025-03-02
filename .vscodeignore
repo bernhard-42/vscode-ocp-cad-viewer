@@ -54,7 +54,7 @@ media/ocp-icon.afdesign
 media/ocp-icon.png
 media/ocp-logo.png
 
-ocp_vscode/
+ocp_vscode/__pycache__
 examples/*
 TODO
 node_modules/@aashutoshrathi
