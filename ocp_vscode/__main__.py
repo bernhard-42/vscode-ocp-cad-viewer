@@ -267,7 +267,7 @@ def main(ctx, **kwargs):
     if kwargs.get("create_configfile"):
 
         config_file = Path(resolve_path(CONFIG_FILE))
-        with open(config_file, "w") as f:
+        with open(config_file, "w", encoding="utf-8") as f:
             f.write(yaml.dump(DEFAULTS))
         print(f"Created config file {config_file}")
 
