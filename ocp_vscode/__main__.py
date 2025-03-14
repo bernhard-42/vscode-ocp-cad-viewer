@@ -8,6 +8,16 @@ from werkzeug.serving import get_interface_ip
 
 
 def represent_list(dumper, data):
+    """
+    Represents a list in YAML format with flow style.
+
+    Args:
+        dumper: The YAML dumper instance.
+        data: The list to be represented.
+
+    Returns:
+        The YAML representation of the list in flow style.
+    """
     return dumper.represent_sequence("tag:yaml.org,2002:seq", data, flow_style=True)
 
 
@@ -15,6 +25,23 @@ yaml.add_representer(list, represent_list)
 
 
 def track_param(ctx, param, value):
+    """
+    Tracks and stores the value of a parameter in the context object.
+
+    This function checks if the context object (`ctx`) has an attribute `params_set`.
+    If not, it initializes `params_set` as an empty dictionary. It then checks if the
+    provided `value` is different from the parameter's default value or if the parameter's
+    name is one of ["port", "host", "debug"]. If any of these conditions are met, it stores
+    the parameter's name and value in the `params_set` dictionary.
+
+    Args:
+        ctx (object): The context object that will store the parameter values.
+        param (object): The parameter object which contains the default value and name.
+        value (any): The value of the parameter to be tracked.
+
+    Returns:
+        any: The value of the parameter.
+    """
     if not hasattr(ctx, "params_set"):
         ctx.params_set = {}
     if value != param.default or param.name in ["port", "host", "debug"]:
@@ -264,6 +291,16 @@ def track_param(ctx, param, value):
 )
 @click.pass_context
 def main(ctx, **kwargs):
+    """
+    Main function to either create a configuration file or start the viewer.
+    Args:
+        ctx: Context object containing parameters.
+        **kwargs: Arbitrary keyword arguments for click.
+
+    Returns:
+        None
+    """
+
     if kwargs.get("create_configfile"):
 
         config_file = Path(resolve_path(CONFIG_FILE))
