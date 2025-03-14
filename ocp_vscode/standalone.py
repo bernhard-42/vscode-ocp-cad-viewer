@@ -5,7 +5,7 @@ import socket
 import time
 import yaml
 from pathlib import Path
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 from flask_sock import Sock
 from simple_websocket import ConnectionClosed
 from ocp_vscode.comms import MessageType
@@ -133,15 +133,6 @@ class Viewer:
         self.sock.route("/")(self.handle_message)
         self.app.add_url_rule("/viewer", "viewer", self.index)
 
-        # get ip address of current machine
-        if params.get("host") == "127.0.0.1":
-            self.ip_address = "127.0.0.1"
-        elif params.get("host") == "0.0.0.0":
-            hostname = socket.gethostname()
-            self.ip_address = socket.gethostbyname(hostname)
-        else:
-            self.ip_address = params.get("host")
-
     def debug_print(self, *msg):
         if self.debug:
             print("Debug:", *msg)
@@ -209,11 +200,14 @@ class Viewer:
         self.backend.load_model(logo)
 
     def index(self):
+        # The browser will connect with an ip/hostname that is reachable from remote.
+        # Use this ip/hostname for the websocket connection
+        address, port = request.host.split(":")
         return render_template(
             "viewer.html",
             standalone_scripts=SCRIPTS,
             standalone_imports=STATIC,
-            standalone_comms=COMMS(self.ip_address, self.port),
+            standalone_comms=COMMS(address, port),
             standalone_init=INIT,
             styleSrc=CSS,
             scriptSrc=JS,

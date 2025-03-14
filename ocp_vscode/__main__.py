@@ -4,6 +4,7 @@ import yaml
 from pathlib import Path
 from ocp_vscode.standalone import Viewer, DEFAULTS, CONFIG_FILE
 from ocp_vscode.state import resolve_path
+from werkzeug.serving import get_interface_ip
 
 
 def represent_list(dumper, data):
@@ -277,10 +278,15 @@ def main(ctx, **kwargs):
         host = kwargs["host"]
 
         if host == "0.0.0.0":
-            hostname = socket.gethostname()
-            host = socket.gethostbyname(hostname)
-
-        print(f"\nThe viewer is running at http://{host}:{port}/viewer\n")
+            print("\nThe viewer is running on all addresses:")
+            print(f"  - http://127.0.0.1:{port}/viewer")
+            try:
+                host = get_interface_ip(socket.AF_INET)
+                print(f"  - http://{host}:{port}/viewer\n")
+            except:  # pylint: disable=bare-except
+                pass
+        else:
+            print(f"\nThe viewer is running on http://{host}:{port}/viewer\n")
 
         viewer.start()
 
