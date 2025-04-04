@@ -607,11 +607,10 @@ def show(
     with Timer(timeit, "", "send"):
         viewer = send_data(t, port=port, timeit=timeit)
 
-    if is_jupyter_cadquery
+    if is_jupyter_cadquery:
         send_backend({"model": mapping}, jcv_id=viewer.widget.id, timeit=timeit)
     else:
         send_backend({"model": mapping}, port=port, timeit=timeit)
-
 
     if viewer is not None:
         return viewer
