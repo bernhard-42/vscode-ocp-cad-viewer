@@ -563,4 +563,10 @@ def check_deprecated(kwargs):
         )
         kwargs["collapse"] = Collapse.NONE
 
+    if kwargs.get("control") is not None:
+        print(
+            "\n'control=\"orbit\" or \"trackball\"' is deprecated, use 'orbit_control=True' or 'False' instead\n"
+        )
+        kwargs["orbit_control"] = kwargs["control"] == "orbit"
+
     return kwargs
