@@ -629,7 +629,7 @@
             send('status', message);
 
             if (_config.explode) {
-                viewer.display.setExplode({ target: { checked: true } });
+                viewer.display.setExplode("", true);
                 viewer.display.setExplodeCheck(true);
             }
 
