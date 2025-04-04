@@ -274,10 +274,16 @@ export async function activate(context: vscode.ExtensionContext) {
                     return;
                 }
 
-                let dotVscode = await vscode.window.showInputBox({
-                    prompt: "Location of the .vscode folder",
-                    value: `${getCurrentFolder()}/.vscode`
-                });
+                let dotVscode;
+                let curFolder = getCurrentFolder();
+                if (curFolder[1]) { 
+                    dotVscode = await vscode.window.showInputBox({
+                        prompt: "Location of the .vscode folder",
+                        value: `${curFolder[0]}/.vscode`
+                    });
+                } else {
+                    return
+                }                
                 if (dotVscode === undefined) {
                     return;
                 }
