@@ -253,12 +253,14 @@ def set_viewer_config(
 
 def get_default(key):
     """Get default value for key"""
-    return DEFAULTS.get(key)
+    return get_defaults().get(key)
 
 
 def get_defaults():
     """Get all defaults"""
-    return DEFAULTS
+    result = dict(workspace_config())
+    result.update(DEFAULTS)
+    return result
 
 
 def set_defaults(
