@@ -5,6 +5,7 @@ import base64
 import sys
 import traceback
 from dataclasses import asdict, dataclass, fields
+import os
 
 from ocp_tessellate.ocp_utils import (
     deserialize,
@@ -34,7 +35,13 @@ from ocp_vscode.build123d import (
     downcast,
 )
 
-from ocp_vscode.comms import MessageType, listener, send_response, set_port
+if os.environ.get("JUPYTER_CADQUERY") is None:
+    is_jupter_cadquery = False
+    from ocp_vscode.comms import send_response
+else:
+    is_jupter_cadquery = True
+
+from ocp_vscode.comms import MessageType, listener, set_port
 
 
 class SelectedCenterInfo:
@@ -60,7 +67,7 @@ def error_handler(func):
 
     def wrapper(*args, **kwargs):  # pylint: disable=redefined-outer-name
         try:
-            func(*args, **kwargs)
+            return func(*args, **kwargs)
         except Exception as exc:  # pylint: disable=broad-except
             print_to_stdout(exc)
             traceback.print_exception(*sys.exc_info(), file=sys.stdout)
@@ -157,11 +164,12 @@ class ViewerBackend:
     The reponses holds all the data needed to display the measurements.
     """
 
-    def __init__(self, port: int) -> None:
+    def __init__(self, port: int, jcv_id=None) -> None:
         self.port = port
         self.model = None
         self.activated_tool = None
         self.filter_type = "none"  # The current active selection filter
+        self.jcv_id = jcv_id
         set_port(port)
 
     def start(self):
@@ -193,7 +201,7 @@ class ViewerBackend:
                     self.activated_tool = None
 
             if self.activated_tool is not None:
-                self.handle_activated_tool(changes)
+                return self.handle_activated_tool(changes)
 
     def handle_activated_tool(self, changes):
         """
@@ -206,16 +214,16 @@ class ViewerBackend:
         if self.activated_tool == Tool.Distance and len(selected_objs) == 2:
             shape_id1 = changes["selectedShapeIDs"][0]
             shape_id2 = changes["selectedShapeIDs"][1]
-            self.handle_distance(shape_id1, shape_id2)
+            return self.handle_distance(shape_id1, shape_id2)
 
         elif self.activated_tool == Tool.Properties and len(selected_objs) == 1:
             shape_id = changes["selectedShapeIDs"][0]
-            self.handle_properties(shape_id)
+            return self.handle_properties(shape_id)
 
         elif self.activated_tool == Tool.Angle and len(selected_objs) == 2:
             shape_id1 = changes["selectedShapeIDs"][0]
             shape_id2 = changes["selectedShapeIDs"][1]
-            self.handle_angle(shape_id1, shape_id2)
+            return self.handle_angle(shape_id1, shape_id2)
 
     def load_model(self, raw_model):
         """Read the transfered model from websocket"""
@@ -271,7 +279,8 @@ class ViewerBackend:
         """
         Request the properties of the object with the given id
         """
-        print_to_stdout(f"Identifier received '{shape_id}'")
+        if not is_jupter_cadquery:
+            print_to_stdout(f"Identifier received '{shape_id}'")
 
         shape = self.model[shape_id]
 
@@ -311,14 +320,18 @@ class ViewerBackend:
 
         set_precision(response)
 
-        send_response(asdict(response), self.port)
-        print_to_stdout(f"Data sent {response}")
+        if is_jupter_cadquery:
+            return asdict(response)
+        else:
+            send_response(asdict(response), self.port)
+            print_to_stdout(f"Data sent {response}")
 
     def handle_angle(self, id1, id2):
         """
         Request the angle between the two objects that have the given ids
         """
-        print_to_stdout(f"Identifiers received '{id1}', '{id2}'")
+        if not is_jupter_cadquery:
+            print_to_stdout(f"Identifiers received '{id1}', '{id2}'")
 
         shape1: Shape = self.model[id1]
         shape2: Shape = self.model[id2]
@@ -362,8 +375,11 @@ class ViewerBackend:
             point2=point2.to_tuple(),
         )
         set_precision(response)
-        send_response(asdict(response), self.port)
-        print_to_stdout(f"Data sent {response}")
+        if is_jupter_cadquery:
+            return asdict(response)
+        else:
+            send_response(asdict(response), self.port)
+            print_to_stdout(f"Data sent {response}")
 
     def get_center(
         self, shape: Shape, for_distance=True
@@ -419,7 +435,8 @@ class ViewerBackend:
         """
         Request the distance between the two objects that have the given ids
         """
-        print_to_stdout(f"Identifiers received '{id1}', '{id2}'")
+        if not is_jupter_cadquery:
+            print_to_stdout(f"Identifiers received '{id1}', '{id2}'")
 
         shape1: Shape = self.model[id1]
         shape2: Shape = self.model[id2]
@@ -434,8 +451,11 @@ class ViewerBackend:
             distance=dist,
         )
         set_precision(response)
-        send_response(asdict(response), self.port)
-        print_to_stdout(f"Data sent {response}")
+        if is_jupter_cadquery:
+            return asdict(response)
+        else:
+            send_response(asdict(response), self.port)
+            print_to_stdout(f"Data sent {response}")
 
 
 if __name__ == "__main__":

@@ -16,9 +16,21 @@
 # limitations under the License.
 #
 
+import os
+
+if os.environ.get("JUPYTER_CADQUERY") is None:
+    from ocp_vscode.comms import send_command, send_config, get_port, is_pytest
+
+    is_jupyter_cadquery = False
+else:
+    from jupyter_cadquery.comms import send_config, get_port, send_command
+
+    is_pytest = lambda: False
+
+    is_jupyter_cadquery = True
+
 from enum import Enum
 
-from .comms import send_command, send_config, get_port, is_pytest
 
 __all__ = [
     "workspace_config",
@@ -216,6 +228,7 @@ def set_viewer_config(
     clip_planes=None,
     clip_object_colors=None,
     port=None,
+    viewer=None,
 ):
     """Set viewer config"""
     if port is None:
@@ -230,7 +243,7 @@ def set_viewer_config(
     }
 
     try:
-        send_config(data, port)
+        send_config(data, port=port)
 
     except Exception as ex:
         raise RuntimeError(
@@ -298,6 +311,10 @@ def set_defaults(
     mate_scale=None,  # DEPRECATED
     debug=None,
     timeit=None,
+    # Jupyter CadQuery
+    viewer=None,
+    cad_width=None,
+    height=None,
 ):
     # pylint: disable=line-too-long
     """Set viewer defaults
@@ -371,6 +388,11 @@ def set_defaults(
     - Debug
         debug:             Show debug statements to the VS Code browser console (default=False)
         timeit:            Show timing information from level 0-3 (default=False)
+
+    - Jupyter Cadquery only:
+        viewer:            The title of the sidecar in Jupyter CadQuery
+        cad_width:         The viewer width in  Jupyter CadQuery
+        height:            The viewer height in  Jupyter CadQuery
     """
 
     kwargs = {k: v for k, v in locals().items() if v is not None}
@@ -378,12 +400,16 @@ def set_defaults(
     kwargs = check_deprecated(kwargs)
 
     for key, value in kwargs.items():
-        if key in CONFIG_KEYS:
+        if key in CONFIG_KEYS or (
+            is_jupyter_cadquery and key in ["viewer", "cad_width", "height"]
+        ):
             DEFAULTS[key] = value
         else:
             print(f"'{key}' is an unkown config, ignored!")
 
-    set_viewer_config(**{k: v for k, v in kwargs.items() if k in CONFIG_SET_KEYS})
+    set_viewer_config(
+        viewer=viewer, **{k: v for k, v in kwargs.items() if k in CONFIG_SET_KEYS}
+    )
 
 
 def preset(key, value):
@@ -442,9 +468,11 @@ def workspace_config(port=None):
             "C": Collapse.ALL,
             "R": Collapse.ROOT,
         }
-        conf["collapse"] = mapping[conf.get("collapse", "R")]
-        conf["reset_camera"] = Camera[conf.get("reset_camera", "RESET")]
-        return dict(sorted(conf.items()))
+        if isinstance(conf.get("collapse"), str):
+            conf["collapse"] = mapping[conf.get("collapse", "R")]
+        if isinstance(conf.get("reset_camera"), str):
+            conf["reset_camera"] = Camera[conf.get("reset_camera", "RESET").upper()]
+        return dict(conf)
 
     except Exception as ex:
         raise RuntimeError(

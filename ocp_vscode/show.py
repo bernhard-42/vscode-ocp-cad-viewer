@@ -54,17 +54,26 @@ from ocp_tessellate.ocp_utils import (
 from ocp_tessellate.utils import Color, Timer, numpy_to_buffer_json
 
 from ocp_vscode.colors import BaseColorMap, get_colormap
-from ocp_vscode.comms import is_pytest, send_backend, send_command, send_data
+
+if os.environ.get("JUPYTER_CADQUERY") is None:
+    from ocp_vscode.comms import send_backend, send_command, send_data
+
+    jupyter_cadquery_client = True
+else:
+    from jupyter_cadquery.comms import send_backend, send_command, send_data
+
+    jupyter_cadquery_client = False
+
+from ocp_vscode.config import combined_config, get_changed_config, workspace_config
+
+from ocp_vscode.comms import is_pytest
 from ocp_vscode.config import (
     Camera,
     Collapse,
     check_deprecated,
-    combined_config,
-    get_changed_config,
     get_default,
     get_defaults,
     preset,
-    workspace_config,
 )
 
 __all__ = [
@@ -79,6 +88,8 @@ __all__ = [
 OBJECTS = {"objs": [], "names": [], "colors": [], "alphas": []}
 
 LAST_CALL = "other"
+
+is_jupyter_cadquery = os.environ.get("JUPYTER_CADQUERY") == "1"
 
 
 def _tessellate(
@@ -182,27 +193,30 @@ def _tessellate(
     params = {
         k: v
         for k, v in conf.items()
-        if not k
-        in (
-            "position",
-            "rotation",
-            "target",
-            # controlled by VSCode panel size
-            "cad_width",
-            "height",
-            # controlled by VSCode settings
-            "tree_width",
-            "theme",
+        if not (
+            k in ("position", "rotation", "target")
+            or (
+                not is_jupyter_cadquery
+                and k
+                in (
+                    # controlled by VSCode panel size
+                    "cad_width",
+                    "height",
+                    # controlled by VSCode settings
+                    "tree_width",
+                    "theme",
+                )
+            )
         )
     }
 
     for k, v in kwargs.items():
-        if k in ["cad_width", "height"]:
+        if not is_jupyter_cadquery and k in ["cad_width", "height"]:
             print(
                 f"Setting {k} cannot be set, it is determined by the VSCode panel size"
             )
 
-        elif k in [
+        elif not is_jupyter_cadquery and k in [
             "tree_width",
             "theme",
         ]:
@@ -267,7 +281,7 @@ def _convert(
     if config.get("dark") is not None:
         config["theme"] = "dark"
     elif config.get("orbit_control") is not None:
-        config["control"] = "orbit" if config["control"] else "trackball"
+        config["control"] = "orbit" if config["orbit_control"] else "trackball"
 
     if config.get("debug") is not None and config["debug"]:
         print("\nconfig:\n", config)
@@ -324,7 +338,13 @@ def show(
     names=None,
     colors=None,
     alphas=None,
-    port=None,
+    port=None,  # OCP Vs Code only
+    viewer=None,  # Jupyter Cadquery only
+    anchor=None,  # Jupyter Cadquery only
+    cad_width=None,  # Jupyter Cadquery only
+    height=None,  # Jupyter Cadquery only
+    theme=None,  # Jupyter Cadquery only
+    pinning=None,  # Jupyter Cadquery only
     progress="-+*c",
     glass=None,
     tools=None,
@@ -337,6 +357,7 @@ def show(
     default_opacity=None,
     black_edges=None,
     orbit_control=None,
+    control=None,
     collapse=None,
     explode=None,
     ticks=None,
@@ -392,12 +413,20 @@ def show(
         names:                   List of names for the cad_objs. Needs to have the same length as cad_objs
         colors:                  List of colors for the cad_objs. Needs to have the same length as cad_objs
         alphas:                  List of alpha values for the cad_objs. Needs to have the same length as cad_objs
-        port:                    The port the viewer listens to. Typically use 'set_port(port)' instead
         progress:                Show progress of tessellation with None is no progress indicator. (default="-+*c")
                                  for object: "-": is reference,
                                              "+": gets tessellated with Python code,
                                              "*": gets tessellated with native code,
                                              "c": from cache
+
+    Keywords for the OCP VS Code client:
+        port:                    The port the viewer listens to. Typically use 'set_port(port)' instead
+
+    Keywords for the Jupyter CadQuery client:
+        viewer                   The name of the viewer in Jupyter Lab.
+        anchor:                  The location where to open the viewer in Jupyter Lab
+                                 (sidecar: "right", split windows: "split-right", "split-left", "split-top", "split-bottom")
+
 
     Valid keywords to configure the viewer (**kwargs):
     - UI
@@ -576,9 +605,16 @@ def show(
         return t, mapping
 
     with Timer(timeit, "", "send"):
-        send_data(t, port=port, timeit=timeit)
+        viewer = send_data(t, port=port, timeit=timeit)
 
-    send_backend({"model": mapping}, port=port, timeit=timeit)
+    if is_jupyter_cadquery
+        send_backend({"model": mapping}, jcv_id=viewer.widget.id, timeit=timeit)
+    else:
+        send_backend({"model": mapping}, port=port, timeit=timeit)
+
+
+    if viewer is not None:
+        return viewer
 
 
 def reset_show():
