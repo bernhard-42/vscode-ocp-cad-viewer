@@ -738,13 +738,22 @@
                         viewer.setCameraQuaternion(data.config[key]);
                     } else if (key === "up") {
                         viewer.camera.up = data.config[key];
+                        const change = {};
+                        change[key] = {"new": data.config[key]};
+                        nc(change);
                         viewer.camera.updateProjectionMatrix();
                     } else if (key === "target") {
                         viewer.setCameraTarget(data.config[key]);
                     } else if (key === "default_edgecolor") {
                         viewer.setEdgeColor(data.config[key]);
+                        const change = {};
+                        change[key] = {"new": data.config[key]};
+                        nc(change);
                     } else if (key === "default_opacity") {
                         viewer.setOpacity(data.config[key]);
+                        const change = {};
+                        change[key] = {"new": data.config[key]};
+                        nc(change);
                     } else if (key === "ambient_intensity") {
                         viewer.display.setAmbientLight(data.config[key]);
                     } else if (key === "direct_intensity") {
@@ -755,16 +764,34 @@
                         viewer.display.setRoughness(data.config[key]);
                     } else if (key === "zoom_speed") {
                         viewer.setZoomSpeed(data.config[key]);
+                        const change = {};
+                        change[key] = {"new": data.config[key]};
+                        nc(change);
                     } else if (key === "pan_speed") {
                         viewer.setPanSpeed(data.config[key]);
+                        const change = {};
+                        change[key] = {"new": data.config[key]};
+                        nc(change);
                     } else if (key === "rotate_speed") {
                         viewer.setRotateSpeed(data.config[key]);
+                        const change = {};
+                        change[key] = {"new": data.config[key]};
+                        nc(change);
                     } else if (key === "glass") {
                         viewer.display.glassMode(data.config[key]);
+                        const change = {};
+                        change[key] = {"new": data.config[key]};
+                        nc(change);
                     } else if (key === "tools") {
                         viewer.display.showTools(data.config[key]);
+                        const change = {};
+                        change[key] = {"new": data.config[key]};
+                        nc(change);
                     } else if (key === "collapse") {
                         viewer.display.collapseNodes(data.config[key]);
+                        const change = {};
+                        change[key] = {"new": data.config[key]};
+                        nc(change);                        
                     } else if (key === "tree_width") {
                         const displayOptions = getDisplayOptions();
                         const glass = (data.config.glass !== undefined) ? data.config.glass : displayOptions.glass;
@@ -775,6 +802,9 @@
                         }
                     } else if (key === "explode") {
                         viewer.display.setExplode("", data.config[key])
+                        const change = {};
+                        change[key] = {"new": data.config[key]};
+                        nc(change);
                         viewer.display.setExplodeCheck(data.config[key])
                     } else if (key === "states") {
                         const states = Object.keys(viewer.treeview.getStates());
