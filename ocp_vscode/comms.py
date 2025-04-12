@@ -194,12 +194,12 @@ def send_data(data, port=None, timeit=False):
     return _send(data, MessageType.DATA, port, timeit)
 
 
-def send_config(config, port=None, timeit=False):
+def send_config(config, port=None, title=None, timeit=False):
     """Send config to the viewer"""
     return _send(config, MessageType.CONFIG, port, timeit)
 
 
-def send_command(data, port=None, timeit=False):
+def send_command(data, port=None, title=None, timeit=False):
     """Send command to the viewer"""
     return _send(data, MessageType.COMMAND, port, timeit)
 
