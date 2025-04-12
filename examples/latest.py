@@ -7,7 +7,7 @@ set_defaults(reset_camera=Camera.KEEP, clip_planes=True, clip_object_colors=True
 # %%
 
 show(Sphere(0.5))
-set_viewer_config(tab="clip")
+
 # %%
 
 p2 = Box(1, 1, 1)

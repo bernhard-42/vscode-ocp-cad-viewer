@@ -43,7 +43,7 @@ show(*spheres, colors=ColorMap.seeded(42, "hsv"))
 # %%
 show(
     *spheres,
-    colors=ColorMap.seeded(59798267586177, "rgb", lower=10, upper=100, brightness=2.2)
+    colors=ColorMap.seeded(59798267586177, "rgb", lower=10, upper=100, brightness=2.2),
 )
 # %%
 
