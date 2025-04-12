@@ -169,7 +169,7 @@ Options:
 ## Standalone mode with Docker
 
 If you are not using vscode and you prefer to keep the standalone web viewer running separated in a container,
-then take a look at https://github.com/nilcons/docker-vscode-ocp-cad-viewer .
+then take a look at [docker-vscode-ocp-cad-viewer](https://github.com/nilcons/docker-vscode-ocp-cad-viewer).
 
 ## Best practices
 
