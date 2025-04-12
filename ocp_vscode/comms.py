@@ -201,7 +201,11 @@ def send_config(config, port=None, title=None, timeit=False):
 
 def send_command(data, port=None, title=None, timeit=False):
     """Send command to the viewer"""
-    return _send(data, MessageType.COMMAND, port, timeit)
+    result = _send(data, MessageType.COMMAND, port, timeit)
+    if result.get("command") == "status":
+        return result["text"]
+    else:
+        return result
 
 
 def send_backend(data, port=None, timeit=False):
