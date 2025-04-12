@@ -792,7 +792,7 @@
                         viewer.setClipSlider(index, data.config[key]);
                     } else if (key.startsWith("clip_normal")) {
                         const index = parseInt(key.slice(-1));
-                        viewer.setClipNormal(index, data.config[key]);
+                        viewer.setClipNormal(index, data.config[key], viewer.getClipSlider(index));
                     } else if (key === "clip_planes") {
                         viewer.setClipPlaneHelpers(data.config[key]);
                     } else if (key === "clip_object_colors") {
