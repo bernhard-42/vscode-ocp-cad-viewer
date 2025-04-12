@@ -64,7 +64,10 @@ else:
 
     jupyter_cadquery_client = False
 
-from ocp_vscode.config import combined_config, get_changed_config, workspace_config
+from ocp_vscode.config import (
+    combined_config,
+    get_changed_config,
+)
 
 from ocp_vscode.comms import is_pytest
 from ocp_vscode.config import (
@@ -79,10 +82,13 @@ from ocp_vscode.config import (
 __all__ = [
     "show",
     "show_object",
+    "_show",
+    "_show_object",
     "reset_show",
     "show_all",
     "show_clear",
     "save_screenshot",
+    "none_filter",
 ]
 
 OBJECTS = {"objs": [], "names": [], "colors": [], "alphas": []}
@@ -95,11 +101,13 @@ is_jupyter_cadquery = os.environ.get("JUPYTER_CADQUERY") == "1"
 def _tessellate(
     *cad_objs, names=None, colors=None, alphas=None, progress=None, **kwargs
 ):
-    if workspace_config().get("_splash"):
-        conf = combined_config(use_status=False)
+    viewer = kwargs.get("viewer")
+    port = kwargs.get("port")
+
+    conf = combined_config(viewer=viewer, port=port)
+    if conf.get("_splash") == True:
         reset_camera = Camera.RESET
     else:
-        conf = combined_config(use_status=True)
         reset_camera = conf.get("reset_camera", Camera.RESET)
 
     conf["reset_camera"] = reset_camera.value
@@ -332,6 +340,12 @@ def align_attrs(attr_list, length, default, tag, explode=True):
         return attr_list
 
 
+def none_filter(d, excludes):
+    if excludes is None:
+        excludes = []
+    return {k: v for k, v in dict(d).items() if v is not None and k not in excludes}
+
+
 # pylint: disable=unused-argument
 def show(
     *cad_objs,
@@ -503,7 +517,21 @@ def show(
         debug:                   Show debug statements to the VS Code browser console (default=False)
         timeit:                  Show timing information from level 0-3 (default=False)
     """
+
+    return _show(*cad_objs, **none_filter(locals(), ["cad_objs"]))
+
+
+def _show(*cad_objs, **kwargs):
     global LAST_CALL  # pylint: disable=global-statement
+
+    port = kwargs.get("port")
+    timeit = kwargs.get("timeit")
+    names = kwargs.get("names")
+    colors = kwargs.get("colors")
+    alphas = kwargs.get("alphas")
+    default_edgecolor = kwargs.get("default_edgecolor")
+    progress = kwargs.get("progress")
+    _force_in_debug = kwargs.get("_force_in_debug")
 
     if (
         cad_objs is None
@@ -524,7 +552,7 @@ def show(
 
     kwargs = {
         k: v
-        for k, v in locals().items()
+        for k, v in kwargs.items()
         if v is not None
         and k
         not in [
@@ -609,11 +637,9 @@ def show(
 
     if is_jupyter_cadquery:
         send_backend({"model": mapping}, jcv_id=viewer.widget.id, timeit=timeit)
+        return viewer
     else:
         send_backend({"model": mapping}, port=port, timeit=timeit)
-
-    if viewer is not None:
-        return viewer
 
 
 def reset_show():
@@ -783,10 +809,20 @@ def show_object(
         debug:                   Show debug statements to the VS Code browser console (default=False)
         imeit:                   Show timing information from level 0-3 (default=False)
     """
+    return _show_object(obj, **none_filter(locals(), ["obj"]))
+
+
+def _show_object(obj, **kwargs):
+    port = kwargs.get("port")
+    name = kwargs.get("name")
+    clear = kwargs.get("clear")
+    parent = kwargs.get("parent")
+    options = kwargs.get("options")
+    progress = kwargs.get("progress")
 
     kwargs = {
         k: v
-        for k, v in locals().items()
+        for k, v in kwargs.items()
         if v is not None
         and k not in ["obj", "name", "options", "parent", "clear", "port", "progress"]
     }
@@ -816,7 +852,7 @@ def show_object(
     OBJECTS["colors"].append(color)
     OBJECTS["alphas"].append(alpha)
 
-    show(
+    return show(
         *OBJECTS["objs"],
         names=OBJECTS["names"],
         colors=OBJECTS["colors"],
@@ -895,6 +931,7 @@ def show_all(
                 and obj.__class__.__module__ == "__future__"
             )
             or isinstance(obj, Logger)
+            or "cad_viewer_widget.widget" in str(obj.__class__)
         ):
             continue
 
@@ -964,7 +1001,8 @@ def show_all(
                 _force_in_debug=_visual_debug,
                 **kwargs,
             )
-            if is_pytest():
+
+            if is_pytest() or is_jupyter_cadquery:
                 return result
         except Exception as ex:  # pylint: disable=broad-exception-caught
             print("show_all:", ex)

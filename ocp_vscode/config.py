@@ -23,7 +23,7 @@ if os.environ.get("JUPYTER_CADQUERY") is None:
 
     is_jupyter_cadquery = False
 else:
-    from jupyter_cadquery.comms import send_config, get_port, send_command
+    from jupyter_cadquery.comms import send_config, send_command
 
     is_pytest = lambda: False
 
@@ -231,7 +231,7 @@ def set_viewer_config(
     viewer=None,
 ):
     """Set viewer config"""
-    if port is None:
+    if not is_jupyter_cadquery and port is None:
         port = get_port()
 
     config = {k: v for k, v in locals().items() if v is not None}
@@ -243,7 +243,7 @@ def set_viewer_config(
     }
 
     try:
-        send_config(data, port=port)
+        send_config(data, port=port, title=viewer)
 
     except Exception as ex:
         raise RuntimeError(
@@ -430,10 +430,10 @@ def status(port=None, debug=False):
     if is_pytest():
         return {}
 
-    if port is None:
+    if not is_jupyter_cadquery and port is None:
         port = get_port()
     try:
-        response = send_command("status", port=port)
+        response = send_command("status", port=port, title=viewer)
         if debug:
             return response.get("_debugStarted", False)
         else:
@@ -445,7 +445,7 @@ def status(port=None, debug=False):
         ) from ex
 
 
-def workspace_config(port=None):
+def workspace_config(port=None, viewer=None):
     """Get viewer workspace config"""
 
     if is_pytest():
@@ -456,10 +456,10 @@ def workspace_config(port=None):
             "default_vertexcolor": (123, 45, 6),
         }
 
-    if port is None:
+    if not is_jupyter_cadquery and port is None:
         port = get_port()
     try:
-        conf = send_command("config", port=port)
+        conf = send_command("config", port=port, title=viewer)
         mapping = {
             "none": Collapse.NONE,
             "leaves": Collapse.LEAVES,
@@ -482,14 +482,15 @@ def workspace_config(port=None):
         ) from ex
 
 
-def combined_config(port=None, use_status=True):
+def combined_config(port=None, viewer=None):
     """Get combined config from workspace and status"""
-    if port is None:
+
+    if not is_jupyter_cadquery and port is None:
         port = get_port()
 
     try:
-        wspace_config = workspace_config(port)
-        wspace_status = status(port)
+        wspace_config = workspace_config(port=port, viewer=viewer)
+        wspace_status = status(port=port, viewer=viewer)
 
     except Exception as ex:
         raise RuntimeError(
