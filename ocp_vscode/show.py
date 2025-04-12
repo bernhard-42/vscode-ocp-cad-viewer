@@ -232,8 +232,12 @@ def _tessellate(
 
         elif v is not None:
             if k == "reset_camera" and params.get("_splash") is True:
+                print(k, v)
+                # do not keep the position and rotation of the splash screen
                 continue
             params[k] = v
+
+    params["_splash"] = False  # after the first show, _splash is False
 
     if kwargs.get("debug") is not None and kwargs["debug"]:
         print("\ntessellation parameters:\n", params)
@@ -352,13 +356,7 @@ def show(
     names=None,
     colors=None,
     alphas=None,
-    port=None,  # OCP Vs Code only
-    viewer=None,  # Jupyter Cadquery only
-    anchor=None,  # Jupyter Cadquery only
-    cad_width=None,  # Jupyter Cadquery only
-    height=None,  # Jupyter Cadquery only
-    theme=None,  # Jupyter Cadquery only
-    pinning=None,  # Jupyter Cadquery only
+    port=None,
     progress="-+*c",
     glass=None,
     tools=None,
@@ -377,6 +375,7 @@ def show(
     ticks=None,
     center_grid=None,
     up=None,
+    tab=None,
     zoom=None,
     position=None,
     quaternion=None,
@@ -432,15 +431,7 @@ def show(
                                              "+": gets tessellated with Python code,
                                              "*": gets tessellated with native code,
                                              "c": from cache
-
-    Keywords for the OCP VS Code client:
         port:                    The port the viewer listens to. Typically use 'set_port(port)' instead
-
-    Keywords for the Jupyter CadQuery client:
-        viewer                   The name of the viewer in Jupyter Lab.
-        anchor:                  The location where to open the viewer in Jupyter Lab
-                                 (sidecar: "right", split windows: "split-right", "split-left", "split-top", "split-bottom")
-
 
     Valid keywords to configure the viewer (**kwargs):
     - UI

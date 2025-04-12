@@ -29,6 +29,8 @@ else:
 
     is_jupyter_cadquery = True
 
+from ocp_tessellate.utils import Color
+
 from enum import Enum
 
 
@@ -65,6 +67,13 @@ class Collapse(Enum):
 
 
 COLLAPSE_MAPPING = ["E", "1", "C", "R"]
+
+COLLAPSE_REVERSE_MAPPING = {
+    "E": Collapse.NONE,
+    "1": Collapse.LEAVES,
+    "C": Collapse.ALL,
+    "R": Collapse.ROOT,
+}
 
 CONFIG_UI_KEYS = [
     "axes",
@@ -140,6 +149,7 @@ CONFIG_SET_KEYS = [
     "axes",
     "axes0",
     "grid",
+    "center_grid",
     "ortho",
     "transparent",
     "black_edges",
@@ -184,7 +194,6 @@ DEFAULTS = {
     "timeit": False,
     "collapse": Collapse.ROOT,
     "debug": False,
-    # "reset_camera": Camera.RESET,
 }
 
 
@@ -235,8 +244,12 @@ def set_viewer_config(
         port = get_port()
 
     config = {k: v for k, v in locals().items() if v is not None}
+
     if config.get("collapse") is not None:
         config["collapse"] = COLLAPSE_MAPPING[config["collapse"].value]
+    if config.get("default_edgecolor") is not None:
+        config["default_edgecolor"] = Color(config["default_edgecolor"]).web_color
+
     data = {
         "type": "ui",
         "config": config,
@@ -424,7 +437,12 @@ def ui_filter(conf):
     return {k: v for k, v in conf.items() if k in CONFIG_UI_KEYS}
 
 
-def status(port=None, debug=False):
+def workspace_filter(conf):
+    """Filter out all non-workspace keys from the config dict"""
+    return {k: v for k, v in conf.items() if k in CONFIG_WORKSPACE_KEYS}
+
+
+def status(port=None, viewer=None, debug=False):
     """Get viewer status"""
 
     if is_pytest():
@@ -437,7 +455,9 @@ def status(port=None, debug=False):
         if debug:
             return response.get("_debugStarted", False)
         else:
-            return dict(sorted(response.get("text", {}).items()))
+            if response.get("collapse") is not None:
+                response["collapse"] = COLLAPSE_REVERSE_MAPPING[response["collapse"]]
+            return dict(sorted(response.items()))
 
     except Exception as ex:
         raise RuntimeError(
@@ -497,18 +517,12 @@ def combined_config(port=None, viewer=None):
             "Cannot access viewer config. Is the viewer running?\n" + str(ex.args)
         ) from ex
 
-    if use_status and wspace_config["_splash"]:
-        del wspace_config["_splash"]
-        wspace_config["axes"] = False
-        wspace_config["axes0"] = True
-        wspace_config["grid"] = [True, False, False]
-        wspace_config["ortho"] = False
-        wspace_config["transparent"] = False
-        wspace_config["black_edges"] = False
+    use_status = not wspace_config.get("_splash", False)
 
     wspace_config.update(DEFAULTS)
+
     if use_status:
-        wspace_config.update(ui_filter(wspace_status))
+        wspace_config.update(workspace_filter(wspace_status))
     return dict(sorted(wspace_config.items()))
 
 
