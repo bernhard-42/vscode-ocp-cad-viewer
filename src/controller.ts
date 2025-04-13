@@ -226,13 +226,6 @@ export class OCPCADController {
     }
 
     /**
-     * @returns the path to the python backend
-     */
-    private getBackendPath(): string {
-        return vscode.Uri.joinPath(this.context.extensionUri, "ocp_vscode/backend.py").fsPath;
-    }
-
-    /**
      * Starts the python backend server
      */
     public async startBackend() {
@@ -257,7 +250,7 @@ export class OCPCADController {
             "autohideTerminal"
         ];
         setTimeout(() => {
-            pythonBackendTerminal.sendText(`"${python}" "${this.getBackendPath()}" --port ${this.port}`);
+            pythonBackendTerminal.sendText(`"${python}" -m ocp_vscode --backend --port ${this.port}`);
             if (autohide) {
                 pythonBackendTerminal.hide();
             }

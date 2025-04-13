@@ -4,6 +4,7 @@ test/
 build/
 src/
 docs/
+ocp_vscode/
 ocp_vscode.egg-info/
 .gitignore
 .ocp_vscode
@@ -265,6 +266,7 @@ node_modules/side-channel
 node_modules/simple-concat
 node_modules/simple-get
 node_modules/slash
+node_modules/source-map
 node_modules/string-width
 node_modules/string_decoder
 node_modules/strip-ansi

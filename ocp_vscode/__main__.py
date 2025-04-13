@@ -1,10 +1,13 @@
-import click
 import socket
-import yaml
 from pathlib import Path
-from ocp_vscode.standalone import Viewer, DEFAULTS, CONFIG_FILE
-from ocp_vscode.state import resolve_path
+
+import click
+import yaml
 from werkzeug.serving import get_interface_ip
+
+from ocp_vscode.backend import ViewerBackend
+from ocp_vscode.standalone import CONFIG_FILE, DEFAULTS, Viewer
+from ocp_vscode.state import resolve_path
 
 
 def represent_list(dumper, data):
@@ -54,6 +57,12 @@ def track_param(ctx, param, value):
     "--create_configfile",
     is_flag=True,
     help="Create the configlie .ocpvscode_standalone in the home directory",
+    callback=track_param,
+)
+@click.option(
+    "--backend",
+    is_flag=True,
+    help="Run measurement backend",
     callback=track_param,
 )
 @click.option(
@@ -307,6 +316,16 @@ def main(ctx, **kwargs):
         with open(config_file, "w", encoding="utf-8") as f:
             f.write(yaml.dump(DEFAULTS))
         print(f"Created config file {config_file}")
+
+    elif kwargs.get("backend"):
+
+        port = kwargs["port"]
+
+        backend = ViewerBackend(port)
+        try:
+            backend.start()
+        except Exception as ex:  # pylint: disable=broad-except
+            print(ex)
 
     else:
         viewer = Viewer(ctx.params_set)

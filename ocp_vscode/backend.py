@@ -177,7 +177,7 @@ class ViewerBackend:
         Start the backend
         """
         print("Viewer backend started")
-        backend.load_model(logo)
+        self.load_model(logo)
         print("Logo model loaded")
         listener(self.handle_event)()
 
