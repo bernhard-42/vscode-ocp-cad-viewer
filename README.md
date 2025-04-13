@@ -314,7 +314,7 @@ NATIVE_TESSELLATOR=1 OCP_VSCODE_PYTEST=1 pytest -v -s pytests/
 - Support for OCCTs CompSolids (ocp-tessellate)
 - Add support for ShapeLists of Compounds ([#149](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/149), ocp-tessellate)
 - `show_object` now needs keyword args for `name` and `options` if provided
-- Measure backend can now be started via `python -m ocp_vscode --backend [--backend 3939]`
+- Measure backend can now be started via `python -m ocp_vscode --backend [--port 3939]`
 
 **Fixes**
 
