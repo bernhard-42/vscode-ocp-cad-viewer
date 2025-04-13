@@ -11,7 +11,8 @@ All notable changes to the "OCP CAD Viewer" extension will be documented in this
 - Adapted backend, config and show modules to also work as client for Jupyter Cadquery
 - Support for OCCTs CompSolids (ocp-tessellate)
 - Add support for ShapeLists of Compounds ([#149](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/149), ocp-tessellate)
-- show_object now needs keyword args for name and options if provided
+- `show_object` now needs keyword args for `name` and `options` if provided
+- Measure backend can now be started via `python -m ocp_vscode --backend [--backend 3939]`
 
 **Fixes**
 
