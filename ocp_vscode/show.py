@@ -96,8 +96,6 @@ OBJECTS = {"objs": [], "names": [], "colors": [], "alphas": []}
 
 LAST_CALL = "other"
 
-is_jupyter_cadquery = os.environ.get("JUPYTER_CADQUERY") == "1"
-
 
 def _tessellate(
     *cad_objs, names=None, colors=None, alphas=None, progress=None, **kwargs
