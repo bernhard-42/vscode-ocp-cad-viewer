@@ -55,14 +55,15 @@ from ocp_tessellate.utils import Color, Timer, numpy_to_buffer_json
 
 from ocp_vscode.colors import BaseColorMap, get_colormap
 
-if os.environ.get("JUPYTER_CADQUERY") is None:
-    from ocp_vscode.comms import send_backend, send_command, send_data
-
-    jupyter_cadquery_client = True
-else:
+if os.environ.get("JUPYTER_CADQUERY") == "1":
     from jupyter_cadquery.comms import send_backend, send_command, send_data
 
-    jupyter_cadquery_client = False
+    is_jupyter_cadquery = True
+
+else:
+    from ocp_vscode.comms import send_backend, send_command, send_data
+
+    is_jupyter_cadquery = False
 
 from ocp_vscode.config import (
     combined_config,
