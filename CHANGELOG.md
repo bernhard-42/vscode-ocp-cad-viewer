@@ -2,6 +2,13 @@
 
 All notable changes to the "OCP CAD Viewer" extension will be documented in this file.
 
+## v2.7.1
+
+**Fixes**
+
+- Use three-cad-viewer 3.3.4 (omit non used javacscript packages)
+- Fix is_jupyter_cadquery condition
+
 ## v2.7.0
 
 **Features**

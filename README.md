@@ -304,6 +304,13 @@ NATIVE_TESSELLATOR=1 OCP_VSCODE_PYTEST=1 pytest -v -s pytests/
 
 ## Changes
 
+### v2.7.1
+
+**Fixes**
+
+- Use three-cad-viewer 3.3.4 (omit non used javacscript packages)
+- Fix is_jupyter_cadquery condition
+
 ### v2.7.0
 
 **Features**
