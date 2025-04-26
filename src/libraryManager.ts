@@ -231,7 +231,7 @@ export class LibraryManagerProvider
 
         try {
             let command = `"${python}" -m pip list -v --format json`;
-            let allLibs = execute(command);
+            let allLibs = execute(command, false);
             let libs = JSON.parse(allLibs);
             libs.forEach((lib: any) => {
                 if (installLibs.includes(sanitize(lib["name"]))) {

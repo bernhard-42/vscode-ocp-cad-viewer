@@ -67,7 +67,7 @@ export function getCurrentFolder(filename: vscode.Uri | undefined = undefined): 
         }
     }
     if (!root) {
-        vscode.window.showErrorMessage("No workspace folder found. Open a folder and click to focus an editor window.");
+        // vscode.window.showErrorMessage("No workspace folder found. Open a folder and click to focus an editor window.");
         return ["", false];
     }
     return [root, isWorkspace];

@@ -22,8 +22,12 @@ export function pipList(python: string): Map<string, string> {
     };
 }
 
-export function execute(cmd: string) {
-    let currentFolder = getCurrentFolder()[0];
+export function execute(cmd: string, needWorkspaceFolder: boolean = true) {
+    let currentFolder = "";
+
+    if (needWorkspaceFolder) {
+        currentFolder = getCurrentFolder()[0];
+    }
     if (currentFolder === "") {
         currentFolder = ".";
     }

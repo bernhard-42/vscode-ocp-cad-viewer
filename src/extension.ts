@@ -72,9 +72,7 @@ async function conditionallyOpenViewer(document: vscode.TextDocument) {
             document.getText().includes('from build123d import') ||
             document.getText().includes('from cadquery import')
         ) {
-
-            await vscode.commands.executeCommand('ocpCadViewer.ocpCadViewer');
-
+            await vscode.commands.executeCommand('ocpCadViewer.ocpCadViewer', document);
         }
     }
 }
@@ -158,7 +156,7 @@ export async function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(
         vscode.commands.registerCommand(
             "ocpCadViewer.ocpCadViewer",
-            async () => {
+            async (document: vscode.TextDocument | undefined) => {
 
                 let port: number;
                 let preset_port = false;
@@ -180,11 +178,12 @@ export async function activate(context: vscode.ExtensionContext) {
                 statusBarItem.show();
                 check_upgrade(libraryManager);
 
-                const document = vscode.window?.activeTextEditor?.document;
+                if (document == undefined){
+                    document = vscode.window?.activeTextEditor?.document;
+                }
                 if (document === undefined) {
                     output.error("No editor open");
-                    vscode.window.showErrorMessage("No editor open");
-
+                    // vscode.window.showErrorMessage("No editor open");
                     return;
                 }
 
