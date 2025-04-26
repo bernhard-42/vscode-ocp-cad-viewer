@@ -24,8 +24,7 @@ import { WebSocket, WebSocketServer } from 'ws';
 import * as output from "./output";
 import { logo } from "./logo";
 import { StatusManagerProvider } from "./statusManager";
-import { getPythonPath } from "./utils";
-import { getCurrentFolder } from "./utils";
+import { getPythonPath, getTempFolder } from "./utils";
 import { updateState } from "./state";
 
 var serverStarted = false;
@@ -229,17 +228,13 @@ export class OCPCADController {
      * Starts the python backend server
      */
     public async startBackend() {
-        let root = getCurrentFolder()[0];
-        if (root === "") {
-            vscode.window.showInformationMessage("First open a file in your project");
-            return;
-        }
+        let cwd = getTempFolder();
 
         let python = await getPythonPath();
 
         let pythonBackendTerminal = vscode.window.createTerminal({
             name: 'OCP backend',
-            cwd: root,
+            cwd: cwd,
             shellPath: (os.platform() === "win32") ? process.env.COMSPEC : undefined
         });
         pythonBackendTerminal.show();

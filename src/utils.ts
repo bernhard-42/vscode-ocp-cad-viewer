@@ -16,6 +16,7 @@
 
 import * as vscode from "vscode";
 import * as fs from "fs";
+import * as os from "os";
 import * as net from "net";
 import * as path from "path";
 import { PythonExtension } from '@vscode/python-extension';
@@ -138,4 +139,9 @@ export async function isPortInUse(port: number): Promise<boolean> {
             })
             .listen(port);
     });
+}
+
+export function getTempFolder() {
+    const tempDirPath = os.tmpdir();
+    return fs.realpathSync(tempDirPath);
 }
