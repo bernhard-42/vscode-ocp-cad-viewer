@@ -15,8 +15,7 @@ import * as output from "./output";
 const STALE_DURATION_MS = 3000; // 3 seconds
 const RETRIES = 7;
 const INTERVAL_MS = 500; // INTERVAL_MS * RETRIES > STALE_DURATION
-const CONFIG_FILE = "~/.ocpvscode"
-
+const CONFIG_FILE = "~/.ocpvscode";
 
 export async function getConfigFile(): Promise<string> {
     return await resolvePath(CONFIG_FILE);
@@ -123,7 +122,11 @@ async function acquireLock(
     }
 }
 
-async function lock(file: string, retries: number = RETRIES, intervalMs: number = INTERVAL_MS) {
+async function lock(
+    file: string,
+    retries: number = RETRIES,
+    intervalMs: number = INTERVAL_MS
+) {
     const lockfile = getLockFile(file);
     await acquireLock(lockfile, retries, intervalMs);
 }
@@ -134,7 +137,10 @@ async function unlock(file: string) {
 }
 
 export async function updateState(
-    port: number, key: string | null, value: string | Array<string> | null, initialize: boolean = false
+    port: number,
+    key: string | null,
+    value: string | Array<string> | null,
+    initialize: boolean = false
 ) {
     let data;
     let fh: fs.FileHandle;
@@ -238,12 +244,12 @@ export async function getState(path: string): Promise<null | ResultState> {
     // heuristic: if there is only one port, use it
     let ports = Object.keys(data);
     if (ports.length === 1) {
-        port = ports[0]
+        port = ports[0];
     }
 
     if (port == null) {
         return new ResultState(null, null);
     }
 
-    return new ResultState(parseInt(port, 10), data[port])
+    return new ResultState(parseInt(port, 10), data[port]);
 }

@@ -1,6 +1,6 @@
-import * as vscode from 'vscode';
-import * as path from 'path';
-import * as fs from 'fs';
+import * as vscode from "vscode";
+import * as path from "path";
+import * as fs from "fs";
 import { getCurrentFolder } from "./utils";
 
 const build123d_demo = `# %%
@@ -34,7 +34,7 @@ show(b2, axes=True, axes0=True, grid=(True, True, True), transparent=True)
 
 # %%
 
-`
+`;
 
 const cadquery_demo = `# %%
 
@@ -53,7 +53,7 @@ from ocp_vscode import *
 b = cq.Workplane().box(1,2,3).fillet(0.1)
 
 show(b)
-`
+`;
 
 export function createDemoFile(lib: string) {
     return new Promise((resolve, reject) => {
@@ -65,7 +65,7 @@ export function createDemoFile(lib: string) {
             fs.writeFileSync(demoFilePath, cadquery_demo);
         }
         try {
-            vscode.workspace.openTextDocument(demoFilePath).then(doc => {
+            vscode.workspace.openTextDocument(demoFilePath).then((doc) => {
                 vscode.window.showTextDocument(doc);
                 resolve(true);
             });

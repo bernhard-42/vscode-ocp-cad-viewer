@@ -19,9 +19,6 @@ import { version as ocp_vscode_version } from "./version";
 import * as output from "./output";
 import { jupyterExtensionInstalled } from "./utils";
 
-const URL =
-    "https://github.com/bernhard-42/vscode-ocp-cad-viewer/releases/download";
-
 export class StatusManagerProvider implements vscode.TreeDataProvider<Status> {
     installed: boolean = false;
     libraries: string[] = [];

@@ -19,7 +19,7 @@ import * as fs from "fs";
 import * as os from "os";
 import * as net from "net";
 import * as path from "path";
-import { PythonExtension } from '@vscode/python-extension';
+import { PythonExtension } from "@vscode/python-extension";
 import * as output from "./output";
 
 export function getEditor() {
@@ -42,16 +42,25 @@ export function getCurrentFilename(): vscode.Uri | undefined {
     return filename;
 }
 
-export function getCurrentFolder(filename: vscode.Uri | undefined = undefined): [string, boolean] {
+export function getCurrentFolder(
+    filename: vscode.Uri | undefined = undefined
+): [string, boolean] {
     let root: string | undefined = undefined;
     let isWorkspace = false;
     if (filename === undefined) {
         filename = getCurrentFilename();
     }
 
-    if (vscode.workspace?.workspaceFolders && vscode.workspace.workspaceFolders.length > 0) {
+    if (
+        vscode.workspace?.workspaceFolders &&
+        vscode.workspace.workspaceFolders.length > 0
+    ) {
         for (let i = 0; i < vscode.workspace.workspaceFolders.length; i++) {
-            if (filename?.fsPath.startsWith(vscode.workspace.workspaceFolders[i].uri.fsPath)) {
+            if (
+                filename?.fsPath.startsWith(
+                    vscode.workspace.workspaceFolders[i].uri.fsPath
+                )
+            ) {
                 root = vscode.workspace.workspaceFolders[i].uri.fsPath;
                 isWorkspace = true;
                 break;
@@ -89,14 +98,21 @@ class PythonPath {
         document?: vscode.TextDocument
     ): Promise<string> {
         const pythonApi: PythonExtension = await PythonExtension.api();
-        const environmentPath = pythonApi.environments.getActiveEnvironmentPath();
-        const environment = await pythonApi.environments.resolveEnvironment(environmentPath);
+        const environmentPath =
+            pythonApi.environments.getActiveEnvironmentPath();
+        const environment = await pythonApi.environments.resolveEnvironment(
+            environmentPath
+        );
         if (environment != null) {
-            output.debug(`PythonPath: '${environment.path}', environment: ${environment.environment?.type}, ${environment.environment?.name}`);
+            output.debug(
+                `PythonPath: '${environment.path}', environment: ${environment.environment?.type}, ${environment.environment?.name}`
+            );
             return environment.path;
         } else {
             output.debug(`PythonPath: 'python', environment: DEFAULT`);
-            vscode.window.showErrorMessage("No Python environment seems to be selected, falling back to default - might not work!");
+            vscode.window.showErrorMessage(
+                "No Python environment seems to be selected, falling back to default - might not work!"
+            );
             return "python";
         }
     }
@@ -125,15 +141,16 @@ export function getPackageManager() {
 
 export async function isPortInUse(port: number): Promise<boolean> {
     return new Promise((resolve) => {
-        const tester = net.createServer()
-            .once('error', (err: NodeJS.ErrnoException) => {
-                if (err.code === 'EADDRINUSE') {
+        const tester = net
+            .createServer()
+            .once("error", (err: NodeJS.ErrnoException) => {
+                if (err.code === "EADDRINUSE") {
                     resolve(true);
                 } else {
                     resolve(false);
                 }
             })
-            .once('listening', () => {
+            .once("listening", () => {
                 tester.close();
                 resolve(false);
             })

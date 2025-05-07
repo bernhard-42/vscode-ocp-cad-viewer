@@ -26,10 +26,6 @@ import { execute } from "./system/shell";
 import { StatusManagerProvider } from "./statusManager";
 import { TerminalExecute } from "./system/terminal";
 
-
-const URL =
-    "https://github.com/bernhard-42/vscode-cop-cad-viewer/releases/download";
-
 function sanitize(lib: string) {
     return lib.replace("-", "_");
 }
@@ -56,7 +52,6 @@ export function isPythonVersion(python: string, version: string) {
     }
 }
 
-
 export async function installLib(
     libraryManager: LibraryManagerProvider,
     library: string = "",
@@ -74,7 +69,7 @@ export async function installLib(
     let python = await getPythonPath();
     let reply =
         (await vscode.window.showQuickPick(["yes", "no"], {
-            placeHolder: `Is "${python}" the right interpreter for the installation?`,
+            placeHolder: `Is "${python}" the right interpreter for the installation?`
         })) || "";
     if (reply === "" || reply === "no") {
         return;
@@ -93,14 +88,19 @@ export async function installLib(
             if (!valid) {
                 valid = isPythonVersion(python, version);
             }
-        })
+        });
         if (!valid) {
-            vscode.window.showErrorMessage(`Python version(s) ${requiredPythonVersion} required!`);
-            return
+            vscode.window.showErrorMessage(
+                `Python version(s) ${requiredPythonVersion} required!`
+            );
+            return;
         }
     }
 
-    let term = vscode.window.createTerminal("Library Installations", (os.platform() === "win32") ? process.env.COMSPEC : undefined);
+    let term = vscode.window.createTerminal(
+        "Library Installations",
+        os.platform() === "win32" ? process.env.COMSPEC : undefined
+    );
     term.show();
     const delay = vscode.workspace.getConfiguration("OcpCadViewer.advanced")[
         "terminalDelay"
@@ -109,7 +109,9 @@ export async function installLib(
         libraryManager.refresh();
 
         if (["cadquery", "build123d"].includes(library)) {
-            vscode.window.showInformationMessage(`Depending on your os, the first import of ${library} can take several seconds`);
+            vscode.window.showInformationMessage(
+                `Depending on your os, the first import of ${library} can take several seconds`
+            );
         }
 
         callback();
@@ -121,9 +123,9 @@ export async function installLib(
     term.sendText(command, true);
 }
 
-
 export class LibraryManagerProvider
-    implements vscode.TreeDataProvider<Library> {
+    implements vscode.TreeDataProvider<Library>
+{
     statusManager: StatusManagerProvider;
     installCommands: any = {};
     exampleDownloads: any = {};
@@ -137,10 +139,9 @@ export class LibraryManagerProvider
     }
 
     readConfig() {
-        this.installCommands =
-            vscode.workspace.getConfiguration("OcpCadViewer.advanced")[
-            "installCommands"
-            ];
+        this.installCommands = vscode.workspace.getConfiguration(
+            "OcpCadViewer.advanced"
+        )["installCommands"];
         let outdated = false;
         for (var lib of Object.keys(this.installCommands)) {
             if (!Array.isArray(this.installCommands[lib])) {
@@ -149,16 +150,16 @@ export class LibraryManagerProvider
             }
         }
         if (outdated) {
-            vscode.window.showErrorMessage("Your installCommands are outdated.\nPlease update them in your settings.json ('OcpCadViewer.advanced.installCommands')");
+            vscode.window.showErrorMessage(
+                "Your installCommands are outdated.\nPlease update them in your settings.json ('OcpCadViewer.advanced.installCommands')"
+            );
         }
-        this.codeSnippets =
-            vscode.workspace.getConfiguration("OcpCadViewer.advanced")[
-            "codeSnippets"
-            ];
-        this.exampleDownloads =
-            vscode.workspace.getConfiguration("OcpCadViewer.advanced")[
-            "exampleDownloads"
-            ];
+        this.codeSnippets = vscode.workspace.getConfiguration(
+            "OcpCadViewer.advanced"
+        )["codeSnippets"];
+        this.exampleDownloads = vscode.workspace.getConfiguration(
+            "OcpCadViewer.advanced"
+        )["exampleDownloads"];
     }
 
     private _onDidChangeTreeData: vscode.EventEmitter<
@@ -187,13 +188,18 @@ export class LibraryManagerProvider
             commands = cmds;
         }
         if (!Array.isArray(commands)) {
-            vscode.window.showErrorMessage("Your installCommands are outdated.\nPlease update them in your settings.json ('OcpCadViewer.advanced.installCommands')");
+            vscode.window.showErrorMessage(
+                "Your installCommands are outdated.\nPlease update them in your settings.json ('OcpCadViewer.advanced.installCommands')"
+            );
             return [];
         }
         let python = await getPythonPath();
         let substCmds: string[] = [];
         commands.forEach((command: string) => {
-            command = command.replace("{ocp_vscode_version}", ocp_vscode_version);
+            command = command.replace(
+                "{ocp_vscode_version}",
+                ocp_vscode_version
+            );
             command = command.replace("{python}", '"' + python + '"');
 
             if (command.indexOf("{unset_conda}") >= 0) {
@@ -262,14 +268,19 @@ export class LibraryManagerProvider
     pasteImport(library: string) {
         const editor = getEditor();
         if (editor !== undefined) {
-            if ((library === "ocp_vscode") && (this.statusManager.getPort() === "")) {
+            if (
+                library === "ocp_vscode" &&
+                this.statusManager.getPort() === ""
+            ) {
                 vscode.window.showErrorMessage("OCP CAD Viewer not running");
             } else {
                 let importCmd = Object.assign([], this.codeSnippets[library]);
                 if (library === "ocp_vscode") {
                     importCmd.push(`set_port(${this.statusManager.getPort()})`);
                 }
-                let snippet = new vscode.SnippetString(importCmd.join("\n") + "\n");
+                let snippet = new vscode.SnippetString(
+                    importCmd.join("\n") + "\n"
+                );
                 editor?.insertSnippet(snippet);
             }
         } else {
@@ -296,21 +307,21 @@ export class LibraryManagerProvider
                 libs.push(
                     new Library(
                         "installer",
-                        { "installer": manager },
+                        { installer: manager },
                         vscode.TreeItemCollapsibleState.None
                     )
                 );
                 libs.push(
                     new Library(
                         "environment",
-                        { "location": location, "env": env },
+                        { location: location, env: env },
                         vscode.TreeItemCollapsibleState.None
                     )
                 );
                 libs.push(
                     new Library(
                         "editable",
-                        { "editable": editable },
+                        { editable: editable },
                         vscode.TreeItemCollapsibleState.None
                     )
                 );
@@ -318,7 +329,7 @@ export class LibraryManagerProvider
                     libs.push(
                         new Library(
                             "examples",
-                            { "examples": "", "parent": element.label },
+                            { examples: "", parent: element.label },
                             vscode.TreeItemCollapsibleState.None
                         )
                     );
@@ -340,7 +351,7 @@ export class LibraryManagerProvider
                     ? vscode.TreeItemCollapsibleState.Expanded
                     : vscode.TreeItemCollapsibleState.None;
 
-                libs.push(new Library(lib, { "version": version }, state));
+                libs.push(new Library(lib, { version: version }, state));
 
                 if (lib === "ocp_vscode") {
                     this.statusManager.installed = version !== "n/a";

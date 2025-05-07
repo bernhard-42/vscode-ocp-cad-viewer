@@ -50,7 +50,9 @@ export class OCPCADViewer {
             output.debug("Creating new webview panel");
 
             // get all current tabs
-            const tabs: vscode.Tab[] = vscode.window.tabGroups.all.map(tg => tg.tabs).flat();
+            const tabs: vscode.Tab[] = vscode.window.tabGroups.all
+                .map((tg) => tg.tabs)
+                .flat();
 
             const panel = vscode.window.createWebviewPanel(
                 OCPCADViewer.viewType,
@@ -61,10 +63,7 @@ export class OCPCADViewer {
                     retainContextWhenHidden: true
                 }
             );
-            OCPCADViewer.currentPanel = new OCPCADViewer(
-                panel,
-                extensionUri
-            );
+            OCPCADViewer.currentPanel = new OCPCADViewer(panel, extensionUri);
 
             // delete old tabs called "OCP CAD Viewer"
             for (var tab of tabs) {
@@ -78,7 +77,7 @@ export class OCPCADViewer {
     public static revive(panel: vscode.WebviewPanel, extensionUri: vscode.Uri) {
         output.debug("Reviving webview panel");
 
-        vscode.commands.executeCommand('ocpCadViewer.ocpCadViewer');
+        vscode.commands.executeCommand("ocpCadViewer.ocpCadViewer");
     }
 
     private constructor(panel: vscode.WebviewPanel, extensionUri: vscode.Uri) {
@@ -97,21 +96,34 @@ export class OCPCADViewer {
                         return;
                     case "screenshot":
                         var data;
-                        if (typeof message.text.data === 'string' || message.text.data instanceof String) {
-                            data = Buffer.from(message.text.data.replace('data:image/png;base64,', ''), "base64");
+                        if (
+                            typeof message.text.data === "string" ||
+                            message.text.data instanceof String
+                        ) {
+                            data = Buffer.from(
+                                message.text.data.replace(
+                                    "data:image/png;base64,",
+                                    ""
+                                ),
+                                "base64"
+                            );
                         } else {
                             data = message.text.data;
                         }
                         var filename = message.text.filename;
                         try {
                             // first write to a temp name to avoid polling is successful before finished ...
-                            let suffix = "-temp" + Date.now().toString(16)
+                            let suffix = "-temp" + Date.now().toString(16);
                             fs.writeFileSync(filename + suffix, data);
                             // ... and then rename to the actual filename
-                            fs.renameSync(filename + suffix, filename)
-                            vscode.window.showInformationMessage(`Screenshot saved as\n${filename}`);
+                            fs.renameSync(filename + suffix, filename);
+                            vscode.window.showInformationMessage(
+                                `Screenshot saved as\n${filename}`
+                            );
                         } catch (error) {
-                            vscode.window.showErrorMessage(`Error saving screenshot as\n${filename}`);
+                            vscode.window.showErrorMessage(
+                                `Error saving screenshot as\n${filename}`
+                            );
                         }
                         return;
                 }
