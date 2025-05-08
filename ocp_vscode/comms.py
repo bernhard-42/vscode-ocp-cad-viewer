@@ -7,7 +7,7 @@ import os
 import socket
 import warnings
 
-from pathlib import Path
+import questionary
 
 from websockets.sync.client import connect
 
