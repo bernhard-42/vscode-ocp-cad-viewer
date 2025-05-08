@@ -1,13 +1,11 @@
 import base64
 import orjson
 import shutil
-import socket
 import time
 import yaml
 from pathlib import Path
 from flask import Flask, render_template, request
 from flask_sock import Sock
-from simple_websocket import ConnectionClosed
 from ocp_vscode.comms import MessageType
 from ocp_vscode.backend import ViewerBackend
 from ocp_vscode.backend_logo import logo
