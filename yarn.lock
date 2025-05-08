@@ -1491,6 +1491,11 @@ optionator@^0.9.3:
     prelude-ls "^1.2.1"
     type-check "^0.4.0"
 
+os-lock@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/os-lock/-/os-lock-2.0.0.tgz#add9838c1e769c6c40a003e20621ace532dfc31f"
+  integrity sha512-gz01iHieWaDXZTtUEc5EZR3aO/g8+h7vk1IPix28jdeUYfWa6CzTeBD1NVtHQLqdwSW3yYSin8lG4lYp6S5Gcw==
+
 p-limit@^3.0.2:
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/p-limit/-/p-limit-3.1.0.tgz#e1daccbe78d0d1388ca18c64fea38e3e57e3706b"
