@@ -39,7 +39,7 @@ import { version } from "./version";
 import * as semver from "semver";
 import { createDemoFile } from "./demo";
 import { set_open, show as showLog } from "./output";
-import { updateState, getState, getConfigFile } from "./state";
+import { updateState, getConnctionFile, getConfigFile } from "./state";
 
 function check_upgrade(libraryManager: LibraryManagerProvider) {
     const ocp_vscode_lib = libraryManager.installed["ocp_vscode"];
@@ -108,8 +108,6 @@ export async function activate(context: vscode.ExtensionContext) {
 
     let libraryManager = createLibraryManager(statusManager);
     await libraryManager.refresh();
-
-    let ocpvscodeFile: string | undefined = undefined;
 
     //	Statusbar
 
@@ -263,7 +261,7 @@ export async function activate(context: vscode.ExtensionContext) {
                               (f) => f.uri.fsPath
                           )
                         : [];
-                    updateState(port, "roots", folders, true);
+                    updateState(port);
 
                     vscode.window.showInformationMessage(
                         `Using port ${port} and "show" should detect it automatically. ` +
@@ -279,7 +277,7 @@ export async function activate(context: vscode.ExtensionContext) {
                     if (fs.existsSync(path.join(folder, ".ocp_vscode"))) {
                         vscode.window.showInformationMessage(
                             `Found .ocp_vscode in ${folder}. ` +
-                                `This file will be ignored and ${await getConfigFile()} used instead!`
+                                `This file will be ignored and ${getConfigFile()} used instead!`
                         );
                     }
                 } else {
@@ -628,7 +626,7 @@ export async function activate(context: vscode.ExtensionContext) {
     vscode.workspace.onDidCloseTextDocument(async (e: vscode.TextDocument) => {
         if (e.uri.scheme === "vscode-interactive-input") {
             // remove the connection_file from the state
-            updateState(controller.port, "connection_file", null);
+            updateState(controller.port);
         } else if (
             e.uri.scheme === "output" &&
             e.uri.path.endsWith("OCP CAD Viewer Log")

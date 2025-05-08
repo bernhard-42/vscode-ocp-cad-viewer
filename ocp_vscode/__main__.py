@@ -7,7 +7,6 @@ from werkzeug.serving import get_interface_ip
 
 from ocp_vscode.backend import ViewerBackend
 from ocp_vscode.standalone import CONFIG_FILE, DEFAULTS, Viewer
-from ocp_vscode.state import resolve_path
 
 
 def represent_list(dumper, data):
@@ -312,7 +311,7 @@ def main(ctx, **kwargs):
 
     if kwargs.get("create_configfile"):
 
-        config_file = Path(resolve_path(CONFIG_FILE))
+        config_file = Path(CONFIG_FILE)
         with open(config_file, "w", encoding="utf-8") as f:
             f.write(yaml.dump(DEFAULTS))
         print(f"Created config file {config_file}")

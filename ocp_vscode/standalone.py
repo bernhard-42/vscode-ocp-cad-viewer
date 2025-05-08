@@ -11,9 +11,8 @@ from simple_websocket import ConnectionClosed
 from ocp_vscode.comms import MessageType
 from ocp_vscode.backend import ViewerBackend
 from ocp_vscode.backend_logo import logo
-from ocp_vscode.state import resolve_path
 
-CONFIG_FILE = "~/.ocpvscode_standalone"
+CONFIG_FILE = Path.home() / ".ocpvscode_standalone"
 
 DEFAULTS = {
     "debug": False,
@@ -142,7 +141,7 @@ class Viewer:
         local_config = DEFAULTS.copy()
 
         # Then apply everything from the config file if it exists
-        config_file = Path(resolve_path(CONFIG_FILE))
+        config_file = CONFIG_FILE
         if config_file.exists():
             with open(config_file, "r") as f:
                 defaults = yaml.safe_load(f)

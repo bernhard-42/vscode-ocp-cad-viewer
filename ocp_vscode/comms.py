@@ -19,7 +19,7 @@ from ocp_tessellate.ocp_utils import (
     serialize,
     loc_to_tq,
 )
-from .state import get_state, update_state, get_config_file
+from .state import get_ports, update_state, get_config_file
 
 
 # pylint: disable=unused-import
@@ -319,7 +319,7 @@ def set_connection_file():
 
         if port_check(connection_info["iopub_port"]):
             print("Jupyter kernel running")
-            update_state(CMD_PORT, "connection_file", cf)
+            update_state(CMD_PORT, cf)
             print(f"Jupyter connection file path written to {get_config_file()}")
         else:
             print("Jupyter kernel not responding")

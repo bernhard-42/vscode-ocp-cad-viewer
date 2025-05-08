@@ -306,6 +306,6 @@ export class OCPCADController {
         output.info("Server is shut down");
         this.statusController.refresh("<none>");
         this.statusBarItem.hide();
-        updateState(this.port, null, null);
+        updateState(this.port);
     }
 }
