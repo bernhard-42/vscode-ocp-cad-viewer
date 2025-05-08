@@ -206,12 +206,20 @@ export async function activate(context: vscode.ExtensionContext) {
                 statusBarItem.show();
                 check_upgrade(libraryManager);
 
+                // VS Code typically gets the Python environment associated with a Workspace Folder
+                var result = getCurrentFolder();
+                if (!result[1]) {
+                    // If the workspace folder is not opened, ask for the right Python interpreter
+                    await vscode.commands.executeCommand(
+                        "python.setInterpreter"
+                    );
+                }
+
                 if (document == undefined) {
                     document = vscode.window?.activeTextEditor?.document;
                 }
                 if (document === undefined) {
                     output.error("No editor open");
-                    // vscode.window.showErrorMessage("No editor open");
                     return;
                 }
 
@@ -460,12 +468,11 @@ export async function activate(context: vscode.ExtensionContext) {
             "ocpCadViewer.openConsole",
             async () => {
                 output.debug("Trying to open Jupyter console");
-                var folder = getCurrentFolder()[0];
-                if (!folder) {
-                    return;
-                }
-                const state = await getState(folder);
-                const connectionFile = state?.state?.connection_file;
+                // var folder = getCurrentFolder()[0];
+                // if (!folder) {
+                //     return;
+                // }
+                const connectionFile = await getConnctionFile(port);
 
                 output.debug(`connectionFile: ${connectionFile}`);
                 if (connectionFile) {
