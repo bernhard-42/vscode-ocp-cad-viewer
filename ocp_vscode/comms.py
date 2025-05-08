@@ -266,31 +266,25 @@ def find_and_set_port():
 
     def find_port():
         port = None
-        current_path = Path.cwd()
-        states = get_state().items()
-        for p, state in states:
-            if not port_check(int(p)):
-                print(f"Found stale configuration for port {p}, deleting it.")
-                update_state(int(p), None, None)
-                continue
+        ports = get_ports()
+        valid_ports = []
+        for p in ports:
+            if port_check(int(p)):
+                valid_ports.append(p)
 
-            roots = state.get("roots", [])
-            for root in roots:
-                if current_path.is_relative_to(Path(root)):
-                    port = int(p)
-                    break
-        if port is None:
-            ports = [port for port, _ in states if port_check(int(port))]
-            if len(ports) == 1:
-                port = ports[0]
-            elif len(ports) > 1:
-                raise RuntimeError(
-                    f"\nMultiple ports found ({', '.join(ports)}) and the file is outside of any\n"
-                    "workspace folder of this VS Code instance:\n"
-                    "The right viewer cannot be auto detected, use set_port(port) in your code."
-                )
-            else:
-                print(f"Could not find port in config file {get_config_file()}")
+        if len(ports) == 0:
+            return None
+
+        elif len(ports) == 1:
+            port = ports[0]
+
+        else:
+            port = questionary.select(
+                "Multiple viewers found. Select a port:",
+                choices=[str(p) for p in ports],
+            ).ask()
+            if port is not None:
+                port = int(port)
 
         return port
 
@@ -301,7 +295,7 @@ def find_and_set_port():
     else:
         port = find_port()
         if port is not None:
-            print(f"Using port {port} taken from config file")
+            print(f"Using port {port}")
         elif port_check(3939):
             port = 3939
             print(f"Default port {port} is open, using it")

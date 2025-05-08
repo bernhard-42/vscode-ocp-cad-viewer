@@ -102,6 +102,7 @@ async function conditionallyOpenViewer(document: vscode.TextDocument) {
 export async function activate(context: vscode.ExtensionContext) {
     let controller: OCPCADController;
     let isWatching = false;
+    let port = 0;
 
     let statusManager = createStatusManager();
     await statusManager.refresh("");
@@ -182,7 +183,6 @@ export async function activate(context: vscode.ExtensionContext) {
         vscode.commands.registerCommand(
             "ocpCadViewer.ocpCadViewer",
             async (document: vscode.TextDocument | undefined) => {
-                let port: number;
                 let preset_port = false;
 
                 output.show();
