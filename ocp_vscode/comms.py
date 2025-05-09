@@ -288,7 +288,13 @@ def find_and_set_port():
 
         return port
 
-    port = int(os.environ.get("OCP_PORT", "0"))
+    try:
+        port = int(os.environ.get("OCP_PORT", "0"))
+    except ValueError as ex:
+        print(
+            f"Port {os.environ.get("OCP_PORT")} taken from environment variable OCP_PORT is invalid"
+        )
+        port = 0
 
     if port > 0:
         print(f"Using predefined port {port} taken from environment variable OCP_PORT")
