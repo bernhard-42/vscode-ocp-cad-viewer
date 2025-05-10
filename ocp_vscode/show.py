@@ -90,6 +90,7 @@ __all__ = [
     "show_clear",
     "save_screenshot",
     "none_filter",
+    "remove_part",
 ]
 
 OBJECTS = {"objs": [], "names": [], "colors": [], "alphas": []}
@@ -646,6 +647,7 @@ def show_object(
     options=None,
     parent=None,
     clear=False,
+    update=False,
     port=None,
     progress="-+*c",
     glass=None,
@@ -716,6 +718,7 @@ def show_object(
         parent:                  Add another object, usually the parent of e.g. edges or vertices with alpha=0.25
         clear:                   In interactice mode, clear the stack of objects to be shown
                                  (typically used for the first object)
+        update:                  Update the object (remove old version)
         port:                    The port the viewer listens to. Typically use 'set_port(port)' instead
         progress:                Show progress of tessellation with None is no progress indicator. (default="-+*c")
                                  for object: "-": is reference,
@@ -806,6 +809,7 @@ def _show_object(obj, **kwargs):
     port = kwargs.get("port")
     name = kwargs.get("name")
     clear = kwargs.get("clear")
+    update = kwargs.get("update")
     parent = kwargs.get("parent")
     options = kwargs.get("options")
     progress = kwargs.get("progress")
@@ -814,11 +818,14 @@ def _show_object(obj, **kwargs):
         k: v
         for k, v in kwargs.items()
         if v is not None
-        and k not in ["obj", "name", "options", "parent", "clear", "port", "progress"]
+        and k not in ["obj", "name", "options", "parent", "clear", "port", "progress", "update"]
     }
 
     if clear:
         reset_show()
+
+    if update:
+        remove_part(name)
 
     if parent is not None:
         OBJECTS["objs"].append(parent)
@@ -1025,3 +1032,13 @@ def save_screenshot(filename, port=None, polling=True):
 
         if not done:
             print("Warning: Screenshot not found in 2 seconds, aborting")
+
+
+def remove_part(name):
+    """Remove part from the stack of objects by name"""
+    try:
+        index = OBJECTS['names'].index(name)
+        for key in ['objs', 'names', 'colors', 'alphas']:
+            del OBJECTS[key][index]
+    except ValueError:
+        pass  # Name not found; silently do nothing
