@@ -19,7 +19,7 @@ __version__ = "2.7.1"
 
 import os
 
-from .show import show, show_object, reset_show, show_all, show_clear, save_screenshot
+from .show import *
 from .config import *
 from .comms import *
 
