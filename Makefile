@@ -44,6 +44,10 @@ vsix:
 	vsce package --yarn
 	@ls -l *.vsix
 
+install-vsix:
+	code --uninstall-extension bernhard-42.ocp-cad-viewer
+	code --install-extension ocp-cad-viewer-$(CURRENT_VERSION).vsix
+	
 release:
 	git add .
 	git status
