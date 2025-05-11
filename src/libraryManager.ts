@@ -30,16 +30,38 @@ function sanitize(lib: string) {
     return lib.replace("-", "_");
 }
 
-export function isCondaAvailable(python: string) {
-    return python.includes("/envs/");
+interface Package {
+    name: string;
+    version: string;
+    location: string;
+    installer: string;
+    editable_project_location?: string;
 }
 
-export function isPipAvailable(python: string) {
+function parsePackageData(
+    jsonString: string
+): Map<string, Omit<Package, "name">> {
+    // Parse JSON and type assert to Package array
+    const packages = JSON.parse(jsonString) as Package[];
+
+    // Use existing mapping logic with enhanced type checking
+    return new Map(
+        packages.map((pkg) => {
+            const { name, ...rest } = pkg;
+            return [name, rest];
+        })
+    );
+}
+
+export async function pipList(
+    python: string
+): Promise<Map<string, Omit<Package, "name">>> {
     try {
-        execute(`${python} -m pip --version`);
-        return true;
-    } catch (error) {
-        return false;
+        let result = execute(`${python} -m pip list -v --format json`, false);
+        return parsePackageData(result);
+    } catch (error: any) {
+        output.error(error.stderr.toString());
+        return new Map<string, Omit<Package, "name">>();
     }
 }
 
@@ -172,6 +194,9 @@ export class LibraryManagerProvider
 
     async refresh(pythonPath: string | undefined = undefined) {
         this.readConfig();
+        if (pythonPath == null) {
+            pythonPath = await getPythonPath();
+        }
         await this.findInstalledLibraries(pythonPath);
         this._onDidChangeTreeData.fire();
     }
@@ -236,22 +261,18 @@ export class LibraryManagerProvider
         this.installed = {};
 
         try {
-            let command = `"${python}" -m pip list -v --format json`;
-            let allLibs = execute(command, false);
-            let libs = JSON.parse(allLibs);
-            libs.forEach((lib: any) => {
-                if (installLibs.includes(sanitize(lib["name"]))) {
-                    let editablePath = lib["editable_project_location"];
-                    this.installed[sanitize(lib["name"])] = [
+            var libs = await pipList(python);
+            for (var [name, lib] of libs) {
+                name = sanitize(name);
+                if (installLibs.includes(name)) {
+                    this.installed[name] = [
                         lib["version"],
                         lib["installer"],
-                        editablePath === undefined
-                            ? lib["location"]
-                            : editablePath,
-                        editablePath !== undefined
+                        lib["location"],
+                        lib["editable_project_location"] || ""
                     ];
                 }
-            });
+            }
         } catch (error: any) {
             vscode.window.showErrorMessage(error.message);
         }
@@ -296,12 +317,10 @@ export class LibraryManagerProvider
         if (element) {
             if (Object.keys(this.installed).includes(element.label)) {
                 let editable = this.installed[element.label][3];
-                let manager = editable
-                    ? "n/a"
-                    : this.installed[element.label][1];
+                let manager = this.installed[element.label][1] || "n/a";
                 let location = this.installed[element.label][2];
                 let p = location.split(path.sep);
-                let env = editable ? location : p[p.length - 4];
+                let env = editable ? editable : p[p.length - 4];
 
                 let libs: Library[] = [];
                 libs.push(
@@ -321,7 +340,7 @@ export class LibraryManagerProvider
                 libs.push(
                     new Library(
                         "editable",
-                        { editable: editable },
+                        { editable: (editable !== "").toString() },
                         vscode.TreeItemCollapsibleState.None
                     )
                 );
