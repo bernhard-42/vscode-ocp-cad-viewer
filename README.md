@@ -153,7 +153,7 @@ Options:
                                  color names are allowed (default: #707070)
   --default_thickedgecolor TEXT  Default color of lines, CSS3 color names are
                                  allowed (default: MediumOrchid)
-  --default_facecolor TEXT       Default color of faces, CSS3 color names are
+  --default_facecloth TEXT       Default color of faces, CSS3 color names are
                                  allowed (default: Violet)
   --default_vertexcolor TEXT     Default color of vertices, CSS3 color names
                                  are allowed (default: MediumOrchid)
@@ -255,7 +255,7 @@ then take a look at [docker-vscode-ocp-cad-viewer](https://github.com/nilcons/do
 
 Testing:
 
-Native tessellator can be set via `NATIVE_TESSELLATOR=1`and Python tessellator via `NATIVE_TESSELLATOR=0`.
+Native tessellator can be set via `NATIVE_TESSELLATOR=1` and Python tessellator via `NATIVE_TESSELLATOR=0`.
 
 When `OCP_VSCODE_PYTEST=1` is set, `show` will not send the tessellated results to the viewer, but return it to the caller for inspection.
 
@@ -298,7 +298,7 @@ NATIVE_TESSELLATOR=1 OCP_VSCODE_PYTEST=1 pytest -v -s pytests/
   Location of variable pc_fragColor conflicts with another variable.
   ```
 
-  VS Code internal browser that renders the viewer component uses a cache for code and other artifacts. This includes WebGL artefacts like compiled shaders. It can happen that e.g. due to a graphic driver update the compiled version in the cache does not fit to the new driver. Then this error message appears.
+  VS Code internal browser that renders the viewer component uses a cache for code and other artifacts. This includes WebGL artifacts like compiled shaders. It can happen that e.g. due to a graphic driver update the compiled version in the cache does not fit to the new driver. Then this error message appears.
 
   **Solution:** [Delete the VS Code browser cache on Linux](https://bobbyhadz.com/blog/vscode-clear-cache) (go to the section for your operating system)
 
@@ -308,7 +308,7 @@ NATIVE_TESSELLATOR=1 OCP_VSCODE_PYTEST=1 pytest -v -s pytests/
 
 **Fixes**
 
-- Use three-cad-viewer 3.3.4 (omit non used javacscript packages)
+- Use three-cad-viewer 3.3.4 (omit non used JavaScript packages)
 - Fix is_jupyter_cadquery condition
 
 ### v2.7.0
@@ -318,7 +318,7 @@ NATIVE_TESSELLATOR=1 OCP_VSCODE_PYTEST=1 pytest -v -s pytests/
 - Stabilized the panel for measurement and fixed arrow cone size ([#159](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/159))
 - Extended measurements to 3 digits ([#159](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/159))
 - Adapted backend, config and show modules to also work as client for Jupyter Cadquery
-- Support for OCCTs CompSolids (ocp-tessellate)
+- Support for OCCT's CompSolids (ocp-tessellate)
 - Add support for ShapeLists of Compounds ([#149](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/149), ocp-tessellate)
 - `show_object` now needs keyword args for `name` and `options` if provided
 - Measure backend can now be started via `python -m ocp_vscode --backend [--port 3939]`
@@ -328,5 +328,5 @@ NATIVE_TESSELLATOR=1 OCP_VSCODE_PYTEST=1 pytest -v -s pytests/
 - Fixed issue when loading snippets ([#157](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/157))
 - Fixed top and bottom view to be exact ([#158](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/158))
 - Fixed a bug when the viewer goes blank when a new object is to be shown while the dimension tool is active ([#156](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/156))
-- Fixed top level bounding box when clicking on the top level label in the navigstion tree
+- Fixed top level bounding box when clicking on the top level label in the navigation tree
 - Fixed highlighting of cad tree node to prevent scrolling of parent container
