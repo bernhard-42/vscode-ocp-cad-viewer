@@ -733,7 +733,7 @@
     "follow-redirects": "^1.15.2",
     "os-lock": "^2.0.0",
     "semver": "^7.5.1",
-    "three-cad-viewer": "3.3.4",
+    "three-cad-viewer": "3.3.5",
     "ws": "^8.13.0"
   },
   "packageManager": "yarn@1.22.22"
