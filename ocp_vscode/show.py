@@ -85,6 +85,8 @@ __all__ = [
     "show_object",
     "_show",
     "_show_object",
+    "push_object",
+    "show_objects",
     "reset_show",
     "show_all",
     "show_clear",
@@ -343,7 +345,7 @@ def align_attrs(attr_list, length, default, tag, explode=True):
         return attr_list
 
 
-def none_filter(d, excludes):
+def none_filter(d, excludes=None):
     if excludes is None:
         excludes = []
     return {k: v for k, v in dict(d).items() if v is not None and k not in excludes}
@@ -853,6 +855,182 @@ def _show_object(obj, **kwargs):
     )
 
 
+def push_object(obj, name=None, color=None, alpha=None):
+    if name is None:
+        if hasattr(obj, "name"):
+            name = obj.name
+        elif hasattr(obj, "label"):
+            name = obj.label
+        else:
+            raise ValueError("No name provided and no name attribute found.")
+    if color is None:
+        if hasattr(obj, "color"):
+            color = obj.color
+    if alpha is None:
+        if hasattr(obj, "alpha"):
+            alpha = obj.alpha
+        else:
+            alpha = 1.0
+    OBJECTS["objs"].append(obj)
+    OBJECTS["names"].append(name)
+    OBJECTS["colors"].append(color)
+    OBJECTS["alphas"].append(alpha)
+
+
+def show_objects(
+    port=None,
+    progress="-+*c",
+    glass=None,
+    tools=None,
+    tree_width=None,
+    axes=None,
+    axes0=None,
+    grid=None,
+    ortho=None,
+    transparent=None,
+    default_opacity=None,
+    black_edges=None,
+    orbit_control=None,
+    collapse=None,
+    ticks=None,
+    center_grid=None,
+    up=None,
+    zoom=None,
+    position=None,
+    quaternion=None,
+    target=None,
+    reset_camera=None,
+    clip_slider_0=None,
+    clip_slider_1=None,
+    clip_slider_2=None,
+    clip_normal_0=None,
+    clip_normal_1=None,
+    clip_normal_2=None,
+    clip_intersection=None,
+    clip_planes=None,
+    clip_object_colors=None,
+    pan_speed=None,
+    rotate_speed=None,
+    zoom_speed=None,
+    deviation=None,
+    angular_tolerance=None,
+    edge_accuracy=None,
+    default_color=None,
+    default_facecolor=None,
+    default_thickedgecolor=None,
+    default_vertexcolor=None,
+    default_edgecolor=None,
+    ambient_intensity=None,
+    metalness=None,
+    roughness=None,
+    direct_intensity=None,
+    render_edges=None,
+    render_normals=None,
+    render_mates=None,
+    render_joints=None,
+    show_parent=None,
+    show_sketch_local=None,
+    helper_scale=None,
+    mate_scale=None,  # DEPRECATED
+    debug=None,
+    timeit=None,
+):
+    # pylint: disable=line-too-long
+    """Show incrementally pushed CAD objects in Visual Studio Code
+
+    Keywords for show_objects:
+        progress:                Show progress of tessellation with None is no progress indicator. (default="-+*c")
+                                 for object: "-": is reference,
+                                             "+": gets tessellated with Python code,
+                                             "*": gets tessellated with native code,
+                                             "c": from cache
+
+
+    Valid keywords to configure the viewer (**kwargs):
+    - UI
+        glass:                   Use glass mode where tree is an overlay over the cad object (default=False)
+        tools:                   Show tools (default=True)
+        tree_width:              Width of the object tree (default=240)
+
+    - Viewer
+        axes:                    Show axes (default=False)
+        axes0:                   Show axes at (0,0,0) (default=False)
+        grid:                    Show grid (default=False)
+        ortho:                   Use orthographic projections (default=True)
+        transparent:             Show objects transparent (default=False)
+        default_opacity:         Opacity value for transparent objects (default=0.5)
+        black_edges:             Show edges in black color (default=False)
+        orbit_control:           Mouse control use "orbit" control instead of "trackball" control (default=False)
+        collapse:                Collapse.LEAVES: collapse all single leaf nodes,
+                                 Collapse.ROOT: expand root only,
+                                 Collapse.ALL: collapse all nodes,
+                                 Collapse.NONE: expand all nodes
+                                 (default=Collapse.ROOT)
+        ticks:                   Hint for the number of ticks in both directions (default=10)
+        center_grid:             Center the grid at the origin or center of mass (default=False)
+        up:                      Use z-axis ('Z') or y-axis ('Y') as up direction for the camera (default="Z")
+
+        zoom:                    Zoom factor of view (default=1.0)
+        position:                Camera position
+        quaternion:              Camera orientation as quaternion
+        target:                  Camera look at target
+        reset_camera:            Camera.RESET: Reset camera position, rotation, zoom and target
+                                 Camera.CENTER: Keep camera position, rotation, zoom, but look at center
+                                 Camera.KEEP: Keep camera position, rotation, zoom, and target
+                                 (default=Camera.RESET)
+
+        clip_slider_0:           Setting of clipping slider 0 (default=None)
+        clip_slider_1:           Setting of clipping slider 1 (default=None)
+        clip_slider_2:           Setting of clipping slider 2 (default=None)
+        clip_normal_0:           Setting of clipping normal 0 (default=[-1,0,0])
+        clip_normal_1:           Setting of clipping normal 1 (default=[0,-1,0])
+        clip_normal_2:           Setting of clipping normal 2 (default=[0,0,-1])
+        clip_intersection:       Use clipping intersection mode (default=[False])
+        clip_planes:             Show clipping plane helpers (default=False)
+        clip_object_colors:      Use object color for clipping caps (default=False)
+
+        pan_speed:               Speed of mouse panning (default=1)
+        rotate_speed:            Speed of mouse rotate (default=1)
+        zoom_speed:              Speed of mouse zoom (default=1)
+
+    - Renderer
+        deviation:               Shapes: Deviation from linear deflection value (default=0.1)
+        angular_tolerance:       Shapes: Angular deflection in radians for tessellation (default=0.2)
+        edge_accuracy:           Edges: Precision of edge discretization (default: mesh quality / 100)
+
+        default_color:           Default mesh color (default=(232, 176, 36))
+        default_edgecolor:       Default color of the edges of a mesh (default=(128, 128, 128))
+        default_facecolor:       Default color of the edges of a mesh (default=#ee82ee / Violet)
+        default_thickedgecolor:  Default color of the edges of a mesh (default=#ba55d3 / MediumOrchid)
+        default_vertexcolor:     Default color of the edges of a mesh (default=#ba55d3 / MediumOrchid)
+        ambient_intensity:       Intensity of ambient light (default=1.00)
+        direct_intensity:        Intensity of direct light (default=1.10)
+        metalness:               Metalness property of the default material (default=0.30)
+        roughness:               Roughness property of the default material (default=0.65)
+
+
+        render_edges:            Render edges  (default=True)
+        render_normals:          Render normals (default=False)
+        render_mates:            Render mates for MAssemblies (default=False)
+        render_joints:           Render build123d joints (default=False)
+        show_parent:             Render parent of faces, edges or vertices as wireframe (default=False)
+        show_sketch_local:       In build123d show local sketch in addition to relocate sketch (default=True)
+        helper_scale:            Scale of rendered helpers (locations, axis, mates for MAssemblies) (default=1)
+
+    - Debug
+        debug:                   Show debug statements to the VS Code browser console (default=False)
+        imeit:                   Show timing information from level 0-3 (default=False)
+    """
+    kwargs = none_filter(locals())
+    return show(
+        *OBJECTS["objs"],
+        names=OBJECTS["names"],
+        colors=OBJECTS["colors"],
+        alphas=OBJECTS["alphas"],
+        **kwargs,
+    )
+
+
 def show_clear():
     """Clear the viewer"""
     data = {
@@ -865,6 +1043,7 @@ def show_all(
     variables=None,
     exclude=None,
     classes=None,
+    include=None,
     _visual_debug=False,
     **kwargs,
 ):
@@ -876,6 +1055,7 @@ def show_all(
                        i.e. do not use all from locals()
         exclude:       List of variable names to exclude from "show_all"
         classes:       Only show objects which are instances of the classes in this list
+        include:       List of variable names to additionally include in "show_all" when classes is None
         _visual_debug: private variable, do not use!
 
     Keywords for show_all:
@@ -981,6 +1161,15 @@ def show_all(
                 print(
                     f"show_all: Type {type(obj)} for name {name} cannot be visualized"
                 )
+
+        if (
+            classes is not None
+            and include is not None
+            and isinstance(include, (tuple, list))
+        ):
+            if name in include and name not in names:
+                objects.append(variables[name])
+                names.append(name)
 
     if len(objects) > 0:
         try:
