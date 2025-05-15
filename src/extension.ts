@@ -39,7 +39,12 @@ import { version } from "./version";
 import * as semver from "semver";
 import { createDemoFile } from "./demo";
 import { set_open, show as showLog } from "./output";
-import { updateState, getConnctionFile, getConfigFile } from "./state";
+import {
+    updateState,
+    getConnctionFile,
+    getConfigFile,
+    removeState
+} from "./state";
 
 function check_upgrade(libraryManager: LibraryManagerProvider) {
     const ocp_vscode_lib = libraryManager.installed["ocp_vscode"];
@@ -680,7 +685,7 @@ export async function activate(context: vscode.ExtensionContext) {
     });
 }
 
-export function deactivate() {
+export async function deactivate() {
     output.debug("OCP CAD Viewer extension deactivated");
-    OCPCADViewer.currentPanel?.dispose();
+    await OCPCADViewer.currentPanel?.dispose();
 }

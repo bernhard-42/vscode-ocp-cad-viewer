@@ -83,7 +83,13 @@ export class OCPCADViewer {
     private constructor(panel: vscode.WebviewPanel, extensionUri: vscode.Uri) {
         this._panel = panel;
 
-        this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
+        this._panel.onDidDispose(
+            () => {
+                this.dispose();
+            },
+            null,
+            this._disposables
+        );
         this._panel.webview.html = "";
 
         // Handle messages from the webview
@@ -133,10 +139,12 @@ export class OCPCADViewer {
         );
     }
 
-    public dispose() {
+    public async dispose() {
         output.debug("OCP CAD Viewer dispose");
-        OCPCADViewer.currentPanel = undefined;
 
+        await OCPCADViewer.controller?.dispose();
+
+        OCPCADViewer.currentPanel = undefined;
         this._panel.dispose();
 
         while (this._disposables.length) {
@@ -145,7 +153,6 @@ export class OCPCADViewer {
                 x.dispose();
             }
         }
-        OCPCADViewer.controller?.dispose();
     }
 
     public update(div: string) {
@@ -161,4 +168,3 @@ export class OCPCADViewer {
         return this._panel.webview;
     }
 }
-/*  */

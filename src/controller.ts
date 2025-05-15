@@ -25,7 +25,7 @@ import * as output from "./output";
 import { logo } from "./logo";
 import { StatusManagerProvider } from "./statusManager";
 import { getPythonPath, getTempFolder } from "./utils";
-import { updateState } from "./state";
+import { removeState } from "./state";
 
 var serverStarted = false;
 
@@ -297,15 +297,17 @@ export class OCPCADController {
         }
     }
 
-    public dispose() {
+    public async dispose() {
         output.debug("OCPCADController dispose");
 
         this.stopCommandServer();
         this.stopBackend();
+
+        await removeState(this.port);
+
         serverStarted = false;
-        output.info("Server is shut down");
         this.statusController.refresh("<none>");
         this.statusBarItem.hide();
-        updateState(this.port);
+        output.info("Server is shut down");
     }
 }

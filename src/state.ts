@@ -56,6 +56,14 @@ export async function updateState(port: number) {
         return config;
     });
 }
+
+export async function removeState(port: number) {
+    await atomicFileOperation((config) => {
+        delete config.services[port];
+        return config;
+    });
+}
+
 export async function getConnctionFile(port: number): Promise<string> {
     var connectionFile = await atomicFileOperation(async () => {
         const data = await fs
