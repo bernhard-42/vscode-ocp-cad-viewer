@@ -1043,6 +1043,7 @@ def show_all(
     variables=None,
     exclude=None,
     classes=None,
+    include=None,
     _visual_debug=False,
     **kwargs,
 ):
@@ -1054,6 +1055,7 @@ def show_all(
                        i.e. do not use all from locals()
         exclude:       List of variable names to exclude from "show_all"
         classes:       Only show objects which are instances of the classes in this list
+        include:       List of variable names to additionally include in "show_all" when classes is None
         _visual_debug: private variable, do not use!
 
     Keywords for show_all:
@@ -1159,6 +1161,15 @@ def show_all(
                 print(
                     f"show_all: Type {type(obj)} for name {name} cannot be visualized"
                 )
+
+        if (
+            classes is not None
+            and include is not None
+            and isinstance(include, (tuple, list))
+        ):
+            if name in include and name not in names:
+                objects.append(variables[name])
+                names.append(name)
 
     if len(objects) > 0:
         try:
