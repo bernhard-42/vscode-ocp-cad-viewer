@@ -85,7 +85,7 @@ __all__ = [
     "show_object",
     "_show",
     "_show_object",
-    "push_show",
+    "push_object",
     "show_objects",
     "reset_show",
     "show_all",
@@ -855,7 +855,7 @@ def _show_object(obj, **kwargs):
     )
 
 
-def push_show(obj, name=None, color=None, alpha=None):
+def push_object(obj, name=None, color=None, alpha=None):
     if name is None:
         if hasattr(obj, "name"):
             name = obj.name
