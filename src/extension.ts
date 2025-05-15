@@ -20,7 +20,8 @@ import * as path from "path";
 import * as fs from "fs";
 import * as os from "os";
 import * as net from "net";
-import * as child_process from "child_process";
+import { glob } from "glob";
+
 import { OCPCADController } from "./controller";
 import { OCPCADViewer } from "./viewer";
 import {
@@ -41,6 +42,7 @@ import { version } from "./version";
 import * as semver from "semver";
 import { createDemoFile } from "./demo";
 import { set_open, show as showLog } from "./output";
+import { execute } from "./system/shell";
 import {
     updateState,
     getConnctionFile,
@@ -209,15 +211,16 @@ export async function activate(context: vscode.ExtensionContext) {
                 }
 
                 statusBarItem.show();
-                check_upgrade(libraryManager);
 
                 var python = await getPythonPath();
                 let valid = false;
                 try {
-                    child_process.execSync(`${python} -c "import ocp_vscode"`, {
-                        stdio: "ignore"
-                    });
-                    valid = true;
+                    // check whethre site-packages folder has ocp_vscode package
+                    var site = execute(
+                        `${python} -c "import site; print(site.getsitepackages()[0],end='')"`
+                    ).toString();
+                    valid =
+                        glob.sync(path.join(site, "ocp_vscode*")).length > 0;
                 } catch (error) {
                     valid = false;
                 }
@@ -227,9 +230,9 @@ export async function activate(context: vscode.ExtensionContext) {
                     );
                     python = await getPythonPath();
                 }
-
                 await statusManager.refresh("");
                 await libraryManager.refresh(python);
+                check_upgrade(libraryManager);
 
                 if (document == undefined) {
                     document = vscode.window?.activeTextEditor?.document;
