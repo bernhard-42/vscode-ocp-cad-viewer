@@ -20,6 +20,7 @@ import * as path from "path";
 import * as fs from "fs";
 import * as os from "os";
 import * as net from "net";
+import * as child_process from "child_process";
 import { OCPCADController } from "./controller";
 import { OCPCADViewer } from "./viewer";
 import {
@@ -33,7 +34,8 @@ import { download } from "./examples";
 import {
     getCurrentFolder,
     jupyterExtensionInstalled,
-    isPortInUse
+    isPortInUse,
+    getPythonPath
 } from "./utils";
 import { version } from "./version";
 import * as semver from "semver";
@@ -108,12 +110,10 @@ export async function activate(context: vscode.ExtensionContext) {
     let controller: OCPCADController;
     let isWatching = false;
     let port = 0;
+    let lastPythonPath = "";
 
     let statusManager = createStatusManager();
-    await statusManager.refresh("");
-
     let libraryManager = createLibraryManager(statusManager);
-    await libraryManager.refresh();
 
     //	Statusbar
 
@@ -211,14 +211,25 @@ export async function activate(context: vscode.ExtensionContext) {
                 statusBarItem.show();
                 check_upgrade(libraryManager);
 
-                // VS Code typically gets the Python environment associated with a Workspace Folder
-                var result = getCurrentFolder();
-                if (!result[1]) {
-                    // If the workspace folder is not opened, ask for the right Python interpreter
+                var python = await getPythonPath();
+                let valid = false;
+                try {
+                    child_process.execSync(`${python} -c "import ocp_vscode"`, {
+                        stdio: "ignore"
+                    });
+                    valid = true;
+                } catch (error) {
+                    valid = false;
+                }
+                if (!valid) {
                     await vscode.commands.executeCommand(
                         "python.setInterpreter"
                     );
+                    python = await getPythonPath();
                 }
+
+                await statusManager.refresh("");
+                await libraryManager.refresh(python);
 
                 if (document == undefined) {
                     document = vscode.window?.activeTextEditor?.document;
@@ -667,9 +678,12 @@ export async function activate(context: vscode.ExtensionContext) {
                 vscode.workspace.getConfiguration("python")[
                     "defaultInterpreterPath"
                 ];
-            libraryManager.refresh(pythonPath);
-            controller.dispose();
-            OCPCADViewer.currentPanel?.dispose();
+            if (lastPythonPath !== pythonPath) {
+                lastPythonPath = pythonPath;
+                libraryManager.refresh(pythonPath);
+                controller.dispose();
+                OCPCADViewer.currentPanel?.dispose();
+            }
         }
     });
 
@@ -678,6 +692,7 @@ export async function activate(context: vscode.ExtensionContext) {
     extension?.exports.settings.onDidChangeExecutionDetails((event: any) => {
         let pythonPath =
             extension.exports.settings.getExecutionDetails().execCommand[0];
+        lastPythonPath = pythonPath;
         libraryManager.refresh(pythonPath);
         controller.dispose();
         OCPCADViewer.currentPanel?.dispose();
