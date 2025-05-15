@@ -75,9 +75,13 @@ export class OCPCADViewer {
     }
 
     public static revive(panel: vscode.WebviewPanel, extensionUri: vscode.Uri) {
-        output.debug("Reviving webview panel");
-
-        vscode.commands.executeCommand("ocpCadViewer.ocpCadViewer");
+        const autostart = vscode.workspace.getConfiguration(
+            "OcpCadViewer.advanced"
+        )["autostart"];
+        if (!autostart) {
+            output.debug("Reviving webview panel");
+            vscode.commands.executeCommand("ocpCadViewer.ocpCadViewer");
+        }
     }
 
     private constructor(panel: vscode.WebviewPanel, extensionUri: vscode.Uri) {
