@@ -21,6 +21,7 @@ import * as net from "net";
 import * as path from "path";
 import { PythonExtension } from "@vscode/python-extension";
 import * as output from "./output";
+import { execute, find } from "./system/shell";
 
 export function getEditor() {
     const editor = vscode.window.activeTextEditor;
@@ -155,6 +156,20 @@ export function getPythonPath() {
 export function getPythonEnv() {
     let editor = getEditor();
     return PythonPath.getPythonEnv(editor?.document);
+}
+
+export function isOcpVscodeEnv(python: String): boolean {
+    let valid = false;
+    try {
+        // check whethre site-packages folder has ocp_vscode package
+        var site = execute(
+            `${python} -c "import site; print(site.getsitepackages()[0],end='')"`
+        ).toString();
+        valid = find(site, "ocp_vscode*").length > 0;
+    } catch (error) {
+        valid = false;
+    }
+    return valid;
 }
 
 export function getPackageManager() {
