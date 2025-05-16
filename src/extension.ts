@@ -139,38 +139,36 @@ export async function activate(context: vscode.ExtensionContext) {
     statusBarItem.command = "ocpCadViewer.toggleWatch";
     context.subscriptions.push(statusBarItem);
 
-    const editor = vscode.window?.activeTextEditor;
-    const python = await getPythonPath();
-    var done = false;
-    while (!done) {
-        if (isOcpVscodeEnv(python)) {
-            done = true;
-            if (editor?.document) {
-                // start immediately"
-                conditionallyOpenViewer(editor.document);
-            } else {
-                // start with timeout
-                setTimeout(() => {
-                    output.info("timeout triggered");
-                    const editor = vscode.window?.activeTextEditor;
-                    if (editor) {
-                        conditionallyOpenViewer(editor.document);
+    const delay = vscode.workspace.getConfiguration("OcpCadViewer.advanced")[
+        "autostartDelay"
+    ];
+
+    setTimeout(async () => {
+        const editor = vscode.window?.activeTextEditor;
+        const python = await getPythonPath();
+        var done = false;
+        if (editor?.document) {
+            while (!done) {
+                if (isOcpVscodeEnv(python)) {
+                    conditionallyOpenViewer(editor.document);
+                    done = true;
+                } else {
+                    let reply =
+                        (await vscode.window.showQuickPick(["yes", "no"], {
+                            placeHolder: `OCP VS Code not found for "${python}". Select another Python interpreter?`
+                        })) || "";
+                    if (reply === "" || reply === "no") {
+                        done = true;
+                    } else {
+                        await vscode.commands.executeCommand(
+                            "python.setInterpreter"
+                        );
                     }
-                }, 500);
-            }
-        } else {
-            let reply =
-                (await vscode.window.showQuickPick(["yes", "no"], {
-                    placeHolder: `OCP VS Code not found for "${python}". Select another Python interpreter?`
-                })) || "";
-            if (reply === "" || reply === "no") {
-                done = true;
-            } else {
-                await vscode.commands.executeCommand("python.setInterpreter");
-                done = true;
+                }
             }
         }
-    }
+    }, delay);
+
     //	Commands
 
     context.subscriptions.push(
@@ -233,7 +231,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
                 statusBarItem.show();
 
-                var python = await getPythonPath();
+                var python = await getPythonPath(true);
                 if (!isOcpVscodeEnv(python)) {
                     let reply =
                         (await vscode.window.showQuickPick(["yes", "no"], {
@@ -691,15 +689,12 @@ export async function activate(context: vscode.ExtensionContext) {
         }
     });
 
-    vscode.workspace.onDidChangeConfiguration((event: any) => {
+    vscode.workspace.onDidChangeConfiguration(async (event: any) => {
         let affected = event.affectsConfiguration(
             "python.defaultInterpreterPath"
         );
         if (affected) {
-            let pythonPath =
-                vscode.workspace.getConfiguration("python")[
-                    "defaultInterpreterPath"
-                ];
+            let pythonPath = await getPythonPath();
             if (lastPythonPath !== pythonPath) {
                 lastPythonPath = pythonPath;
                 libraryManager.refresh(pythonPath);

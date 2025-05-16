@@ -695,6 +695,12 @@
           "default": 1000,
           "description": "Delay until terminal command is started (default: 1000)",
           "order": 58
+        },
+        "OcpCadViewer.advanced.autostartDelay": {
+          "type": "number",
+          "default": 250,
+          "description": "Delay until autostart tries to launch the viewer (default: 250)",
+          "order": 58
         }
       }
     }

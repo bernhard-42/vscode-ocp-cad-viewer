@@ -96,7 +96,8 @@ export function jupyterExtensionInstalled() {
 
 class PythonPath {
     public static async getPythonPath(
-        document?: vscode.TextDocument
+        document?: vscode.TextDocument,
+        notify = false
     ): Promise<string> {
         const pythonApi: PythonExtension = await PythonExtension.api();
         const environmentPath =
@@ -105,9 +106,11 @@ class PythonPath {
             environmentPath
         );
         if (environment != null) {
-            output.debug(
-                `PythonPath: '${environment.path}', environment: ${environment.environment?.type}, ${environment.environment?.name}`
-            );
+            if (notify) {
+                output.debug(
+                    `PythonPath: '${environment.path}', environment: ${environment.environment?.type}, ${environment.environment?.name}`
+                );
+            }
             return environment.path;
         } else {
             output.debug(`PythonPath: 'python', environment: DEFAULT`);
@@ -119,7 +122,8 @@ class PythonPath {
     }
 
     public static async getPythonEnv(
-        document?: vscode.TextDocument
+        document?: vscode.TextDocument,
+        notify = false
     ): Promise<string> {
         const pythonApi: PythonExtension = await PythonExtension.api();
         const environmentPath =
@@ -128,9 +132,11 @@ class PythonPath {
             environmentPath
         );
         if (environment != null) {
-            output.debug(
-                `PythonEnv: ${environment.environment?.type}, '${environment.environment?.name}'`
-            );
+            if (notify) {
+                output.debug(
+                    `PythonEnv: ${environment.environment?.type}, '${environment.environment?.name}'`
+                );
+            }
             return environment.environment?.name || "unknown";
         }
         return "unknown";
@@ -148,9 +154,9 @@ class PythonPath {
     }
 }
 
-export function getPythonPath() {
+export function getPythonPath(notify = false) {
     let editor = getEditor();
-    return PythonPath.getPythonPath(editor?.document);
+    return PythonPath.getPythonPath(editor?.document, notify);
 }
 
 export function getPythonEnv() {
