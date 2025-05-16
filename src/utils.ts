@@ -117,6 +117,24 @@ class PythonPath {
         }
     }
 
+    public static async getPythonEnv(
+        document?: vscode.TextDocument
+    ): Promise<string> {
+        const pythonApi: PythonExtension = await PythonExtension.api();
+        const environmentPath =
+            pythonApi.environments.getActiveEnvironmentPath();
+        const environment = await pythonApi.environments.resolveEnvironment(
+            environmentPath
+        );
+        if (environment != null) {
+            output.debug(
+                `PythonEnv: ${environment.environment?.type}, '${environment.environment?.name}'`
+            );
+            return environment.environment?.name || "unknown";
+        }
+        return "unknown";
+    }
+
     public static getConfiguration(
         section?: string,
         document?: vscode.TextDocument
@@ -132,6 +150,11 @@ class PythonPath {
 export function getPythonPath() {
     let editor = getEditor();
     return PythonPath.getPythonPath(editor?.document);
+}
+
+export function getPythonEnv() {
+    let editor = getEditor();
+    return PythonPath.getPythonEnv(editor?.document);
 }
 
 export function getPackageManager() {
