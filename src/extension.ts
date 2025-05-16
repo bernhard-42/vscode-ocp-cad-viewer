@@ -139,16 +139,20 @@ export async function activate(context: vscode.ExtensionContext) {
     statusBarItem.command = "ocpCadViewer.toggleWatch";
     context.subscriptions.push(statusBarItem);
 
-    // Should be event based, but didn't find an event that gets reliably fired
-    // So back to good old timeout ...
-    setTimeout(() => {
-        const editor = vscode.window?.activeTextEditor;
-        if (editor) {
-            if (!controller || !controller.isStarted()) {
+    const editor = vscode.window?.activeTextEditor;
+    if (editor?.document) {
+        // start immediately"
+        conditionallyOpenViewer(editor.document);
+    } else {
+        // start with timeout
+        setTimeout(() => {
+            output.info("timeout triggered");
+            const editor = vscode.window?.activeTextEditor;
+            if (editor) {
                 conditionallyOpenViewer(editor.document);
             }
-        }
-    }, 500);
+        }, 500);
+    }
 
     //	Commands
 
