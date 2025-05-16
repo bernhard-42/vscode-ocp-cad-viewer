@@ -21,7 +21,7 @@ import * as path from "path";
 import * as vscode from "vscode";
 import { version as ocp_vscode_version } from "./version";
 import * as output from "./output";
-import { getPythonPath, getEditor, inquiry, getCurrentFolder } from "./utils";
+import { getPythonPath, getEditor } from "./utils";
 import { execute } from "./system/shell";
 import { StatusManagerProvider } from "./statusManager";
 import { TerminalExecute } from "./system/terminal";
