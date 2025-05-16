@@ -21,10 +21,10 @@ from ocp_tessellate.ocp_utils import (
 )
 from .state import get_ports, update_state, get_config_file
 
+from IPython import get_ipython
 
 # pylint: disable=unused-import
 try:
-    from IPython import get_ipython
     import jupyter_console
 
     JCONSOLE = True
@@ -280,11 +280,14 @@ def find_and_set_port():
             port = valid_ports[0]
 
         else:
-            port = questionary.select(
-                "Multiple viewers found. Select a port:",
-                choices=[str(p) for p in valid_ports],
-            ).ask()
-            if port is not None:
+            if get_ipython().__class__.__name__ == "ZMQInteractiveShell":
+                port = input(f"Select port from {[int(p) for p in valid_ports]} ")
+            else:
+                port = questionary.select(
+                    "Multiple viewers found. Select a port:",
+                    choices=[str(p) for p in valid_ports],
+                ).ask()
+            if port is not None and port != "":
                 port = int(port)
 
         return port
