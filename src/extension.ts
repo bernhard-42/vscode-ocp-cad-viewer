@@ -147,7 +147,7 @@ export async function activate(context: vscode.ExtensionContext) {
         const editor = vscode.window?.activeTextEditor;
         const python = await getPythonPath();
         var done = false;
-        if (editor?.document) {
+        if (editor?.document && editor.document.languageId == "python") {
             while (!done) {
                 if (isOcpVscodeEnv(python)) {
                     conditionallyOpenViewer(editor.document);
@@ -163,6 +163,8 @@ export async function activate(context: vscode.ExtensionContext) {
                         await vscode.commands.executeCommand(
                             "python.setInterpreter"
                         );
+                        conditionallyOpenViewer(editor.document);
+                        done = true;
                     }
                 }
             }
