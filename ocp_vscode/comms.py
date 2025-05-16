@@ -267,21 +267,22 @@ def find_and_set_port():
     def find_port():
         port = None
         ports = get_ports()
+
         valid_ports = []
         for p in ports:
             if port_check(int(p)):
                 valid_ports.append(p)
 
-        if len(ports) == 0:
+        if len(valid_ports) == 0:
             return None
 
-        elif len(ports) == 1:
-            port = ports[0]
+        elif len(valid_ports) == 1:
+            port = valid_ports[0]
 
         else:
             port = questionary.select(
                 "Multiple viewers found. Select a port:",
-                choices=[str(p) for p in ports],
+                choices=[str(p) for p in valid_ports],
             ).ask()
             if port is not None:
                 port = int(port)
