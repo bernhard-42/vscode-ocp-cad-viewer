@@ -42,7 +42,7 @@ import { version } from "./version";
 import * as semver from "semver";
 import { createDemoFile } from "./demo";
 import { set_open, show as showLog } from "./output";
-import { execute } from "./system/shell";
+import { execute, find } from "./system/shell";
 import {
     updateState,
     getConnctionFile,
@@ -223,8 +223,7 @@ export async function activate(context: vscode.ExtensionContext) {
                     var site = execute(
                         `${python} -c "import site; print(site.getsitepackages()[0],end='')"`
                     ).toString();
-                    valid =
-                        glob.sync(path.join(site, "ocp_vscode*")).length > 0;
+                    valid = find(site, "ocp_vscode*").length > 0;
                 } catch (error) {
                     valid = false;
                 }
