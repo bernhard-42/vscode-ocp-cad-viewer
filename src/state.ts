@@ -1,7 +1,8 @@
-import { promises as fs } from "fs";
+import * as fs from "fs";
 import * as os from "os";
 import * as path from "path";
 import { lock, unlock } from "os-lock";
+import * as output from "./output";
 
 const CONFIG_FILE = path.join(os.homedir(), ".ocpvscode");
 const LOCK_PATH = `${CONFIG_FILE}.lock`;
@@ -20,14 +21,14 @@ export function getConfigFile(): string {
 async function atomicFileOperation<T>(
     fn: (data: ServiceConfig) => T
 ): Promise<T> {
-    const lockFile = await fs
+    const lockFile = await fs.promises
         .open(LOCK_PATH, "a+")
-        .catch(() => fs.open(LOCK_PATH, "wx"));
+        .catch(() => fs.promises.open(LOCK_PATH, "wx"));
 
     try {
         await lock(lockFile.fd, { exclusive: true });
 
-        const data = await fs
+        const data = await fs.promises
             .readFile(CONFIG_FILE, "utf8")
             .catch(() => '{"version":2,"services":{}}');
 
@@ -42,7 +43,10 @@ async function atomicFileOperation<T>(
         }
 
         const result = fn(config);
-        await fs.writeFile(CONFIG_FILE, JSON.stringify(config, null, 2));
+        await fs.promises.writeFile(
+            CONFIG_FILE,
+            JSON.stringify(config, null, 2)
+        );
         return result;
     } finally {
         await unlock(lockFile.fd);
@@ -65,11 +69,20 @@ export async function removeState(port: number) {
 }
 
 export async function getConnctionFile(port: number): Promise<string> {
-    var connectionFile = await atomicFileOperation(async () => {
-        const data = await fs
-            .readFile(CONFIG_FILE, "utf8")
-            .catch(() => '{"version":2,"services":{}}');
+    var connectionFile = await atomicFileOperation(() => {
+        output.info(`CONFIG_FILE ${CONFIG_FILE}`);
+        let data;
+        try {
+            data = fs.readFileSync(CONFIG_FILE, "utf8");
+        } catch (err) {
+            data = '{"version":2,"services":{}}';
+        }
+        if (data == null) {
+            output.error(data);
+        }
+        output.info(`data ${data}`);
         const config: ServiceConfig = JSON.parse(data);
+        output.info(`config ${config}`);
         for (var port2 in config.services) {
             if (port2 == port.toString()) {
                 return config.services[port2];
@@ -77,5 +90,6 @@ export async function getConnctionFile(port: number): Promise<string> {
         }
         return "";
     });
+    output.info(`connectionFile ${connectionFile}`);
     return connectionFile || "";
 }
