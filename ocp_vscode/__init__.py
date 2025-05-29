@@ -78,6 +78,13 @@ try:
         return decorator
 
     def _select(obj, indices, cls, getter):
+        if hasattr(obj, "part"):
+            obj = obj.part
+        elif hasattr(obj, "sketch"):
+            obj = obj.sketch
+        elif hasattr(obj, "line"):
+            obj = obj.line
+
         objects = list(getter(obj.wrapped))
         result = []
         for i in indices:
