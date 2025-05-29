@@ -41,7 +41,8 @@
             theme: "{{ theme }}",
             tools: JSON.parse("{{ tools|tojson }}"), // make linter happy
             pinning: false,
-            measureTools: false,
+            measureTools: true,
+            selectTool: true,
             keymap: {
                 "shift": "shiftKey",
                 "ctrl": "ctrlKey",
@@ -404,6 +405,7 @@
                 defaultOpacity: preset(_config, "default_opacity", renderDefaultOptions.defaultOpacity),
                 normalLen: preset(_config, "normal_len", renderDefaultOptions.normalLen),
                 measureTools: true,
+                selectTool: true
             };
 
             viewerOptions = {
@@ -419,6 +421,7 @@
                 tools: preset(_config, "tools", viewerDefaultOptions.tools),
                 glass: preset(_config, "glass", viewerDefaultOptions.glass),
                 measureTools: true,
+                selectTool: true,
                 up: preset(_config, "up", viewerDefaultOptions.up),
                 transparent: preset(_config, "transparent", viewerDefaultOptions.transparent),
                 control: preset(_config, "control", viewerDefaultOptions.control),

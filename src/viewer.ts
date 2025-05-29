@@ -136,6 +136,12 @@ export class OCPCADViewer {
                             );
                         }
                         return;
+                    case "status":
+                        if (message.text.selected != null) {
+                            vscode.env.clipboard.writeText(
+                                message.text.selected.join(",")
+                            );
+                        }
                 }
             },
             null,
