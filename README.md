@@ -304,29 +304,25 @@ NATIVE_TESSELLATOR=1 OCP_VSCODE_PYTEST=1 pytest -v -s pytests/
 
 ## Changes
 
-### v2.7.1
-
-**Fixes**
-
-- Use three-cad-viewer 3.3.4 (omit non used javacscript packages)
-- Fix is_jupyter_cadquery condition
-
-### v2.7.0
+### 2.8.0
 
 **Features**
 
-- Stabilized the panel for measurement and fixed arrow cone size ([#159](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/159))
-- Extended measurements to 3 digits ([#159](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/159))
-- Adapted backend, config and show modules to also work as client for Jupyter Cadquery
-- Support for OCCTs CompSolids (ocp-tessellate)
-- Add support for ShapeLists of Compounds ([#149](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/149), ocp-tessellate)
-- `show_object` now needs keyword args for `name` and `options` if provided
-- Measure backend can now be started via `python -m ocp_vscode --backend [--port 3939]`
+- Color marker behind the node name of the navigation tree showing the object color
+- New "select objects" mode that allows to retrieve stable object indices that can be used in python code to selct objects
+- Removed the need of an open workspace. If the extension cannot identify a Python environment with ocp_vscode, it asks for it. ([#160](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/160), [#163](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/163))
+- Simplified port detection. Every viewer stores its port into `~/.ocpvscode`. If mode than one active port is detected, show let's you select the right one  ([#163](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/163))
+- Improve startup performance
+- Allow setting port in launch.json
+- Add `include` argument to `show_all`
+- Add `push_object` and `show_objects` to control showing objects in a lazy manner
+- Bump to three-cad-viewer 3.4.0
+
 
 **Fixes**
-
-- Fixed issue when loading snippets ([#157](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/157))
-- Fixed top and bottom view to be exact ([#158](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/158))
-- Fixed a bug when the viewer goes blank when a new object is to be shown while the dimension tool is active ([#156](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/156))
-- Fixed top level bounding box when clicking on the top level label in the navigstion tree
-- Fixed highlighting of cad tree node to prevent scrolling of parent container
+- Ensure revive of viewer is not used in autostart mode
+- Improve pip list parsing
+- Start backend with a temp folder instead of work directory
+- Fix naming `vertex0` to `vertex_0` (and so on) in exploded mode (three-cad-viewer)
+- Fix clear and dispose behavior (three-cad-viewer [#27](https://github.com/bernhard-42/three-cad-viewer/issues/27))
+- Fix `save_screenshot` throwing an error
