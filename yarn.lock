@@ -1887,14 +1887,7 @@ text-table@^0.2.0:
 
 three-cad-viewer@./three-cad-viewer-v3.4.0.tgz:
   version "3.4.0"
-  resolved "./three-cad-viewer-v3.4.0.tgz#e0b3d2f34840e79cfd222ef4b06e13c213050910"
-  dependencies:
-    three "0.176.0"
-
-three-cad-viewer@3.3.5:
-  version "3.3.5"
-  resolved "https://registry.yarnpkg.com/three-cad-viewer/-/three-cad-viewer-3.3.5.tgz#4135e530e75c2ac499252315a70cdfbd33469768"
-  integrity sha512-p4bh9+EaDDldUrd318RX2ve2/f8WQO2j5wHB7qUZhuRuakCRJTiGblRDzEhJD4zm+sa3SCxTGBcMcuB8TnJ+OA==
+  resolved "./three-cad-viewer-v3.4.0.tgz#71dac746f52ef5bba15232ca370117e76a172618"
   dependencies:
     three "0.176.0"
 
