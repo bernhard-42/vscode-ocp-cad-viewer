@@ -262,9 +262,9 @@ class ViewerBackend:
                         )
                     vertices = get_vertices(compound)
                     for i, vertex in enumerate(vertices):
-                        trace.vertex(f"{id_}/vertices/vertex{i}", vertex)
+                        trace.vertex(f"{id_}/vertices/vertex_{i}", vertex)
 
-                        self.model[f"{id_}/vertices/vertices{i}"] = (
+                        self.model[f"{id_}/vertices/vertices_{i}"] = (
                             Vertex(vertex)
                             if loc is None
                             else Vertex(downcast(vertex.Moved(loc)))
