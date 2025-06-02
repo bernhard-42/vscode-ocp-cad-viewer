@@ -716,7 +716,7 @@ export async function activate(context: vscode.ExtensionContext) {
             extension.exports.settings.getExecutionDetails().execCommand[0];
         lastPythonPath = pythonPath;
         libraryManager.refresh(pythonPath);
-        controller.dispose();
+        controller?.dispose();
         OCPCADViewer.currentPanel?.dispose();
         statusBarItem.hide();
     });
