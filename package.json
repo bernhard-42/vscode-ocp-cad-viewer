@@ -722,6 +722,7 @@
     "@types/glob": "^8.1.0",
     "@types/mocha": "^10.0.1",
     "@types/node": "^18.14.6",
+    "@types/proper-lockfile": "^4.1.4",
     "@types/vscode": "^1.85.0",
     "@types/ws": "^8.5.4",
     "@typescript-eslint/eslint-plugin": "^5.31.0",
@@ -737,10 +738,11 @@
     "@vscode/python-extension": "^1.0.0",
     "adm-zip": "^0.5.10",
     "follow-redirects": "^1.15.2",
-    "os-lock": "^2.0.0",
+    "proper-lockfile": "^4.1.2",
     "semver": "^7.5.1",
     "three-cad-viewer": "./three-cad-viewer-v3.4.0.tgz",
-    "ws": "^8.13.0"
+    "ws": "^8.13.0",
+    "yarn": "^1.22.22"
   },
   "packageManager": "yarn@1.22.22"
 }

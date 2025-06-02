@@ -1,34 +1,61 @@
-"""
-state uses "poor man's locking": nodejs does not support fcntl (POSIX) or
-LockFileEx (Windows) locking. This module implements a simple locking
-mechanism for nodejs and Python leveraging "mkdir" to create locks.
-
-Ideas are taken from the node js library "proper-lockfile"
-(https://github.com/moxystudio/node-proper-lockfile)
-"""
-
+import errno
 import json
+import os
+import time
 
-from filelock import FileLock
 from pathlib import Path
 
-STALE_DURATION_MS = 3000  # 3 seconds
-RETRIES = 7
-INTERVAL_MS = 500  # INTERVAL_MS * RETRIES > STALE_DURATION
 CONFIG_FILE = Path.home() / ".ocpvscode"
-LOCK_PATH = CONFIG_FILE.with_name(CONFIG_FILE.name + ".lock")
+
+
+class ProperLockfile:
+    def __init__(self, filepath, stale_timeout=5):
+        self.lock_dir = f"{filepath}.lock"
+        self.stale_timeout = stale_timeout
+
+    def acquire(self):
+        while True:
+            try:
+                os.mkdir(self.lock_dir)
+                return True
+            except OSError as e:
+                print(e.errno != errno.EEXIST)
+                if e.errno != errno.EEXIST:
+                    raise RuntimeError(f"Locking issuse, remove {CONFIG_FILE}.lock")
+
+                try:
+                    stat = os.stat(self.lock_dir)
+                    if (time.time() - stat.st_mtime) > self.stale_timeout:
+                        print("Stale lock detected, removing")
+                        os.rmdir(self.lock_dir)
+                    else:
+                        time.sleep(0.1)
+                except OSError:
+                    raise RuntimeError(f"Locking issuse, remove {CONFIG_FILE}.lock")
+
+    def release(self):
+        try:
+            os.rmdir(self.lock_dir)
+        except OSError:
+            pass
 
 
 def atomic_operation(callback):
-    lock = FileLock(str(LOCK_PATH))
-    with lock:
-        if CONFIG_FILE.exists():
-            with open(CONFIG_FILE, "r") as f:
-                config = json.load(f)
-        else:
-            config = {"version": 2, "services": {}}
+    lock = ProperLockfile(CONFIG_FILE)
+    result = None
+    try:
+        if lock.acquire():
+            if CONFIG_FILE.exists():
+                with open(CONFIG_FILE, "r") as f:
+                    config = json.load(f)
+            else:
+                config = {"version": 2, "services": {}}
 
-        result = callback(config)
+            result = callback(config)
+
+    finally:
+        lock.release()
+
     return result
 
 

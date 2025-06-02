@@ -43,7 +43,12 @@ import * as semver from "semver";
 import { createDemoFile } from "./demo";
 import { set_open, show as showLog } from "./output";
 
-import { updateState, getConnctionFile, getConfigFile } from "./state";
+import {
+    updateState,
+    getConnctionFile,
+    getConfigFile,
+    removeOldLockfile
+} from "./state";
 
 function check_upgrade(libraryManager: LibraryManagerProvider) {
     const ocp_vscode_lib = libraryManager.installed["ocp_vscode"];
@@ -108,6 +113,9 @@ export async function activate(context: vscode.ExtensionContext) {
     let isWatching = false;
     let port = 0;
     let lastPythonPath = "";
+
+    // For migrations
+    removeOldLockfile();
 
     let statusManager = createStatusManager();
     let libraryManager = createLibraryManager(statusManager);
