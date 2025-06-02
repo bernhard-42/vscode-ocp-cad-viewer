@@ -19,7 +19,6 @@ class ProperLockfile:
                 os.mkdir(self.lock_dir)
                 return True
             except OSError as e:
-                print(e.errno != errno.EEXIST)
                 if e.errno != errno.EEXIST:
                     raise RuntimeError(f"Locking issuse, remove {CONFIG_FILE}.lock")
 
