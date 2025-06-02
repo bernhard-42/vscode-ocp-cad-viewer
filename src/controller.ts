@@ -113,7 +113,6 @@ export class OCPCADController {
     }
 
     async start() {
-        await this.startBackend();
         if (!serverStarted) {
             serverStarted = await this.startCommandServer();
             if (serverStarted) {
@@ -161,6 +160,7 @@ export class OCPCADController {
                         }
                     });
                 }
+                await this.startBackend();
             }
         }
     }
