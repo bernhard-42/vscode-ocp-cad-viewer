@@ -6,6 +6,7 @@ import * as output from "./output";
 
 const CONFIG_FILE = path.join(os.homedir(), ".ocpvscode");
 const LOCK_PATH = `${CONFIG_FILE}.lock`;
+const EMPTY_CONFIG = '{"version":2,"services":{}}';
 
 interface ServiceConfig {
     version: number;
@@ -70,6 +71,22 @@ export async function removeOldLockfile() {
 async function atomicFileOperation<T>(
     fn: (data: ServiceConfig) => T
 ): Promise<T> {
+    // Ensure config file exists
+    try {
+        const stats = await fs.promises.stat(CONFIG_FILE);
+    } catch (error: any) {
+        if (error.code === "ENOENT") {
+            try {
+                // initialize config file
+                await fs.promises.writeFile(CONFIG_FILE, EMPTY_CONFIG);
+            } catch (error: any) {
+                output.error(`Cannot initialize ${CONFIG_FILE}`);
+            }
+        } else {
+            output.error(`Cannot access ${CONFIG_FILE}`);
+        }
+    }
+
     // Acquire proper directory-based lock
     const unlock = await lock(CONFIG_FILE, {
         retries: {
@@ -83,7 +100,7 @@ async function atomicFileOperation<T>(
         // File operation logic
         const data = await fs.promises
             .readFile(CONFIG_FILE, "utf8")
-            .catch(() => '{"version":2,"services":{}}');
+            .catch(() => EMPTY_CONFIG);
 
         let config: ServiceConfig;
         try {
@@ -105,7 +122,7 @@ async function atomicFileOperation<T>(
     } finally {
         await unlock();
         // To be on the safe side: Cleanup empty lock directory
-        await fs.promises.rmdir(LOCK_PATH).catch(() => { });
+        await fs.promises.rmdir(LOCK_PATH).catch(() => {});
     }
 }
 
@@ -153,7 +170,7 @@ export async function getConnctionFile(port: number): Promise<string> {
         try {
             data = fs.readFileSync(CONFIG_FILE, "utf8");
         } catch (err) {
-            data = '{"version":2,"services":{}}';
+            data = EMPTY_CONFIG;
         }
         if (data == null) {
             output.error(data);
