@@ -25,7 +25,7 @@ import * as output from "./output";
 import { logo } from "./logo";
 import { StatusManagerProvider } from "./statusManager";
 import { getPythonPath, getTempFolder } from "./utils";
-import { removeState } from "./state";
+import { removeState, getConfig } from "./state";
 
 var serverStarted = false;
 
