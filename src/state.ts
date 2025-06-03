@@ -118,6 +118,7 @@ async function atomicFileOperation<T>(
             CONFIG_FILE,
             JSON.stringify(config, null, 2)
         );
+        output.debug("~/.ocpconfig = " + JSON.stringify(config))
         return result;
     } finally {
         await unlock();
@@ -127,15 +128,28 @@ async function atomicFileOperation<T>(
 }
 
 /**
+ * Get all port configurations from CONFIG_FILE.
+ *
+ * @returns All port configurations.
+ */
+export async function getConfig() {
+    await atomicFileOperation((config) => {
+        return config;
+    });    
+}
+
+/**
  * Updates the application state by setting the service entry for the specified port to an empty string.
  * This operation is performed atomically to ensure consistency.
  *
  * @param port - The port number whose service entry should be updated.
  * @returns A promise that resolves when the state update is complete.
  */
-export async function updateState(port: number) {
+export async function updateState(port: number, init=true) {
     await atomicFileOperation((config) => {
-        config.services[port] = "";
+        if (init || config.services[port] != null) {
+            config.services[port] = "";
+        }
         return config;
     });
 }
@@ -148,7 +162,7 @@ export async function updateState(port: number) {
  */
 export async function removeState(port: number) {
     await atomicFileOperation((config) => {
-        delete config.services[port];
+        delete config.services[`${port}`];
         return config;
     });
 }

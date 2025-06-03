@@ -194,6 +194,7 @@ export class OCPCADController {
                             }
                         } else if (messageType === "D") {
                             output.debug("Received a new model");
+                            output.debug(JSON.stringify(getConfig()));
                             this.view?.postMessage(data);
                             output.debug("Posted model to view");
                             if (this.splash) {
