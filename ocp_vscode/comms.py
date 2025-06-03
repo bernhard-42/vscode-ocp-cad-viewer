@@ -281,6 +281,7 @@ def find_and_set_port():
 
         else:
             if get_ipython().__class__.__name__ == "ZMQInteractiveShell":
+                print("\n=> Select port in VS Code input box above\n")
                 port = input(f"Select port from {[int(p) for p in valid_ports]} ")
             else:
                 port = questionary.select(
@@ -323,7 +324,11 @@ def set_connection_file():
 
         if port_check(connection_info["iopub_port"]):
             print("Jupyter kernel running")
-            update_state(CMD_PORT, cf)
-            print(f"Jupyter connection file path written to {get_config_file()}")
+            try:
+                _ = int(CMD_PORT)
+                update_state(str(CMD_PORT), cf)
+                print(f"Jupyter connection file path written to {get_config_file()}")
+            except ValueError:
+                print(f"Cannot set Jupyter connection file, port {CMD_PORT}' is non-numeric")
         else:
             print("Jupyter kernel not responding")
