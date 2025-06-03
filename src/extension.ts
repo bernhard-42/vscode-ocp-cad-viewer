@@ -656,6 +656,8 @@ export async function activate(context: vscode.ExtensionContext) {
                 "workbench.action.moveEditorToBelowGroup"
             );
             await new Promise((resolve) => setTimeout(resolve, 100));
+
+            // controller?.setInteractiveWindow(e.uri.path.replace("Input", "") + ".interactive");
             if (current) {
                 vscode.window.showTextDocument(
                     current.document,
