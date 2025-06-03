@@ -740,7 +740,7 @@
     "follow-redirects": "^1.15.2",
     "proper-lockfile": "^4.1.2",
     "semver": "^7.5.1",
-    "three-cad-viewer": "./three-cad-viewer-v3.4.0.tgz",
+    "three-cad-viewer": "3.4.0",
     "ws": "^8.13.0",
     "yarn": "^1.22.22"
   },
