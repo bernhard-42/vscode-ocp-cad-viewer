@@ -37,6 +37,7 @@ dependencies = [
     "flask>=3.0,<4.0",
     "flask_sock>=0.7,<1.0",
     "click>=8.1,<9.0",
+    "pyperclip==1.9.0",
     "pip"
 ]
 
