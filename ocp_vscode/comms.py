@@ -328,9 +328,9 @@ def set_connection_file():
                 _ = int(CMD_PORT)
                 update_state(str(CMD_PORT), cf)
                 print(f"Jupyter connection file path written to {get_config_file()}")
-                print("\nNOTE: Close viewer and interactive window before restarting VS Code" +
-                      "\nto ensure smooth start next time!")
             except ValueError:
-                print(f"Cannot set Jupyter connection file, port {CMD_PORT}' is non-numeric")
+                print(
+                    f"Cannot set Jupyter connection file, port {CMD_PORT}' is non-numeric"
+                )
         else:
             print("Jupyter kernel not responding")
