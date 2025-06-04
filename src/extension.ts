@@ -765,5 +765,6 @@ export async function activate(context: vscode.ExtensionContext) {
 
 export async function deactivate() {
     output.debug("OCP CAD Viewer extension deactivated");
+    await OCPCADViewer.controller?.dispose();
     await OCPCADViewer.currentPanel?.dispose();
 }

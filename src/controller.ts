@@ -304,11 +304,12 @@ export class OCPCADController {
     public async dispose() {
         output.debug("OCPCADController dispose");
 
-        this.stopCommandServer();
         this.stopBackend();
 
         await removeState(this.port);
         this.unsetViewerStarting();
+
+        this.stopCommandServer();
 
         serverStarted = false;
         this.statusController.refresh("<none>");
