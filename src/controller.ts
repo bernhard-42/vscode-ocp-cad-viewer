@@ -45,17 +45,19 @@ export class OCPCADController {
     port: number;
     viewer_message = "{}";
     splash: boolean = true;
-    // interactiveWindow: string | undefined;
+    unsetViewerStarting: any;
 
     constructor(
         private context: vscode.ExtensionContext,
         port: number,
         statusController: StatusManagerProvider,
-        statusBarItem: vscode.StatusBarItem
+        statusBarItem: vscode.StatusBarItem,
+        unsetViewerStarting: any
     ) {
         this.port = port;
         this.statusController = statusController;
         this.statusBarItem = statusBarItem;
+        this.unsetViewerStarting = unsetViewerStarting;
     }
 
     public isStarted(): boolean {
@@ -246,10 +248,6 @@ export class OCPCADController {
         });
     }
 
-    // public setInteractiveWindow(title: string) {
-    //     this.interactiveWindow = title;
-    // }
-
     /**
      * Starts the python backend server
      */
@@ -310,20 +308,7 @@ export class OCPCADController {
         this.stopBackend();
 
         await removeState(this.port);
-        
-        // Lets be careful and not kill the users interactive window 
-        //
-        // if (this.interactiveWindow) {
-        //     const tab = vscode.window.tabGroups.all
-        //     .flatMap(group => group.tabs)
-        //     .find(tab =>
-        //         tab.input &&
-        //         (tab.input as vscode.TabInputText).uri.path == this.interactiveWindow
-        //     );
-        //     if (tab) {
-        //         await vscode.window.tabGroups.close(tab);
-        //     }   
-        // }
+        this.unsetViewerStarting();
 
         serverStarted = false;
         this.statusController.refresh("<none>");

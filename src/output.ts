@@ -16,7 +16,7 @@
 
 import * as vscode from "vscode";
 
-const log = vscode.window.createOutputChannel("OCP CAD Viewer Log");
+var log: vscode.OutputChannel;
 var is_open = false;
 
 function getPrefix(logLevel?: string) {
@@ -32,6 +32,10 @@ function getPrefix(logLevel?: string) {
     }
 
     return `[${timestamp}${level}] `;
+}
+
+export function open() {
+    log = vscode.window.createOutputChannel("OCP CAD Viewer Log");
 }
 
 export function show() {

@@ -41,7 +41,6 @@ import {
 import { version } from "./version";
 import * as semver from "semver";
 import { createDemoFile } from "./demo";
-import { set_open, show as showLog } from "./output";
 
 import {
     updateState,
@@ -82,7 +81,20 @@ function check_upgrade(libraryManager: LibraryManagerProvider) {
     }
 }
 
+var viewerStarting = false;
+
+function unsetViewerStarting() {
+    viewerStarting = false;
+}
+
 async function conditionallyOpenViewer(document: vscode.TextDocument) {
+    if (viewerStarting) {
+        return;
+    } else {
+        viewerStarting = true;
+    }
+    output.debug(`Conditionally open viewer for ${document.fileName}`);
+
     const autostart = vscode.workspace.getConfiguration(
         "OcpCadViewer.advanced"
     )["autostart"];
@@ -109,6 +121,7 @@ async function conditionallyOpenViewer(document: vscode.TextDocument) {
 }
 
 export async function activate(context: vscode.ExtensionContext) {
+    output.open();
     let controller: OCPCADController;
     let isWatching = false;
     let port = 0;
@@ -148,6 +161,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
     setTimeout(async () => {
         const editor = vscode.window?.activeTextEditor;
+        output.debug(`Async start viewer ${editor?.document.fileName}`);
         const python = await getPythonPath();
         var done = false;
         if (editor?.document && editor.document.languageId == "python") {
@@ -179,6 +193,7 @@ export async function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(
         vscode.workspace.onDidSaveTextDocument(
             async (document: vscode.TextDocument) => {
+                output.debug(`Document saved: ${document.fileName}`);
                 if (!controller || !controller.isStarted()) {
                     conditionallyOpenViewer(document);
                 }
@@ -188,7 +203,12 @@ export async function activate(context: vscode.ExtensionContext) {
 
     context.subscriptions.push(
         vscode.window.onDidChangeActiveTextEditor(async (editor) => {
-            if (editor) {
+            output.debug(`Text editor changed: ${editor?.document.fileName}`);
+            if (
+                editor &&
+                editor.document.fileName &&
+                editor.document.fileName.endsWith(".py")
+            ) {
                 if (!controller || !controller.isStarted()) {
                     conditionallyOpenViewer(editor.document);
                 }
@@ -214,6 +234,9 @@ export async function activate(context: vscode.ExtensionContext) {
         vscode.commands.registerCommand(
             "ocpCadViewer.ocpCadViewer",
             async (document: vscode.TextDocument | undefined) => {
+                output.debug(
+                    `Start ocpCadViewer.ocpCadViewer for ${document?.fileName}`
+                );
                 let preset_port = false;
 
                 output.show();
@@ -292,7 +315,8 @@ export async function activate(context: vscode.ExtensionContext) {
                     context,
                     port,
                     statusManager,
-                    statusBarItem
+                    statusBarItem,
+                    unsetViewerStarting
                 );
 
                 await controller.start();
@@ -489,7 +513,9 @@ export async function activate(context: vscode.ExtensionContext) {
     );
 
     context.subscriptions.push(
-        vscode.commands.registerCommand("ocpCadViewer.output", () => showLog())
+        vscode.commands.registerCommand("ocpCadViewer.output", () =>
+            output.show()
+        )
     );
 
     context.subscriptions.push(
@@ -509,10 +535,7 @@ export async function activate(context: vscode.ExtensionContext) {
             "ocpCadViewer.openConsole",
             async () => {
                 output.debug("Trying to open Jupyter console");
-                // var folder = getCurrentFolder()[0];
-                // if (!folder) {
-                //     return;
-                // }
+
                 const connectionFile = await getConnctionFile(port);
 
                 output.debug(`connectionFile: ${connectionFile}`);
@@ -648,6 +671,7 @@ export async function activate(context: vscode.ExtensionContext) {
     });
 
     vscode.workspace.onDidOpenTextDocument(async (e: vscode.TextDocument) => {
+        // output.debug(`=> vscode.workspace.onDidOpenTextDocument ${e.fileName}`);
         let current = vscode.window.activeTextEditor;
         if (e.uri.scheme === "vscode-interactive-input") {
             vscode.window.showTextDocument(e, vscode.ViewColumn.Two, false);
@@ -663,19 +687,30 @@ export async function activate(context: vscode.ExtensionContext) {
                     current.document,
                     vscode.ViewColumn.One
                 );
-                vscode.commands.executeCommand("workbench.action.closePanel");
+
+                const autohide = vscode.workspace.getConfiguration(
+                    "OcpCadViewer.advanced"
+                )["autohideTerminal"];
+                if (autohide) {
+                    vscode.commands.executeCommand(
+                        "workbench.action.closePanel"
+                    );
+                }
             }
         } else if (
             e.uri.scheme === "output" &&
             e.uri.path.endsWith("OCP CAD Viewer Log")
         ) {
-            set_open(true);
+            output.set_open(true);
         }
     });
 
     vscode.workspace.onDidCloseTextDocument(async (e: vscode.TextDocument) => {
+        // output.debug(
+        //     `Text document closed: ${e.fileName}`
+        // );
         if (e.uri.scheme === "vscode-interactive-input") {
-            if(controller?.port) {
+            if (controller?.port) {
                 // remove the connection_file from the state
                 updateState(controller.port, false);
             }
@@ -683,7 +718,7 @@ export async function activate(context: vscode.ExtensionContext) {
             e.uri.scheme === "output" &&
             e.uri.path.endsWith("OCP CAD Viewer Log")
         ) {
-            set_open(false);
+            output.set_open(false);
         }
     });
 
@@ -699,11 +734,13 @@ export async function activate(context: vscode.ExtensionContext) {
     });
 
     vscode.workspace.onDidChangeConfiguration(async (event: any) => {
+        // output.debug(`Configuration changed`);
         let affected = event.affectsConfiguration(
             "python.defaultInterpreterPath"
         );
         if (affected) {
             let pythonPath = await getPythonPath();
+            output.debug(`Configuration changed, Python = ${pythonPath}`);
             if (lastPythonPath !== pythonPath) {
                 lastPythonPath = pythonPath;
                 libraryManager.refresh(pythonPath);

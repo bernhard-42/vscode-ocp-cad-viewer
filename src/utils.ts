@@ -107,7 +107,7 @@ class PythonPath {
         );
         if (environment != null) {
             if (notify) {
-                output.debug(
+                output.info(
                     `PythonPath: '${environment.path}', environment: ${environment.environment?.type}, ${environment.environment?.name}`
                 );
             }
@@ -133,7 +133,7 @@ class PythonPath {
         );
         if (environment != null) {
             if (notify) {
-                output.debug(
+                output.info(
                     `PythonEnv: ${environment.environment?.type}, '${environment.environment?.name}'`
                 );
             }

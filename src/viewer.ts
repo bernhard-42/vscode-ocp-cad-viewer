@@ -167,7 +167,7 @@ export class OCPCADViewer {
 
     public update(div: string) {
         if (div !== "") {
-            output.debug("Updateing webview");
+            output.debug("Updating webview");
             const webview = this._panel.webview;
             this._panel.title = "OCP CAD Viewer";
             webview.html = div;
