@@ -320,6 +320,7 @@ NATIVE_TESSELLATOR=1 OCP_VSCODE_PYTEST=1 pytest -v -s pytests/
 
 
 **Fixes**
+- Clean up startup sequence and fix start issues with Jupyter interactive window
 - Ensure revive of viewer is not used in autostart mode
 - Improve pip list parsing
 - Start backend with a temp folder instead of work directory

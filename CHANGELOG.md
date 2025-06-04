@@ -18,6 +18,7 @@ All notable changes to the "OCP CAD Viewer" extension will be documented in this
 
 
 **Fixes**
+- Clean up startup sequence and fix start issues with Jupyter interactive window
 - Ensure revive of viewer is not used in autostart mode
 - Improve pip list parsing
 - Start backend with a temp folder instead of work directory
