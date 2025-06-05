@@ -284,34 +284,48 @@ export class OCPCADController {
      * Stops the python backend server
      */
     public stopBackend() {
+        this.pythonListener?.send('{"command": "stop"}');
+    }
+
+    public disposeBackend() {
         this.pythonBackendTerminal?.dispose();
         this.pythonBackendTerminal = undefined;
     }
 
-    public stopCommandServer() {
+    public async stopCommandServer() {
         if (this.server !== undefined) {
-            this.server.close((error) => {
-                if (error) {
-                    output.error(`Server error: ${error.message}`);
-                }
+            return new Promise<boolean>((resolve) => {
+                this.server!.close((error) => {
+                    if (error) {
+                        output.error(`Server error: ${error.message}`);
+                        resolve(false);
+                    } else {
+                        resolve(true);
+                    }
+                });
             });
-            return true;
         } else {
             return false;
         }
     }
 
     public async dispose() {
+        if (!serverStarted) {
+            return;
+        }
+        serverStarted = false;
         output.debug("OCPCADController dispose");
 
-        this.stopBackend();
-
-        await removeState(this.port);
         this.unsetViewerStarting();
 
-        this.stopCommandServer();
+        this.stopBackend();
+        await this.stopCommandServer();
+        await removeState(this.port);
 
-        serverStarted = false;
+        // wait before cleaning up the rest
+        await new Promise((resolve) => setTimeout(resolve, 200));
+
+        this.disposeBackend();
         this.statusController.refresh("<none>");
         this.statusBarItem.hide();
         output.info("Server is shut down");

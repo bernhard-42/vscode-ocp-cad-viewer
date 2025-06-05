@@ -269,6 +269,9 @@ def listener(callback):
                         last_config = changes
                         callback(new_changes, MessageType.UPDATES)
 
+                    elif message.get("command") == "stop":
+                        print("Stopping Python listener")
+                        break
                 except Exception as ex:  # pylint: disable=broad-except
                     print(ex)
                     break
