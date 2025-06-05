@@ -152,9 +152,10 @@ export class OCPCADViewer {
     public async dispose() {
         output.debug("OCP CAD Viewer dispose");
 
+        OCPCADViewer.currentPanel = undefined;
+
         await OCPCADViewer.controller?.dispose();
 
-        OCPCADViewer.currentPanel = undefined;
         this._panel.dispose();
 
         while (this._disposables.length) {
