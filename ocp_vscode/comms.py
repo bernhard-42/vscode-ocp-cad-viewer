@@ -182,6 +182,10 @@ def _send(data, message_type, port=None, timeit=False):
                                 result = json.loads(ws.recv())
                             except Exception as ex:  # pylint: disable=broad-except
                                 print(ex)
+                        elif message_type == MessageType.COMMAND and (
+                            isinstance(data, dict) and data["type"] == "screenshot"
+                        ):
+                            result = {}
 
             except Exception as ex:
                 warn_once("The viewer doesn't seem to run: " + str(ex))
