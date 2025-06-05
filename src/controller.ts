@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 /*
-   Copyright 2023 Bernhard Walter
+   Copyright 2025 Bernhard Walter
   
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.

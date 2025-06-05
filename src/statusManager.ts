@@ -1,5 +1,5 @@
 /*
-   Copyright 2023 Bernhard Walter
+   Copyright 2025 Bernhard Walter
   
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -41,7 +41,7 @@ export class StatusManagerProvider implements vscode.TreeDataProvider<Status> {
     > = this._onDidChangeTreeData.event;
 
     async refresh(port: string = "") {
-        if ((port !== "<none>") && (port !== "")) {
+        if (port !== "<none>" && port !== "") {
             this.port = port;
             this.running = true;
         } else if (port === "<none>") {
@@ -60,9 +60,11 @@ export class StatusManagerProvider implements vscode.TreeDataProvider<Status> {
         libraries.forEach((library) => {
             if (library !== "ocp_tessellate") {
                 // map ipykernel as library ro jupyter extension
-                this.libraries.push(library == "ipykernel" ? "jupyter" : library)
+                this.libraries.push(
+                    library == "ipykernel" ? "jupyter" : library
+                );
             }
-        })
+        });
     }
 
     getTreeItem(element: Status): vscode.TreeItem {
@@ -76,7 +78,7 @@ export class StatusManagerProvider implements vscode.TreeDataProvider<Status> {
                 status.push(
                     new Status(
                         "version",
-                        { "version": ocp_vscode_version },
+                        { version: ocp_vscode_version },
                         vscode.TreeItemCollapsibleState.None
                     )
                 );
@@ -84,7 +86,7 @@ export class StatusManagerProvider implements vscode.TreeDataProvider<Status> {
                     status.push(
                         new Status(
                             "port",
-                            { "port": this.port },
+                            { port: this.port },
                             vscode.TreeItemCollapsibleState.None
                         )
                     );
@@ -94,8 +96,10 @@ export class StatusManagerProvider implements vscode.TreeDataProvider<Status> {
                     new Status(
                         "extension",
                         {
-                            "extension": (this.hasJupyterExtension) ? "installed" : "not installed",
-                            "jupyter": this.hasJupyterExtension
+                            extension: this.hasJupyterExtension
+                                ? "installed"
+                                : "not installed",
+                            jupyter: this.hasJupyterExtension
                         },
                         vscode.TreeItemCollapsibleState.None
                     )
@@ -109,7 +113,7 @@ export class StatusManagerProvider implements vscode.TreeDataProvider<Status> {
                 status.push(
                     new Status(
                         "ocp_vscode",
-                        { "running": this.running ? "RUNNING" : "STOPPED" },
+                        { running: this.running ? "RUNNING" : "STOPPED" },
                         state
                     )
                 );
@@ -118,8 +122,8 @@ export class StatusManagerProvider implements vscode.TreeDataProvider<Status> {
                         status.push(
                             new Status(
                                 lib,
-                                { "jupyter": this.hasJupyterExtension },
-                                (lib === "jupyter")
+                                { jupyter: this.hasJupyterExtension },
+                                lib === "jupyter"
                                     ? vscode.TreeItemCollapsibleState.Expanded
                                     : vscode.TreeItemCollapsibleState.None
                             )
@@ -145,16 +149,12 @@ export class Status extends vscode.TreeItem {
         super(label, collapsibleState);
         if (label === "ocp_vscode") {
             this.contextValue = "status";
-
         } else if (label === "ipykernel") {
             label = "jupyter";
             this.contextValue = options.jupyter ? "open" : "missing";
-
         } else if (label === "jupyter_console") {
             label = "ipython";
             this.contextValue = options.jupyter ? "console" : "missing";
-
-
         } else {
             this.contextValue = "library";
         }
@@ -165,17 +165,16 @@ export class Status extends vscode.TreeItem {
                 options.running === "RUNNING"
                     ? "OCP CAD Viewer is running"
                     : "OCP CAD Viewer is stopped";
-
         } else if (options.port !== undefined) {
             this.contextValue = "port";
             this.description = options.port;
             this.tooltip = `OCP CAD Viewer is listening on port ${options.port}`;
-
         } else if (options.extension !== undefined) {
-            this.contextValue = options.jupyter ? "jupyterExtInstalled" : "jupyterExtMissing";
+            this.contextValue = options.jupyter
+                ? "jupyterExtInstalled"
+                : "jupyterExtMissing";
             this.description = options.extension;
             this.tooltip = `Jupyter extension is ${options.extension}`;
-
         } else if (options.version !== undefined) {
             this.contextValue = "version";
             this.description = options.version;
