@@ -308,11 +308,11 @@ NATIVE_TESSELLATOR=1 OCP_VSCODE_PYTEST=1 pytest -v -s pytests/
 
 **Features**
 
-- Color marker behind the node name of the navigation tree showing the object color
+- Add a color marker behind the node name of the navigation tree showing the object color
 - New "select objects" mode that allows to retrieve stable object indices that can be used in python code to selct objects
 - Removed the need of an open workspace. If the extension cannot identify a Python environment with ocp_vscode, it asks for it. ([#160](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/160), [#163](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/163))
 - Simplified port detection. Every viewer stores its port into `~/.ocpvscode`. If mode than one active port is detected, show let's you select the right one  ([#163](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/163))
-- Improve startup performance
+- Improve startup reliability and performance
 - Allow setting port in launch.json
 - Add `include` argument to `show_all`
 - Add `push_object` and `show_objects` to control showing objects in a lazy manner
@@ -321,6 +321,7 @@ NATIVE_TESSELLATOR=1 OCP_VSCODE_PYTEST=1 pytest -v -s pytests/
 
 **Fixes**
 - Clean up startup sequence and fix start issues with Jupyter interactive window
+- Fix disposing all viewer objects on closing the viewer
 - Ensure revive of viewer is not used in autostart mode
 - Improve pip list parsing
 - Start backend with a temp folder instead of work directory
