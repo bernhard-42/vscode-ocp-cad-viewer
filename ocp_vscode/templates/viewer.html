@@ -696,6 +696,12 @@ limitations under the License.
 
                 let meshData = data.data;
                 let config = data.config;
+                
+                if (config._splash) {
+                    const displayOptions = getDisplayOptions();
+                    config.zoom = Math.min(1.0, displayOptions.cadWidth / displayOptions.height);
+                    console.log("logo zoom =", config.zoom);
+                }
 
                 showViewer(meshData.shapes, config);
                 var new_states = getStates(meshData.shapes);
