@@ -45,19 +45,16 @@ export class OCPCADController {
     port: number;
     viewer_message = "{}";
     splash: boolean = true;
-    unsetViewerStarting: any;
 
     constructor(
         private context: vscode.ExtensionContext,
         port: number,
         statusController: StatusManagerProvider,
-        statusBarItem: vscode.StatusBarItem,
-        unsetViewerStarting: any
+        statusBarItem: vscode.StatusBarItem
     ) {
         this.port = port;
         this.statusController = statusController;
         this.statusBarItem = statusBarItem;
-        this.unsetViewerStarting = unsetViewerStarting;
     }
 
     public isStarted(): boolean {
@@ -315,8 +312,6 @@ export class OCPCADController {
         }
         serverStarted = false;
         output.debug("OCPCADController dispose");
-
-        this.unsetViewerStarting();
 
         this.stopBackend();
         await this.stopCommandServer();

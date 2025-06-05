@@ -83,12 +83,9 @@ function check_upgrade(libraryManager: LibraryManagerProvider) {
 
 var viewerStarting = false;
 
-function unsetViewerStarting() {
-    viewerStarting = false;
-}
-
 async function conditionallyOpenViewer(document: vscode.TextDocument) {
     if (viewerStarting) {
+        output.debug("Viewer is already starting");
         return;
     } else {
         viewerStarting = true;
@@ -234,6 +231,8 @@ export async function activate(context: vscode.ExtensionContext) {
         vscode.commands.registerCommand(
             "ocpCadViewer.ocpCadViewer",
             async (document: vscode.TextDocument | undefined) => {
+                output.debug("Set viewerStarting");
+                viewerStarting = true;
                 output.debug(
                     `Start ocpCadViewer.ocpCadViewer for ${document?.fileName}`
                 );
@@ -315,8 +314,7 @@ export async function activate(context: vscode.ExtensionContext) {
                     context,
                     port,
                     statusManager,
-                    statusBarItem,
-                    unsetViewerStarting
+                    statusBarItem
                 );
 
                 await controller.start();
@@ -358,6 +356,8 @@ export async function activate(context: vscode.ExtensionContext) {
                         `OCP CAD Viewer could not start on port ${port}`
                     );
                 }
+                viewerStarting = false;
+                output.debug("Unset viewerStarting");
             }
         )
     );
