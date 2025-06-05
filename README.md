@@ -89,6 +89,7 @@ You can also use "Library Manager" in the _OCP CAD Viewer_ sidebar to manage the
 - [Use Jupyter to execute code](docs/run.md)
 - [Debug code with visual debugging](docs/debug.md)
 - [Measure mode](docs/measure.md)
+- [Object selection mode](docs/selector.md)
 - [Use the `show` command](docs/show.md)
 - [Use the `show_object` command](docs/show_object.md)
 - [Use the `show_all` command](docs/show_all.md)
