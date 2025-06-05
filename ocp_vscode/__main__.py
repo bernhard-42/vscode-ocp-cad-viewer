@@ -127,12 +127,6 @@ def track_param(ctx, param, value):
     callback=track_param,
 )
 @click.option(
-    "--tree_width",
-    default=240,
-    help="Width of the CAD navigation tree (default: 240)",
-    callback=track_param,
-)
-@click.option(
     "--control",
     default="trackball",
     help="Use control mode 'orbit' or 'trackball'",
