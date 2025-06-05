@@ -161,7 +161,11 @@ export async function activate(context: vscode.ExtensionContext) {
         output.debug(`Async start viewer ${editor?.document.fileName}`);
         const python = await getPythonPath();
         var done = false;
-        if (editor?.document && editor.document.languageId == "python") {
+        if (
+            editor?.document &&
+            editor.document.languageId == "python" &&
+            editor.document.fileName.endsWith(".py")
+        ) {
             while (!done) {
                 if (isOcpVscodeEnv(python)) {
                     conditionallyOpenViewer(editor.document);
