@@ -183,22 +183,43 @@ export function getPackageManager() {
     return fs.existsSync(path.join(cwd, "poetry.lock")) ? "poetry" : "pip";
 }
 
-export async function isPortInUse(port: number): Promise<boolean> {
-    return new Promise((resolve) => {
-        const tester = net
-            .createServer()
-            .once("error", (err: NodeJS.ErrnoException) => {
-                if (err.code === "EADDRINUSE") {
-                    resolve(true);
-                } else {
-                    resolve(false);
-                }
-            })
-            .once("listening", () => {
-                tester.close();
-                resolve(false);
-            })
-            .listen(port);
+type AddressToCheck = { address: string; family: "IPv4" | "IPv6" };
+
+const addresses: AddressToCheck[] = [
+    { address: "0.0.0.0", family: "IPv4" }, // all IPv4
+    { address: "127.0.0.1", family: "IPv4" }, // loopback IPv4
+    { address: "::", family: "IPv6" }, // all IPv6
+    { address: "::1", family: "IPv6" } // loopback IPv6
+];
+
+export function isPortInUse(port: number): Promise<boolean> {
+    return new Promise<boolean>((resolve, reject) => {
+        let checksCompleted = 0;
+        let portInUse = false;
+
+        function checkDone(err: NodeJS.ErrnoException | null, inUse?: boolean) {
+            checksCompleted++;
+            if (inUse) portInUse = true;
+            if (err && err.code !== "EADDRINUSE") {
+                return reject(err);
+            }
+            if (checksCompleted === addresses.length) {
+                resolve(portInUse);
+            }
+        }
+
+        for (const { address } of addresses) {
+            const server = net
+                .createServer()
+                .once("error", (err: NodeJS.ErrnoException) => {
+                    if (err.code === "EADDRINUSE") return checkDone(null, true);
+                    checkDone(err);
+                })
+                .once("listening", () => {
+                    server.close(() => checkDone(null, false));
+                })
+                .listen(port, address);
+        }
     });
 }
 
