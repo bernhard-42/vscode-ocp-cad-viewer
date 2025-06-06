@@ -51,10 +51,10 @@ from ocp_vscode.build123d import (
 )
 
 if os.environ.get("JUPYTER_CADQUERY") is None:
-    is_jupter_cadquery = False
+    is_jupyter_cadquery = False
     from ocp_vscode.comms import send_response
 else:
-    is_jupter_cadquery = True
+    is_jupyter_cadquery = True
 
 from ocp_vscode.comms import MessageType, listener, set_port
 
@@ -294,7 +294,7 @@ class ViewerBackend:
         """
         Request the properties of the object with the given id
         """
-        if not is_jupter_cadquery:
+        if not is_jupyter_cadquery:
             print_to_stdout(f"Identifier received '{shape_id}'")
 
         shape = self.model[shape_id]
@@ -335,7 +335,7 @@ class ViewerBackend:
 
         set_precision(response)
 
-        if is_jupter_cadquery:
+        if is_jupyter_cadquery:
             return asdict(response)
         else:
             send_response(asdict(response), self.port)
@@ -345,7 +345,7 @@ class ViewerBackend:
         """
         Request the angle between the two objects that have the given ids
         """
-        if not is_jupter_cadquery:
+        if not is_jupyter_cadquery:
             print_to_stdout(f"Identifiers received '{id1}', '{id2}'")
 
         shape1: Shape = self.model[id1]
@@ -390,7 +390,7 @@ class ViewerBackend:
             point2=point2.to_tuple(),
         )
         set_precision(response)
-        if is_jupter_cadquery:
+        if is_jupyter_cadquery:
             return asdict(response)
         else:
             send_response(asdict(response), self.port)
@@ -450,7 +450,7 @@ class ViewerBackend:
         """
         Request the distance between the two objects that have the given ids
         """
-        if not is_jupter_cadquery:
+        if not is_jupyter_cadquery:
             print_to_stdout(f"Identifiers received '{id1}', '{id2}'")
 
         shape1: Shape = self.model[id1]
@@ -466,7 +466,7 @@ class ViewerBackend:
             distance=dist,
         )
         set_precision(response)
-        if is_jupter_cadquery:
+        if is_jupyter_cadquery:
             return asdict(response)
         else:
             send_response(asdict(response), self.port)
