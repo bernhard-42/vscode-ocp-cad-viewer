@@ -32,7 +32,7 @@ All notable changes to the "OCP CAD Viewer" extension will be documented in this
 
 **Fixes**
 
-- Use three-cad-viewer 3.3.4 (omit non used javacscript packages)
+- Use three-cad-viewer 3.3.4 (omit non used Javacscript packages)
 - Fix is_jupyter_cadquery condition
 
 ## v2.7.0
@@ -42,7 +42,7 @@ All notable changes to the "OCP CAD Viewer" extension will be documented in this
 - Stabilized the panel for measurement and fixed arrow cone size ([#159](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/159))
 - Extended measurements to 3 digits ([#159](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/159))
 - Adapted backend, config and show modules to also work as client for Jupyter Cadquery
-- Support for OCCTs CompSolids (ocp-tessellate)
+- Support for OCCT's CompSolids (ocp-tessellate)
 - Add support for ShapeLists of Compounds ([#149](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/149), ocp-tessellate)
 - `show_object` now needs keyword args for `name` and `options` if provided
 - Measure backend can now be started via `python -m ocp_vscode --backend [--backend 3939]`
@@ -52,7 +52,7 @@ All notable changes to the "OCP CAD Viewer" extension will be documented in this
 - Fixed issue when loading snippets ([#157](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/157))
 - Fixed top and bottom view to be exact ([#158](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/158))
 - Fixed a bug when the viewer goes blank when a new object is to be shown while the dimension tool is active ([#156](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/156))
-- Fixed top level bounding box when clicking on the top level label in the navigstion tree
+- Fixed top level bounding box when clicking on the top level label in the navigation tree
 - Fixed highlighting of cad tree node to prevent scrolling of parent container
 
 
