@@ -126,7 +126,7 @@ class Response:
 
 
 @dataclass
-class MeasureReponse(Response):
+class MeasureResponse(Response):
     """Base class for all measurement responses"""
 
     # a string telling the frontend how the reference points used for the
@@ -136,7 +136,7 @@ class MeasureReponse(Response):
 
 
 @dataclass
-class DistanceResponse(MeasureReponse):
+class DistanceResponse(MeasureResponse):
     """Response class for distance measurement"""
 
     tool_type: Tool = Tool.Distance
@@ -146,7 +146,7 @@ class DistanceResponse(MeasureReponse):
 
 
 @dataclass
-class PropertiesResponse(MeasureReponse):
+class PropertiesResponse(MeasureResponse):
     """Response class for properties measurement"""
 
     tool_type: Tool = Tool.Properties
@@ -162,7 +162,7 @@ class PropertiesResponse(MeasureReponse):
 
 
 @dataclass
-class AngleResponse(MeasureReponse):
+class AngleResponse(MeasureResponse):
     """Response class for angle measurement"""
 
     tool_type: Tool = Tool.Angle
