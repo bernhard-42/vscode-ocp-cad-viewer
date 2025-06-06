@@ -26,13 +26,28 @@ There are keybinding shortcuts for the topology filters :
     
     Similar to `obj.vertices()` returns a `ShapeList` of vertices associated with the `indices` given as list, e.g. `[1,3,6]`
 
+- `select_vertex(obj, index)`
+
+    Shortcut for `select_vertices(obj, [index])[0]`
+
+
 - `select_edges(obj, indices)`
     
     Similar to `obj.edges()` returns a `ShapeList` of edges associated with the `indices` given as list, e.g. `[1,3,6]`
 
+- `select_edge(obj, index)`
+
+    Shortcut for `select_edges(obj, [index])[0]`
+
+
 - `select_faces(obj, indices)`
     
     Similar to `obj.faces()` returns a `ShapeList` of faces associated with the `indices` given as list, e.g. `[1,3,6]`
+
+- `select_face(obj, index)`
+
+    Shortcut for `select_faces(obj, [index])[0]`
+
 
 
 ## Deselect

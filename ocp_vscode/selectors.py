@@ -25,8 +25,11 @@ from ocp_tessellate.ocp_utils import (
 )
 
 __all__ = [
+    "select_vertex",
     "select_vertices",
+    "select_edge",
     "select_edges",
+    "select_face",
     "select_faces",
 ]
 
@@ -96,6 +99,8 @@ try:
             obj._selection = [cls(e) for e in result]
             return obj
 
+        return []
+
 except:
     pass
 
@@ -136,3 +141,33 @@ def select_faces(obj, indices):
         raise ValueError("select_faces not availbale for CadQuery sketches")
     else:
         raise ValueError(f"Wrong obj {type(obj)}")
+
+
+def select_vertex(obj, index):
+    vertices = select_vertices(obj, [index])
+    if len(vertices) == 0:
+        print("No vertex found")
+        return None
+    elif len(vertices) > 1:
+        print("Found more than one vertex, returning the first")
+    return vertices[0]
+
+
+def select_edge(obj, index):
+    edges = select_edges(obj, [index])
+    if len(edges) == 0:
+        print("No edge found")
+        return None
+    elif len(edges) > 1:
+        print("Found more than one edge, returning the first")
+    return edges[0]
+
+
+def select_face(obj, index):
+    faces = select_faces(obj, [index])
+    if len(faces) == 0:
+        print("No face found")
+        return None
+    elif len(faces) > 1:
+        print("Found more than one face, returning the first")
+    return faces[0]
