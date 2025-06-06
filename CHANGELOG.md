@@ -2,7 +2,16 @@
 
 All notable changes to the "OCP CAD Viewer" extension will be documented in this file.
 
-## 2.8.0
+## v2.8.1
+
+***Fixes**
+
+- Fixed typos in doc strings and everywhere else
+- Fixed a f-string issue with broken quotes
+- Enhanced port running check to tcp4 and tcp6
+- Documented visual debugging with pdb
+
+## v2.8.0
 
 **Features**
 
