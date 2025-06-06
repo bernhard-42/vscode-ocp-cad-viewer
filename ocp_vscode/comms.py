@@ -319,7 +319,7 @@ def find_and_set_port():
         port = int(os.environ.get("OCP_PORT", "0"))
     except ValueError as ex:
         print(
-            f"Port {os.environ.get("OCP_PORT")} taken from environment variable OCP_PORT is invalid"
+            f"Port {os.environ.get('OCP_PORT')} taken from environment variable OCP_PORT is invalid"
         )
         port = 0
 
