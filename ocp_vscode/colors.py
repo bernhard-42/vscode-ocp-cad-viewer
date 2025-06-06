@@ -251,7 +251,7 @@ def matplotlib_mapper(t, name):
         raise ValueError(f"No colormap named '{name}' in matplotlib")
     if not isinstance(colormap, mpl.colors.LinearSegmentedColormap):
         raise ValueError(
-            f"The colormap named '{name}' is not a linear segemented colormap"
+            f"The colormap named '{name}' is not a linear segmented colormap"
         )
 
     color = colormap(t)[:3]
@@ -325,7 +325,7 @@ class ListedColorMap(BaseColorMap):
 
 
 class SegmentedColorMap(BaseColorMap):
-    """A segemented colormap"""
+    """A segmented colormap"""
 
     def __init__(self, length, mapper, alpha=1.0, reverse=False, **params):
         super().__init__()
@@ -491,7 +491,7 @@ class ColorMap:
             _, name = colormap.split(":")
             if not isinstance(mpl.colormaps[name], mpl.colors.LinearSegmentedColormap):
                 raise ValueError(
-                    f"{name} is not a segemented matplotlib colormap,"
+                    f"{name} is not a segmented matplotlib colormap,"
                     f", use ColorMap.listed({length}, {colormap}))"
                 )
             return SegmentedColorMap(

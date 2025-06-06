@@ -242,7 +242,7 @@ def send_response(data, port=None, timeit=False):
 #
 
 
-# async listerner for the websocket class
+# async listener for the websocket class
 # this will be called when the viewer sends data
 # the data is then passed to the callback function
 #

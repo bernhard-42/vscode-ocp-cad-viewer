@@ -35,7 +35,7 @@ class ProperLockfile:
                 return True
             except OSError as e:
                 if e.errno != errno.EEXIST:
-                    raise RuntimeError(f"Locking issuse, remove {CONFIG_FILE}.lock")
+                    raise RuntimeError(f"Locking issue, remove {CONFIG_FILE}.lock")
 
                 try:
                     stat = os.stat(self.lock_dir)
@@ -45,7 +45,7 @@ class ProperLockfile:
                     else:
                         time.sleep(0.1)
                 except OSError:
-                    raise RuntimeError(f"Locking issuse, remove {CONFIG_FILE}.lock")
+                    raise RuntimeError(f"Locking issue, remove {CONFIG_FILE}.lock")
 
     def release(self):
         try:

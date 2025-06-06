@@ -2,6 +2,7 @@
     "cSpell.words": [
         "Cadquery",
         "edgecolor",
+        "facecolor",
         "metalness",
         "OCCT's",
         "PYTEST",
@@ -12,6 +13,10 @@
         "ipykernel",
         "ocpvscode",
         "pyenv",
-        "ipython"
+        "ipython",
+        "Workplane",
+        "ocpgroup",
+        "colormap",
+        "colormaps"
    ]
 }

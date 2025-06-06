@@ -590,7 +590,7 @@ def _show(*cad_objs, **kwargs):
                     colors[i].a = alphas[i]
 
             if hasattr(cad_objs[i], "color") and cad_objs[i].color is not None:
-                # ensure that the explicitely given color is kept
+                # ensure that the explicitly given color is kept
                 colors[i] = Color(cad_objs[i].color)
         else:
             colors[i] = Color(colors[i])
@@ -716,7 +716,7 @@ def show_object(
         options:                 A dict of color and alpha value: {"alpha":0.5, "color": (64, 164, 223)}
                                  0 <= alpha <= 1.0 and color is a 3-tuple of values between 0 and 255
         parent:                  Add another object, usually the parent of e.g. edges or vertices with alpha=0.25
-        clear:                   In interactice mode, clear the stack of objects to be shown
+        clear:                   In interactive mode, clear the stack of objects to be shown
                                  (typically used for the first object)
         port:                    The port the viewer listens to. Typically use 'set_port(port)' instead
         progress:                Show progress of tessellation with None is no progress indicator. (default="-+*c")
@@ -799,7 +799,7 @@ def show_object(
 
     - Debug
         debug:                   Show debug statements to the VS Code browser console (default=False)
-        imeit:                   Show timing information from level 0-3 (default=False)
+        timeit:                  Show timing information from level 0-3 (default=False)
     """
     return _show_object(obj, **none_filter(locals(), ["obj"]))
 
@@ -1019,7 +1019,7 @@ def show_objects(
 
     - Debug
         debug:                   Show debug statements to the VS Code browser console (default=False)
-        imeit:                   Show timing information from level 0-3 (default=False)
+        timeit:                  Show timing information from level 0-3 (default=False)
     """
     kwargs = none_filter(locals())
     return show(

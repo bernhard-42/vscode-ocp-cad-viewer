@@ -420,7 +420,7 @@ def set_defaults(
         ):
             DEFAULTS[key] = value
         else:
-            print(f"'{key}' is an unkown config, ignored!")
+            print(f"'{key}' is an unknown config, ignored!")
 
     set_viewer_config(
         viewer=viewer, **{k: v for k, v in kwargs.items() if k in CONFIG_SET_KEYS}

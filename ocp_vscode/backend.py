@@ -176,7 +176,7 @@ class ViewerBackend:
     Represents the backend of the viewer, it listens to the websocket and handles the events
     It's job is to send responses to the vscode extension that goes through the three cad
     viewer view.
-    The reponses holds all the data needed to display the measurements.
+    The responses holds all the data needed to display the measurements.
     """
 
     def __init__(self, port: int, jcv_id=None) -> None:
@@ -241,7 +241,7 @@ class ViewerBackend:
             return self.handle_angle(shape_id1, shape_id2)
 
     def load_model(self, raw_model):
-        """Read the transfered model from websocket"""
+        """Read the transferred model from websocket"""
 
         def walk(model, trace):
             for v in model["parts"]:
