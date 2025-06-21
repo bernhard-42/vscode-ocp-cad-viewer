@@ -47,8 +47,8 @@ DEFAULTS = {
     "axes": False,
     "axes0": False,
     "grid_xy": False,
-    "grid_yz": False,
     "grid_xz": False,
+    "grid_yz": False,
     "perspective": False,
     "transparent": False,
     "black_edges": False,
@@ -167,8 +167,8 @@ class Viewer:
         # Get all params != their default value and apply it
         grid = [
             local_config["grid_xy"],
-            local_config["grid_yz"],
             local_config["grid_xz"],
+            local_config["grid_yz"],
         ]
         for k, v in params.items():
             if k == "port":
@@ -179,9 +179,9 @@ class Viewer:
                 if v != local_config.get(k):
                     if k == "grid_xy":
                         grid[0] = True
-                    elif k == "grid_yz":
-                        grid[1] = True
                     elif k == "grid_xz":
+                        grid[1] = True
+                    elif k == "grid_yz":
                         grid[2] = True
                     else:
                         local_config[k] = v
@@ -191,7 +191,7 @@ class Viewer:
         local_config = dict(sorted(local_config.items()))
 
         for k, v in local_config.items():
-            if k in ["grid_xy", "grid_yz", "grid_xz"]:
+            if k in ["grid_xy", "grid_xz", "grid_yz"]:
                 continue
             if k == "collapse":
                 self.config["collapse"] = str(v)
