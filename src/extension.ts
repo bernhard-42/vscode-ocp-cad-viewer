@@ -327,32 +327,28 @@ export async function activate(context: vscode.ExtensionContext) {
                     vscode.window.showTextDocument(document, column);
                     var [folder, isWorkspace] = getCurrentFolder();
                     output.debug(
-                        `OCP Cad Viewer port: ${port}, folder: ${folder}, ${path.dirname(
+                        `OCP Cad Viewer port: ${port}, folders: ${folder}, ${path.dirname(
                             document.fileName
                         )}`
                     );
-                    var folders = vscode.workspace?.workspaceFolders
-                        ? vscode.workspace.workspaceFolders.map(
-                              (f) => f.uri.fsPath
-                          )
-                        : [];
-                    updateState(port);
+                    await updateState(port);
 
                     vscode.window.showInformationMessage(
                         `Using port ${port} and "show" should detect it automatically. ` +
-                            `If not, call ocp_vscode's "set_port(${port})" in Python first`
+                        `If not, call ocp_vscode's "set_port(${port})" in Python first`
                     );
 
-                    statusManager.refresh(port.toString());
+                    await statusManager.refresh(port.toString());
 
                     output.show();
                     output.debug("Command OCP CAD Viewer registered");
-                    controller.logo();
+                    const success = await controller.logo();
+                    output.debug(`Logo command ${success ? "succeeded" : "failed"}`);
 
                     if (fs.existsSync(path.join(folder, ".ocp_vscode"))) {
                         vscode.window.showInformationMessage(
                             `Found .ocp_vscode in ${folder}. ` +
-                                `This file will be ignored and ${getConfigFile()} used instead!`
+                            `This file will be ignored and ${getConfigFile()} used instead!`
                         );
                     }
                 } else {
@@ -716,7 +712,7 @@ export async function activate(context: vscode.ExtensionContext) {
         if (e.uri.scheme === "vscode-interactive-input") {
             if (controller?.port) {
                 // remove the connection_file from the state
-                updateState(controller.port, false);
+                await updateState(controller.port, false);
             }
         } else if (
             e.uri.scheme === "output" &&

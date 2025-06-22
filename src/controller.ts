@@ -61,8 +61,8 @@ export class OCPCADController {
         return serverStarted;
     }
 
-    public logo() {
-        this.view?.postMessage(logo);
+    public async logo() {
+        return await this.view?.postMessage(logo);
     }
 
     public config() {
