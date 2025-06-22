@@ -19,7 +19,7 @@ Keywords for show_object:
     options:                 A dict of color and alpha value: {"alpha":0.5, "color": (64, 164, 223)}
                                 0 <= alpha <= 1.0 and color is a 3-tuple of values between 0 and 255
     parent:                  Add another object, usually the parent of e.g. edges or vertices with alpha=0.25
-    clear:                   In interactice mode, clear the stack of objects to be shown
+    clear:                   In interactive mode, clear the stack of objects to be shown
                                 (typically used for the first object)
     port:                    The port the viewer listens to. Typically use 'set_port(port)' instead
     progress:                Show progress of tessellation with None is no progress indicator. (default="-+*c")
@@ -56,9 +56,9 @@ Valid keywords to configure the viewer (**kwargs):
     position:                Camera position
     quaternion:              Camera orientation as quaternion
     target:                  Camera look at target
-    reset_camera:            Camera.RESET: Reset camera position, rotation, toom and target
-                             Camera.CENTER: Keep camera position, rotation, toom, but look at center
-                             Camera.KEEP: Keep camera position, rotation, toom, and target
+    reset_camera:            Camera.RESET: Reset camera position, rotation, zoom and target
+                             Camera.CENTER: Keep camera position, rotation, zoom, but look at center
+                             Camera.KEEP: Keep camera position, rotation, zoom, and target
                              (default=Camera.RESET)
 
     clip_slider_0:           Setting of clipping slider 0 (default=None)
@@ -122,7 +122,7 @@ For more detail, see [show](show.md)
 import cadquery as cq
 from ocp_vscode import show_object, reset_show, set_defaults
 
-reset_show()  # use for reapeated shift-enter execution to clean object buffer
+reset_show()  # use for repeated shift-enter execution to clean object buffer
 
 set_defaults(axes=True, transparent=False, collapse=1, grid=(True, True, True))
 

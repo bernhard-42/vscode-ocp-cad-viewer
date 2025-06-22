@@ -44,8 +44,7 @@ export class TerminalExecute {
         });
         this.workspaceFolder = getCurrentFolder()[0];
 
-        vscode.window.onDidCloseTerminal(async t => {
-
+        vscode.window.onDidCloseTerminal(async (t) => {
             if (t.name === this.terminalName) {
                 await this.killProcess();
                 this.terminal = undefined;

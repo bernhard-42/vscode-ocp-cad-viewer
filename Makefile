@@ -27,7 +27,7 @@ else
 	exit 1
 endif
 
-dist:
+dist: clean
 	@echo Version: $(CURRENT_VERSION)
 	@echo "Copying html, css and js file to standalone locations"
 	@cp resources/viewer.html ocp_vscode/templates
@@ -39,11 +39,15 @@ dist:
 	@ls -l dist/
 
 
-vsix:
+vsix: dist
 	@echo Version: $(CURRENT_VERSION)
 	vsce package --yarn
 	@ls -l *.vsix
 
+install-vsix: vsix
+	code --uninstall-extension bernhard-42.ocp-cad-viewer
+	code --install-extension ocp-cad-viewer-$(CURRENT_VERSION).vsix
+	
 release:
 	git add .
 	git status

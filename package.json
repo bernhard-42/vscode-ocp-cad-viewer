@@ -2,7 +2,7 @@
   "name": "ocp-cad-viewer",
   "displayName": "OCP CAD Viewer",
   "description": "An integrated OCP CAD viewer for CadQuery and build123d",
-  "version": "2.7.1",
+  "version": "2.8.1",
   "publisher": "bernhard-42",
   "icon": "resources/ocp-logo.png",
   "license": "Apache-2.0",
@@ -528,7 +528,7 @@
               "{python} -m pip install --upgrade ocp_vscode=={ocp_vscode_version}"
             ],
             "ocp_tessellate": [
-              "{python} -m pip install --upgrade \"ocp_tessellate>=3.0.11,<3.1.0\""
+              "{python} -m pip install --upgrade \"ocp_tessellate>=3.0.12,<3.1.0\""
             ],
             "ipykernel": [
               "{python} -m pip install --upgrade ipykernel"
@@ -695,6 +695,12 @@
           "default": 1000,
           "description": "Delay until terminal command is started (default: 1000)",
           "order": 58
+        },
+        "OcpCadViewer.advanced.autostartDelay": {
+          "type": "number",
+          "default": 250,
+          "description": "Delay until autostart tries to launch the viewer (default: 250)",
+          "order": 58
         }
       }
     }
@@ -716,6 +722,7 @@
     "@types/glob": "^8.1.0",
     "@types/mocha": "^10.0.1",
     "@types/node": "^18.14.6",
+    "@types/proper-lockfile": "^4.1.4",
     "@types/vscode": "^1.85.0",
     "@types/ws": "^8.5.4",
     "@typescript-eslint/eslint-plugin": "^5.31.0",
@@ -731,9 +738,11 @@
     "@vscode/python-extension": "^1.0.0",
     "adm-zip": "^0.5.10",
     "follow-redirects": "^1.15.2",
+    "proper-lockfile": "^4.1.2",
     "semver": "^7.5.1",
-    "three-cad-viewer": "3.3.4",
-    "ws": "^8.13.0"
+    "three-cad-viewer": "3.4.0",
+    "ws": "^8.13.0",
+    "yarn": "^1.22.22"
   },
   "packageManager": "yarn@1.22.22"
 }

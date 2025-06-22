@@ -1,7 +1,7 @@
 """ocp_vscode - OCC viewer for VSCode"""
 
 #
-# Copyright 2023 Bernhard Walter
+# Copyright 2025 Bernhard Walter
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,17 +15,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-__version__ = "2.7.1"
+__version__ = "2.8.1"
 
 import os
+import sys
 
-from .show import show, show_object, reset_show, show_all, show_clear, save_screenshot, remove_part
+from .show import *
 from .config import *
 from .comms import *
 
 from .colors import *
 from .animation import Animation
+from .selectors import *
 from ocp_tessellate.cad_objects import ImageFace
+
 
 try:
     from ocp_tessellate.tessellator import (

@@ -1,5 +1,20 @@
 """Communication with the viewer"""
 
+#
+# Copyright 2025 Bernhard Walter
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 import base64
 import enum
 import json
@@ -7,7 +22,7 @@ import os
 import socket
 import warnings
 
-from pathlib import Path
+import questionary
 
 from websockets.sync.client import connect
 
@@ -19,12 +34,12 @@ from ocp_tessellate.ocp_utils import (
     serialize,
     loc_to_tq,
 )
-from .state import get_state, update_state, get_config_file
+from .state import get_ports, update_state, get_config_file
 
+from IPython import get_ipython
 
 # pylint: disable=unused-import
 try:
-    from IPython import get_ipython
     import jupyter_console
 
     JCONSOLE = True
@@ -167,6 +182,10 @@ def _send(data, message_type, port=None, timeit=False):
                                 result = json.loads(ws.recv())
                             except Exception as ex:  # pylint: disable=broad-except
                                 print(ex)
+                        elif message_type == MessageType.COMMAND and (
+                            isinstance(data, dict) and data["type"] == "screenshot"
+                        ):
+                            result = {}
 
             except Exception as ex:
                 warn_once("The viewer doesn't seem to run: " + str(ex))
@@ -223,7 +242,7 @@ def send_response(data, port=None, timeit=False):
 #
 
 
-# async listerner for the websocket class
+# async listener for the websocket class
 # this will be called when the viewer sends data
 # the data is then passed to the callback function
 #
@@ -254,6 +273,9 @@ def listener(callback):
                         last_config = changes
                         callback(new_changes, MessageType.UPDATES)
 
+                    elif message.get("command") == "stop":
+                        print("Stopping Python listener")
+                        break
                 except Exception as ex:  # pylint: disable=broad-except
                     print(ex)
                     break
@@ -266,42 +288,47 @@ def find_and_set_port():
 
     def find_port():
         port = None
-        current_path = Path.cwd()
-        states = get_state().items()
-        for p, state in states:
-            if not port_check(int(p)):
-                print(f"Found stale configuration for port {p}, deleting it.")
-                update_state(int(p), None, None)
-                continue
+        ports = get_ports()
 
-            roots = state.get("roots", [])
-            for root in roots:
-                if current_path.is_relative_to(Path(root)):
-                    port = int(p)
-                    break
-        if port is None:
-            ports = [port for port, _ in states if port_check(int(port))]
-            if len(ports) == 1:
-                port = ports[0]
-            elif len(ports) > 1:
-                raise RuntimeError(
-                    f"\nMultiple ports found ({', '.join(ports)}) and the file is outside of any\n"
-                    "workspace folder of this VS Code instance:\n"
-                    "The right viewer cannot be auto detected, use set_port(port) in your code."
-                )
+        valid_ports = []
+        for p in ports:
+            if port_check(int(p)):
+                valid_ports.append(p)
+
+        if len(valid_ports) == 0:
+            return None
+
+        elif len(valid_ports) == 1:
+            port = valid_ports[0]
+
+        else:
+            if get_ipython().__class__.__name__ == "ZMQInteractiveShell":
+                print("\n=> Select port in VS Code input box above\n")
+                port = input(f"Select port from {[int(p) for p in valid_ports]} ")
             else:
-                print(f"Could not find port in config file {get_config_file()}")
+                port = questionary.select(
+                    "Multiple viewers found. Select a port:",
+                    choices=[str(p) for p in valid_ports],
+                ).ask()
+            if port is not None and port != "":
+                port = int(port)
 
         return port
 
-    port = int(os.environ.get("OCP_PORT", "0"))
+    try:
+        port = int(os.environ.get("OCP_PORT", "0"))
+    except ValueError as ex:
+        print(
+            f"Port {os.environ.get('OCP_PORT')} taken from environment variable OCP_PORT is invalid"
+        )
+        port = 0
 
     if port > 0:
         print(f"Using predefined port {port} taken from environment variable OCP_PORT")
     else:
         port = find_port()
         if port is not None:
-            print(f"Using port {port} taken from config file")
+            print(f"Using port {port}")
         elif port_check(3939):
             port = 3939
             print(f"Default port {port} is open, using it")
@@ -319,12 +346,13 @@ def set_connection_file():
 
         if port_check(connection_info["iopub_port"]):
             print("Jupyter kernel running")
-            update_state(CMD_PORT, "connection_file", cf)
-            print(f"Jupyter connection file path written to {get_config_file()}")
+            try:
+                _ = int(CMD_PORT)
+                update_state(str(CMD_PORT), cf)
+                print(f"Jupyter connection file path written to {get_config_file()}")
+            except ValueError:
+                print(
+                    f"Cannot set Jupyter connection file, port {CMD_PORT}' is non-numeric"
+                )
         else:
             print("Jupyter kernel not responding")
-    # elif not JCONSOLE:
-    #     print("Jupyter console not installed")
-    #     pass
-    # else:
-    #     print("Jupyter kernel not running")

@@ -1,249 +1,221 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 /*
-state uses "poor man's locking": nodejs does not support fcntl (POSIX) or 
-LockFileEx (Windows) locking. This module implements a simple locking 
-mechanism for nodejs and Python leveraging "mkdir" to create locks. 
-
-Ideas are taken from the node js library "proper-lockfile"
-(https://github.com/moxystudio/node-proper-lockfile)
+   Copyright 2025 Bernhard Walter
+  
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+  
+      http://www.apache.org/licenses/LICENSE-2.0
+  
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
 */
 
-import { promises as fs } from "fs";
+import * as fs from "fs";
 import * as os from "os";
 import * as path from "path";
+import { lock } from "proper-lockfile";
 import * as output from "./output";
 
-const STALE_DURATION_MS = 3000; // 3 seconds
-const RETRIES = 7;
-const INTERVAL_MS = 500; // INTERVAL_MS * RETRIES > STALE_DURATION
-const CONFIG_FILE = "~/.ocpvscode"
+const CONFIG_FILE = path.join(os.homedir(), ".ocpvscode");
+const LOCK_PATH = `${CONFIG_FILE}.lock`;
+const EMPTY_CONFIG = '{"version":2,"services":{}}';
 
-
-export async function getConfigFile(): Promise<string> {
-    return await resolvePath(CONFIG_FILE);
+interface ServiceConfig {
+    version: number;
+    services: {
+        [port: number]: string | null;
+    };
 }
 
-function rtrim(file: string, c: string): string {
-    while (file.endsWith(c)) {
-        file = file.substring(0, file.length - 1);
+/**
+ * Retrieves the path or name of the configuration file.
+ *
+ * @returns {string} The configuration file path or name as a string.
+ */
+export function getConfigFile(): string {
+    return CONFIG_FILE;
+}
+
+/**
+ * Removes a legacy file-based lock if it exists.
+ *
+ * This function checks for the presence of a legacy lock file at `LOCK_PATH`.
+ * If the file exists, it attempts to remove it and logs the migration process.
+ * If the file does not exist, the function silently ignores the error.
+ * Any other errors encountered during the process are logged, and the user is
+ * advised to remove the lock file manually.
+ *
+ * @async
+ * @returns {Promise<void>} Resolves when the migration check is complete.
+ */
+export async function removeOldLockfile() {
+    try {
+        const stats = await fs.promises.stat(LOCK_PATH);
+        if (stats.isFile()) {
+            output.info(`Migrating legacy file lock at ${LOCK_PATH}`);
+            await fs.promises.unlink(LOCK_PATH);
+            output.info("Successfully removed legacy file lock");
+        }
+    } catch (error: any) {
+        if (error.code !== "ENOENT") {
+            // Ignore "file not found" errors
+            output.error(
+                `Lock migration failed: ${error.message}.\nRemove ${LOCK_PATH} manually!`
+            );
+        }
     }
-    return file;
 }
 
-function sleep(msec: number) {
-    return new Promise((resolve, _reject) => {
-        setTimeout(() => {
-            resolve(0);
-        }, msec);
+/**
+ * Performs an atomic file operation on the configuration file, ensuring exclusive access using a directory-based lock.
+ *
+ * This function acquires a lock on the configuration file, reads and parses its contents as a `ServiceConfig` object,
+ * and passes it to the provided callback function `fn`. After the callback is executed, the potentially modified
+ * configuration is written back to the file. The lock is always released, and the lock directory is cleaned up.
+ *
+ * If the configuration file does not exist or is invalid, a default configuration is used.
+ *
+ * @template T The return type of the callback function.
+ * @param fn - A function that receives the current `ServiceConfig` and returns a value of type `T`.
+ * @returns A promise that resolves to the value returned by the callback function.
+ * @throws Any error thrown during file operations or by the callback function.
+ */
+async function atomicFileOperation<T>(
+    fn: (data: ServiceConfig) => T
+): Promise<T> {
+    // Ensure config file exists
+    try {
+        const stats = await fs.promises.stat(CONFIG_FILE);
+    } catch (error: any) {
+        if (error.code === "ENOENT") {
+            try {
+                // initialize config file
+                await fs.promises.writeFile(CONFIG_FILE, EMPTY_CONFIG);
+            } catch (error: any) {
+                output.error(`Cannot initialize ${CONFIG_FILE}`);
+            }
+        } else {
+            output.error(`Cannot access ${CONFIG_FILE}`);
+        }
+    }
+
+    // Acquire proper directory-based lock
+    const unlock = await lock(CONFIG_FILE, {
+        retries: {
+            retries: 5,
+            factor: 1,
+            minTimeout: 1000,
+            maxTimeout: 5000
+        }
+    });
+    try {
+        // File operation logic
+        const data = await fs.promises
+            .readFile(CONFIG_FILE, "utf8")
+            .catch(() => EMPTY_CONFIG);
+
+        let config: ServiceConfig;
+        try {
+            config = JSON.parse(data) as ServiceConfig;
+        } catch (e) {
+            config = { version: 2, services: {} };
+        }
+
+        if (config.version !== 2) {
+            config = { version: 2, services: {} };
+        }
+        const result = await fn(config);
+
+        await fs.promises.writeFile(
+            CONFIG_FILE,
+            JSON.stringify(config, null, 2)
+        );
+        output.debug("~/.ocpconfig = " + JSON.stringify(config));
+        return result;
+    } finally {
+        await unlock();
+        // To be on the safe side: Cleanup empty lock directory
+        await fs.promises.rmdir(LOCK_PATH).catch(() => {});
+    }
+}
+
+/**
+ * Get all port configurations from CONFIG_FILE.
+ *
+ * @returns All port configurations.
+ */
+export async function getConfig() {
+    await atomicFileOperation((config) => {
+        return config;
     });
 }
 
-function getLockFile(file: string): string {
-    return `${file}.lock`;
-}
-
-async function resolvePath(file: string): Promise<string> {
-    if (file.startsWith("~")) {
-        const homedir = os.homedir();
-        file = path.join(homedir, file.substring(1));
-    }
-    try {
-        return await fs.realpath(file);
-    } catch (error) {
-        return file;
-    }
-}
-
-function isLockStale(mtime: number, staleMilliseconds: number): boolean {
-    return Date.now() - mtime > staleMilliseconds;
-}
-
-async function removeLock(lockfile: string) {
-    try {
-        await fs.rmdir(lockfile);
-        output.debug(`Lock file ${lockfile} removed`);
-    } catch (error: any) {
-        if (error.code === "ENOENT") {
-            output.debug(`Lock file ${lockfile} not found`);
-        } else {
-            throw new Error(`Unable to remove lock file ${lockfile}`);
+/**
+ * Updates the application state by setting the service entry for the specified port to an empty string.
+ * This operation is performed atomically to ensure consistency.
+ *
+ * @param port - The port number whose service entry should be updated.
+ * @returns A promise that resolves when the state update is complete.
+ */
+export async function updateState(port: number, init = true) {
+    await atomicFileOperation((config) => {
+        if (init || config.services[port] != null) {
+            config.services[port] = "";
         }
-    }
+        return config;
+    });
 }
 
-async function acquireLock(
-    lockfile: string,
-    retries: number = RETRIES,
-    intervalMs: number = INTERVAL_MS,
-    staleDurationMs: number = STALE_DURATION_MS,
-    retry: number = 0
-) {
-    try {
-        await fs.mkdir(lockfile);
-        output.debug(`Lock file ${lockfile} acquired`);
-    } catch (error: any) {
-        if (error.code === "EEXIST") {
-            output.debug(`Lock file ${lockfile} already exists`);
-            const stat = await fs.stat(lockfile);
-            if (isLockStale(stat.mtimeMs, staleDurationMs)) {
-                output.debug(`Lock file ${lockfile} is stale`);
-                try {
-                    // assume the lockfile is stale and simply remove it
-                    await removeLock(lockfile);
-                } catch (error) {
-                    // lock seems to be just removed, which is ok
-                }
-                // try to acquire the lock again
-                await acquireLock(
-                    lockfile,
-                    retries,
-                    intervalMs,
-                    staleDurationMs,
-                    retry + 1
-                );
-            } else {
-                if (retry < retries) {
-                    await sleep(intervalMs);
-                    output.debug("Retrying to acquire lock");
-                    await acquireLock(
-                        lockfile,
-                        retries,
-                        intervalMs,
-                        staleDurationMs,
-                        retry + 1
-                    );
-                } else {
-                    throw new Error(
-                        `Unable to acquire lock for file ${lockfile} after ${retries} retries`
-                    );
-                }
-            }
-        } else {
-            output.debug(error);
+/**
+ * Removes the state associated with the specified port from the configuration.
+ *
+ * @param port - The port number whose state should be removed.
+ * @returns A promise that resolves when the state has been removed.
+ */
+export async function removeState(port: number) {
+    await atomicFileOperation((config) => {
+        delete config.services[`${port}`];
+        return config;
+    });
+}
+
+/**
+ * Retrieves the connection file path associated with a given port from the service configuration.
+ *
+ * This function performs an atomic file operation to read the configuration file,
+ * parses its contents, and searches for a service entry matching the specified port.
+ * If found, it returns the corresponding connection file path; otherwise, it returns an empty string.
+ *
+ * @param port - The port number for which to retrieve the connection file path.
+ * @returns A promise that resolves to the connection file path as a string, or an empty string if not found.
+ */
+export async function getConnctionFile(port: number): Promise<string> {
+    var connectionFile = await atomicFileOperation(() => {
+        output.info(`CONFIG_FILE ${CONFIG_FILE}`);
+        let data;
+        try {
+            data = fs.readFileSync(CONFIG_FILE, "utf8");
+        } catch (err) {
+            data = EMPTY_CONFIG;
         }
-    }
-}
-
-async function lock(file: string, retries: number = RETRIES, intervalMs: number = INTERVAL_MS) {
-    const lockfile = getLockFile(file);
-    await acquireLock(lockfile, retries, intervalMs);
-}
-
-async function unlock(file: string) {
-    const lockfile = getLockFile(file);
-    await removeLock(lockfile);
-}
-
-export async function updateState(
-    port: number, key: string | null, value: string | Array<string> | null, initialize: boolean = false
-) {
-    let data;
-    let fh: fs.FileHandle;
-
-    const config_file = await resolvePath("~/.ocpvscode");
-    await lock(config_file);
-
-    try {
-        fh = await fs.open(config_file, "r+");
-        data = await fh.readFile({ encoding: "utf8" });
-        if (data.length > 0) {
-            data = JSON.parse(data);
-        } else {
-            data = {};
+        if (data == null) {
+            output.error(data);
         }
-    } catch (error) {
-        fh = await fs.open(config_file, "w+");
-        data = {};
-    } finally {
-        await unlock(config_file);
-    }
-
-    if (data[port] == null || initialize) {
-        data[port] = {};
-    }
-    if (key == null) {
-        delete data[port];
-    } else if (value == null) {
-        delete data[port][key];
-    } else if (typeof value === "string") {
-        data[port][key] = [rtrim(value, path.sep)];
-    } else {
-        data[port][key] = value.map((v) => rtrim(v, path.sep));
-    }
-    let buffer: string = JSON.stringify(data, null, 2);
-    try {
-        const { bytesWritten } = await fh.write(buffer, 0, "utf-8");
-        await fh.truncate(bytesWritten);
-        await fh.close();
-    } catch (error) {
-        output.error(`${error}`);
-    } finally {
-        await unlock(config_file);
-    }
-}
-
-interface State {
-    roots: string[];
-    connection_file: string;
-}
-
-interface States {
-    [key: string]: State;
-}
-
-class ResultState {
-    port: number | null;
-    state: State | null;
-
-    constructor(port: number | null, state: State | null) {
-        this.port = port;
-        this.state = state;
-    }
-}
-
-export async function getState(path: string): Promise<null | ResultState> {
-    const config_file = await resolvePath("~/.ocpvscode");
-
-    let data: States;
-
-    await lock(config_file);
-    try {
-        const config: string = await fs.readFile(config_file, "utf-8");
-        unlock(config_file);
-        if (config === "") {
-            data = {};
-        } else {
-            data = JSON.parse(config);
-        }
-    } catch (error) {
-        throw new Error(`Unable to open config file ${config_file}.`);
-    }
-
-    // exact match
-    let port: string | null = null;
-    for (const [p, v] of Object.entries(data)) {
-        if (v.roots.includes(path)) {
-            port = p;
-        }
-    }
-
-    // else search nearest path
-    for (const [p, v] of Object.entries(data)) {
-        for (const root of v.roots) {
-            if (path.startsWith(root)) {
-                port = p;
+        output.info(`data ${data}`);
+        const config: ServiceConfig = JSON.parse(data);
+        output.info(`config ${config}`);
+        for (var port2 in config.services) {
+            if (port2 == port.toString()) {
+                return config.services[port2];
             }
         }
-    }
-
-    // heuristic: if there is only one port, use it
-    let ports = Object.keys(data);
-    if (ports.length === 1) {
-        port = ports[0]
-    }
-
-    if (port == null) {
-        return new ResultState(null, null);
-    }
-
-    return new ResultState(parseInt(port, 10), data[port])
+        return "";
+    });
+    output.info(`connectionFile ${connectionFile}`);
+    return connectionFile || "";
 }

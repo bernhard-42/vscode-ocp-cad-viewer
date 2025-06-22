@@ -1,5 +1,20 @@
 """Python backend for the OCP Viewer"""
 
+#
+# Copyright 2025 Bernhard Walter
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 import argparse
 import base64
 import sys
@@ -36,10 +51,10 @@ from ocp_vscode.build123d import (
 )
 
 if os.environ.get("JUPYTER_CADQUERY") is None:
-    is_jupter_cadquery = False
+    is_jupyter_cadquery = False
     from ocp_vscode.comms import send_response
 else:
-    is_jupter_cadquery = True
+    is_jupyter_cadquery = True
 
 from ocp_vscode.comms import MessageType, listener, set_port
 
@@ -111,7 +126,7 @@ class Response:
 
 
 @dataclass
-class MeasureReponse(Response):
+class MeasureResponse(Response):
     """Base class for all measurement responses"""
 
     # a string telling the frontend how the reference points used for the
@@ -121,7 +136,7 @@ class MeasureReponse(Response):
 
 
 @dataclass
-class DistanceResponse(MeasureReponse):
+class DistanceResponse(MeasureResponse):
     """Response class for distance measurement"""
 
     tool_type: Tool = Tool.Distance
@@ -131,7 +146,7 @@ class DistanceResponse(MeasureReponse):
 
 
 @dataclass
-class PropertiesResponse(MeasureReponse):
+class PropertiesResponse(MeasureResponse):
     """Response class for properties measurement"""
 
     tool_type: Tool = Tool.Properties
@@ -147,7 +162,7 @@ class PropertiesResponse(MeasureReponse):
 
 
 @dataclass
-class AngleResponse(MeasureReponse):
+class AngleResponse(MeasureResponse):
     """Response class for angle measurement"""
 
     tool_type: Tool = Tool.Angle
@@ -161,7 +176,7 @@ class ViewerBackend:
     Represents the backend of the viewer, it listens to the websocket and handles the events
     It's job is to send responses to the vscode extension that goes through the three cad
     viewer view.
-    The reponses holds all the data needed to display the measurements.
+    The responses holds all the data needed to display the measurements.
     """
 
     def __init__(self, port: int, jcv_id=None) -> None:
@@ -226,7 +241,7 @@ class ViewerBackend:
             return self.handle_angle(shape_id1, shape_id2)
 
     def load_model(self, raw_model):
-        """Read the transfered model from websocket"""
+        """Read the transferred model from websocket"""
 
         def walk(model, trace):
             for v in model["parts"]:
@@ -262,9 +277,9 @@ class ViewerBackend:
                         )
                     vertices = get_vertices(compound)
                     for i, vertex in enumerate(vertices):
-                        trace.vertex(f"{id_}/vertices/vertex{i}", vertex)
+                        trace.vertex(f"{id_}/vertices/vertex_{i}", vertex)
 
-                        self.model[f"{id_}/vertices/vertices{i}"] = (
+                        self.model[f"{id_}/vertices/vertices_{i}"] = (
                             Vertex(vertex)
                             if loc is None
                             else Vertex(downcast(vertex.Moved(loc)))
@@ -279,7 +294,7 @@ class ViewerBackend:
         """
         Request the properties of the object with the given id
         """
-        if not is_jupter_cadquery:
+        if not is_jupyter_cadquery:
             print_to_stdout(f"Identifier received '{shape_id}'")
 
         shape = self.model[shape_id]
@@ -320,7 +335,7 @@ class ViewerBackend:
 
         set_precision(response)
 
-        if is_jupter_cadquery:
+        if is_jupyter_cadquery:
             return asdict(response)
         else:
             send_response(asdict(response), self.port)
@@ -330,7 +345,7 @@ class ViewerBackend:
         """
         Request the angle between the two objects that have the given ids
         """
-        if not is_jupter_cadquery:
+        if not is_jupyter_cadquery:
             print_to_stdout(f"Identifiers received '{id1}', '{id2}'")
 
         shape1: Shape = self.model[id1]
@@ -375,7 +390,7 @@ class ViewerBackend:
             point2=point2.to_tuple(),
         )
         set_precision(response)
-        if is_jupter_cadquery:
+        if is_jupyter_cadquery:
             return asdict(response)
         else:
             send_response(asdict(response), self.port)
@@ -435,7 +450,7 @@ class ViewerBackend:
         """
         Request the distance between the two objects that have the given ids
         """
-        if not is_jupter_cadquery:
+        if not is_jupyter_cadquery:
             print_to_stdout(f"Identifiers received '{id1}', '{id2}'")
 
         shape1: Shape = self.model[id1]
@@ -451,7 +466,7 @@ class ViewerBackend:
             distance=dist,
         )
         set_precision(response)
-        if is_jupter_cadquery:
+        if is_jupyter_cadquery:
             return asdict(response)
         else:
             send_response(asdict(response), self.port)

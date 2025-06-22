@@ -1,5 +1,5 @@
 /*
-   Copyright 2023 Bernhard Walter
+   Copyright 2025 Bernhard Walter
   
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -50,7 +50,9 @@ export class OCPCADViewer {
             output.debug("Creating new webview panel");
 
             // get all current tabs
-            const tabs: vscode.Tab[] = vscode.window.tabGroups.all.map(tg => tg.tabs).flat();
+            const tabs: vscode.Tab[] = vscode.window.tabGroups.all
+                .map((tg) => tg.tabs)
+                .flat();
 
             const panel = vscode.window.createWebviewPanel(
                 OCPCADViewer.viewType,
@@ -61,10 +63,7 @@ export class OCPCADViewer {
                     retainContextWhenHidden: true
                 }
             );
-            OCPCADViewer.currentPanel = new OCPCADViewer(
-                panel,
-                extensionUri
-            );
+            OCPCADViewer.currentPanel = new OCPCADViewer(panel, extensionUri);
 
             // delete old tabs called "OCP CAD Viewer"
             for (var tab of tabs) {
@@ -76,15 +75,25 @@ export class OCPCADViewer {
     }
 
     public static revive(panel: vscode.WebviewPanel, extensionUri: vscode.Uri) {
-        output.debug("Reviving webview panel");
-
-        vscode.commands.executeCommand('ocpCadViewer.ocpCadViewer');
+        const autostart = vscode.workspace.getConfiguration(
+            "OcpCadViewer.advanced"
+        )["autostart"];
+        if (!autostart) {
+            output.debug("Reviving webview panel");
+            vscode.commands.executeCommand("ocpCadViewer.ocpCadViewer");
+        }
     }
 
     private constructor(panel: vscode.WebviewPanel, extensionUri: vscode.Uri) {
         this._panel = panel;
 
-        this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
+        this._panel.onDidDispose(
+            () => {
+                this.dispose();
+            },
+            null,
+            this._disposables
+        );
         this._panel.webview.html = "";
 
         // Handle messages from the webview
@@ -97,23 +106,42 @@ export class OCPCADViewer {
                         return;
                     case "screenshot":
                         var data;
-                        if (typeof message.text.data === 'string' || message.text.data instanceof String) {
-                            data = Buffer.from(message.text.data.replace('data:image/png;base64,', ''), "base64");
+                        if (
+                            typeof message.text.data === "string" ||
+                            message.text.data instanceof String
+                        ) {
+                            data = Buffer.from(
+                                message.text.data.replace(
+                                    "data:image/png;base64,",
+                                    ""
+                                ),
+                                "base64"
+                            );
                         } else {
                             data = message.text.data;
                         }
                         var filename = message.text.filename;
                         try {
                             // first write to a temp name to avoid polling is successful before finished ...
-                            let suffix = "-temp" + Date.now().toString(16)
+                            let suffix = "-temp" + Date.now().toString(16);
                             fs.writeFileSync(filename + suffix, data);
                             // ... and then rename to the actual filename
-                            fs.renameSync(filename + suffix, filename)
-                            vscode.window.showInformationMessage(`Screenshot saved as\n${filename}`);
+                            fs.renameSync(filename + suffix, filename);
+                            vscode.window.showInformationMessage(
+                                `Screenshot saved as\n${filename}`
+                            );
                         } catch (error) {
-                            vscode.window.showErrorMessage(`Error saving screenshot as\n${filename}`);
+                            vscode.window.showErrorMessage(
+                                `Error saving screenshot as\n${filename}`
+                            );
                         }
                         return;
+                    case "status":
+                        if (message.text.selected != null) {
+                            vscode.env.clipboard.writeText(
+                                message.text.selected.join(",")
+                            );
+                        }
                 }
             },
             null,
@@ -121,9 +149,12 @@ export class OCPCADViewer {
         );
     }
 
-    public dispose() {
+    public async dispose() {
         output.debug("OCP CAD Viewer dispose");
+
         OCPCADViewer.currentPanel = undefined;
+
+        await OCPCADViewer.controller?.dispose();
 
         this._panel.dispose();
 
@@ -133,12 +164,11 @@ export class OCPCADViewer {
                 x.dispose();
             }
         }
-        OCPCADViewer.controller?.dispose();
     }
 
     public update(div: string) {
         if (div !== "") {
-            output.debug("Updateing webview");
+            output.debug("Updating webview");
             const webview = this._panel.webview;
             this._panel.title = "OCP CAD Viewer";
             webview.html = div;
@@ -149,4 +179,3 @@ export class OCPCADViewer {
         return this._panel.webview;
     }
 }
-/*  */

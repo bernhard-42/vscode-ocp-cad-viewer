@@ -9,7 +9,7 @@ _OCP CAD Viewer_ for VS Code is an extension to show [CadQuery](https://github.c
 - A fairly recent version of Microsoft VS Code, e.g. 1.85.0 or newer
 - The [Python extension](https://marketplace.visualstudio.com/items?itemName=ms-python.python) installed in VS Code
 - Necessary tools:
-  - `python` and `pip` available in the Python enviroment that will be used for CAD development. Note, even when you use another package manager, `pip ` is needed internallyand needs to be available.
+  - `python` and `pip` available in the Python environment that will be used for CAD development. Note, even when you use another package manager, `pip ` is needed internally and needs to be available.
 
 **Notes**:
 
@@ -18,7 +18,7 @@ _OCP CAD Viewer_ for VS Code is an extension to show [CadQuery](https://github.c
 
 ### Installation
 
-1. Open the VS Code Marketplace, and search and install _OCP CAD Viewer 2.7.1_.
+1. Open the VS Code Marketplace, and search and install _OCP CAD Viewer 2.8.1_.
 
    Afterwards the OCP viewer is available in the VS Code sidebar:
 
@@ -30,13 +30,13 @@ _OCP CAD Viewer_ for VS Code is an extension to show [CadQuery](https://github.c
 
    You have 3 options:
 
-   - Prepare _OCP CAD Viewer_ for working with [build123d](https://github.com/gumyr/build123d): Presse the _Quickstart build123d_ button.
+   - Prepare _OCP CAD Viewer_ for working with [build123d](https://github.com/gumyr/build123d): Press the _Quickstart build123d_ button.
 
      This will install _OCP_, _build123d_, _ipykernel_ (_jupyter_client_), _ocp_tessellate_ and _ocp_vscode_ via `pip`
 
      ![](screenshots/build123d_installed.png)
 
-   - Prepare _OCP CAD Viewer_ for working with [CadQuery](https://github.com/cadquery/cadquery): Presse the _Quickstart CadQuery_ button.
+   - Prepare _OCP CAD Viewer_ for working with [CadQuery](https://github.com/cadquery/cadquery): Press the _Quickstart CadQuery_ button.
 
      This will install _OCP_, _CadQuery_, _ipykernel_ (_jupyter_client_), _ocp_tessellate_ and _ocp_vscode_ via `pip`
 
@@ -44,7 +44,7 @@ _OCP CAD Viewer_ for VS Code is an extension to show [CadQuery](https://github.c
 
    - Ignore the quick starts and use the "Library Manager" to install the libraries via `pip` (per default, this can be changed in the VS Code settings). Install the needed library by pressing the down-arrow behind the library name (hover over the library name to see the button) in the "Library Manager" section of the _OCP CAD Viewer_ sidebar. For more details, see [here](./docs/install.md)
 
-   The Quickstarts will also
+   Quickstart will also
 
    - (optionally) install the the [Jupyter extension for VS Code from Microsoft](https://marketplace.visualstudio.com/items?itemName=ms-toolsai.jupyter)
    - start the OCP viewer
@@ -62,7 +62,7 @@ _OCP CAD Viewer_ for VS Code is an extension to show [CadQuery](https://github.c
 ### Running code using Jupyter
 
 - Start the _OCP CAD Viewer_ by pressing the box-arrow button in the "Viewer Manager" section of the _OCP CAD Viewer_ sidebar (hover over the `ocp_vscode` entry to see the button).
-- Import ocp_vscode and the CAD library by using the paste button behing the library names in the "Viewer Manager" section
+- Import ocp_vscode and the CAD library by using the paste button being the library names in the "Viewer Manager" section
 - Use the usual Run menu to run the code
 
 ![Running code](screenshots/ocp_vscode_run.png)
@@ -81,7 +81,7 @@ Note:
 
 ### Library Manager
 
-You can also use "Library Manager" in the _OCP CAD Viewer_ sidebar to manage the Python libraries for _build123d_, _cadquery_, _ipython_ and _ocp_tessellate_ (Presse the down-arrow when hovering over a library name to install/upgrade it)
+You can also use "Library Manager" in the _OCP CAD Viewer_ sidebar to manage the Python libraries for _build123d_, _cadquery_, _ipython_ and _ocp_tessellate_ (Press the down-arrow when hovering over a library name to install/upgrade it)
 
 ### Extra topics
 
@@ -89,6 +89,7 @@ You can also use "Library Manager" in the _OCP CAD Viewer_ sidebar to manage the
 - [Use Jupyter to execute code](docs/run.md)
 - [Debug code with visual debugging](docs/debug.md)
 - [Measure mode](docs/measure.md)
+- [Object selection mode](docs/selector.md)
 - [Use the `show` command](docs/show.md)
 - [Use the `show_object` command](docs/show_object.md)
 - [Use the `show_all` command](docs/show_all.md)
@@ -105,7 +106,7 @@ Use `python -m ocp_vscode --help` to understand the command line args:
 Usage: python -m ocp_vscode [OPTIONS]
 
 Options:
-  --create_configfile            Create the configlie .ocpvscode_standalone in
+  --create_configfile            Create the config file .ocpvscode_standalone in
                                  the home directory
   --host TEXT                    The host to start OCP CAD with
   --port INTEGER                 The port to start OCP CAD with
@@ -255,7 +256,7 @@ then take a look at [docker-vscode-ocp-cad-viewer](https://github.com/nilcons/do
 
 Testing:
 
-Native tessellator can be set via `NATIVE_TESSELLATOR=1`and Python tessellator via `NATIVE_TESSELLATOR=0`.
+Native tessellator can be set via `NATIVE_TESSELLATOR=1` and Python tessellator via `NATIVE_TESSELLATOR=0`.
 
 When `OCP_VSCODE_PYTEST=1` is set, `show` will not send the tessellated results to the viewer, but return it to the caller for inspection.
 
@@ -298,35 +299,42 @@ NATIVE_TESSELLATOR=1 OCP_VSCODE_PYTEST=1 pytest -v -s pytests/
   Location of variable pc_fragColor conflicts with another variable.
   ```
 
-  VS Code internal browser that renders the viewer component uses a cache for code and other artifacts. This includes WebGL artefacts like compiled shaders. It can happen that e.g. due to a graphic driver update the compiled version in the cache does not fit to the new driver. Then this error message appears.
+  VS Code internal browser that renders the viewer component uses a cache for code and other artifacts. This includes WebGL artifacts like compiled shaders. It can happen that e.g. due to a graphic driver update the compiled version in the cache does not fit to the new driver. Then this error message appears.
 
   **Solution:** [Delete the VS Code browser cache on Linux](https://bobbyhadz.com/blog/vscode-clear-cache) (go to the section for your operating system)
 
 ## Changes
 
-### v2.7.1
+### v2.8.1
 
-**Fixes**
+***Fixes**
 
-- Use three-cad-viewer 3.3.4 (omit non used javacscript packages)
-- Fix is_jupyter_cadquery condition
+- Fixed typos in doc strings and everywhere else
+- Fixed a f-string issue with broken quotes
+- Enhanced port running check to tcp4 and tcp6
+- Documented visual debugging with pdb
 
-### v2.7.0
+### v2.8.0
 
 **Features**
 
-- Stabilized the panel for measurement and fixed arrow cone size ([#159](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/159))
-- Extended measurements to 3 digits ([#159](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/159))
-- Adapted backend, config and show modules to also work as client for Jupyter Cadquery
-- Support for OCCTs CompSolids (ocp-tessellate)
-- Add support for ShapeLists of Compounds ([#149](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/149), ocp-tessellate)
-- `show_object` now needs keyword args for `name` and `options` if provided
-- Measure backend can now be started via `python -m ocp_vscode --backend [--port 3939]`
+- Add a color marker behind the node name of the navigation tree showing the object color
+- New "select objects" mode that allows to retrieve stable object indices that can be used in python code to select objects
+- Removed the need of an open workspace. If the extension cannot identify a Python environment with ocp_vscode, it asks for it. ([#160](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/160), [#163](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/163))
+- Simplified port detection. Every viewer stores its port into `~/.ocpvscode`. If mode than one active port is detected, show let's you select the right one  ([#163](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/163))
+- Improve startup reliability and performance
+- Allow setting port in launch.json
+- Add `include` argument to `show_all`
+- Add `push_object` and `show_objects` to control showing objects in a lazy manner
+- Bump to three-cad-viewer 3.4.0
+
 
 **Fixes**
-
-- Fixed issue when loading snippets ([#157](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/157))
-- Fixed top and bottom view to be exact ([#158](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/158))
-- Fixed a bug when the viewer goes blank when a new object is to be shown while the dimension tool is active ([#156](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/156))
-- Fixed top level bounding box when clicking on the top level label in the navigstion tree
-- Fixed highlighting of cad tree node to prevent scrolling of parent container
+- Clean up startup sequence and fix start issues with Jupyter interactive window
+- Fix disposing all viewer objects on closing the viewer
+- Ensure revive of viewer is not used in autostart mode
+- Improve pip list parsing
+- Start backend with a temp folder instead of work directory
+- Fix naming `vertex0` to `vertex_0` (and so on) in exploded mode (three-cad-viewer)
+- Fix clear and dispose behavior (three-cad-viewer [#27](https://github.com/bernhard-42/three-cad-viewer/issues/27))
+- Fix `save_screenshot` throwing an error

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ocp_vscode"
-version = "2.7.1"
+version = "2.8.1"
 authors = [{ name = "Bernhard Walter", email = "b_walter@arcor.de" }]
 description = "OCP CAD Viewer for VSCode"
 readme = "README.md"
@@ -28,7 +28,7 @@ classifiers = [
 ]
 
 dependencies = [
-    "ocp-tessellate>=3.0.11,<3.1.0",
+    "ocp-tessellate>=3.0.12,<3.1.0",
     "requests",
     "ipykernel",
     "orjson",
@@ -37,6 +37,9 @@ dependencies = [
     "flask>=3.0,<4.0",
     "flask_sock>=0.7,<1.0",
     "click>=8.1,<9.0",
+    "pyperclip==1.9.0",
+    "questionary==2.1.0",
+    "pip"
 ]
 
 [tool.setuptools]
@@ -62,7 +65,7 @@ line-length = 88
 # bump-my-version settings
 
 [tool.bumpversion]
-current_version = "2.7.1"
+current_version = "2.8.1"
 commit = false
 tag = false
 parse = "(?P<major>\\d+)\\.(?P<minor>\\d+)\\.(?P<patch>\\d+)(?P<release>\\d*)(?P<build>\\d*)"

@@ -1,5 +1,5 @@
 /*
-   Copyright 2023 Bernhard Walter
+   Copyright 2025 Bernhard Walter
   
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -21,29 +21,47 @@ import * as path from "path";
 import * as vscode from "vscode";
 import { version as ocp_vscode_version } from "./version";
 import * as output from "./output";
-import { getPythonPath, getEditor, inquiry, getCurrentFolder } from "./utils";
+import { getPythonPath, getEditor } from "./utils";
 import { execute } from "./system/shell";
 import { StatusManagerProvider } from "./statusManager";
 import { TerminalExecute } from "./system/terminal";
-
-
-const URL =
-    "https://github.com/bernhard-42/vscode-cop-cad-viewer/releases/download";
 
 function sanitize(lib: string) {
     return lib.replace("-", "_");
 }
 
-export function isCondaAvailable(python: string) {
-    return python.includes("/envs/");
+interface Package {
+    name: string;
+    version: string;
+    location: string;
+    installer: string;
+    editable_project_location?: string;
 }
 
-export function isPipAvailable(python: string) {
+function parsePackageData(
+    jsonString: string
+): Map<string, Omit<Package, "name">> {
+    // Parse JSON and type assert to Package array
+    const packages = JSON.parse(jsonString) as Package[];
+
+    // Use existing mapping logic with enhanced type checking
+    return new Map(
+        packages.map((pkg) => {
+            const { name, ...rest } = pkg;
+            return [name, rest];
+        })
+    );
+}
+
+export async function pipList(
+    python: string
+): Promise<Map<string, Omit<Package, "name">>> {
     try {
-        execute(`${python} -m pip --version`);
-        return true;
-    } catch (error) {
-        return false;
+        let result = execute(`${python} -m pip list -v --format json`, false);
+        return parsePackageData(result);
+    } catch (error: any) {
+        output.error(error.stderr.toString());
+        return new Map<string, Omit<Package, "name">>();
     }
 }
 
@@ -55,7 +73,6 @@ export function isPythonVersion(python: string, version: string) {
         return false;
     }
 }
-
 
 export async function installLib(
     libraryManager: LibraryManagerProvider,
@@ -74,7 +91,7 @@ export async function installLib(
     let python = await getPythonPath();
     let reply =
         (await vscode.window.showQuickPick(["yes", "no"], {
-            placeHolder: `Is "${python}" the right interpreter for the installation?`,
+            placeHolder: `Is "${python}" the right interpreter for the installation?`
         })) || "";
     if (reply === "" || reply === "no") {
         return;
@@ -93,14 +110,19 @@ export async function installLib(
             if (!valid) {
                 valid = isPythonVersion(python, version);
             }
-        })
+        });
         if (!valid) {
-            vscode.window.showErrorMessage(`Python version(s) ${requiredPythonVersion} required!`);
-            return
+            vscode.window.showErrorMessage(
+                `Python version(s) ${requiredPythonVersion} required!`
+            );
+            return;
         }
     }
 
-    let term = vscode.window.createTerminal("Library Installations", (os.platform() === "win32") ? process.env.COMSPEC : undefined);
+    let term = vscode.window.createTerminal(
+        "Library Installations",
+        os.platform() === "win32" ? process.env.COMSPEC : undefined
+    );
     term.show();
     const delay = vscode.workspace.getConfiguration("OcpCadViewer.advanced")[
         "terminalDelay"
@@ -109,7 +131,9 @@ export async function installLib(
         libraryManager.refresh();
 
         if (["cadquery", "build123d"].includes(library)) {
-            vscode.window.showInformationMessage(`Depending on your os, the first import of ${library} can take several seconds`);
+            vscode.window.showInformationMessage(
+                `Depending on your os, the first import of ${library} can take several seconds`
+            );
         }
 
         callback();
@@ -121,9 +145,9 @@ export async function installLib(
     term.sendText(command, true);
 }
 
-
 export class LibraryManagerProvider
-    implements vscode.TreeDataProvider<Library> {
+    implements vscode.TreeDataProvider<Library>
+{
     statusManager: StatusManagerProvider;
     installCommands: any = {};
     exampleDownloads: any = {};
@@ -137,10 +161,9 @@ export class LibraryManagerProvider
     }
 
     readConfig() {
-        this.installCommands =
-            vscode.workspace.getConfiguration("OcpCadViewer.advanced")[
-            "installCommands"
-            ];
+        this.installCommands = vscode.workspace.getConfiguration(
+            "OcpCadViewer.advanced"
+        )["installCommands"];
         let outdated = false;
         for (var lib of Object.keys(this.installCommands)) {
             if (!Array.isArray(this.installCommands[lib])) {
@@ -149,16 +172,16 @@ export class LibraryManagerProvider
             }
         }
         if (outdated) {
-            vscode.window.showErrorMessage("Your installCommands are outdated.\nPlease update them in your settings.json ('OcpCadViewer.advanced.installCommands')");
+            vscode.window.showErrorMessage(
+                "Your installCommands are outdated.\nPlease update them in your settings.json ('OcpCadViewer.advanced.installCommands')"
+            );
         }
-        this.codeSnippets =
-            vscode.workspace.getConfiguration("OcpCadViewer.advanced")[
-            "codeSnippets"
-            ];
-        this.exampleDownloads =
-            vscode.workspace.getConfiguration("OcpCadViewer.advanced")[
-            "exampleDownloads"
-            ];
+        this.codeSnippets = vscode.workspace.getConfiguration(
+            "OcpCadViewer.advanced"
+        )["codeSnippets"];
+        this.exampleDownloads = vscode.workspace.getConfiguration(
+            "OcpCadViewer.advanced"
+        )["exampleDownloads"];
     }
 
     private _onDidChangeTreeData: vscode.EventEmitter<
@@ -171,6 +194,9 @@ export class LibraryManagerProvider
 
     async refresh(pythonPath: string | undefined = undefined) {
         this.readConfig();
+        if (pythonPath == null) {
+            pythonPath = await getPythonPath();
+        }
         await this.findInstalledLibraries(pythonPath);
         this._onDidChangeTreeData.fire();
     }
@@ -187,13 +213,18 @@ export class LibraryManagerProvider
             commands = cmds;
         }
         if (!Array.isArray(commands)) {
-            vscode.window.showErrorMessage("Your installCommands are outdated.\nPlease update them in your settings.json ('OcpCadViewer.advanced.installCommands')");
+            vscode.window.showErrorMessage(
+                "Your installCommands are outdated.\nPlease update them in your settings.json ('OcpCadViewer.advanced.installCommands')"
+            );
             return [];
         }
         let python = await getPythonPath();
         let substCmds: string[] = [];
         commands.forEach((command: string) => {
-            command = command.replace("{ocp_vscode_version}", ocp_vscode_version);
+            command = command.replace(
+                "{ocp_vscode_version}",
+                ocp_vscode_version
+            );
             command = command.replace("{python}", '"' + python + '"');
 
             if (command.indexOf("{unset_conda}") >= 0) {
@@ -230,22 +261,18 @@ export class LibraryManagerProvider
         this.installed = {};
 
         try {
-            let command = `"${python}" -m pip list -v --format json`;
-            let allLibs = execute(command);
-            let libs = JSON.parse(allLibs);
-            libs.forEach((lib: any) => {
-                if (installLibs.includes(sanitize(lib["name"]))) {
-                    let editablePath = lib["editable_project_location"];
-                    this.installed[sanitize(lib["name"])] = [
+            var libs = await pipList(python);
+            for (var [name, lib] of libs) {
+                name = sanitize(name);
+                if (installLibs.includes(name)) {
+                    this.installed[name] = [
                         lib["version"],
                         lib["installer"],
-                        editablePath === undefined
-                            ? lib["location"]
-                            : editablePath,
-                        editablePath !== undefined
+                        lib["location"],
+                        lib["editable_project_location"] || ""
                     ];
                 }
-            });
+            }
         } catch (error: any) {
             vscode.window.showErrorMessage(error.message);
         }
@@ -262,14 +289,19 @@ export class LibraryManagerProvider
     pasteImport(library: string) {
         const editor = getEditor();
         if (editor !== undefined) {
-            if ((library === "ocp_vscode") && (this.statusManager.getPort() === "")) {
+            if (
+                library === "ocp_vscode" &&
+                this.statusManager.getPort() === ""
+            ) {
                 vscode.window.showErrorMessage("OCP CAD Viewer not running");
             } else {
                 let importCmd = Object.assign([], this.codeSnippets[library]);
                 if (library === "ocp_vscode") {
                     importCmd.push(`set_port(${this.statusManager.getPort()})`);
                 }
-                let snippet = new vscode.SnippetString(importCmd.join("\n") + "\n");
+                let snippet = new vscode.SnippetString(
+                    importCmd.join("\n") + "\n"
+                );
                 editor?.insertSnippet(snippet);
             }
         } else {
@@ -285,32 +317,30 @@ export class LibraryManagerProvider
         if (element) {
             if (Object.keys(this.installed).includes(element.label)) {
                 let editable = this.installed[element.label][3];
-                let manager = editable
-                    ? "n/a"
-                    : this.installed[element.label][1];
+                let manager = this.installed[element.label][1] || "n/a";
                 let location = this.installed[element.label][2];
                 let p = location.split(path.sep);
-                let env = editable ? location : p[p.length - 4];
+                let env = editable ? editable : p[p.length - 4];
 
                 let libs: Library[] = [];
                 libs.push(
                     new Library(
                         "installer",
-                        { "installer": manager },
+                        { installer: manager },
                         vscode.TreeItemCollapsibleState.None
                     )
                 );
                 libs.push(
                     new Library(
                         "environment",
-                        { "location": location, "env": env },
+                        { location: location, env: env },
                         vscode.TreeItemCollapsibleState.None
                     )
                 );
                 libs.push(
                     new Library(
                         "editable",
-                        { "editable": editable },
+                        { editable: (editable !== "").toString() },
                         vscode.TreeItemCollapsibleState.None
                     )
                 );
@@ -318,7 +348,7 @@ export class LibraryManagerProvider
                     libs.push(
                         new Library(
                             "examples",
-                            { "examples": "", "parent": element.label },
+                            { examples: "", parent: element.label },
                             vscode.TreeItemCollapsibleState.None
                         )
                     );
@@ -340,7 +370,7 @@ export class LibraryManagerProvider
                     ? vscode.TreeItemCollapsibleState.Expanded
                     : vscode.TreeItemCollapsibleState.None;
 
-                libs.push(new Library(lib, { "version": version }, state));
+                libs.push(new Library(lib, { version: version }, state));
 
                 if (lib === "ocp_vscode") {
                     this.statusManager.installed = version !== "n/a";

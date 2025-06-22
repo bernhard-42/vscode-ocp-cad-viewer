@@ -1,19 +1,32 @@
+#
+# Copyright 2025 Bernhard Walter
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 import base64
 import orjson
 import shutil
-import socket
 import time
 import yaml
 from pathlib import Path
 from flask import Flask, render_template, request
 from flask_sock import Sock
-from simple_websocket import ConnectionClosed
 from ocp_vscode.comms import MessageType
 from ocp_vscode.backend import ViewerBackend
 from ocp_vscode.backend_logo import logo
-from ocp_vscode.state import resolve_path
+import pyperclip
 
-CONFIG_FILE = "~/.ocpvscode_standalone"
+CONFIG_FILE = Path.home() / ".ocpvscode_standalone"
 
 DEFAULTS = {
     "debug": False,
@@ -34,8 +47,8 @@ DEFAULTS = {
     "axes": False,
     "axes0": False,
     "grid_xy": False,
-    "grid_yz": False,
     "grid_xz": False,
+    "grid_yz": False,
     "perspective": False,
     "transparent": False,
     "black_edges": False,
@@ -142,7 +155,7 @@ class Viewer:
         local_config = DEFAULTS.copy()
 
         # Then apply everything from the config file if it exists
-        config_file = Path(resolve_path(CONFIG_FILE))
+        config_file = CONFIG_FILE
         if config_file.exists():
             with open(config_file, "r") as f:
                 defaults = yaml.safe_load(f)
@@ -154,8 +167,8 @@ class Viewer:
         # Get all params != their default value and apply it
         grid = [
             local_config["grid_xy"],
-            local_config["grid_yz"],
             local_config["grid_xz"],
+            local_config["grid_yz"],
         ]
         for k, v in params.items():
             if k == "port":
@@ -166,9 +179,9 @@ class Viewer:
                 if v != local_config.get(k):
                     if k == "grid_xy":
                         grid[0] = True
-                    elif k == "grid_yz":
-                        grid[1] = True
                     elif k == "grid_xz":
+                        grid[1] = True
+                    elif k == "grid_yz":
                         grid[2] = True
                     else:
                         local_config[k] = v
@@ -178,7 +191,7 @@ class Viewer:
         local_config = dict(sorted(local_config.items()))
 
         for k, v in local_config.items():
-            if k in ["grid_xy", "grid_yz", "grid_xz"]:
+            if k in ["grid_xy", "grid_xz", "grid_yz"]:
                 continue
             if k == "collapse":
                 self.config["collapse"] = str(v)
@@ -272,6 +285,9 @@ class Viewer:
                     changes = message["text"]
                     self.debug_print("Received incremental UI changes", changes)
                     for key, value in changes.items():
+                        if key == "selected":
+                            pyperclip.copy((",").join(changes.get("selected", [])))
+
                         self.status[key] = value
                     self.backend.handle_event(changes, MessageType.UPDATES)
 

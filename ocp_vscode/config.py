@@ -1,7 +1,7 @@
 """Configuration of the viewer"""
 
 #
-# Copyright 2023 Bernhard Walter
+# Copyright 2025 Bernhard Walter
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -420,7 +420,7 @@ def set_defaults(
         ):
             DEFAULTS[key] = value
         else:
-            print(f"'{key}' is an unkown config, ignored!")
+            print(f"'{key}' is an unknown config, ignored!")
 
     set_viewer_config(
         viewer=viewer, **{k: v for k, v in kwargs.items() if k in CONFIG_SET_KEYS}

@@ -1,4 +1,22 @@
 <!DOCTYPE html>
+<!--
+
+Copyright 2025 Bernhard Walter
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+   http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+
 <!-- {var} are template variables and will be resolved in display.js-->
 <html>
 
@@ -28,7 +46,7 @@
         var viewerOptions = {};
         var last_bb_radius = null;
 
-        const minWidth = 735;
+        const minWidth = 780;
         {{ standalone_comms|safe }}
         
         var message = {};
@@ -41,7 +59,8 @@
             theme: "{{ theme }}",
             tools: JSON.parse("{{ tools|tojson }}"), // make linter happy
             pinning: false,
-            measureTools: false,
+            measureTools: true,
+            selectTool: true,
             keymap: {
                 "shift": "shiftKey",
                 "ctrl": "ctrlKey",
@@ -404,6 +423,7 @@
                 defaultOpacity: preset(_config, "default_opacity", renderDefaultOptions.defaultOpacity),
                 normalLen: preset(_config, "normal_len", renderDefaultOptions.normalLen),
                 measureTools: true,
+                selectTool: true
             };
 
             viewerOptions = {
@@ -419,6 +439,7 @@
                 tools: preset(_config, "tools", viewerDefaultOptions.tools),
                 glass: preset(_config, "glass", viewerDefaultOptions.glass),
                 measureTools: true,
+                selectTool: true,
                 up: preset(_config, "up", viewerDefaultOptions.up),
                 transparent: preset(_config, "transparent", viewerDefaultOptions.transparent),
                 control: preset(_config, "control", viewerDefaultOptions.control),
@@ -675,6 +696,12 @@
 
                 let meshData = data.data;
                 let config = data.config;
+                
+                if (config._splash) {
+                    const displayOptions = getDisplayOptions();
+                    config.zoom = Math.min(1.0, displayOptions.cadWidth / displayOptions.height);
+                    console.log("logo zoom =", config.zoom);
+                }
 
                 showViewer(meshData.shapes, config);
                 var new_states = getStates(meshData.shapes);

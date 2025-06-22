@@ -1,5 +1,5 @@
 /*
-   Copyright 2023 Bernhard Walter
+   Copyright 2025 Bernhard Walter
   
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 import * as vscode from "vscode";
 
-const log = vscode.window.createOutputChannel("OCP CAD Viewer Log");
+var log: vscode.OutputChannel;
 var is_open = false;
 
 function getPrefix(logLevel?: string) {
@@ -32,6 +32,10 @@ function getPrefix(logLevel?: string) {
     }
 
     return `[${timestamp}${level}] `;
+}
+
+export function open() {
+    log = vscode.window.createOutputChannel("OCP CAD Viewer Log");
 }
 
 export function show() {
