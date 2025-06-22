@@ -855,7 +855,10 @@ def _show_object(obj, **kwargs):
     )
 
 
-def push_object(obj, name=None, color=None, alpha=None):
+def push_object(obj, name=None, color=None, alpha=None, clear=False, replace=False):
+    if clear:
+        reset_show()
+
     if name is None:
         if hasattr(obj, "name"):
             name = obj.name
@@ -871,10 +874,17 @@ def push_object(obj, name=None, color=None, alpha=None):
             alpha = obj.alpha
         else:
             alpha = 1.0
-    OBJECTS["objs"].append(obj)
-    OBJECTS["names"].append(name)
-    OBJECTS["colors"].append(color)
-    OBJECTS["alphas"].append(alpha)
+
+    if replace:
+        index = OBJECTS["names"].index(name)
+        OBJECTS["objs"][index] = obj
+        OBJECTS["colors"][index] = color
+        OBJECTS["alphas"][index] = alpha
+    else:
+        OBJECTS["objs"].append(obj)
+        OBJECTS["names"].append(name)
+        OBJECTS["colors"].append(color)
+        OBJECTS["alphas"].append(alpha)
 
 
 def show_objects(
