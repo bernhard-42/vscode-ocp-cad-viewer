@@ -193,34 +193,52 @@ const addresses: AddressToCheck[] = [
 ];
 
 export function isPortInUse(port: number): Promise<boolean> {
-    return new Promise<boolean>((resolve, reject) => {
-        let checksCompleted = 0;
-        let portInUse = false;
 
-        function checkDone(err: NodeJS.ErrnoException | null, inUse?: boolean) {
-            checksCompleted++;
-            if (inUse) portInUse = true;
-            if (err && err.code !== "EADDRINUSE") {
-                return reject(err);
-            }
-            if (checksCompleted === addresses.length) {
-                resolve(portInUse);
-            }
-        }
+    const hosts = [
+        "0.0.0.0",   // all IPv4
+        "::",        // all IPv6
+        "127.0.0.1", // loopback IPv4
+        "::1"        // loopback IPv6
+    ];
 
-        for (const { address } of addresses) {
-            const server = net
-                .createServer()
-                .once("error", (err: NodeJS.ErrnoException) => {
-                    if (err.code === "EADDRINUSE") return checkDone(null, true);
-                    checkDone(err);
-                })
-                .once("listening", () => {
-                    server.close(() => checkDone(null, false));
-                })
-                .listen(port, address);
-        }
-    });
+    function checkPort(port: number, host: string, timeout = 1000): Promise<boolean> {
+        return new Promise<boolean>((resolve, reject) => {
+            const server = net.createServer();
+
+            server.once('error', (err: any) => {
+                clearTimeout(timer);
+                if (err.code === 'EADDRINUSE') {
+                    output.debug(`- in use on ${host}`);
+                }
+                else {
+                    output.debug(`Error ${err.code} checking port ${port} on ${host}`);
+                }
+                resolve(true); // In any error case, we assume the port is in use
+            });
+
+            server.once('listening', () => {
+                clearTimeout(timer);
+                output.debug(`- free on ${host}`);
+                server.close(() => {
+                    resolve(false); // port is free
+                });
+            });
+
+            const timer = setTimeout(() => {
+                server.close();
+                output.debug(`- check timed out on ${host}, assuming port is free`);
+                resolve(false); // Assume not in use if timeout
+            }, timeout);
+
+            server.listen(port, host);
+
+        });
+    }
+
+    // Check all addresses in parallel, resolve true if any are in use
+    output.debug(`Checking port ${port}:`);
+    const checks = hosts.map(host => checkPort(port, host));
+    return Promise.all(checks).then(results => results.some(inUse => inUse));
 }
 
 export function getTempFolder() {
