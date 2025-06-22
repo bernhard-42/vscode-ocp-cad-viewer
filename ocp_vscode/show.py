@@ -83,6 +83,7 @@ from ocp_vscode.config import (
 __all__ = [
     "show",
     "show_object",
+    "remove_object",
     "_show",
     "_show_object",
     "push_object",
@@ -92,7 +93,6 @@ __all__ = [
     "show_clear",
     "save_screenshot",
     "none_filter",
-    "remove_part",
 ]
 
 OBJECTS = {"objs": [], "names": [], "colors": [], "alphas": []}
@@ -807,6 +807,16 @@ def show_object(
     return _show_object(obj, **none_filter(locals(), ["obj"]))
 
 
+def remove_object(name):
+    """Remove object from the stack of objects by name"""
+    try:
+        index = OBJECTS["names"].index(name)
+        for key in ["objs", "names", "colors", "alphas"]:
+            del OBJECTS[key][index]
+    except ValueError:
+        pass  # Name not found; silently do nothing
+
+
 def _show_object(obj, **kwargs):
     port = kwargs.get("port")
     name = kwargs.get("name")
@@ -820,14 +830,24 @@ def _show_object(obj, **kwargs):
         k: v
         for k, v in kwargs.items()
         if v is not None
-        and k not in ["obj", "name", "options", "parent", "clear", "port", "progress", "update"]
+        and k
+        not in [
+            "obj",
+            "name",
+            "options",
+            "parent",
+            "clear",
+            "port",
+            "progress",
+            "update",
+        ]
     }
 
     if clear:
         reset_show()
 
     if update:
-        remove_part(name)
+        remove_object(name)
 
     if parent is not None:
         OBJECTS["objs"].append(parent)
@@ -862,7 +882,7 @@ def _show_object(obj, **kwargs):
     )
 
 
-def push_object(obj, name=None, color=None, alpha=None, clear=False, replace=False):
+def push_object(obj, name=None, color=None, alpha=None, clear=False, update=False):
     if clear:
         reset_show()
 
@@ -882,7 +902,7 @@ def push_object(obj, name=None, color=None, alpha=None, clear=False, replace=Fal
         else:
             alpha = 1.0
 
-    if replace:
+    if update:
         index = OBJECTS["names"].index(name)
         OBJECTS["objs"][index] = obj
         OBJECTS["colors"][index] = color
@@ -1231,13 +1251,3 @@ def save_screenshot(filename, port=None, polling=True):
 
         if not done:
             print("Warning: Screenshot not found in 2 seconds, aborting")
-
-
-def remove_part(name):
-    """Remove part from the stack of objects by name"""
-    try:
-        index = OBJECTS['names'].index(name)
-        for key in ['objs', 'names', 'colors', 'alphas']:
-            del OBJECTS[key][index]
-    except ValueError:
-        pass  # Name not found; silently do nothing
