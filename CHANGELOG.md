@@ -2,6 +2,20 @@
 
 All notable changes to the "OCP CAD Viewer" extension will be documented in this file.
 
+### v2.8.2
+
+**Features**
+
+- Add clear and update params to push_object
+- Add removal and update of an individual part in show_object
+- Introduce shortcuts select_face, select_edge, select_vertex for the selection mode
+
+**Fixes**
+
+- Rewrite port check and add more debug info
+- Ensure to wait for all async functions at startup
+- Fix grid_xz / grid_yz mix-up in standalone mode
+
 ## v2.8.1
 
 ***Fixes**

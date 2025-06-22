@@ -18,7 +18,7 @@ _OCP CAD Viewer_ for VS Code is an extension to show [CadQuery](https://github.c
 
 ### Installation
 
-1. Open the VS Code Marketplace, and search and install _OCP CAD Viewer 2.8.1_.
+1. Open the VS Code Marketplace, and search and install _OCP CAD Viewer 2.8.2_.
 
    Afterwards the OCP viewer is available in the VS Code sidebar:
 
@@ -304,6 +304,20 @@ NATIVE_TESSELLATOR=1 OCP_VSCODE_PYTEST=1 pytest -v -s pytests/
   **Solution:** [Delete the VS Code browser cache on Linux](https://bobbyhadz.com/blog/vscode-clear-cache) (go to the section for your operating system)
 
 ## Changes
+
+### v2.8.2
+
+**Features**
+
+- Add clear and update params to push_object
+- Add removal and update of an individual part in show_object
+- Introduce shortcuts select_face, select_edge, select_vertex for the selection mode
+
+**Fixes**
+
+- Rewrite port check and add more debug info
+- Ensure to wait for all async functions at startup
+- Fix grid_xz / grid_yz mix-up in standalone mode
 
 ### v2.8.1
 
