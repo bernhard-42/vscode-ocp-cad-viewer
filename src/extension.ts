@@ -60,13 +60,13 @@ function check_upgrade(libraryManager: LibraryManagerProvider) {
         } else if (semver.gt(ocp_vscode_lib[0], version)) {
             vscode.window.showErrorMessage(
                 `ocp_vscode library version ${ocp_vscode_lib[0]} is newer than extension version ${version} ` +
-                    `- update your OCP CAD Viewer extension`
+                `- update your OCP CAD Viewer extension`
             );
         } else {
             vscode.window
                 .showInformationMessage(
                     `ocp_vscode library version ${ocp_vscode_lib[0]} is older than extension version ${version} ` +
-                        `- update your ocp_vscode library in the Library Manager`,
+                    `- update your ocp_vscode library in the Library Manager`,
                     "Cancel",
                     "Install"
                 )
