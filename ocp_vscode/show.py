@@ -815,6 +815,7 @@ def remove_object(name, call_show=False, port=None, progress="-+*c"):
             del OBJECTS[key][index]
     except ValueError:
         pass  # Name not found; silently do nothing
+
     if call_show:
         return show(
             *OBJECTS["objs"],
