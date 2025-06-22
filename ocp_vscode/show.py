@@ -807,7 +807,7 @@ def show_object(
     return _show_object(obj, **none_filter(locals(), ["obj"]))
 
 
-def remove_object(name):
+def remove_object(name, call_show=False, port=None, progress="-+*c"):
     """Remove object from the stack of objects by name"""
     try:
         index = OBJECTS["names"].index(name)
@@ -815,6 +815,15 @@ def remove_object(name):
             del OBJECTS[key][index]
     except ValueError:
         pass  # Name not found; silently do nothing
+    if call_show:
+        return show(
+            *OBJECTS["objs"],
+            names=OBJECTS["names"],
+            colors=OBJECTS["colors"],
+            alphas=OBJECTS["alphas"],
+            port=port,
+            progress=progress,
+        )
 
 
 def _show_object(obj, **kwargs):
