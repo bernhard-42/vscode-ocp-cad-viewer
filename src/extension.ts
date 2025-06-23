@@ -249,6 +249,14 @@ export async function activate(context: vscode.ExtensionContext) {
             async (document: vscode.TextDocument | undefined) => {
                 output.debug("ocpCadViewer.ocpCadViewer: Set viewerStarting");
                 viewerStarting = true;
+
+                function cleanup() {
+                    viewerStarting = false;
+                    output.debug(
+                        "ocpCadViewer.ocpCadViewer: Unset viewerStarting"
+                    );
+                }
+
                 output.debug(
                     `ocpCadViewer.ocpCadViewer: Start viewer for ${document?.fileName}`
                 );
@@ -267,6 +275,7 @@ export async function activate(context: vscode.ExtensionContext) {
                     vscode.window.showErrorMessage(
                         `Error occurred while parsing the port: ${process.env.OCP_PORT}`
                     );
+                    cleanup();
                     return;
                 }
 
@@ -279,6 +288,7 @@ export async function activate(context: vscode.ExtensionContext) {
                             placeHolder: `OCP VS Code not found for "${python}". Select another Python interpreter?`
                         })) || "";
                     if (reply === "" || reply === "no") {
+                        cleanup();
                         return;
                     } else {
                         await vscode.commands.executeCommand(
@@ -297,6 +307,7 @@ export async function activate(context: vscode.ExtensionContext) {
                 }
                 if (document === undefined) {
                     output.error("ocpCadViewer.ocpCadViewer: No editor open");
+                    cleanup();
                     return;
                 }
 
@@ -313,6 +324,7 @@ export async function activate(context: vscode.ExtensionContext) {
                             `ocpCadViewer.ocpCadViewer: OCP CAD Viewer could not start on port ${port}` +
                                 "preconfigured in settings.json or env variable OCP_PORT"
                         );
+                        cleanup();
                         return;
                     }
                     output.debug(
@@ -381,8 +393,7 @@ export async function activate(context: vscode.ExtensionContext) {
                         `OCP CAD Viewer could not start on port ${port}`
                     );
                 }
-                viewerStarting = false;
-                output.debug("ocpCadViewer.ocpCadViewer: Unset viewerStarting");
+                cleanup();
             }
         )
     );
