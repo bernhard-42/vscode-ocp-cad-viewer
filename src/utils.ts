@@ -186,9 +186,9 @@ export function getPackageManager() {
 export async function isPortInUse(port: number): Promise<boolean> {
     const hosts = [
         "0.0.0.0", // all IPv4
-        "::",       // all IPv6
-        "127.0.0.1",// loopback IPv4
-        "::1"       // loopback IPv6
+        "::", // all IPv6
+        "127.0.0.1", // loopback IPv4
+        "::1" // loopback IPv6
     ];
 
     async function checkPort(
@@ -217,7 +217,7 @@ export async function isPortInUse(port: number): Promise<boolean> {
             server.once("error", (err: any) => {
                 if (resolved) return;
                 cleanup();
-                
+
                 if (err.code === "EADDRINUSE") {
                     output.debug(`- in use on ${host}`);
                     resolve(true);
@@ -246,7 +246,6 @@ export async function isPortInUse(port: number): Promise<boolean> {
     return false;
 }
 
-
 export function getTempFolder() {
     const tempDirPath = os.tmpdir();
     return fs.realpathSync(tempDirPath);
@@ -256,7 +255,7 @@ export async function closeOcpCadViewerTab() {
     for (const group of vscode.window.tabGroups.all) {
         for (const tab of group.tabs) {
             // You may need to adjust the condition below depending on how the OCP CAD Viewer tab is identified
-            if (tab.label === 'OCP CAD Viewer') {
+            if (tab.label === "OCP CAD Viewer") {
                 await vscode.window.tabGroups.close(tab);
                 return;
             }

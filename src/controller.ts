@@ -119,7 +119,10 @@ export class OCPCADController {
                 output.debug(
                     "OCPCADController.start: Starting websocket server ..."
                 );
-                await OCPCADViewer.createOrShow(this.context.extensionUri, this);
+                await OCPCADViewer.createOrShow(
+                    this.context.extensionUri,
+                    this
+                );
                 let panel = OCPCADViewer.currentPanel;
                 this.view = panel?.getView();
                 if (this.view !== undefined) {

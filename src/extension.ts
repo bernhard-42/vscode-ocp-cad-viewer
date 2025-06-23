@@ -249,9 +249,11 @@ export async function activate(context: vscode.ExtensionContext) {
             "ocpCadViewer.ocpCadViewer",
             async (document: vscode.TextDocument | undefined) => {
                 if (controller?.isStarted()) {
-                    output.debug("ocpCadViewer.ocpCadViewer: Viewer already running");
+                    output.debug(
+                        "ocpCadViewer.ocpCadViewer: Viewer already running"
+                    );
                     return;
-                };
+                }
                 output.debug("ocpCadViewer.ocpCadViewer: Set viewerStarting");
                 viewerStarting = true;
 
