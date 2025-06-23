@@ -539,7 +539,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
     context.subscriptions.push(
         vscode.commands.registerCommand("ocpCadViewer.output", () =>
-            output.show()
+            output.toggle()
         )
     );
 

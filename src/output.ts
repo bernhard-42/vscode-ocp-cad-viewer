@@ -17,6 +17,7 @@
 import * as vscode from "vscode";
 
 var log: vscode.OutputChannel;
+var is_open = false;
 
 function getFormattedTimestamp(): string {
     const now = new Date();
@@ -50,10 +51,16 @@ export function open() {
 
 export function hide() {
     log.hide();
+    is_open = false;
 }
 
 export function show() {
     log.show(true);
+    is_open = true;
+}
+
+export function toggle() {
+    is_open ? hide() : show();
 }
 
 export function info(msg: string) {
