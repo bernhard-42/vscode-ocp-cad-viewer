@@ -92,6 +92,7 @@ You can also use "Library Manager" in the _OCP CAD Viewer_ sidebar to manage the
 - [Object selection mode](docs/selector.md)
 - [Use the `show` command](docs/show.md)
 - [Use the `show_object` command](docs/show_object.md)
+- [Use the `push_object` and `show_objects` command](docs/push_object.md)
 - [Use the `show_all` command](docs/show_all.md)
 - [Use the `set_viewer_config` command](docs/set_viewer_config.md)
 - [Download examples for build123d or cadquery](docs/examples.md)

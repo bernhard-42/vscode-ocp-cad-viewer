@@ -893,6 +893,25 @@ def _show_object(obj, **kwargs):
 
 
 def push_object(obj, name=None, color=None, alpha=None, clear=False, update=False):
+    """
+    Adds or updates an object in the global OBJECTS registry with optional name, color, and alpha
+    transparency.
+
+    Parameters:
+        obj: The object to be added or updated. Must have 'name', 'label', 'color', or 'alpha'
+            ttributes if corresponding arguments are not provided.
+        name (str, optional): The name to associate with the object. If not provided,
+            attempts to use 'name' or 'label' attribute of obj.
+        color (any, optional): The color to associate with the object. If not provided,
+            attempts to use 'color' attribute of obj.
+        alpha (float, optional): The alpha (transparency) value for the object. If not provided,
+            attempts to use 'alpha' attribute of obj, defaults to 1.0.
+        clear (bool, optional): If True, clears the OBJECTS registry before adding the new object.
+        update (bool, optional): If True, updates an existing object with the same name;
+            otherwise, appends as a new object.
+    Raises:
+        ValueError: If no name is provided and the object does not have a 'name' or 'label' attribute.
+    """
     if clear:
         reset_show()
 

@@ -21,6 +21,7 @@ Keywords for show_object:
     parent:                  Add another object, usually the parent of e.g. edges or vertices with alpha=0.25
     clear:                   In interactive mode, clear the stack of objects to be shown
                                 (typically used for the first object)
+    update:                  Update the object (remove old version)                                
     port:                    The port the viewer listens to. Typically use 'set_port(port)' instead
     progress:                Show progress of tessellation with None is no progress indicator. (default="-+*c")
                                 for object: "-": is reference,
