@@ -183,15 +183,6 @@ export function getPackageManager() {
     return fs.existsSync(path.join(cwd, "poetry.lock")) ? "poetry" : "pip";
 }
 
-type AddressToCheck = { address: string; family: "IPv4" | "IPv6" };
-
-const addresses: AddressToCheck[] = [
-    { address: "0.0.0.0", family: "IPv4" }, // all IPv4
-    { address: "127.0.0.1", family: "IPv4" }, // loopback IPv4
-    { address: "::", family: "IPv6" }, // all IPv6
-    { address: "::1", family: "IPv6" } // loopback IPv6
-];
-
 export async function isPortInUse(port: number): Promise<boolean> {
     const hosts = [
         "0.0.0.0", // all IPv4
