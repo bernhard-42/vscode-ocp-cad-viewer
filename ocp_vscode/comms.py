@@ -252,7 +252,7 @@ def listener(callback):
     def _listen():
         last_config = {}
         with connect(f"{CMD_URL}:{CMD_PORT}", max_size=2**28) as websocket:
-            websocket.send(b"L:register")
+            websocket.send(b"L:Python listener")
             while True:
                 try:
                     message = websocket.recv()

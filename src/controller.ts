@@ -116,7 +116,7 @@ export class OCPCADController {
         if (!serverStarted) {
             serverStarted = await this.startCommandServer();
             if (serverStarted) {
-                output.info("Starting websocket server ...");
+                output.debug("OCPCADController: Starting websocket server ...");
                 OCPCADViewer.createOrShow(this.context.extensionUri, this);
                 let panel = OCPCADViewer.currentPanel;
                 this.view = panel?.getView();
@@ -152,7 +152,7 @@ export class OCPCADController {
                         if (msg.command === "status") {
                             this.viewer_message = message;
                         } else {
-                            output.info(msg.text);
+                            output.info("OCPCADController: " + msg.text);
                         }
                         if (this.pythonListener !== undefined) {
                             // output.debug("Sending message to python: " + message);
@@ -160,6 +160,7 @@ export class OCPCADController {
                         }
                     });
                 }
+                output.debug("OCPCADController: Starting backend ...");
                 await this.startBackend();
             }
         }
@@ -167,6 +168,7 @@ export class OCPCADController {
 
     public startCommandServer(): Promise<boolean> {
         return new Promise<boolean>((resolve, reject) => {
+            output.debug("OCPCADController: Starting websocket server");
             const httpServer = createServer();
             const wss = new WebSocketServer({
                 server: httpServer,
@@ -174,12 +176,15 @@ export class OCPCADController {
             });
 
             wss.on("connection", (socket) => {
-                output.info("Client connected");
+                output.info("OCPCADController: Client connected");
 
                 socket.on("message", (message) => {
                     try {
                         const raw_data = message.toString();
                         const messageType = raw_data.substring(0, 1);
+                        output.debug(
+                            `OCPCADController: message ${messageType} received`
+                        );
                         var data = message.toString().substring(2);
                         if (messageType === "C") {
                             var cmd = JSON.parse(data);
@@ -193,26 +198,41 @@ export class OCPCADController {
                                 this.view?.postMessage(JSON.stringify(cmd));
                             }
                         } else if (messageType === "D") {
-                            output.debug("Received a new model");
-                            output.debug(JSON.stringify(getConfig()));
+                            output.debug(
+                                "OCPCADController: Received a new model"
+                            );
+                            output.debug(
+                                "OCPCADController: config=" +
+                                    JSON.stringify(getConfig())
+                            );
                             this.view?.postMessage(data);
-                            output.debug("Posted model to view");
+                            output.debug(
+                                "OCPCADController: Posted model to view"
+                            );
                             if (this.splash) {
                                 this.splash = false;
                             }
                         } else if (messageType === "S") {
-                            output.debug("Received a config");
+                            output.debug("OCPCADController: Received a config");
                             this.view?.postMessage(data);
-                            output.debug("Posted config to view");
+                            output.debug(
+                                "OCPCADController: Posted config to view"
+                            );
                         } else if (messageType === "L") {
                             this.pythonListener = socket;
-                            output.debug("Listener registered");
+                            output.debug(
+                                `OCPCADController: ${data} registered`
+                            );
                         } else if (messageType === "B") {
                             this.pythonListener?.send(data);
-                            output.debug("Model data sent to the backend");
+                            output.debug(
+                                "OCPCADController: Model data sent to the backend"
+                            );
                         } else if (messageType === "R") {
                             this.view?.postMessage(data);
-                            output.debug("Backend response received.");
+                            output.debug(
+                                "OCPCADController: Backend response received."
+                            );
                         }
                     } catch (error: any) {
                         output.error(`Server error: ${error.message}`);
@@ -220,7 +240,7 @@ export class OCPCADController {
                 });
 
                 socket.on("close", () => {
-                    output.info("Client disconnected");
+                    output.info("OCPCADController: Client disconnected");
                     if (this.pythonListener === socket) {
                         this.pythonListener = undefined;
                         output.debug("Listener deregistered");
@@ -229,16 +249,22 @@ export class OCPCADController {
             });
 
             wss.on("error", (error) => {
-                output.error(`Server error: ${error.message}`);
+                output.error(
+                    `OCPCADController: Server error: ${error.message}`
+                );
             });
 
             httpServer.on("error", (error) => {
-                output.error(`Server error: ${error.message}`);
+                output.error(
+                    `OCPCADController: Server error: ${error.message}`
+                );
                 resolve(false);
             });
 
             httpServer.listen(this.port, () => {
-                output.info(`Server started on port ${this.port}`);
+                output.info(
+                    `OCPCADController: Server listening on port ${this.port}`
+                );
                 this.server = httpServer;
                 resolve(true);
             });
@@ -250,8 +276,10 @@ export class OCPCADController {
      */
     public async startBackend() {
         let cwd = getTempFolder();
+        output.debug(`Backend: Use folder ${cwd}`);
 
         let python = await getPythonPath();
+        output.debug(`Backend: Use python interpeter ${python}`);
 
         let pythonBackendTerminal = vscode.window.createTerminal({
             name: "OCP backend",
@@ -260,6 +288,8 @@ export class OCPCADController {
                 os.platform() === "win32" ? process.env.COMSPEC : undefined
         });
         pythonBackendTerminal.show();
+        output.debug("Backend: Terminal started");
+
         const delay = vscode.workspace.getConfiguration(
             "OcpCadViewer.advanced"
         )["terminalDelay"];
@@ -267,12 +297,16 @@ export class OCPCADController {
             "OcpCadViewer.advanced"
         )["autohideTerminal"];
         setTimeout(() => {
+            output.debug(
+                `Backend: Starting Python backend with delay ${delay}`
+            );
             pythonBackendTerminal.sendText(
                 `"${python}" -m ocp_vscode --backend --port ${this.port}`
             );
             if (autohide) {
                 pythonBackendTerminal.hide();
             }
+            output.info("Backend: Python backend running");
         }, delay);
         this.pythonBackendTerminal = pythonBackendTerminal;
     }

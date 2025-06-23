@@ -41,13 +41,13 @@ export class OCPCADViewer {
         if (OCPCADViewer.currentPanel) {
             // If we already have a panel, show it.
 
-            output.debug("Revealing existing webview panel");
+            output.debug("OCPCADViewer: Revealing existing webview panel");
 
             OCPCADViewer.currentPanel._panel.reveal(vscode.ViewColumn.Two);
         } else {
             // Otherwise, create a new panel.
 
-            output.debug("Creating new webview panel");
+            output.debug("OCPCADViewer: Creating new webview panel");
 
             // get all current tabs
             const tabs: vscode.Tab[] = vscode.window.tabGroups.all
@@ -79,7 +79,7 @@ export class OCPCADViewer {
             "OcpCadViewer.advanced"
         )["autostart"];
         if (!autostart) {
-            output.debug("Reviving webview panel");
+            output.debug("OCPCADViewer: Reviving webview panel");
             vscode.commands.executeCommand("ocpCadViewer.ocpCadViewer");
         }
     }
@@ -150,7 +150,7 @@ export class OCPCADViewer {
     }
 
     public async dispose() {
-        output.debug("OCP CAD Viewer dispose");
+        output.debug("OCPCADViewer: OCP CAD Viewer dispose");
 
         OCPCADViewer.currentPanel = undefined;
 
@@ -168,7 +168,7 @@ export class OCPCADViewer {
 
     public update(div: string) {
         if (div !== "") {
-            output.debug("Updating webview");
+            output.debug("OCPCADViewer: Updating webview");
             const webview = this._panel.webview;
             this._panel.title = "OCP CAD Viewer";
             webview.html = div;
