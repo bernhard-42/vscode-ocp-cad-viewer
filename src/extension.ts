@@ -36,7 +36,8 @@ import {
     jupyterExtensionInstalled,
     isPortInUse,
     getPythonPath,
-    isOcpVscodeEnv
+    isOcpVscodeEnv,
+    closeOcpCadViewerTab
 } from "./utils";
 import { version } from "./version";
 import * as semver from "semver";
@@ -247,6 +248,10 @@ export async function activate(context: vscode.ExtensionContext) {
         vscode.commands.registerCommand(
             "ocpCadViewer.ocpCadViewer",
             async (document: vscode.TextDocument | undefined) => {
+                if (controller?.isStarted()) {
+                    output.debug("ocpCadViewer.ocpCadViewer: Viewer already running");
+                    return;
+                };
                 output.debug("ocpCadViewer.ocpCadViewer: Set viewerStarting");
                 viewerStarting = true;
                 output.debug(
@@ -336,6 +341,9 @@ export async function activate(context: vscode.ExtensionContext) {
                 output.debug(
                     "ocpCadViewer.ocpCadViewer: Starting OCPCADController"
                 );
+
+                await closeOcpCadViewerTab();
+
                 controller = new OCPCADController(
                     context,
                     port,
@@ -551,7 +559,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
     context.subscriptions.push(
         vscode.commands.registerCommand("ocpCadViewer.openViewer", async () => {
-            statusManager.openViewer();
+            await statusManager.openViewer();
         })
     );
 

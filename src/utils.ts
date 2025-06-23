@@ -260,3 +260,15 @@ export function getTempFolder() {
     const tempDirPath = os.tmpdir();
     return fs.realpathSync(tempDirPath);
 }
+
+export async function closeOcpCadViewerTab() {
+    for (const group of vscode.window.tabGroups.all) {
+        for (const tab of group.tabs) {
+            // You may need to adjust the condition below depending on how the OCP CAD Viewer tab is identified
+            if (tab.label === 'OCP CAD Viewer') {
+                await vscode.window.tabGroups.close(tab);
+                return;
+            }
+        }
+    }
+}
