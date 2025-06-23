@@ -254,8 +254,6 @@ export async function activate(context: vscode.ExtensionContext) {
                 );
                 let preset_port = false;
 
-                output.show();
-
                 try {
                     port = parseInt(process.env.OCP_PORT || "0", 10);
                     if (port === 0) {
@@ -364,8 +362,6 @@ export async function activate(context: vscode.ExtensionContext) {
                     );
 
                     await statusManager.refresh(port.toString());
-
-                    output.show();
 
                     const success = await controller.logo();
                     output.debug(
@@ -726,28 +722,15 @@ export async function activate(context: vscode.ExtensionContext) {
                     );
                 }
             }
-        } else if (
-            e.uri.scheme === "output" &&
-            e.uri.path.endsWith("OCP CAD Viewer Log")
-        ) {
-            output.set_open(true);
         }
     });
 
     vscode.workspace.onDidCloseTextDocument(async (e: vscode.TextDocument) => {
-        // output.debug(
-        //     `Text document closed: ${e.fileName}`
-        // );
         if (e.uri.scheme === "vscode-interactive-input") {
             if (controller?.port) {
                 // remove the connection_file from the state
                 await updateState(controller.port, false);
             }
-        } else if (
-            e.uri.scheme === "output" &&
-            e.uri.path.endsWith("OCP CAD Viewer Log")
-        ) {
-            output.set_open(false);
         }
     });
 

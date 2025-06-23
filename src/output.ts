@@ -17,7 +17,6 @@
 import * as vscode from "vscode";
 
 var log: vscode.OutputChannel;
-var is_open = false;
 
 function getFormattedTimestamp(): string {
     const now = new Date();
@@ -49,12 +48,12 @@ export function open() {
     log = vscode.window.createOutputChannel("OCP CAD Viewer Log", "log");
 }
 
+export function hide() {
+    log.hide();
+}
+
 export function show() {
-    if (is_open) {
-        log.hide();
-    } else {
-        log.show(true);
-    }
+    log.show(true);
 }
 
 export function info(msg: string) {
@@ -70,8 +69,4 @@ export function error(msg: string) {
 export function debug(msg: string) {
     const prefix = getPrefix("DEBUG");
     log.appendLine(prefix + msg);
-}
-
-export function set_open(open: boolean) {
-    is_open = open;
 }
