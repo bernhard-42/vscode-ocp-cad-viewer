@@ -192,7 +192,7 @@ const addresses: AddressToCheck[] = [
     { address: "::1", family: "IPv6" } // loopback IPv6
 ];
 
-export function isPortInUse(port: number): Promise<boolean> {
+export async function isPortInUse(port: number): Promise<boolean> {
     const hosts = [
         "0.0.0.0", // all IPv4
         "::", // all IPv6
