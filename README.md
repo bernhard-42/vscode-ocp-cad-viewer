@@ -318,6 +318,7 @@ NATIVE_TESSELLATOR=1 OCP_VSCODE_PYTEST=1 pytest -v -s pytests/
 - Rewrite port check and add more debug info
 - Ensure to wait for all async functions at startup
 - Fix grid_xz / grid_yz mix-up in standalone mode
+- Improve logging during viewer start
 
 ### v2.8.1
 
