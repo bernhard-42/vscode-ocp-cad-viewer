@@ -722,6 +722,11 @@ export async function activate(context: vscode.ExtensionContext) {
                     );
                 }
             }
+        } else if (
+            e.uri.scheme === "output" &&
+            e.uri.path.endsWith("OCP CAD Viewer Log")
+        ) {
+            output.set_open(true);
         }
     });
 
@@ -731,6 +736,11 @@ export async function activate(context: vscode.ExtensionContext) {
                 // remove the connection_file from the state
                 await updateState(controller.port, false);
             }
+        } else if (
+            e.uri.scheme === "output" &&
+            e.uri.path.endsWith("OCP CAD Viewer Log")
+        ) {
+            output.set_open(false);
         }
     });
 

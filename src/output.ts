@@ -77,3 +77,7 @@ export function debug(msg: string) {
     const prefix = getPrefix("DEBUG");
     log.appendLine(prefix + msg);
 }
+
+export function set_open(open: boolean) {
+    is_open = open;
+}
