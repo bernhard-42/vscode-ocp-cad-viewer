@@ -19,23 +19,34 @@ import * as vscode from "vscode";
 var log: vscode.OutputChannel;
 var is_open = false;
 
+function getFormattedTimestamp(): string {
+    const now = new Date();
+
+    const pad = (n: number, z: number = 2) => n.toString().padStart(z, "0");
+    const year = now.getFullYear();
+    const month = pad(now.getMonth() + 1); // Months are 0-based
+    const day = pad(now.getDate());
+    const hours = pad(now.getHours());
+    const minutes = pad(now.getMinutes());
+    const seconds = pad(now.getSeconds());
+    const milliseconds = pad(now.getMilliseconds(), 3);
+
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}.${milliseconds}`;
+}
+
 function getPrefix(logLevel?: string) {
     let timestamp = "";
     let level = "";
     if (logLevel) {
-        const d = new Date();
-        timestamp = `${d.toLocaleTimeString()}.${d
-            .getMilliseconds()
-            .toString()
-            .padStart(3, "0")}} `;
-        level = `${logLevel} `;
+        timestamp = getFormattedTimestamp();
+        level = `${logLevel.toLocaleLowerCase()}`;
     }
 
-    return `[${timestamp}${level}] `;
+    return `${timestamp} [${level}] `;
 }
 
 export function open() {
-    log = vscode.window.createOutputChannel("OCP CAD Viewer Log");
+    log = vscode.window.createOutputChannel("OCP CAD Viewer Log", "log");
 }
 
 export function show() {

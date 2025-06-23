@@ -193,30 +193,34 @@ const addresses: AddressToCheck[] = [
 ];
 
 export function isPortInUse(port: number): Promise<boolean> {
-
     const hosts = [
-        "0.0.0.0",   // all IPv4
-        "::",        // all IPv6
+        "0.0.0.0", // all IPv4
+        "::", // all IPv6
         "127.0.0.1", // loopback IPv4
-        "::1"        // loopback IPv6
+        "::1" // loopback IPv6
     ];
 
-    function checkPort(port: number, host: string, timeout = 1000): Promise<boolean> {
+    function checkPort(
+        port: number,
+        host: string,
+        timeout = 1000
+    ): Promise<boolean> {
         return new Promise<boolean>((resolve, reject) => {
             const server = net.createServer();
 
-            server.once('error', (err: any) => {
+            server.once("error", (err: any) => {
                 clearTimeout(timer);
-                if (err.code === 'EADDRINUSE') {
+                if (err.code === "EADDRINUSE") {
                     output.debug(`- in use on ${host}`);
-                }
-                else {
-                    output.debug(`Error ${err.code} checking port ${port} on ${host}`);
+                } else {
+                    output.debug(
+                        `Error ${err.code} checking port ${port} on ${host}`
+                    );
                 }
                 resolve(true); // In any error case, we assume the port is in use
             });
 
-            server.once('listening', () => {
+            server.once("listening", () => {
                 clearTimeout(timer);
                 output.debug(`- free on ${host}`);
                 server.close(() => {
@@ -226,19 +230,22 @@ export function isPortInUse(port: number): Promise<boolean> {
 
             const timer = setTimeout(() => {
                 server.close();
-                output.debug(`- check timed out on ${host}, assuming port is free`);
+                output.debug(
+                    `- check timed out on ${host}, assuming port is free`
+                );
                 resolve(false); // Assume not in use if timeout
             }, timeout);
 
             server.listen(port, host);
-
         });
     }
 
     // Check all addresses in parallel, resolve true if any are in use
     output.debug(`Checking port ${port}:`);
-    const checks = hosts.map(host => checkPort(port, host));
-    return Promise.all(checks).then(results => results.some(inUse => inUse));
+    const checks = hosts.map((host) => checkPort(port, host));
+    return Promise.all(checks).then((results) =>
+        results.some((inUse) => inUse)
+    );
 }
 
 export function getTempFolder() {

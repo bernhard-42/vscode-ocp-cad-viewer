@@ -55,7 +55,7 @@ function check_upgrade(libraryManager: LibraryManagerProvider) {
     if (ocp_vscode_lib) {
         if (semver.eq(ocp_vscode_lib[0], version)) {
             output.info(
-                `check_upgrade: ocp_vscode library version ${ocp_vscode_lib[0]} matches extension version ${version}`
+                `extension.check_upgrade: ocp_vscode library version ${ocp_vscode_lib[0]} matches extension version ${version}`
             );
         } else if (semver.gt(ocp_vscode_lib[0], version)) {
             vscode.window.showErrorMessage(
@@ -77,7 +77,9 @@ function check_upgrade(libraryManager: LibraryManagerProvider) {
                 });
         }
     } else {
-        output.info(`ocp_vscode library not installed`);
+        output.info(
+            `extension.check_upgrade: ocp_vscode library not installed`
+        );
     }
 }
 
@@ -85,12 +87,16 @@ var viewerStarting = false;
 
 async function conditionallyOpenViewer(document: vscode.TextDocument) {
     if (viewerStarting) {
-        output.debug("Viewer is already starting");
+        output.debug(
+            "extension.conditionallyOpenViewer: Viewer is already starting"
+        );
         return;
     } else {
         viewerStarting = true;
     }
-    output.debug(`Conditionally open viewer for ${document.fileName}`);
+    output.debug(
+        `extension.conditionallyOpenViewer: Conditionally open viewer for ${document.fileName}`
+    );
 
     const autostart = vscode.workspace.getConfiguration(
         "OcpCadViewer.advanced"
@@ -127,7 +133,7 @@ export async function activate(context: vscode.ExtensionContext) {
     // For migrations
     removeOldLockfile();
 
-    output.debug("Activate: OCP CAD Viewer");
+    output.debug("extension.Activate: OCP CAD Viewer");
 
     let statusManager = createStatusManager();
     let libraryManager = createLibraryManager(statusManager);
@@ -161,7 +167,7 @@ export async function activate(context: vscode.ExtensionContext) {
     setTimeout(async () => {
         const editor = vscode.window?.activeTextEditor;
         output.debug(
-            `Activate: Async start viewer ${editor?.document.fileName}`
+            `extension.Activate: Async start viewer ${editor?.document.fileName}`
         );
         const python = await getPythonPath();
         var done = false;
@@ -191,7 +197,7 @@ export async function activate(context: vscode.ExtensionContext) {
                 }
             }
         } else {
-            output.debug("Activate: No editor focussed");
+            output.error("extension.Activate: No editor focussed");
         }
     }, delay);
 
@@ -329,7 +335,9 @@ export async function activate(context: vscode.ExtensionContext) {
                         }
                     }
                 }
-                output.debug("ocpCadViewer.ocpCadViewer: Starting controller");
+                output.debug(
+                    "ocpCadViewer.ocpCadViewer: Starting OCPCADController"
+                );
                 controller = new OCPCADController(
                     context,
                     port,
@@ -343,7 +351,7 @@ export async function activate(context: vscode.ExtensionContext) {
                     vscode.window.showTextDocument(document, column);
                     var [folder, isWorkspace] = getCurrentFolder();
                     output.debug(
-                        `ocpCadViewer.ocpCadViewer: Controller started with port ${port} ` +
+                        `ocpCadViewer.ocpCadViewer: OCPCADController started with port ${port} ` +
                             `and folders: ${folder}, ${path.dirname(
                                 document.fileName
                             )}`
