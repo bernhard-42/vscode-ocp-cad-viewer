@@ -153,6 +153,10 @@ export class OCPCADController {
                         const msg = message;
                         if (msg.command === "status") {
                             this.viewer_message = message;
+                        } else if (msg.command === "log") {
+                            output.debug(
+                                "Viewer.log: " + (msg.text ? msg.text : "")
+                            );
                         } else {
                             output.info("OCPCADController.start: " + msg.text);
                         }
@@ -180,7 +184,7 @@ export class OCPCADController {
             });
 
             wss.on("connection", (socket) => {
-                output.info("OCPCADController.connection: Client connected");
+                // output.info("OCPCADController.connection: Client connected");
 
                 socket.on("message", (message) => {
                     try {
@@ -246,9 +250,9 @@ export class OCPCADController {
                 });
 
                 socket.on("close", () => {
-                    output.info(
-                        "OCPCADController.connection: Client disconnected"
-                    );
+                    // output.info(
+                    //     "OCPCADController.connection: Client disconnected"
+                    // );
                     if (this.pythonListener === socket) {
                         this.pythonListener = undefined;
                         output.debug("Listener deregistered");
