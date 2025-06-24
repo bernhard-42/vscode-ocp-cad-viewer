@@ -281,6 +281,8 @@ class Viewer:
                     data_url = message["text"]["data"]
                     self.debug_print("Received screenshot data for file", filename)
                     save_png_data_url(data_url, filename)
+                elif message["command"] == "log":
+                    self.debug_print("Viewer.log:", message["text"])
                 else:
                     changes = message["text"]
                     self.debug_print("Received incremental UI changes", changes)
