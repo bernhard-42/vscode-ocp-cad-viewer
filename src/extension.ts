@@ -85,6 +85,7 @@ function check_upgrade(libraryManager: LibraryManagerProvider) {
 }
 
 var viewerStarting = false;
+var timer: NodeJS.Timeout | null = null;
 
 async function conditionallyOpenViewer(document: vscode.TextDocument) {
     if (viewerStarting) {
@@ -94,6 +95,14 @@ async function conditionallyOpenViewer(document: vscode.TextDocument) {
         return;
     } else {
         viewerStarting = true;
+
+        // ensure to reset stale flag
+        timer = setTimeout(() => {
+            if (viewerStarting) {
+                output.debug("Unsetting stale viewerStarting");
+                viewerStarting = false;
+            }
+        }, 5000);
     }
     output.debug(
         `extension.conditionallyOpenViewer: Conditionally open viewer for ${document.fileName}`
@@ -254,13 +263,20 @@ export async function activate(context: vscode.ExtensionContext) {
                     );
                     return;
                 }
-                output.debug("ocpCadViewer.ocpCadViewer: Set viewerStarting");
+                output.debug(
+                    "ocpCadViewer.ocpCadViewer: Setting viewerStarting"
+                );
                 viewerStarting = true;
 
                 function cleanup() {
                     viewerStarting = false;
+                    // clear timeout if still valid
+                    if (timer) {
+                        clearTimeout(timer);
+                        timer = null;
+                    }
                     output.debug(
-                        "ocpCadViewer.ocpCadViewer: Unset viewerStarting"
+                        "ocpCadViewer.ocpCadViewer: Unsetting viewerStarting"
                     );
                 }
 
