@@ -2,6 +2,27 @@
 
 All notable changes to the "OCP CAD Viewer" extension will be documented in this file.
 
+### v2.8.5
+
+**Fixes**
+
+- Clean up viewerStarting flag in error case
+- Fix broken handling of mirrored curve in ocp-tessellate ([#170](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/170))
+- Remove deviding line deflection by 100 ([#172](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/172))
+
+### v2.8.4
+
+**Fixes**
+
+- Add handling of view log mesage forwarding to standalone mode
+
+### v2.8.3
+
+**Fixes**
+
+- Fix dual stack port detection on Linux ([#171](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/171))
+- Close old viewer window if exists on viewer start
+
 ### v2.8.2
 
 **Features**
@@ -24,7 +45,7 @@ All notable changes to the "OCP CAD Viewer" extension will be documented in this
 - Fixed typos in doc strings and everywhere else
 - Fixed a f-string issue with broken quotes
 - Enhanced port running check to tcp4 and tcp6
-- Documented visual debugging with pdb
+- Documented visual debugging with pdb ([#164](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/164))
 
 ## v2.8.0
 
@@ -49,7 +70,7 @@ All notable changes to the "OCP CAD Viewer" extension will be documented in this
 - Start backend with a temp folder instead of work directory
 - Fix naming `vertex0` to `vertex_0` (and so on) in exploded mode (three-cad-viewer)
 - Fix clear and dispose behavior (three-cad-viewer [#27](https://github.com/bernhard-42/three-cad-viewer/issues/27))
-- Fix `save_screenshot` throwing an error
+- Fix `save_screenshot` throwing an error ([#162](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/162))
 
 
 ## v2.7.1
