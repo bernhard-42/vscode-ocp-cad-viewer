@@ -489,17 +489,29 @@
           "description": "Whether to start the viewer when opening Python files or not",
           "order": 52
         },
+        "OcpCadViewer.advanced.autostartTriggers": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "from ocp_vscode import",
+            "import ocp_vscode"
+          ],
+          "description": "Trigger statements to start the viewer when opening Python files",
+          "order": 53
+        },
         "OcpCadViewer.advanced.autohideTerminal": {
           "type": "boolean",
           "default": false,
           "description": "Whether to autohide the Terminal on viewer start or not",
-          "order": 53
+          "order": 54
         },
         "OcpCadViewer.advanced.initialPort": {
           "type": "number",
           "default": 3939,
           "description": "The start port where OCP CAD Viewer will start to search for a free port",
-          "order": 54
+          "order": 55
         },
         "OcpCadViewer.advanced.quickstartCommands": {
           "type": "object",
@@ -512,7 +524,7 @@
               "{python} -m pip install ocp_vscode=={ocp_vscode_version} build123d"
             ]
           },
-          "order": 52
+          "order": 56
         },
         "OcpCadViewer.advanced.installCommands": {
           "type": "object",
@@ -699,7 +711,7 @@
         "OcpCadViewer.advanced.autostartDelay": {
           "type": "number",
           "default": 250,
-          "description": "Delay until autostart tries to launch the viewer (default: 250)",
+          "description": "Delay until autostart tries to refresh viewer and library manager at VS Code start (default: 250)",
           "order": 58
         }
       }
@@ -732,7 +744,8 @@
     "eslint": "^8.20.0",
     "glob": "^8.1.0",
     "mocha": "^10.0.0",
-    "typescript": "4.9"
+    "typescript": "4.9",
+    "yarn": "^1.22.22"
   },
   "dependencies": {
     "@vscode/python-extension": "^1.0.0",
@@ -741,8 +754,7 @@
     "proper-lockfile": "^4.1.2",
     "semver": "^7.5.1",
     "three-cad-viewer": "3.4.0",
-    "ws": "^8.13.0",
-    "yarn": "^1.22.22"
+    "ws": "^8.13.0"
   },
   "packageManager": "yarn@1.22.22"
 }

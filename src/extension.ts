@@ -119,16 +119,17 @@ async function conditionallyOpenViewer(document: vscode.TextDocument) {
     // if the open document is a python file and contains a import of build123d or cadquery,
     // then open the viewer if it is not already running
     if (document.languageId === "python") {
-        if (
-            document.getText().includes("import build123d") ||
-            document.getText().includes("import cadquery") ||
-            document.getText().includes("from build123d import") ||
-            document.getText().includes("from cadquery import")
-        ) {
-            await vscode.commands.executeCommand(
-                "ocpCadViewer.ocpCadViewer",
-                document
-            );
+        const autostartTriggers = vscode.workspace.getConfiguration(
+            "OcpCadViewer.advanced"
+        )["autostartTriggers"];
+        for (var trigger of autostartTriggers) {
+            if (document.getText().includes(trigger)) {
+                await vscode.commands.executeCommand(
+                    "ocpCadViewer.ocpCadViewer",
+                    document
+                );
+                break;
+            }
         }
     }
 }
@@ -175,40 +176,10 @@ export async function activate(context: vscode.ExtensionContext) {
     ];
 
     setTimeout(async () => {
-        const editor = vscode.window?.activeTextEditor;
-        output.debug(
-            `extension.Activate: Async start viewer ${editor?.document.fileName}`
-        );
-        const python = await getPythonPath();
-        var done = false;
-        if (
-            editor?.document &&
-            editor.document.languageId == "python" &&
-            editor.document.fileName.endsWith(".py")
-        ) {
-            while (!done) {
-                if (isOcpVscodeEnv(python)) {
-                    conditionallyOpenViewer(editor.document);
-                    done = true;
-                } else {
-                    let reply =
-                        (await vscode.window.showQuickPick(["yes", "no"], {
-                            placeHolder: `OCP VS Code not found for "${python}". Select another Python interpreter?`
-                        })) || "";
-                    if (reply === "" || reply === "no") {
-                        done = true;
-                    } else {
-                        await vscode.commands.executeCommand(
-                            "python.setInterpreter"
-                        );
-                        conditionallyOpenViewer(editor.document);
-                        done = true;
-                    }
-                }
-            }
-        } else {
-            output.error("extension.Activate: No editor focussed");
-        }
+        await statusManager.refresh("");
+        var python = await getPythonPath();
+        await libraryManager.refresh(python);
+        check_upgrade(libraryManager);
     }, delay);
 
     //	Commands
