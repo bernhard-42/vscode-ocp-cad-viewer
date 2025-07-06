@@ -99,7 +99,7 @@ class Tool:
     Angle = "AngleMeasurement"
 
 
-def set_precision(instance, decimals=2):
+def set_precision(instance, decimals=3):
     """
     Set the precision of all float fields of the dataclass to the given number of decimals
     """
