@@ -78,15 +78,15 @@ export class OCPCADViewer {
         }
     }
 
-    public static revive(panel: vscode.WebviewPanel, extensionUri: vscode.Uri) {
-        const autostart = vscode.workspace.getConfiguration(
-            "OcpCadViewer.advanced"
-        )["autostart"];
-        if (!autostart) {
-            output.debug("OCPCADViewer.revive: Reviving webview panel");
-            vscode.commands.executeCommand("ocpCadViewer.ocpCadViewer");
-        }
-    }
+    // public static revive(panel: vscode.WebviewPanel, extensionUri: vscode.Uri) {
+    //     const autostart = vscode.workspace.getConfiguration(
+    //         "OcpCadViewer.advanced"
+    //     )["autostart"];
+    //     if (!autostart) {
+    //         output.debug("OCPCADViewer.revive: Reviving webview panel");
+    //         vscode.commands.executeCommand("ocpCadViewer.ocpCadViewer");
+    //     }
+    // }
 
     private constructor(panel: vscode.WebviewPanel, extensionUri: vscode.Uri) {
         this._panel = panel;

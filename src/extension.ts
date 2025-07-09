@@ -793,31 +793,14 @@ export async function activate(context: vscode.ExtensionContext) {
 
     //	Register Web view
 
-    vscode.window.registerWebviewPanelSerializer(OCPCADViewer.viewType, {
-        async deserializeWebviewPanel(
-            webviewPanel: vscode.WebviewPanel,
-            state: any
-        ) {
-            OCPCADViewer.revive(webviewPanel, context.extensionUri);
-        }
-    });
-
-    vscode.workspace.onDidChangeConfiguration(async (event: any) => {
-        // output.debug(`Configuration changed`);
-        let affected = event.affectsConfiguration(
-            "python.defaultInterpreterPath"
-        );
-        if (affected) {
-            let pythonPath = await getPythonPath();
-            output.debug(`Configuration changed, Python = ${pythonPath}`);
-            if (lastPythonPath !== pythonPath) {
-                lastPythonPath = pythonPath;
-                libraryManager.refresh(pythonPath);
-                controller.dispose();
-                OCPCADViewer.currentPanel?.dispose();
-            }
-        }
-    });
+    // vscode.window.registerWebviewPanelSerializer(OCPCADViewer.viewType, {
+    //     async deserializeWebviewPanel(
+    //         webviewPanel: vscode.WebviewPanel,
+    //         state: any
+    //     ) {
+    //         OCPCADViewer.revive(webviewPanel, context.extensionUri);
+    //     }
+    // });
 
     const extension = vscode.extensions.getExtension("ms-python.python")!;
     await extension.activate();
