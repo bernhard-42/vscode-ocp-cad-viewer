@@ -160,6 +160,9 @@ export class OCPCADController {
                             output.debug(
                                 "Viewer.log: " + (msg.text ? msg.text : "")
                             );
+                        } else if(msg.command === "started") {
+                            console.log("STARTED");
+                            this.logo();
                         } else {
                             output.info("OCPCADController.start: " + msg.text);
                         }
