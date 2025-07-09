@@ -460,13 +460,6 @@ export async function activate(context: vscode.ExtensionContext) {
 
                     await statusManager.refresh(port.toString());
 
-                    // const success = await controller.logo();
-                    // output.debug(
-                    //     `ocpCadViewer.ocpCadViewer: Logo command ${
-                    //         success ? "succeeded" : "failed"
-                    //     }`
-                    // );
-
                     if (fs.existsSync(path.join(folder, ".ocp_vscode"))) {
                         vscode.window.showInformationMessage(
                             `Found .ocp_vscode in ${folder}. ` +
