@@ -275,7 +275,7 @@ NATIVE_TESSELLATOR=1 OCP_VSCODE_PYTEST=1 pytest -v -s pytests/
   1) Confirm that VS Code extension and ocp_vscode have the same version. This can be seen in the OCP CAD Viewer UI. Or alternatively in the Output panel of VS Code:
 
       ```text
-      [19:56:07.114} INFO  ] ocp_vscode library version 2.6.1 matches extension version 2.6.1
+      2025-07-06 14:51:33.418 [info ] extension.check_upgrade: ocp_vscode library version 2.8.6 matches extension version 2.8.6
       ```
 
   2) Test whether the standalone viewer works, see [Standalone mode](#standalone-mode) (to eliminate VS Code issues)
