@@ -175,12 +175,13 @@ export async function activate(context: vscode.ExtensionContext) {
         "autostartDelay"
     ];
 
-    setTimeout(async () => {
-        await statusManager.refresh("");
-        var python = await getPythonPath();
-        await libraryManager.refresh(python);
-        check_upgrade(libraryManager);
-    }, delay);
+    await statusManager.refresh("");
+    var python = await getPythonPath();
+    await libraryManager.refresh(python);
+
+    // const activeEditor = vscode.window.activeTextEditor;
+    // const currentDocument = activeEditor ? activeEditor.document : undefined;
+    // if (currentDocument) conditionallyOpenViewer(currentDocument);
 
     //	Commands
 
