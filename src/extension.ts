@@ -183,22 +183,109 @@ export async function activate(context: vscode.ExtensionContext) {
     // const currentDocument = activeEditor ? activeEditor.document : undefined;
     // if (currentDocument) conditionallyOpenViewer(currentDocument);
 
-    //	Commands
+    // Events
 
-    context.subscriptions.push(
-        vscode.workspace.onDidSaveTextDocument(
-            async (document: vscode.TextDocument) => {
-                output.debug(`Document saved: ${document.fileName}`);
+    vscode.workspace.onDidSaveTextDocument(
+        async (document: vscode.TextDocument) => {
+            output.debug(
+                `extension.onDidSaveTextDocument: ${document.fileName}`
+            );
+            if (!controller || !controller.isStarted()) {
+                conditionallyOpenViewer(document);
+            }
+        }
+    );
+
+    vscode.workspace.onDidOpenTextDocument(
+        async (document: vscode.TextDocument) => {
+            output.debug(
+                `extension.onDidOpenTextDocument ${document.fileName}`
+            );
+            let current = vscode.window.activeTextEditor;
+            if (document.uri.scheme === "vscode-interactive-input") {
+                vscode.window.showTextDocument(
+                    document,
+                    vscode.ViewColumn.Two,
+                    false
+                );
+                await new Promise((resolve) => setTimeout(resolve, 100));
+                vscode.commands.executeCommand(
+                    "workbench.action.moveEditorToBelowGroup"
+                );
+                await new Promise((resolve) => setTimeout(resolve, 100));
+
+                // controller?.setInteractiveWindow(e.uri.path.replace("Input", "") + ".interactive");
+                if (current) {
+                    vscode.window.showTextDocument(
+                        current.document,
+                        vscode.ViewColumn.One
+                    );
+
+                    const autohide = vscode.workspace.getConfiguration(
+                        "OcpCadViewer.advanced"
+                    )["autohideTerminal"];
+                    if (autohide) {
+                        vscode.commands.executeCommand(
+                            "workbench.action.closePanel"
+                        );
+                    }
+                }
+            } else if (
+                document.uri.scheme === "output" &&
+                document.uri.path.endsWith("OCP CAD Viewer Log")
+            ) {
+                output.set_open(true);
+            } else if (
+                document.uri.scheme === "file" &&
+                document.uri.path.endsWith("OCP CAD Viewer Log")
+            ) {
                 if (!controller || !controller.isStarted()) {
                     conditionallyOpenViewer(document);
                 }
             }
-        )
+        }
     );
+
+    vscode.workspace.onDidCloseTextDocument(async (e: vscode.TextDocument) => {
+        if (e.uri.scheme === "vscode-interactive-input") {
+            if (controller?.port) {
+                // remove the connection_file from the state
+                await updateState(controller.port, false);
+            }
+        } else if (
+            e.uri.scheme === "output" &&
+            e.uri.path.endsWith("OCP CAD Viewer Log")
+        ) {
+            output.set_open(false);
+        }
+    });
+
+    vscode.workspace.onDidChangeConfiguration(async (event: any) => {
+        // output.debug(`Configuration changed`);
+        let affected = event.affectsConfiguration(
+            "python.defaultInterpreterPath"
+        );
+        if (affected) {
+            let pythonPath = await getPythonPath();
+            output.debug(
+                `extension.onDidChangeConfiguration: Python = ${pythonPath}`
+            );
+            if (lastPythonPath !== pythonPath) {
+                lastPythonPath = pythonPath;
+                libraryManager.refresh(pythonPath);
+                controller.dispose();
+                OCPCADViewer.currentPanel?.dispose();
+            }
+        }
+    });
+
+    //	Commands
 
     context.subscriptions.push(
         vscode.window.onDidChangeActiveTextEditor(async (editor) => {
-            output.debug(`Text editor changed: ${editor?.document.fileName}`);
+            output.debug(
+                `extension.onDidChangeActiveTextEditor: ${editor?.document.fileName}`
+            );
             if (
                 editor &&
                 editor.document.fileName &&
@@ -701,55 +788,6 @@ export async function activate(context: vscode.ExtensionContext) {
                     }
                 }
             };
-        }
-    });
-
-    vscode.workspace.onDidOpenTextDocument(async (e: vscode.TextDocument) => {
-        // output.debug(`=> vscode.workspace.onDidOpenTextDocument ${e.fileName}`);
-        let current = vscode.window.activeTextEditor;
-        if (e.uri.scheme === "vscode-interactive-input") {
-            vscode.window.showTextDocument(e, vscode.ViewColumn.Two, false);
-            await new Promise((resolve) => setTimeout(resolve, 100));
-            vscode.commands.executeCommand(
-                "workbench.action.moveEditorToBelowGroup"
-            );
-            await new Promise((resolve) => setTimeout(resolve, 100));
-
-            // controller?.setInteractiveWindow(e.uri.path.replace("Input", "") + ".interactive");
-            if (current) {
-                vscode.window.showTextDocument(
-                    current.document,
-                    vscode.ViewColumn.One
-                );
-
-                const autohide = vscode.workspace.getConfiguration(
-                    "OcpCadViewer.advanced"
-                )["autohideTerminal"];
-                if (autohide) {
-                    vscode.commands.executeCommand(
-                        "workbench.action.closePanel"
-                    );
-                }
-            }
-        } else if (
-            e.uri.scheme === "output" &&
-            e.uri.path.endsWith("OCP CAD Viewer Log")
-        ) {
-            output.set_open(true);
-        }
-    });
-
-    vscode.workspace.onDidCloseTextDocument(async (e: vscode.TextDocument) => {
-        if (e.uri.scheme === "vscode-interactive-input") {
-            if (controller?.port) {
-                // remove the connection_file from the state
-                await updateState(controller.port, false);
-            }
-        } else if (
-            e.uri.scheme === "output" &&
-            e.uri.path.endsWith("OCP CAD Viewer Log")
-        ) {
-            output.set_open(false);
         }
     });
 
