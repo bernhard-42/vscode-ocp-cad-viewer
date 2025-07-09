@@ -14,8 +14,7 @@
     "Other"
   ],
   "activationEvents": [
-    "onLanguage:python",
-    "onWebviewPanel:OcpCadViewer"
+    "onStartupFinished"
   ],
   "main": "./out/extension.js",
   "contributes": {
