@@ -1224,9 +1224,10 @@ def show_all(
                 names.append(name)
 
             else:
-                print(
-                    f"show_all: Type {type(obj)} for name {name} cannot be visualized"
-                )
+                if kwargs.get("debug", False):
+                    print(
+                        f"show_all: Type {type(obj)} for name {name} cannot be visualized"
+                    )
 
         if (
             classes is not None
