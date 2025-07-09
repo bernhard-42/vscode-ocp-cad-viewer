@@ -278,7 +278,7 @@ export class OCPCADController {
 
             httpServer.listen(this.port, () => {
                 output.info(
-                    `OCPCADController.startCommandServer: : Server listening on port ${this.port}`
+                    `OCPCADController.startCommandServer: Server listening on port ${this.port}`
                 );
                 this.server = httpServer;
                 resolve(true);
