@@ -95,6 +95,7 @@ def COMMS(host, port):
             }}
         }};
         const standaloneViewer = () => {{
+            document.body.style.overflow = "hidden";
             
             const ocpLogo = JSON.parse(logo);
             decode(ocpLogo);
