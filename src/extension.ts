@@ -279,24 +279,22 @@ export async function activate(context: vscode.ExtensionContext) {
         }
     });
 
-    //	Commands
-
-    context.subscriptions.push(
-        vscode.window.onDidChangeActiveTextEditor(async (editor) => {
-            output.debug(
-                `extension.onDidChangeActiveTextEditor: ${editor?.document.fileName}`
-            );
-            if (
-                editor &&
-                editor.document.fileName &&
-                editor.document.fileName.endsWith(".py")
-            ) {
-                if (!controller || !controller.isStarted()) {
-                    conditionallyOpenViewer(editor.document);
-                }
+    vscode.window.onDidChangeActiveTextEditor(async (editor) => {
+        output.debug(
+            `extension.onDidChangeActiveTextEditor: ${editor?.document.fileName}`
+        );
+        if (
+            editor &&
+            editor.document.fileName &&
+            editor.document.fileName.endsWith(".py")
+        ) {
+            if (!controller || !controller.isStarted()) {
+                conditionallyOpenViewer(editor.document);
             }
-        })
-    );
+        }
+    });
+
+    //	Commands
 
     context.subscriptions.push(
         vscode.commands.registerCommand("ocpCadViewer.toggleWatch", () => {
