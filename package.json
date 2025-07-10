@@ -147,11 +147,23 @@
     "viewsWelcome": [
       {
         "view": "ocpCadStatus",
+        "contents": "PYTHON\n[Select Python Interpreter](command:python.setInterpreter)"
+      },
+      {
+        "view": "ocpCadStatus",
+        "contents": "- - - - - - - - - - -\nQUICKSTARTS"
+      },
+      {
+        "view": "ocpCadStatus",
         "contents": "Install all libraries for build123d:\n[Quickstart build123d](command:ocpCadViewer.quickstart?%5B%22build123d%22%5D)"
       },
       {
         "view": "ocpCadStatus",
         "contents": "Install all libraries for CadQuery:\n[Quickstart CadQuery](command:ocpCadViewer.quickstart?%5B%22cadquery%22%5D)"
+      },
+      {
+        "view": "ocpCadStatus",
+        "contents": "- - - - - - - - - - -\nFURTHER LIBRARIES"
       },
       {
         "view": "ocpCadStatus",
