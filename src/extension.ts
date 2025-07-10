@@ -388,7 +388,10 @@ export async function activate(context: vscode.ExtensionContext) {
                     document = vscode.window?.activeTextEditor?.document;
                 }
                 if (document === undefined) {
-                    output.error("ocpCadViewer.ocpCadViewer: No editor open");
+                    output.error("ocpCadViewer.ocpCadViewer: No document open");
+                    vscode.window.showErrorMessage(
+                        "No document open, please open a Python file"
+                    );
                     cleanup();
                     return;
                 }
