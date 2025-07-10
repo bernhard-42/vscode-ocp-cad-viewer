@@ -179,9 +179,9 @@ export async function activate(context: vscode.ExtensionContext) {
     var python = await getPythonPath();
     await libraryManager.refresh(python);
 
-    // const activeEditor = vscode.window.activeTextEditor;
-    // const currentDocument = activeEditor ? activeEditor.document : undefined;
-    // if (currentDocument) conditionallyOpenViewer(currentDocument);
+    const activeEditor = vscode.window.activeTextEditor;
+    const currentDocument = activeEditor ? activeEditor.document : undefined;
+    if (currentDocument) conditionallyOpenViewer(currentDocument);
 
     // Events
 
