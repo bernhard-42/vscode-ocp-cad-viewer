@@ -6,6 +6,7 @@ All notable changes to the "OCP CAD Viewer" extension will be documented in this
 
 **Features**
 
+- Fix broken check for ocp_vscode when it is installed in user site-packages ([#181](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/181))
 - Removed autostart at VS Code start, it was too unreliable. Autostart still kicks in when loading or saving files with autostart triggering statements
 - Made statements that trigger OCP CAD Viewer to start editable in settings (`Ocp Cad Viewer > Advanced : Autostart Triggers`). They now default to `import ocp_vscode` and `from ocp_vscode import` and don't include "build123d" and "cadquery" any more
 - Set backend precision to 3 ([#179](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/179))

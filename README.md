@@ -318,6 +318,7 @@ NATIVE_TESSELLATOR=1 OCP_VSCODE_PYTEST=1 pytest -v -s pytests/
 
 **Fixes**
 
+- Fix broken check for ocp_vscode when it is installed in user site-packages ([#181](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/181))
 - Ensured to refresh library and viewer manager at VS Code start, even when build123d is not imported ([#177](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/177))
 - Fix broken helix discretizing ([#176](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/176))
 - Ensure that lines and arrows for measurements are initialized once only to remove memory leaks ([#29](https://github.com/bernhard-42/three-cad-viewer/issues/29))  
