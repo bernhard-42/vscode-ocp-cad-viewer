@@ -165,21 +165,13 @@ export function getPythonEnv() {
 }
 
 export function isOcpVscodeEnv(python: String): boolean {
-    let valid = false;
     try {
-        // check whether site-packages folder has ocp_vscode package
-        const check = `
-try:
-    from importlib.util import find_spec
-    print(find_spec('ocp_vscode') is not None, end='')
-except Exception:
-    print(False, end='')
-`;
-        valid = execute(`${python} -c "exec('''${check}''')"`) == "True";
+        const cmd = `${python} -c "from importlib.util import find_spec; print(find_spec('ocp_vscode')!=None)"`;
+        const valid = execute(cmd, false);
+        return valid.trimEnd() == "True";
     } catch (error) {
-        valid = false;
+        return false;
     }
-    return valid;
 }
 
 export function getPackageManager() {
