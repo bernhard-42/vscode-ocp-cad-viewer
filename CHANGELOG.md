@@ -6,8 +6,7 @@ All notable changes to the "OCP CAD Viewer" extension will be documented in this
 
 **Features**
 
-- Fix broken check for ocp_vscode when it is installed in user site-packages ([#181](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/181))
-- Removed autostart at VS Code start, it was too unreliable. Autostart still kicks in when loading or saving files with autostart triggering statements
+- Fixed blank viewer issue by resolving a race condition properly ([#171](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/171))
 - Made statements that trigger OCP CAD Viewer to start editable in settings (`Ocp Cad Viewer > Advanced : Autostart Triggers`). They now default to `import ocp_vscode` and `from ocp_vscode import` and don't include "build123d" and "cadquery" any more
 - Set backend precision to 3 ([#179](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/179))
 - Clicking on a tree label with shift+meta hides all others without change of location ([#178](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/178))
@@ -15,6 +14,7 @@ All notable changes to the "OCP CAD Viewer" extension will be documented in this
 
 **Fixes**
 
+- Fix broken check for ocp_vscode when it is installed in user site-packages ([#181](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/181))
 - Ensured to refresh library and viewer manager at VS Code start, even when build123d is not imported ([#177](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/177))
 - Fix broken helix discretizing ([#176](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/176))
 - Ensure that lines and arrows for measurements are initialized once only to remove memory leaks ([#29](https://github.com/bernhard-42/three-cad-viewer/issues/29))  

@@ -310,7 +310,7 @@ NATIVE_TESSELLATOR=1 OCP_VSCODE_PYTEST=1 pytest -v -s pytests/
 
 **Features**
 
-- Removed autostart at VS Code start, it was too unreliable. Autostart still kicks in when loading or saving files with autostart triggering statements
+- Fixed blank viewer issue by resolving a race condition properly ([#171](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/171))
 - Made statements that trigger OCP CAD Viewer to start editable in settings (`Ocp Cad Viewer > Advanced : Autostart Triggers`). They now default to `import ocp_vscode` and `from ocp_vscode import` and don't include "build123d" and "cadquery" any more
 - Set backend precision to 3 ([#179](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/179))
 - Clicking on a tree label with shift+meta hides all others without change of location ([#178](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/178))
