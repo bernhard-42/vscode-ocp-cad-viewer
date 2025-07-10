@@ -11,6 +11,7 @@ All notable changes to the "OCP CAD Viewer" extension will be documented in this
 - Set backend precision to 3 ([#179](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/179))
 - Clicking on a tree label with shift+meta hides all others without change of location ([#178](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/178))
 - Hid the `show_all` warnings about non viewable types. Can still be seen with the `debug` parameter
+- Added a button to the quickstart welcome screen to change the environment
 
 **Fixes**
 
