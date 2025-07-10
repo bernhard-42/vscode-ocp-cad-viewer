@@ -21,13 +21,9 @@ import * as net from "net";
 import * as path from "path";
 import { PythonExtension } from "@vscode/python-extension";
 import * as output from "./output";
-import { execute, find } from "./system/shell";
 
 export function getEditor() {
     const editor = vscode.window.activeTextEditor;
-    // if (editor === undefined) {
-    //     vscode.window.showWarningMessage("No editor window open or in focus");
-    // }
     return editor;
 }
 
@@ -77,7 +73,6 @@ export function getCurrentFolder(
         }
     }
     if (!root) {
-        // vscode.window.showErrorMessage("No workspace folder found. Open a folder and click to focus an editor window.");
         return ["", false];
     }
     return [root, isWorkspace];
@@ -164,16 +159,6 @@ export function getPythonEnv() {
     return PythonPath.getPythonEnv(editor?.document);
 }
 
-// export function isOcpVscodeEnv(python: String): boolean {
-//     try {
-//         const cmd = `${python} -c "from importlib.util import find_spec; print(find_spec('ocp_vscode') is not None)"`;
-//         const valid = execute(cmd, false);
-//         return valid.trimEnd() == "True";
-//     } catch (error) {
-//         return false;
-//     }
-// }
-
 export function getPackageManager() {
     let cwd = getCurrentFolder()[0];
     return fs.existsSync(path.join(cwd, "poetry.lock")) ? "poetry" : "pip";
@@ -250,7 +235,6 @@ export function getTempFolder() {
 export async function closeOcpCadViewerTab() {
     for (const group of vscode.window.tabGroups.all) {
         for (const tab of group.tabs) {
-            // You may need to adjust the condition below depending on how the OCP CAD Viewer tab is identified
             if (tab.label === "OCP CAD Viewer") {
                 await vscode.window.tabGroups.close(tab);
                 return;

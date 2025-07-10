@@ -214,7 +214,6 @@ export async function activate(context: vscode.ExtensionContext) {
                 );
                 await new Promise((resolve) => setTimeout(resolve, 100));
 
-                // controller?.setInteractiveWindow(e.uri.path.replace("Input", "") + ".interactive");
                 if (current) {
                     vscode.window.showTextDocument(
                         current.document,
@@ -261,7 +260,6 @@ export async function activate(context: vscode.ExtensionContext) {
     });
 
     vscode.workspace.onDidChangeConfiguration(async (event: any) => {
-        // output.debug(`Configuration changed`);
         let affected = event.affectsConfiguration(
             "python.defaultInterpreterPath"
         );
