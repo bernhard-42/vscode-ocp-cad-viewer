@@ -885,7 +885,12 @@ limitations under the License.
             }
         });
         debugLog("message listener registered");
-        
+
+        window.addEventListener('load', function() {
+            setTimeout(() => {
+                send("started", {})
+            }, 200);
+        });
     </script>
 </head>
 

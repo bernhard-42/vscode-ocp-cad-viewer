@@ -283,6 +283,8 @@ class Viewer:
                     save_png_data_url(data_url, filename)
                 elif message["command"] == "log":
                     self.debug_print("Viewer.log:", message["text"])
+                elif message["command"] == "started":
+                    self.debug_print("Viewer.log:", "Viewer has started")
                 else:
                     changes = message["text"]
                     self.debug_print("Received incremental UI changes", changes)
