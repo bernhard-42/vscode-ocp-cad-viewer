@@ -164,15 +164,15 @@ export function getPythonEnv() {
     return PythonPath.getPythonEnv(editor?.document);
 }
 
-export function isOcpVscodeEnv(python: String): boolean {
-    try {
-        const cmd = `${python} -c "from importlib.util import find_spec; print(find_spec('ocp_vscode')!=None)"`;
-        const valid = execute(cmd, false);
-        return valid.trimEnd() == "True";
-    } catch (error) {
-        return false;
-    }
-}
+// export function isOcpVscodeEnv(python: String): boolean {
+//     try {
+//         const cmd = `${python} -c "from importlib.util import find_spec; print(find_spec('ocp_vscode') is not None)"`;
+//         const valid = execute(cmd, false);
+//         return valid.trimEnd() == "True";
+//     } catch (error) {
+//         return false;
+//     }
+// }
 
 export function getPackageManager() {
     let cwd = getCurrentFolder()[0];

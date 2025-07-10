@@ -36,7 +36,7 @@ import {
     jupyterExtensionInstalled,
     isPortInUse,
     getPythonPath,
-    isOcpVscodeEnv,
+    // isOcpVscodeEnv,
     closeOcpCadViewerTab
 } from "./utils";
 import { version } from "./version";
@@ -362,7 +362,7 @@ export async function activate(context: vscode.ExtensionContext) {
                 statusBarItem.show();
 
                 var python = await getPythonPath(true);
-                if (!isOcpVscodeEnv(python)) {
+                if (!libraryManager.installed.ocp_vscode) {
                     let reply =
                         (await vscode.window.showQuickPick(["yes", "no"], {
                             placeHolder: `OCP VS Code not found for "${python}". Select another Python interpreter?`
