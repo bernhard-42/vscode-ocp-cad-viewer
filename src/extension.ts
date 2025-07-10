@@ -794,7 +794,10 @@ export async function activate(context: vscode.ExtensionContext) {
             webviewPanel: vscode.WebviewPanel,
             state: any
         ) {
-            webviewPanel.webview.options = {enableScripts: true};
+            output.debug(
+                "registerWebviewPanelSerializer: web view deserialized"
+            );
+            webviewPanel.webview.options = { enableScripts: true };
             OCPCADViewer.revive(webviewPanel, context.extensionUri);
         }
     });
