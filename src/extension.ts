@@ -94,6 +94,14 @@ async function conditionallyOpenViewer(document: vscode.TextDocument) {
         );
         return;
     } else {
+        const autostart = vscode.workspace.getConfiguration(
+            "OcpCadViewer.advanced"
+        )["autostart"];
+
+        if (!autostart) {
+            return;
+        }
+
         viewerStarting = true;
 
         // ensure to reset stale flag
@@ -107,14 +115,6 @@ async function conditionallyOpenViewer(document: vscode.TextDocument) {
     output.debug(
         `extension.conditionallyOpenViewer: Conditionally open viewer for ${document.fileName}`
     );
-
-    const autostart = vscode.workspace.getConfiguration(
-        "OcpCadViewer.advanced"
-    )["autostart"];
-
-    if (!autostart) {
-        return;
-    }
 
     // if the open document is a python file and contains a import of build123d or cadquery,
     // then open the viewer if it is not already running
