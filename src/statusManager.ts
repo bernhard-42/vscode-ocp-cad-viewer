@@ -134,10 +134,6 @@ export class StatusManagerProvider implements vscode.TreeDataProvider<Status> {
             return Promise.resolve(status);
         }
     }
-
-    async openViewer() {
-        await vscode.commands.executeCommand("ocpCadViewer.ocpCadViewer");
-    }
 }
 
 export class Status extends vscode.TreeItem {

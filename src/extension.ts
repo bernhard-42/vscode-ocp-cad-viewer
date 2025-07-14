@@ -682,7 +682,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
     context.subscriptions.push(
         vscode.commands.registerCommand("ocpCadViewer.openViewer", async () => {
-            await statusManager.openViewer();
+            await vscode.commands.executeCommand("ocpCadViewer.ocpCadViewer");
         })
     );
 
