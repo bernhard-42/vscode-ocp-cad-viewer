@@ -89,7 +89,6 @@ function check_upgrade(libraryManager: LibraryManagerProvider) {
 }
 
 var viewerStarting = false;
-var timer: NodeJS.Timeout | null = null;
 var jupyterOpen = false;
 
 function shouldAutostart(document: vscode.TextDocument) {
@@ -129,7 +128,7 @@ async function openViewer(document: vscode.TextDocument, column: number = 1) {
         viewerStarting = true;
 
         // ensure to reset stale flag
-        timer = setTimeout(() => {
+        setTimeout(() => {
             if (viewerStarting) {
                 output.debug("Unsetting stale viewerStarting");
                 viewerStarting = false;
@@ -382,11 +381,6 @@ export async function activate(context: vscode.ExtensionContext) {
 
                 function cleanup() {
                     viewerStarting = false;
-                    // clear timeout if still valid
-                    if (timer) {
-                        clearTimeout(timer);
-                        timer = null;
-                    }
                     output.debug(
                         "ocpCadViewer.ocpCadViewer: Unsetting viewerStarting"
                     );
