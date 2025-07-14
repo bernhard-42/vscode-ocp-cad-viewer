@@ -89,7 +89,7 @@ function check_upgrade(libraryManager: LibraryManagerProvider) {
 
 var viewerStarting = false;
 var timer: NodeJS.Timeout | null = null;
-
+var jupyterOpen = false;
 
 function shouldAutostart(document: vscode.TextDocument) {
     const autostart = vscode.workspace.getConfiguration(
@@ -238,34 +238,47 @@ export async function activate(context: vscode.ExtensionContext) {
             output.debug(
                 `extension.onDidOpenTextDocument ${document.fileName}`
             );
-            let current = vscode.window.activeTextEditor;
+
             if (document.uri.scheme === "vscode-interactive-input") {
-                vscode.window.showTextDocument(
-                    document,
-                    vscode.ViewColumn.Two,
-                    false
+                if (jupyterOpen) {
+                    return;
+                }
+                jupyterOpen = true;
+                const viewerColumn = getViewerColumn();
+                const jupyterColumn = getViewColumn(
+                    document.fileName.replace(
+                        "/InteractiveInput",
+                        "Interactive"
+                    )
                 );
-                await new Promise((resolve) => setTimeout(resolve, 100));
-                vscode.commands.executeCommand(
+                if (viewerColumn === 0) return;
+
+                focusGroup(jupyterColumn);
+                for (
+                    var c = 0;
+                    c < Math.abs(viewerColumn - jupyterColumn);
+                    c++
+                ) {
+                    await vscode.commands.executeCommand(
+                        viewerColumn < jupyterColumn
+                            ? "workbench.action.moveEditorToLeftGroup"
+                            : "workbench.action.moveEditorToRightGroup"
+                    );
+                }
+
+                await vscode.commands.executeCommand(
                     "workbench.action.moveEditorToBelowGroup"
                 );
-                await new Promise((resolve) => setTimeout(resolve, 100));
 
-                if (current) {
-                    vscode.window.showTextDocument(
-                        current.document,
-                        vscode.ViewColumn.One
+                const autohide = vscode.workspace.getConfiguration(
+                    "OcpCadViewer.advanced"
+                )["autohideTerminal"];
+                if (autohide) {
+                    vscode.commands.executeCommand(
+                        "workbench.action.closePanel"
                     );
-
-                    const autohide = vscode.workspace.getConfiguration(
-                        "OcpCadViewer.advanced"
-                    )["autohideTerminal"];
-                    if (autohide) {
-                        vscode.commands.executeCommand(
-                            "workbench.action.closePanel"
-                        );
-                    }
                 }
+                jupyterOpen = false;
             } else if (
                 document.uri.scheme === "output" &&
                 document.uri.path.endsWith("OCP CAD Viewer Log")
