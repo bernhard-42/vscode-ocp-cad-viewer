@@ -87,21 +87,41 @@ function check_upgrade(libraryManager: LibraryManagerProvider) {
 var viewerStarting = false;
 var timer: NodeJS.Timeout | null = null;
 
-async function conditionallyOpenViewer(document: vscode.TextDocument) {
+
+function shouldAutostart(document: vscode.TextDocument) {
+    const autostart = vscode.workspace.getConfiguration(
+        "OcpCadViewer.advanced"
+    )["autostart"];
+
+    if (!autostart) {
+        output.debug("extension.shouldAutostart: Autostart turned off");
+        return false;
+    }
+
+    if (document.languageId === "python") {
+        const autostartTriggers = vscode.workspace.getConfiguration(
+            "OcpCadViewer.advanced"
+        )["autostartTriggers"];
+        for (var trigger of autostartTriggers) {
+            if (document.getText().includes(trigger)) {
+                output.debug(
+                    `extension.shouldAutostart: Python file ${document.fileName} is valid for autostart`
+                );
+                return true;
+            }
+        }
+    }
+    output.debug(
+        `extension.shouldAutostart: Python file ${document.fileName} is not valid for autostart`
+    );
+    return false;
+}
+
+async function openViewer(document: vscode.TextDocument, column: number = 1) {
     if (viewerStarting) {
-        output.debug(
-            "extension.conditionallyOpenViewer: Viewer is already starting"
-        );
+        output.debug("extension.openViewer: Viewer is already starting");
         return;
     } else {
-        const autostart = vscode.workspace.getConfiguration(
-            "OcpCadViewer.advanced"
-        )["autostart"];
-
-        if (!autostart) {
-            return;
-        }
-
         viewerStarting = true;
 
         // ensure to reset stale flag
@@ -111,26 +131,26 @@ async function conditionallyOpenViewer(document: vscode.TextDocument) {
                 viewerStarting = false;
             }
         }, 5000);
+
+        output.debug(
+            `extension.openViewer: Opening viewer for ${document.fileName}`
+        );
+
+        await vscode.commands.executeCommand(
+            "ocpCadViewer.ocpCadViewer",
+            document,
+            column
+        );
     }
+}
+
+async function conditionallyOpenViewer(document: vscode.TextDocument) {
     output.debug(
         `extension.conditionallyOpenViewer: Conditionally open viewer for ${document.fileName}`
     );
-
-    // if the open document is a python file and contains a import of build123d or cadquery,
-    // then open the viewer if it is not already running
-    if (document.languageId === "python") {
-        const autostartTriggers = vscode.workspace.getConfiguration(
-            "OcpCadViewer.advanced"
-        )["autostartTriggers"];
-        for (var trigger of autostartTriggers) {
-            if (document.getText().includes(trigger)) {
-                await vscode.commands.executeCommand(
-                    "ocpCadViewer.ocpCadViewer",
-                    document
-                );
-                break;
-            }
-        }
+    if (shouldAutostart(document)) {
+        const column = getEditorColumn(document);
+        await openViewer(document, column);
     }
 }
 
@@ -144,7 +164,7 @@ export async function activate(context: vscode.ExtensionContext) {
     // For migrations
     removeOldLockfile();
 
-    output.debug("extension.Activate: OCP CAD Viewer");
+    output.debug("extension.activate: OCP CAD Viewer");
 
     let statusManager = createStatusManager();
     let libraryManager = createLibraryManager(statusManager);
@@ -171,17 +191,31 @@ export async function activate(context: vscode.ExtensionContext) {
     statusBarItem.command = "ocpCadViewer.toggleWatch";
     context.subscriptions.push(statusBarItem);
 
-    const delay = vscode.workspace.getConfiguration("OcpCadViewer.advanced")[
-        "autostartDelay"
-    ];
-
     await statusManager.refresh("");
     var python = await getPythonPath();
     await libraryManager.refresh(python);
 
-    const activeEditor = vscode.window.activeTextEditor;
-    const currentDocument = activeEditor ? activeEditor.document : undefined;
-    if (currentDocument) conditionallyOpenViewer(currentDocument);
+    if (vscode.window.visibleTextEditors.length > 0) {
+        for (var editor of vscode.window.visibleTextEditors) {
+            output.debug(
+                `extension.activate: Found open file ${editor.document.fileName}`
+            );
+            var started = false;
+            const auto = shouldAutostart(editor.document);
+            if (auto) {
+                openViewer(editor.document, editor.viewColumn);
+                started = true;
+                break;
+            }
+            if (!started) {
+                output.debug(
+                    "extension.activate: Viewer not opened, since open Python file doesn't have the autostart trigger statements."
+                );
+            }
+        }
+    } else {
+        output.debug("extension.activate: No open document visible.");
+    }
 
     // Events
 
@@ -311,7 +345,13 @@ export async function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(
         vscode.commands.registerCommand(
             "ocpCadViewer.ocpCadViewer",
-            async (document: vscode.TextDocument | undefined) => {
+            async (
+                document: vscode.TextDocument | undefined,
+                column: number = vscode.ViewColumn.One
+            ) => {
+                output.debug(
+                    `ocpCadViewer.ocpCadViewer: file=${document?.fileName}, column=${column}`
+                );
                 if (controller?.isStarted()) {
                     output.debug(
                         "ocpCadViewer.ocpCadViewer: Viewer already running"
@@ -380,25 +420,6 @@ export async function activate(context: vscode.ExtensionContext) {
                 await libraryManager.refresh(python);
                 check_upgrade(libraryManager);
 
-                if (document == undefined) {
-                    document = vscode.window?.activeTextEditor?.document;
-                }
-                if (document === undefined) {
-                    output.error("ocpCadViewer.ocpCadViewer: No document open");
-                    vscode.window.showErrorMessage(
-                        "No document open, please open a Python file"
-                    );
-                    cleanup();
-                    return;
-                }
-
-                var column = vscode.ViewColumn.One;
-                if (vscode.window?.activeTextEditor?.viewColumn) {
-                    column = vscode.window.activeTextEditor.viewColumn;
-                } else if (vscode.window?.activeNotebookEditor?.viewColumn) {
-                    column = vscode.window.activeNotebookEditor.viewColumn;
-                }
-
                 if (preset_port) {
                     if (await isPortInUse(port)) {
                         vscode.window.showErrorMessage(
@@ -432,6 +453,8 @@ export async function activate(context: vscode.ExtensionContext) {
 
                 await closeOcpCadViewerTab();
 
+                var newColumn = editorColumns();
+
                 controller = new OCPCADController(
                     context,
                     port,
@@ -439,32 +462,36 @@ export async function activate(context: vscode.ExtensionContext) {
                     statusBarItem
                 );
 
-                await controller.start();
+                await controller.start(
+                    newColumn < 9 ? newColumn + 1 : newColumn
+                );
 
                 if (controller.isStarted()) {
-                    vscode.window.showTextDocument(document, column);
-                    var [folder, isWorkspace] = getCurrentFolder();
-                    output.debug(
-                        `ocpCadViewer.ocpCadViewer: OCPCADController started with port ${port} ` +
-                            `and folders: ${folder}, ${path.dirname(
-                                document.fileName
-                            )}`
-                    );
+                    var folder: string = "";
+                    if (document) {
+                        var isWorkspace: boolean;
+                        vscode.window.showTextDocument(document, column);
+                        [folder, isWorkspace] = getCurrentFolder();
+                        output.debug(
+                            `ocpCadViewer.ocpCadViewer: OCPCADController started with port ${port} ` +
+                                `and folders: ${folder}, ${path.dirname(
+                                    document.fileName
+                                )}`
+                        );
+                        if (fs.existsSync(path.join(folder, ".ocp_vscode"))) {
+                            vscode.window.showInformationMessage(
+                                `Found .ocp_vscode in ${folder}. ` +
+                                    `This file will be ignored and ${getConfigFile()} used instead!`
+                            );
+                        }
+                    }
                     await updateState(port);
+                    await statusManager.refresh(port.toString());
 
                     vscode.window.showInformationMessage(
                         `Using port ${port} and "show" should detect it automatically. ` +
                             `If not, call ocp_vscode's "set_port(${port})" in Python first`
                     );
-
-                    await statusManager.refresh(port.toString());
-
-                    if (fs.existsSync(path.join(folder, ".ocp_vscode"))) {
-                        vscode.window.showInformationMessage(
-                            `Found .ocp_vscode in ${folder}. ` +
-                                `This file will be ignored and ${getConfigFile()} used instead!`
-                        );
-                    }
                 } else {
                     vscode.window.showErrorMessage(
                         `OCP CAD Viewer could not start on port ${port}`

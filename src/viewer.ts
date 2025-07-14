@@ -34,7 +34,8 @@ export class OCPCADViewer {
 
     public static async createOrShow(
         extensionUri: vscode.Uri,
-        _controller: OCPCADController
+        _controller: OCPCADController,
+        column: number
     ) {
         this.controller = _controller;
 
@@ -45,7 +46,7 @@ export class OCPCADViewer {
                 "OCPCADViewer.createOrShow: Revealing existing webview panel"
             );
 
-            OCPCADViewer.currentPanel._panel.reveal(vscode.ViewColumn.Two);
+            OCPCADViewer.currentPanel._panel.reveal(column);
         } else {
             // Otherwise, create a new panel.
 
@@ -61,7 +62,7 @@ export class OCPCADViewer {
             const panel = vscode.window.createWebviewPanel(
                 OCPCADViewer.viewType,
                 "OCP CAD Viewer",
-                vscode.ViewColumn.Two,
+                column,
                 {
                     enableScripts: true,
                     retainContextWhenHidden: true

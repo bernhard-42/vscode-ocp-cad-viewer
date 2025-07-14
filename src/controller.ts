@@ -112,7 +112,7 @@ export class OCPCADController {
         return c;
     }
 
-    async start() {
+    async start(column: number) {
         if (!serverStarted) {
             serverStarted = await this.startCommandServer();
             if (serverStarted) {
@@ -121,7 +121,8 @@ export class OCPCADController {
                 );
                 await OCPCADViewer.createOrShow(
                     this.context.extensionUri,
-                    this
+                    this,
+                    column
                 );
                 let panel = OCPCADViewer.currentPanel;
                 this.view = panel?.getView();
