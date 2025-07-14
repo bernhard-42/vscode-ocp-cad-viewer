@@ -37,6 +37,7 @@ import {
     isPortInUse,
     getPythonPath,
     closeOcpCadViewerTab,
+    editorColumns,
     getEditorColumn,
     getViewColumn,
     getViewerColumn,
