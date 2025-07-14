@@ -242,3 +242,61 @@ export async function closeOcpCadViewerTab() {
         }
     }
 }
+
+export function editorColumns(): number {
+    const visibleEditors = vscode.window.visibleTextEditors || [];
+    const visibleNotebookEditors = vscode.window.visibleNotebookEditors || [];
+    var result = 1;
+
+    for (const editor of visibleEditors) {
+        if (editor.viewColumn !== undefined) {
+            result = Math.max(result, editor.viewColumn);
+        }
+    }
+    for (const editor of visibleNotebookEditors) {
+        if (editor.viewColumn !== undefined) {
+            result = Math.max(result, editor.viewColumn);
+        }
+    }
+    output.debug(`Number of visible columns: ${result}`);
+    return result;
+}
+
+export function getEditorColumn(document: vscode.TextDocument) {
+    const editor = vscode.window.visibleTextEditors.find(
+        (e) => e.document === document
+    );
+    return editor?.viewColumn ?? 1;
+}
+
+export function getViewColumn(label: string): number {
+    const tabGroups = vscode.window.tabGroups.all;
+    for (const group of tabGroups) {
+        for (const tab of group.tabs) {
+            if (tab.label === label) {
+                return group.viewColumn;
+            }
+        }
+    }
+    return 0;
+}
+
+export function getViewerColumn(): number {
+    return getViewColumn("OCP CAD Viewer");
+}
+
+export function focusGroup(n: number) {
+    const commands = [
+        "workbench.action.focusLastEditorGroup",
+        "workbench.action.focusFirstEditorGroup",
+        "workbench.action.focusSecondEditorGroup",
+        "workbench.action.focusThirdEditorGroup",
+        "workbench.action.focusFourthEditorGroup",
+        "workbench.action.focusFifthEditorGroup",
+        "workbench.action.focusSixthEditorGroup",
+        "workbench.action.focusSeventhEditorGroup",
+        "workbench.action.focusEightEditorGroup",
+        "workbench.action.focusEditorGroup"
+    ];
+    vscode.commands.executeCommand(commands[n == 0 || n > 8 ? 0 : n]);
+}

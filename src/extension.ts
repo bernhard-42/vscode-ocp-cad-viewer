@@ -36,8 +36,11 @@ import {
     jupyterExtensionInstalled,
     isPortInUse,
     getPythonPath,
-    // isOcpVscodeEnv,
-    closeOcpCadViewerTab
+    closeOcpCadViewerTab,
+    getEditorColumn,
+    getViewColumn,
+    getViewerColumn,
+    focusGroup
 } from "./utils";
 import { version } from "./version";
 import * as semver from "semver";
