@@ -710,12 +710,13 @@ export async function activate(context: vscode.ExtensionContext) {
                                 const delay = vscode.workspace.getConfiguration(
                                     "OcpCadViewer.advanced"
                                 )["terminalDelay"];
-                                setTimeout(() => {
+                                setTimeout(async () => {
+                                    var python = await getPythonPath(true);
                                     terminal.sendText(
-                                        `jupyter console --existing ${connectionFile}`
+                                        `${python} -m jupyter console --existing ${connectionFile}`
                                     );
                                     output.debug(
-                                        `jupyter console --existing ${connectionFile} started`
+                                        `${python} -m jupyter --existing ${connectionFile} started`
                                     );
                                 }, delay);
                             })
