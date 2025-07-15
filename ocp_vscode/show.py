@@ -193,6 +193,7 @@ def _tessellate(
                 "show_sketch_local", changed_config.get("show_sketch_local")
             ),
             progress=progress,
+            debug=kwargs.get("debug", False),
         )
 
         if len(part_group.objects) == 1 and isinstance(part_group.objects[0], OcpGroup):
