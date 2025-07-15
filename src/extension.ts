@@ -247,7 +247,7 @@ export async function activate(context: vscode.ExtensionContext) {
                 const viewerColumn = getViewerColumn();
                 const jupyterColumn = getViewColumn(
                     document.fileName.replace(
-                        "/InteractiveInput",
+                        path.sep + "InteractiveInput",
                         "Interactive"
                     )
                 );
