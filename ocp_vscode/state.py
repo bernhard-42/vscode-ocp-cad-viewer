@@ -61,7 +61,10 @@ def atomic_operation(callback):
         if lock.acquire():
             if CONFIG_FILE.exists():
                 with open(CONFIG_FILE, "r") as f:
-                    config = json.load(f)
+                    try:
+                        config = json.load(f)
+                    except json.JSONDecodeError:
+                        config = {"version": 2, "services": {}}
             else:
                 config = {"version": 2, "services": {}}
 
