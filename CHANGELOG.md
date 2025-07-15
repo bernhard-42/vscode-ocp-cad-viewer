@@ -2,7 +2,16 @@
 
 All notable changes to the "OCP CAD Viewer" extension will be documented in this file.
 
-### v2.8.6
+## v2.8.7
+
+**Fixes**
+
+- Startup now checks all visible python files for trigger statements. If any has, autostart kicks in.
+- More than two Viewer columns are supported
+- Fixed a bug where an empty `~/.ocpvscode` file crashed `show`
+- Fixed calling jupyter console [#183](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/183)
+
+## v2.8.6
 
 **Features**
 
@@ -23,7 +32,7 @@ All notable changes to the "OCP CAD Viewer" extension will be documented in this
 - Fix isolate mode when there are only 1-dim objects in the viewer ([#178](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/178))
 - Keep camera position when "Isolate element" action is taken ([#174](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/174))
 
-### v2.8.5
+## v2.8.5
 
 **Fixes**
 
@@ -31,20 +40,20 @@ All notable changes to the "OCP CAD Viewer" extension will be documented in this
 - Fix broken handling of mirrored curve in ocp-tessellate ([#170](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/170))
 - Remove deviding line deflection by 100 ([#172](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/172))
 
-### v2.8.4
+## v2.8.4
 
 **Fixes**
 
 - Add handling of view log mesage forwarding to standalone mode
 
-### v2.8.3
+## v2.8.3
 
 **Fixes**
 
 - Fix dual stack port detection on Linux ([#171](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/171))
 - Close old viewer window if exists on viewer start
 
-### v2.8.2
+## v2.8.2
 
 **Features**
 
