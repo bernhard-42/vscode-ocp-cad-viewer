@@ -306,6 +306,12 @@ NATIVE_TESSELLATOR=1 OCP_VSCODE_PYTEST=1 pytest -v -s pytests/
 
 ## Changes
 
+### v2.8.9
+
+**Fixes**
+
+- Add a robuts port in use detection to Windows
+
 ### v2.8.8
 
 **Fixes**
