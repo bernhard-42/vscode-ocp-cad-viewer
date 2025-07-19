@@ -306,6 +306,16 @@ NATIVE_TESSELLATOR=1 OCP_VSCODE_PYTEST=1 pytest -v -s pytests/
 
 ## Changes
 
+### v2.8.7
+
+**Fixes**
+
+- Startup now checks all visible python files for trigger statements. If any has, autostart kicks in.
+- More than two Viewer columns are supported
+- Fixed a bug where an empty `~/.ocpvscode` file crashed `show` [#183](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/183)
+- Fixed calling jupyter console 
+- Moved all `show_all` warnings behind `debug=True` parameter
+
 ### v2.8.6
 
 **Features**
