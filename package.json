@@ -551,7 +551,7 @@
               "{python} -m pip install --upgrade ocp_vscode=={ocp_vscode_version}"
             ],
             "ocp_tessellate": [
-              "{python} -m pip install --upgrade \"ocp_tessellate>=3.0.15,<3.1.0\""
+              "{python} -m pip install --upgrade \"ocp_tessellate>=3.0.16,<3.1.0\""
             ],
             "ipykernel": [
               "{python} -m pip install --upgrade ipykernel"
