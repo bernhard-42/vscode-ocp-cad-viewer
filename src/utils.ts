@@ -172,10 +172,115 @@ export async function isPortInUse(port: number): Promise<boolean> {
         "::1" // loopback IPv6
     ];
 
-    async function checkPort(
+    async function checkPortWindows(
         port: number,
         host: string,
-        timeout = 1000
+        timeout = 2000
+    ): Promise<boolean> {
+        return new Promise<boolean>((resolve) => {
+            // Connection test first, then bind test fallback
+            const connectSocket = new net.Socket();
+            let connectResolved = false;
+
+            const connectCleanup = () => {
+                if (!connectResolved) {
+                    connectResolved = true;
+                    try {
+                        connectSocket.destroy();
+                    } catch (e) {
+                        // Ignore cleanup errors
+                    }
+                }
+            };
+
+            connectSocket.setTimeout(timeout);
+
+            connectSocket.on('connect', () => {
+                output.debug(`- definitely in use on ${host} (connection successful)`);
+                connectCleanup();
+                resolve(true);
+            });
+
+            connectSocket.on('timeout', () => {
+                output.debug(`- connect timeout on ${host}, trying bind test`);
+                connectCleanup();
+                tryBindTest();
+            });
+
+            connectSocket.on('error', (err: any) => {
+                connectCleanup();
+                
+                if (err.code === 'ECONNREFUSED') {
+                    output.debug(`- free on ${host} (connection refused)`);
+                    resolve(false);
+                } else if (err.code === 'ECONNRESET') {
+                    output.debug(`- likely in use on ${host} (connection reset)`);
+                    resolve(true);
+                } else {
+                    output.debug(`- connect error ${err.code} on ${host}, trying bind test`);
+                    tryBindTest();
+                }
+            });
+
+            connectSocket.connect(port, host);
+
+            function tryBindTest() {
+                const server = net.createServer();
+                let bindResolved = false;
+
+                const bindCleanup = () => {
+                    if (!bindResolved) {
+                        bindResolved = true;
+                        try {
+                            server.close();
+                        } catch (e) {
+                            // Ignore cleanup errors
+                        }
+                    }
+                };
+
+                const bindTimer = setTimeout(() => {
+                    output.debug(`- bind test timed out on ${host}, assuming in use`);
+                    bindCleanup();
+                    resolve(true);
+                }, timeout);
+
+                server.once("error", (err: any) => {
+                    if (bindResolved) return;
+                    bindCleanup();
+                    clearTimeout(bindTimer);
+
+                    if (err.code === "EADDRINUSE") {
+                        output.debug(`- in use on ${host} (bind failed)`);
+                        resolve(true);
+                    } else {
+                        output.debug(`- bind error ${err.code} on ${host}, assuming in use`);
+                        resolve(true);
+                    }
+                });
+
+                server.once("listening", () => {
+                    if (bindResolved) return;
+                    bindCleanup();
+                    clearTimeout(bindTimer);
+                    output.debug(`- free on ${host} (bind successful)`);
+                    resolve(false);
+                });
+
+                server.listen({ 
+                    port, 
+                    host, 
+                    ipv6Only: host === "::",
+                    exclusive: true
+                });
+            }            
+        });
+    }
+
+    async function checkPortUnix(
+        port: number,
+        host: string,
+        timeout = 2000
     ): Promise<boolean> {
         return new Promise<boolean>((resolve) => {
             const server = net.createServer();
@@ -221,8 +326,13 @@ export async function isPortInUse(port: number): Promise<boolean> {
 
     output.debug(`Checking port ${port}:`);
     for (const host of hosts) {
-        const inUse = await checkPort(port, host);
-        if (inUse) return true;
+        let inUse: boolean;
+        if(os.platform() === 'win32') {
+            inUse = await checkPortWindows(port, host);
+        } else {
+            inUse = await checkPortUnix(port, host);
+        }
+        if (inUse)  return true;
     }
     return false;
 }
