@@ -2,6 +2,12 @@
 
 All notable changes to the "OCP CAD Viewer" extension will be documented in this file.
 
+## v2.8.8
+
+**Fixes**
+
+- Fix regression of wrong level for continue statement leading to show_all crashing
+
 ## v2.8.7
 
 **Fixes**

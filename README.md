@@ -306,6 +306,12 @@ NATIVE_TESSELLATOR=1 OCP_VSCODE_PYTEST=1 pytest -v -s pytests/
 
 ## Changes
 
+### v2.8.8
+
+**Fixes**
+
+- Fix regression of wrong level for continue statement leading to show_all crashing
+
 ### v2.8.7
 
 **Fixes**
