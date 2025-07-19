@@ -2,6 +2,12 @@
 
 All notable changes to the "OCP CAD Viewer" extension will be documented in this file.
 
+## v2.8.9
+
+**Fixes**
+
+- Add a robuts port in use detection to Windows
+
 ## v2.8.8
 
 **Fixes**
