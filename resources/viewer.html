@@ -46,7 +46,7 @@ limitations under the License.
         var viewerOptions = {};
         var last_bb_radius = null;
 
-        const minWidth = 780;
+        const minWidth = 450;
         {{ standalone_comms|safe }}
         
         var message = {};
@@ -392,9 +392,6 @@ limitations under the License.
                 display = new Display(container, displayOptions)
             }            
 
-            display.glassMode(displayOptions.glass);
-            display.showTools(displayOptions.tools);
-
             if (_config == null) {
                 debugLog("OCP CAD Viewer: config is null");
                 _config = {}
@@ -413,7 +410,11 @@ limitations under the License.
 
             viewer = new Viewer(display, displayOptions, nc, null);
             
+            
             if (_shapes) render();
+            
+            display.glassMode(displayOptions.glass);
+            display.showTools(displayOptions.tools);
             
             debugLog("showViewer finished");
 

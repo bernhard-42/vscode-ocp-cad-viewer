@@ -21,13 +21,32 @@ import sys
 import traceback
 from dataclasses import asdict, dataclass, fields
 import os
+from math import pi
 
 from ocp_tessellate.ocp_utils import (
+    area,
+    axis_to_line,
+    BoundingBox,
+    center_of_mass,
     deserialize,
-    make_compound,
-    tq_to_loc,
-    get_surface,
+    dist_shapes,
     get_curve,
+    get_plane,
+    get_point,
+    get_surface,
+    is_closed,
+    is_topods_edge,
+    is_topods_face,
+    is_topods_solid,
+    is_topods_vertex,
+    is_vector,
+    length,
+    make_compound,
+    position_at,
+    tq_to_loc,
+    vertex,
+    identity_location,
+    downcast,
 )
 from ocp_tessellate.tessellator import (
     get_edges,
@@ -37,18 +56,6 @@ from ocp_tessellate.tessellator import (
 from ocp_tessellate.trace import Trace
 
 from ocp_vscode.backend_logo import logo
-from ocp_vscode.build123d import (
-    Compound,
-    Edge,
-    Face,
-    Location,
-    Plane,
-    Shape,
-    Solid,
-    Vector,
-    Vertex,
-    downcast,
-)
 
 if os.environ.get("JUPYTER_CADQUERY") is None:
     is_jupyter_cadquery = False
@@ -57,17 +64,6 @@ else:
     is_jupyter_cadquery = True
 
 from ocp_vscode.comms import MessageType, listener, set_port
-
-
-class SelectedCenterInfo:
-    """
-    Stores the information message about what as been used as center for the measurement
-    """
-
-    vertex = "Reference point has been taken as vertex location"
-    circular = "Reference point has been taken as the center of the circle or ellipse"
-    geom = "Reference point has been taken as the center of the geometry"
-    cylinder = "Reference point has been taken as the center of the cylinder"
 
 
 def print_to_stdout(*msg):
@@ -99,76 +95,30 @@ class Tool:
     Angle = "AngleMeasurement"
 
 
-def set_precision(instance, decimals=3):
-    """
-    Set the precision of all float fields of the dataclass to the given number of decimals
-    """
-    for field in fields(instance):
-        if field.type == float:
-            value = getattr(instance, field.name)
-            if value is not None:
-                setattr(instance, field.name, round(value, decimals))
-        elif isinstance(getattr(instance, field.name), tuple):
-            # Handle tuple fields
-            old_tuple = getattr(instance, field.name)
-            new_tuple = tuple(
-                round(elem, decimals) if isinstance(elem, float) else elem
-                for elem in old_tuple
-            )
-            setattr(instance, field.name, new_tuple)
+def get_shape_type(shape):
+    if is_topods_vertex(shape) or is_vector(shape):
+        return "Vertex"
+    elif is_topods_edge(shape):
+        return "Edge"
+    elif is_topods_face(shape):
+        return "Face"
+    elif is_topods_solid:
+        return "Solid"
+    else:
+        return "Unknown"
 
 
-@dataclass
-class Response:
-    """Base class for all responses"""
-
-    type: str = "backend_response"
-
-
-@dataclass
-class MeasureResponse(Response):
-    """Base class for all measurement responses"""
-
-    # a string telling the frontend how the reference points used for the
-    # measurement were chosen
-    center_info: str = ""
-    subtype: str = "tool_response"
-
-
-@dataclass
-class DistanceResponse(MeasureResponse):
-    """Response class for distance measurement"""
-
-    tool_type: Tool = Tool.Distance
-    point1: tuple = None
-    point2: tuple = None
-    distance: float = None
-
-
-@dataclass
-class PropertiesResponse(MeasureResponse):
-    """Response class for properties measurement"""
-
-    tool_type: Tool = Tool.Properties
-    center: tuple = None
-    vertex_coords: tuple = None
-    length: float = None
-    width: float = None
-    area: float = None
-    volume: float = None
-    radius: float = None
-    radius2: float = None
-    geom_type: str = None
-
-
-@dataclass
-class AngleResponse(MeasureResponse):
-    """Response class for angle measurement"""
-
-    tool_type: Tool = Tool.Angle
-    angle: float = None
-    point1: tuple = None
-    point2: tuple = None
+def get_geom_type(shape):
+    if is_topods_vertex(shape) or is_vector(shape):
+        return "Point"
+    elif is_topods_edge(shape):
+        return get_curve(shape).GetType().name.split("_")[-1]
+    elif is_topods_face(shape):
+        return get_surface(shape).GetType().name.split("_")[-1]
+    elif is_topods_solid:
+        return "Solid"
+    else:
+        return "Unknown"
 
 
 class ViewerBackend:
@@ -202,6 +152,7 @@ class ViewerBackend:
         Handle the event received from the websocket
         Dispatch the event to the appropriate handler
         """
+        print(MessageType, message)
         if event_type == MessageType.DATA:
             self.load_model(message)
         elif event_type == MessageType.UPDATES:
@@ -226,19 +177,16 @@ class ViewerBackend:
             return
 
         selected_objs = changes["selectedShapeIDs"]
-        if self.activated_tool == Tool.Distance and len(selected_objs) == 2:
+        if self.activated_tool == Tool.Distance and len(selected_objs) == 3:
             shape_id1 = changes["selectedShapeIDs"][0]
             shape_id2 = changes["selectedShapeIDs"][1]
-            return self.handle_distance(shape_id1, shape_id2)
+            shift = changes["selectedShapeIDs"][2]
 
-        elif self.activated_tool == Tool.Properties and len(selected_objs) == 1:
+            return self.handle_distance(shape_id1, shape_id2, shift)
+
+        elif self.activated_tool == Tool.Properties and len(selected_objs) == 2:
             shape_id = changes["selectedShapeIDs"][0]
             return self.handle_properties(shape_id)
-
-        elif self.activated_tool == Tool.Angle and len(selected_objs) == 2:
-            shape_id1 = changes["selectedShapeIDs"][0]
-            shape_id2 = changes["selectedShapeIDs"][1]
-            return self.handle_angle(shape_id1, shape_id2)
 
     def load_model(self, raw_model):
         """Read the transferred model from websocket"""
@@ -250,7 +198,9 @@ class ViewerBackend:
                 else:
                     id_ = v["id"]
                     loc = (
-                        Location().wrapped if v["loc"] is None else tq_to_loc(*v["loc"])
+                        identity_location()
+                        if v["loc"] is None
+                        else tq_to_loc(*v["loc"])
                     )
                     if isinstance(v["shape"], dict):
                         compound = deserialize(
@@ -262,27 +212,25 @@ class ViewerBackend:
                             for s in v["shape"]
                         ]
                         compound = make_compound(shape) if len(shape) > 1 else shape[0]
-                    self.model[id_] = Compound(compound.Moved(loc))
+                    self.model[id_] = compound.Moved(loc)
                     faces = get_faces(compound)
                     for i, face in enumerate(faces):
                         trace.face(f"{id_}/faces/faces_{i}", face)
 
-                        self.model[f"{id_}/faces/faces_{i}"] = Face(face.Moved(loc))
+                        self.model[f"{id_}/faces/faces_{i}"] = downcast(face.Moved(loc))
                     edges = get_edges(compound)
                     for i, edge in enumerate(edges):
                         trace.edge(f"{id_}/edges/edges_{i}", edge)
 
                         self.model[f"{id_}/edges/edges_{i}"] = (
-                            Edge(edge) if loc is None else Edge(edge.Moved(loc))
+                            edge if loc is None else downcast(edge.Moved(loc))
                         )
                     vertices = get_vertices(compound)
                     for i, vertex in enumerate(vertices):
                         trace.vertex(f"{id_}/vertices/vertex_{i}", vertex)
 
                         self.model[f"{id_}/vertices/vertices_{i}"] = (
-                            Vertex(vertex)
-                            if loc is None
-                            else Vertex(downcast(vertex.Moved(loc)))
+                            vertex if loc is None else downcast(vertex.Moved(loc))
                         )
 
         self.model = {}
@@ -299,187 +247,325 @@ class ViewerBackend:
 
         shape = self.model[shape_id]
 
-        response = PropertiesResponse()
+        shape_type = get_shape_type(shape)
+        geom_type = get_geom_type(shape)
 
-        if isinstance(shape, Vertex):
-            response.vertex_coords = shape.to_tuple()
+        response = {
+            "shape type": shape_type,
+            "geom type": geom_type,
+        }
 
-        elif isinstance(shape, Edge):
-            response.radius = None
-            response.major_radius = None
-            response.minor_radius = None
-            if shape.geom_type == "CIRCLE":
-                response.radius = shape.radius
-            elif shape.geom_type == "ELLIPSE":
-                response.radius = get_curve(shape.wrapped).Ellipse().MajorRadius()
-                response.radius2 = get_curve(shape.wrapped).Ellipse().MinorRadius()
+        if shape_type == "Vertex":
+            response["coords"] = list(shape)
 
-            response.length = shape.length
+        elif shape_type == "Edge":
+            response["length"] = length(shape)
 
-        elif isinstance(shape, Face):
-            if shape.geom_type == "CYLINDER":
-                response.radius = get_surface(shape.wrapped).Cylinder().Radius()
+            if geom_type == "Line":
+                response["start"] = get_point(position_at(shape, 0))
+                response["center"] = get_point(position_at(shape, 0.5))
+                response["end"] = get_point(position_at(shape, 1))
 
-            response.length = shape.length
-            response.width = shape.width
-            response.area = shape.area
+            elif geom_type == "Circle":
+                circle = get_curve(shape).Circle()
+                response["center"] = get_point(circle.Location())
+                response["radius"] = circle.Radius()
+                response["start"] = get_point(position_at(shape, 0))
+                if not is_closed(shape):
+                    response["geom type"] = "Arc"
+                    response["end"] = get_point(position_at(shape, 1))
 
-        elif isinstance(shape, (Solid, Compound)):
-            response.volume = shape.volume
+            elif geom_type == "Ellipse":
+                ellipse = get_curve(shape).Ellipse()
+                response["center"] = get_point(ellipse.Location())
+                response["major radius"] = ellipse.MajorRadius()
+                response["minor radius"] = ellipse.MinorRadius()
+                response["focus1"] = get_point(ellipse.Focus1())
+                response["focus2"] = get_point(ellipse.Focus2())
+                response["start"] = get_point(position_at(shape, 0))
+                if not is_closed(shape):
+                    response["geom type"] = "Arc"
+                    response["end"] = get_point(position_at(shape, 1))
 
-        response.geom_type = shape.geom_type if not isinstance(shape, Vertex) else None
-        center, info = self.get_center(shape, False)
-        response.center = center.to_tuple()
-        response.vertex_coords = response.center
-        response.center_info = f"{shape_id} : {info}"
+            elif geom_type == "Hyperbola":
+                hyperbola = get_curve(shape).Hyperbola()
+                response["start"] = get_point(position_at(shape, 0))
+                response["center"] = get_point(position_at(shape, 0.5))
+                response["end"] = get_point(position_at(shape, 1))
+                response["vertex"] = get_point(hyperbola.Location())
+                response["focus1"] = get_point(hyperbola.Focus1())
+                response["focus2"] = get_point(hyperbola.Focus2())
 
-        set_precision(response)
+            elif geom_type == "Parabola":
+                parabola = get_curve(shape).Parabola()
+                response["start"] = get_point(position_at(shape, 0))
+                response["center"] = get_point(position_at(shape, 0.5))
+                response["end"] = get_point(position_at(shape, 1))
+                response["vertex"] = get_point(parabola.Location())
+                response["focus"] = get_point(parabola.Focus())
+
+            elif geom_type in ["Bezier", "Bspline"]:
+                response["start"] = get_point(position_at(shape, 0))
+                response["center"] = get_point(position_at(shape, 0.5))
+                response["end"] = get_point(position_at(shape, 1))
+
+            elif geom_type == "Offset":
+                offset = get_curve(offset_).OffsetCurve()
+                response["start"] = get_point(position_at(shape, 0))
+                if is_closed(shape):
+                    response["end"] = get_point(position_at(shape, 1))
+                response["offset"] = offset.Offset()
+            else:
+                response["start"] = get_point(position_at(shape, 0))
+                response["middle"] = get_point(position_at(shape, 0.5))
+                response["end"] = get_point(position_at(shape, 1))
+
+        elif shape_type == "Face":
+            response["area"] = area(shape)
+
+            if geom_type == "Plane":
+                plane = get_surface(shape).Plane()
+                response["center"] = get_point(plane.Location())
+
+            elif geom_type == "Cylinder":
+                cylinder = get_surface(shape).Cylinder()
+                response["center"] = get_point(cylinder.Location())
+
+                response["radius"] = cylinder.Radius()
+            elif geom_type == "Cone":
+                cone = get_surface(shape).Cone()
+                response["center"] = get_point(cone.Location())
+                response["ref radius"] = cone.RefRadius()
+                response["semi angle"] = cone.SemiAngle() / pi * 180
+
+            elif geom_type == "Sphere":
+                sphere = get_surface(shape).Sphere()
+                response["center"] = get_point(sphere.Location())
+                response["radius"] = sphere.Radius()
+
+            elif geom_type == "Torus":
+                torus = get_surface(shape).Torus()
+                response["center"] = get_point(torus.Location())
+                response["minor radius"] = torus.MinorRadius()
+                response["major radius"] = torus.MajorRadius()
+
+            elif geom_type in ["Bezier", "Bspline"]:
+                ...
+
+            elif geom_type == "SurfaceOfRevolution":
+                revolution = get_surface(shape)
+                response["axe loc"] = get_point(revolution.AxeOfRevolution().Location())
+                response["axe dir"] = get_point(
+                    revolution.AxeOfRevolution().Direction()
+                )
+                response["geom type"] = "Revolution"
+
+        bb = BoundingBox(shape, optimal=True)
+        response["bb"] = {
+            "min": [bb.xmin, bb.ymin, bb.zmin],
+            "center": bb.center,
+            "max": [bb.xmax, bb.ymax, bb.zmax],
+            "size": [bb.xsize, bb.ysize, bb.zsize],
+        }
+        response["type"] = "backend_response"
+        response["subtype"] = "tool_response"
+        response["tool_type"] = Tool.Properties
 
         if is_jupyter_cadquery:
-            return asdict(response)
+            return response
         else:
-            send_response(asdict(response), self.port)
+            send_response(response, self.port)
             print_to_stdout(f"Data sent {response}")
 
-    def handle_angle(self, id1, id2):
-        """
-        Request the angle between the two objects that have the given ids
-        """
-        if not is_jupyter_cadquery:
-            print_to_stdout(f"Identifiers received '{id1}', '{id2}'")
+    def get_center(self, shape):
+        shape_type = get_shape_type(shape)
+        geom_type = get_geom_type(shape)
 
-        shape1: Shape = self.model[id1]
-        shape2: Shape = self.model[id2]
-        first = (
-            Plane(shape1)
-            if isinstance(shape1, Face)
-            else (
-                Plane(shape1 @ 0, z_dir=shape1.normal())
-                if isinstance(shape1, Edge)
-                and shape1.geom_type in ["CIRCLE", "ELLIPSE"]
-                else shape1 % 0
-            )
-        )
-        second = (
-            Plane(shape2)
-            if isinstance(shape2, Face)
-            else (
-                Plane(shape2 @ 0, z_dir=shape2.normal())
-                if isinstance(shape2, Edge)
-                and shape2.geom_type in ["CIRCLE", "ELLIPSE"]
-                else shape2 % 0
-            )
-        )
-        if isinstance(first, Plane) and isinstance(second, Plane):
-            angle = first.z_dir.get_angle(second.z_dir)
-        elif isinstance(first, Vector) and isinstance(second, Vector):
-            angle = first.get_angle(second)
+        if shape_type == "Vertex":
+            center = shape
+
+        elif shape_type == "Edge":
+            if geom_type == "Circle":
+                circle = get_curve(shape).Circle()
+                center = circle.Location()
+
+            elif geom_type == "Ellipse":
+                ellipse = get_curve(shape).Ellipse()
+                center = ellipse.Location()
+
+            elif geom_type == "Hyperbola":
+                hyperbola = get_curve(shape).Hyperbola()
+                center = hyperbola.Location()
+
+            elif geom_type == "Parabola":
+                parabola = get_curve(shape).Parabola()
+                center = parabola.Location()
+
+            else:
+                center = position_at(shape, 0.5)
+
+        elif shape_type == "Face":
+            if geom_type == "Cylinder":
+                cylinder = get_surface(shape).Cylinder()
+                center = cylinder.Location()
+
+            elif geom_type == "Cone":
+                cone = get_surface(shape).Cone()
+                center = cone.Location()
+
+            elif geom_type == "Sphere":
+                sphere = get_surface(shape).Sphere()
+                center = sphere.Location()
+
+            elif geom_type == "Torus":
+                torus = get_surface(shape).Torus()
+                center = torus.Location()
+
+            elif geom_type == "SurfaceOfRevolution":
+                revolution = get_surface(shape)
+                center = revolution.AxeOfRevolution().Location()
+
+            else:
+                center = center_of_mass(shape)
+
+        if is_topods_vertex(center):
+            return center
         else:
-            vector = first if isinstance(first, Vector) else second
-            plane = first if isinstance(first, Plane) else second
+            return vertex(center)
 
-            angle = 90 - plane.z_dir.get_angle(vector)
-        angle = abs(angle)
-        point1, info1 = self.get_center(shape1, True)
-        point2, info2 = self.get_center(shape2, True)
-        center_info = f"{id1} : {info1}\n{id2} : {info2}"
-        response = AngleResponse(
-            center_info=center_info,
-            angle=angle,
-            point1=point1.to_tuple(),
-            point2=point2.to_tuple(),
-        )
-        set_precision(response)
-        if is_jupyter_cadquery:
-            return asdict(response)
+    def calc_distance(self, shape1, shape2, center=False):
+        if center:
+            p1 = self.get_center(shape1)
+            p2 = self.get_center(shape2)
+            dist, p1, p2 = dist_shapes(p1, p2)
         else:
-            send_response(asdict(response), self.port)
-            print_to_stdout(f"Data sent {response}")
+            dist, p1, p2 = dist_shapes(shape1, shape2)
+        return {
+            "distance": dist,
+            "info": "center" if center else "min",
+            "point1": get_point(p1),
+            "point2": get_point(p2),
+        }
 
-    def get_center(
-        self, shape: Shape, for_distance=True
-    ) -> tuple[Vector, SelectedCenterInfo]:
-        """
-        Returns the center vector of the given shape
-        Center of the shape depends on the type of the shape and the tool used
-        For instance, circle edge center will be on the edge for properties tool
-        but at the center of the circle for distance tool
-        """
-        if isinstance(shape, Vertex):
-            return shape.center(), SelectedCenterInfo.vertex
-        elif isinstance(shape, Edge):
-            if shape.geom_type in [
-                "CIRCLE",
-                "ELLIPSE",
-            ]:
-                if for_distance:
-                    return shape.arc_center, SelectedCenterInfo.circular
-                else:
-                    return shape.center(), SelectedCenterInfo.geom
+    def calc_angle(self, shape1, shape2):
+        shape_type1 = get_shape_type(shape1)
+        shape_type2 = get_shape_type(shape2)
+        geom_type1 = get_geom_type(shape1)
+        geom_type2 = get_geom_type(shape2)
 
-        elif isinstance(shape, Face):
-            if shape.geom_type in ["CYLINDER"]:
-                if not for_distance:
-                    return shape.center(), SelectedCenterInfo.geom
+        def angle_line_line(line1, line2):
+            if is_topods_edge(line1):
+                l1 = get_curve(line1).Line()
+            else:
+                l1 = line1
+            if is_topods_edge(line2):
+                l2 = get_curve(line2).Line()
+            else:
+                l2 = line2
+            return l1.Angle(l2) / pi * 180
 
-                extremity_edges = shape.edges().filter_by("CIRCLE")
-                if len(extremity_edges) == 2:
-                    return (
-                        extremity_edges[0].arc_center
-                        - (
-                            extremity_edges[0].arc_center
-                            - extremity_edges[-1].arc_center
-                        )
-                        / 2,
-                        SelectedCenterInfo.cylinder,
-                    )
-                else:
-                    try:
-                        return (
-                            extremity_edges[0].arc_center,
-                            SelectedCenterInfo.cylinder,
-                        )
-                    except IndexError:
-                        # cylinder might have bspline extremity edges hence the list would be empty
-                        # in that case we default to geom center
-                        pass
+        def angle_line_plane(line, plane):
+            # 90 - angle between line and normal
+            axis = plane.Axis()
+            line2 = axis_to_line(axis)
+            return 90 - angle_line_line(line, line2)
 
-        return shape.center(), SelectedCenterInfo.geom
+        def angle_plane_plane(plane1, plane2):
+            # angle between the two normals
+            axis1 = plane1.Axis()
+            line1 = axis_to_line(axis1)
+            axis2 = plane2.Axis()
+            line2 = axis_to_line(axis2)
+            return angle_line_line(line1, line2)
 
-    def handle_distance(self, id1, id2):
+        angle = None
+        p1 = None
+        p2 = None
+        info = ""
+
+        if geom_type1 == "Line" and geom_type2 == "Line":
+            angle = angle_line_line(shape1, shape2)
+            p1 = self.get_center(shape1)
+            p2 = self.get_center(shape2)
+            info1 = "line"
+            info2 = "line"
+
+        elif geom_type1 == "Line" and shape_type2 in ["Edge", "Face"]:
+            plane2 = get_plane(shape2)
+            if plane2 is not None:
+                angle = angle_line_plane(shape1, plane2)
+                p1 = self.get_center(shape1)
+                p2 = self.get_center(shape2)
+                info1 = "line"
+                info2 = f"Plane({shape_type1})"
+
+        elif shape_type1 in ["Edge", "Face"] and geom_type2 == "Line":
+            plane1 = get_plane(shape1)
+            if plane1 is not None:
+                angle = angle_line_plane(shape2, plane1)
+                p1 = self.get_center(shape1)
+                p2 = self.get_center(shape2)
+                info1 = f"Plane({shape_type1})"
+                info2 = "line"
+
+        elif shape_type1 in ["Edge", "Face"] and shape_type2 in ["Edge", "Face"]:
+            plane1 = get_plane(shape1)
+            plane2 = get_plane(shape2)
+            if plane1 is not None and plane2 is not None:
+                angle = angle_plane_plane(plane1, plane2)
+                p1 = self.get_center(shape1)
+                p2 = self.get_center(shape2)
+                info1 = f"Plane({shape_type1})"
+                info2 = f"Plane({shape_type2})"
+
+        if angle is None:
+            return None
+        else:
+            return {
+                "angle": angle,
+                "point on shape1": get_point(p1),
+                "point on shape2": get_point(p2),
+                "info1": info1,
+                "info2": info2,
+            }
+
+    def handle_distance(self, id1, id2, center):
         """
         Request the distance between the two objects that have the given ids
         """
         if not is_jupyter_cadquery:
             print_to_stdout(f"Identifiers received '{id1}', '{id2}'")
 
-        shape1: Shape = self.model[id1]
-        shape2: Shape = self.model[id2]
-        p1, info1 = self.get_center(shape1)
-        p2, info2 = self.get_center(shape2)
-        center_info = f"{id1} : {info1}\n{id2} : {info2}"
-        dist = (p2 - p1).length
-        response = DistanceResponse(
-            center_info=center_info,
-            point1=p1.to_tuple(),
-            point2=p2.to_tuple(),
-            distance=dist,
-        )
-        set_precision(response)
+        shape1 = self.model[id1]
+        shape2 = self.model[id2]
+
+        response = self.calc_distance(shape1, shape2, center)
+        response["type"] = "backend_response"
+        response["subtype"] = "tool_response"
+        response["tool_type"] = Tool.Distance
+
+        angle = self.calc_angle(shape1, shape2)
+
+        if angle is not None:
+            response["angle"] = angle["angle"]
+            response["info1"] = angle["info1"]
+            response["info2"] = angle["info2"]
+
         if is_jupyter_cadquery:
-            return asdict(response)
+            return response
         else:
-            send_response(asdict(response), self.port)
+            send_response(response, self.port)
             print_to_stdout(f"Data sent {response}")
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser("OCP Viewer Backend")
-    parser.add_argument(
-        "--port", type=int, required=True, help="Port the viewer listens to"
-    )
-    args = parser.parse_args()
-    backend = ViewerBackend(args.port)
+    # parser = argparse.ArgumentParser("OCP Viewer Backend")
+    # parser.add_argument(
+    #     "--port", type=int, required=True, help="Port the viewer listens to"
+    # )
+    # args = parser.parse_args()
+    # backend = ViewerBackend(args.port)
+    backend = ViewerBackend(3939)
     try:
         backend.start()
     except Exception as ex:  # pylint: disable=broad-except

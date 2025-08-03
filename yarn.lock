@@ -1886,17 +1886,16 @@ text-table@^0.2.0:
   resolved "https://registry.npmjs.org/text-table/-/text-table-0.2.0.tgz"
   integrity sha512-N+8UisAXDGk8PFXP4HAzVR9nbfmVJ3zYLAWiTIoqC5v5isinhr+r5uaO8+7r3BMfuNIufIsA7RdpVgacC2cSpw==
 
-three-cad-viewer@3.4.3:
-  version "3.4.3"
-  resolved "https://registry.yarnpkg.com/three-cad-viewer/-/three-cad-viewer-3.4.3.tgz#45bffecb05225816e6a56784cdc8b40f6c0aabef"
-  integrity sha512-nkwneokmpnggBJ0A7WwHoUcDrJmYr4lZDD2Jt7VGrGdBBSW/rpeFA+y7A4OCnBRRnY3i53Ms+JJo0WNuCqt2/g==
+three-cad-viewer@./three-cad-viewer-v3.5.0.tgz:
+  version "3.5.0"
+  resolved "./three-cad-viewer-v3.5.0.tgz#dd8866dd9caf94695c379ded5b797610346905d9"
   dependencies:
-    three "0.176.0"
+    three "0.179.0"
 
-three@0.176.0:
-  version "0.176.0"
-  resolved "https://registry.npmjs.org/three/-/three-0.176.0.tgz"
-  integrity sha512-PWRKYWQo23ojf9oZSlRGH8K09q7nRSWx6LY/HF/UUrMdYgN9i1e2OwJYHoQjwc6HF/4lvvYLC5YC1X8UJL2ZpA==
+three@0.179.0:
+  version "0.179.0"
+  resolved "https://registry.yarnpkg.com/three/-/three-0.179.0.tgz#f0705ebcd2b338903b47ef138a25468d56ed9502"
+  integrity sha512-V04E7nW9QS+ZDugmpu50x7cLT69th15elaXJPDo79CZs3q/0V8zHf1d3vrm9q2vQ/jef1fXdg8FvaMq2gJvzkw==
 
 tmp@^0.2.1:
   version "0.2.1"

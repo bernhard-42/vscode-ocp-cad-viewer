@@ -170,7 +170,9 @@ export class OCPCADController {
                             output.info("OCPCADController.start: " + msg.text);
                         }
                         if (this.pythonListener !== undefined) {
-                            // output.debug("Sending message to python: " + message);
+                            output.debug(
+                                "Sending message to python: " + message
+                            );
                             this.pythonListener.send(JSON.stringify(message));
                         }
                     });
