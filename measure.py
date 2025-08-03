@@ -246,6 +246,28 @@ all_shapes = {
 
 # %%
 
+from ocp_vscode.measure import get_distance, get_properties
+import pprint
+
+pp = pprint.PrettyPrinter(depth=4)
+
+
+for name, shape in all_shapes.items():
+    print(name)
+    pp.pprint(get_properties(shape.wrapped))
+
+# %%
+for name1, obj1 in [["line", line], ["rect", rect]]:  # all_shapes.items():
+    for name2, obj2 in all_shapes.items():
+        result = get_distance(obj1.wrapped, obj2.wrapped, False)
+        print(name1, name2, "=>")
+        pp.pprint(result)
+        if result is not None:
+            p1 = result["point1"]
+            p2 = result["point2"]
+            show(obj1, obj2, bd.Vector(p1), bd.Vector(p2))
+
+# %%
 from math import pi
 import build123d as bd
 
@@ -302,8 +324,8 @@ def properties(shape):
     geom_type = get_geom_type(shape)
 
     props = {
-        "shape type": shape_type,
-        "geom type": geom_type,
+        "shape_type": shape_type,
+        "geom_type": geom_type,
     }
 
     if shape_type == "Vertex":
@@ -323,7 +345,7 @@ def properties(shape):
             props["radius"] = circle.Radius()
             props["start"] = get_point(position_at(shape, 0))
             if not is_closed(shape):
-                props["geom type"] = "Arc"
+                props["geom_type"] = "Arc"
                 props["end"] = get_point(position_at(shape, 1))
 
         elif geom_type == "Ellipse":
@@ -335,7 +357,7 @@ def properties(shape):
             props["focus2"] = get_point(ellipse.Focus2())
             props["start"] = get_point(position_at(shape, 0))
             if not is_closed(shape):
-                props["geom type"] = "Arc"
+                props["geom_type"] = "Arc"
                 props["end"] = get_point(position_at(shape, 1))
 
         elif geom_type == "Hyperbola":
@@ -402,7 +424,7 @@ def properties(shape):
             revolution = get_surface(shape)
             props["axe loc"] = get_point(revolution.AxeOfRevolution().Location())
             props["axe dir"] = get_point(revolution.AxeOfRevolution().Direction())
-            props["geom type"] = "Revolution"
+            props["geom_type"] = "Revolution"
 
     bb = BoundingBox(shape, optimal=True)
     props["bb"] = {
