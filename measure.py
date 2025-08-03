@@ -425,7 +425,9 @@ def properties(shape):
             props["axe loc"] = get_point(revolution.AxeOfRevolution().Location())
             props["axe dir"] = get_point(revolution.AxeOfRevolution().Direction())
             props["geom_type"] = "Revolution"
-
+    
+    elif shape_type == "Solid":
+        
     bb = BoundingBox(shape, optimal=True)
     props["bb"] = {
         "min": [bb.xmin, bb.ymin, bb.zmin],

@@ -5,8 +5,8 @@ from ocp_tessellate.ocp_utils import (
     area,
     axis_to_line,
     BoundingBox,
-    center_of_mass,
     center_of_geometry,
+    center_of_mass,
     dist_shapes,
     get_curve,
     get_plane,
@@ -20,8 +20,9 @@ from ocp_tessellate.ocp_utils import (
     is_vector,
     length,
     position_at,
-    vertex,
     rect,
+    vertex,
+    volume,
 )
 
 
@@ -188,6 +189,10 @@ def get_properties(shape):
         if angle is not None:
             response["Angle to XY"] = angle["angle"]
 
+    elif shape_type == "Solid":
+        response["Volume"] = volume(shape)
+        response["refpoint"] = center_of_mass(shape)
+
     if shape_type != "Vertex":
         bb = BoundingBox(shape, optimal=True)
         response["bb"] = {
@@ -250,6 +255,9 @@ def get_center(shape):
 
         else:
             center = center_of_mass(shape)
+
+    if shape_type == "Solid":
+        center = center_of_mass(shape)
 
     if is_topods_vertex(center):
         return center
