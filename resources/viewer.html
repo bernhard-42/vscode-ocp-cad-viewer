@@ -369,6 +369,7 @@ limitations under the License.
                 tools: tools,
                 keymap: keymap,
                 newTreeBehavior: newTreeBehavior,
+                measurementDebug: false
             }
         }
 
@@ -407,7 +408,7 @@ limitations under the License.
               viewer.hasAnimationLoop = false;
               viewer.continueAnimation = false;
             }
-
+            console.log("displayOptions", displayOptions)
             viewer = new Viewer(display, displayOptions, nc, null);
             
             
