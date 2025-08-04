@@ -7,6 +7,7 @@ from ocp_tessellate.ocp_utils import (
     BoundingBox,
     center_of_geometry,
     center_of_mass,
+    downcast,
     dist_shapes,
     get_curve,
     get_plane,
@@ -67,6 +68,7 @@ def get_properties(shape):
         response["refpoint"] = get_point(shape)
 
     elif shape_type == "Edge":
+        shape = downcast(shape)
         if geom_type == "Line":
             response["Start"] = get_point(position_at(shape, 0))
             response["Middle"] = get_point(position_at(shape, 0.5))
@@ -148,6 +150,7 @@ def get_properties(shape):
                 pass
 
     elif shape_type == "Face":
+        shape = downcast(shape)
         if geom_type == "Plane":
             plane = get_surface(shape).Plane()
             response["Center"] = get_point(plane.Location())
@@ -198,6 +201,7 @@ def get_properties(shape):
             pass
 
     elif shape_type == "Solid":
+        shape = downcast(shape)
         response["Volume"] = volume(shape)
         response["refpoint"] = center_of_mass(shape)
 
