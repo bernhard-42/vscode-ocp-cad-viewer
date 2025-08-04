@@ -20,6 +20,7 @@ from ocp_tessellate.ocp_utils import (
     is_vector,
     length,
     position_at,
+    tangent_edge_at,
     rect,
     vertex,
     volume,
@@ -33,7 +34,7 @@ def get_shape_type(shape):
         return "Edge"
     elif is_topods_face(shape):
         return "Face"
-    elif is_topods_solid:
+    elif is_topods_solid(shape):
         return "Solid"
     else:
         return "Unknown"
@@ -46,7 +47,7 @@ def get_geom_type(shape):
         return get_curve(shape).GetType().name.split("_")[-1]
     elif is_topods_face(shape):
         return get_surface(shape).GetType().name.split("_")[-1]
-    elif is_topods_solid:
+    elif is_topods_solid(shape):
         return "Solid"
     else:
         return "Unknown"
@@ -138,9 +139,13 @@ def get_properties(shape):
 
         response["Length"] = length(shape)
 
-        angle = calc_angle(rect(1, 1), shape)
-        if angle is not None:
-            response["Angle to XY"] = angle["angle"]
+        for i in [0, 1]:
+            try:
+                angle = calc_angle(rect(1, 1), tangent_edge_at(shape, i))
+                if angle is not None:
+                    response[f"Angle@{i} to XY"] = angle["angle"]
+            except:
+                pass
 
     elif shape_type == "Face":
         if geom_type == "Plane":
@@ -185,9 +190,12 @@ def get_properties(shape):
         response["Area"] = area(shape)
         response["refpoint"] = center_of_geometry(shape)
 
-        angle = calc_angle(rect(1, 1), shape)
-        if angle is not None:
-            response["Angle to XY"] = angle["angle"]
+        try:
+            angle = calc_angle(rect(1, 1), shape)
+            if angle is not None:
+                response["Angle to XY"] = angle["angle"]
+        except:
+            pass
 
     elif shape_type == "Solid":
         response["Volume"] = volume(shape)
@@ -274,6 +282,8 @@ def calc_distance(shape1, shape2, center=False):
         dist, p1, p2 = dist_shapes(shape1, shape2)
     return {
         "distance": dist,
+        "Point 1": get_point(p1),
+        "Point 2": get_point(p2),
         "info": "center" if center else "min",
         "refpoint1": get_point(p1),
         "refpoint2": get_point(p2),

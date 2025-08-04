@@ -108,7 +108,6 @@ class ViewerBackend:
         Handle the event received from the websocket
         Dispatch the event to the appropriate handler
         """
-        print(MessageType, message)
         if event_type == MessageType.DATA:
             self.load_model(message)
         elif event_type == MessageType.UPDATES:
