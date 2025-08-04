@@ -306,6 +306,15 @@ NATIVE_TESSELLATOR=1 OCP_VSCODE_PYTEST=1 pytest -v -s pytests/
 
 ## Changes
 
+### v2.9.0
+
+- The viewer now supports widths of < 815px with shrunken toolbar (using ellipsis). From 815px width the toolbar is fully visible ([#187](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/187))
+- The view preset buttons in the toolbar now respect shift and will center the to all visible objects only ([#185](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/185))
+- Brought back restoring the OCP Viewer when VS Code is restarted ([#177](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/177))
+- Reworked measure mode ([#175](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/175))
+  - Changed shift modifier in distance measure mode to distinguish between min and center distance
+  - Removed angle measure button, it is integrated in distance measure now, and simplified filter management without angle measure in the UI
+
 ### v2.8.9
 
 **Fixes**
