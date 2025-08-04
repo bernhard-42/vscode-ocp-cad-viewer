@@ -268,8 +268,11 @@ def get_center(shape):
         else:
             center = center_of_mass(shape)
 
-    if shape_type == "Solid":
+    elif shape_type == "Solid":
         center = center_of_mass(shape)
+
+    else:
+        print(shape_type, shape)
 
     if is_topods_vertex(center):
         return center
