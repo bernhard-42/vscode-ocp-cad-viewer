@@ -81,7 +81,7 @@ def get_properties(shape):
             response["Radius"] = circle.Radius()
             response["Start"] = get_point(position_at(shape, 0))
             if not is_closed(shape):
-                response["geom_type"] = "Arc"
+                # response["geom_type"] += " (Arc)"
                 response["End"] = get_point(position_at(shape, 1))
                 response["refpoint"] = get_point(position_at(shape, 0.5))
             else:
@@ -96,7 +96,7 @@ def get_properties(shape):
             # response["focus2"] = get_point(ellipse.Focus2())
             response["Start"] = get_point(position_at(shape, 0))
             if not is_closed(shape):
-                response["geom_type"] = "Arc"
+                # response["geom_type"] += " (Arc)"
                 response["End"] = get_point(position_at(shape, 1))
                 response["refpoint"] = get_point(position_at(shape, 0.5))
             else:
