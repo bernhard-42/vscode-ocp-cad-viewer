@@ -17,6 +17,8 @@ from ocp_tessellate.ocp_utils import (
     is_topods_edge,
     is_topods_face,
     is_topods_solid,
+    is_topods_compound,
+    is_topods_compsolid,
     is_topods_vertex,
     is_vector,
     length,
@@ -35,9 +37,14 @@ def get_shape_type(shape):
         return "Edge"
     elif is_topods_face(shape):
         return "Face"
-    elif is_topods_solid(shape):
+    elif (
+        is_topods_solid(shape)
+        or is_topods_compound(shape)
+        or is_topods_compsolid(shape)
+    ):
         return "Solid"
     else:
+        print(shape, "unknown")
         return "Unknown"
 
 
@@ -48,13 +55,19 @@ def get_geom_type(shape):
         return get_curve(shape).GetType().name.split("_")[-1]
     elif is_topods_face(shape):
         return get_surface(shape).GetType().name.split("_")[-1]
-    elif is_topods_solid(shape):
+    elif (
+        is_topods_solid(shape)
+        or is_topods_compound(shape)
+        or is_topods_compsolid(shape)
+    ):
         return "Solid"
     else:
+        print(shape, "unknown")
         return "Unknown"
 
 
 def get_properties(shape):
+    shape = downcast(shape)
     shape_type = get_shape_type(shape)
     geom_type = get_geom_type(shape)
 
