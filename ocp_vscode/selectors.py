@@ -106,7 +106,7 @@ except:
 
 
 @_warn_once(
-    "EXPERIMENTAL! The indices for 'select_vertices' are only valid as long the topology before this call will not be changed!"
+    "Warning: The indices for 'select_vertices' are only valid as long the topology before this call will not be changed!"
 )
 def select_vertices(obj, indices):
     if is_build123d(obj) or is_build123d_shape(obj):
@@ -118,7 +118,7 @@ def select_vertices(obj, indices):
 
 
 @_warn_once(
-    "EXPERIMENTAL! The indices for 'select_edges' are only valid as long the topology before this call will not be changed!"
+    "Warning: The indices for 'select_edges' are only valid as long the topology before this call will not be changed!"
 )
 def select_edges(obj, indices):
     if is_build123d(obj) or is_build123d_shape(obj):
@@ -130,7 +130,7 @@ def select_edges(obj, indices):
 
 
 @_warn_once(
-    "EXPERIMENTAL! The indices for 'select_faces' are only valid as long the topology before this call will not be changed!"
+    "Warning: The indices for 'select_faces' are only valid as long the topology before this call will not be changed!"
 )
 def select_faces(obj, indices):
     if is_build123d(obj) or is_build123d_shape(obj):
