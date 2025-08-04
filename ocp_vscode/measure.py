@@ -205,6 +205,9 @@ def get_properties(shape):
         response["Volume"] = volume(shape)
         response["refpoint"] = center_of_mass(shape)
 
+    else:
+        print(f"unknown shape {type(shape)}")
+
     if shape_type != "Vertex":
         bb = BoundingBox(shape, optimal=True)
         response["bb"] = {
