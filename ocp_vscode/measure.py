@@ -281,6 +281,9 @@ def get_center(shape):
 
 
 def calc_distance(shape1, shape2, center=False):
+    shape1 = downcast(shape1)
+    shape2 = downcast(shape2)
+
     if center:
         p1 = get_center(shape1)
         p2 = get_center(shape2)
@@ -298,6 +301,9 @@ def calc_distance(shape1, shape2, center=False):
 
 
 def calc_angle(shape1, shape2):
+    shape1 = downcast(shape1)
+    shape2 = downcast(shape2)
+
     shape_type1 = get_shape_type(shape1)
     shape_type2 = get_shape_type(shape2)
     geom_type1 = get_geom_type(shape1)
