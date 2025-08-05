@@ -37,12 +37,12 @@ def get_shape_type(shape):
         return "Edge"
     elif is_topods_face(shape):
         return "Face"
-    elif (
-        is_topods_solid(shape)
-        or is_topods_compound(shape)
-        or is_topods_compsolid(shape)
-    ):
+    elif is_topods_solid(shape):
         return "Solid"
+    elif is_topods_compsolid(shape):
+        return "CompSolid"
+    elif is_topods_compound(shape):
+        return "Compound"
     else:
         print(shape, "unknown")
         return "Unknown"
@@ -60,7 +60,7 @@ def get_geom_type(shape):
         or is_topods_compound(shape)
         or is_topods_compsolid(shape)
     ):
-        return "Solid"
+        return "Other"
     else:
         print(shape, "unknown")
         return "Unknown"
@@ -213,7 +213,7 @@ def get_properties(shape):
         except:
             pass
 
-    elif shape_type == "Solid":
+    elif shape_type in ["Solid", "CompSolid", "Compound"]:
         shape = downcast(shape)
         response["Volume"] = volume(shape)
         response["refpoint"] = center_of_mass(shape)
