@@ -392,7 +392,7 @@ limitations under the License.
             
             if (display==null){
                 const container = document.getElementById("cad_viewer");
-                container.innerHTML = ""
+                container.innerHTML = "";
                 display = new Display(container, displayOptions)
             }            
 
@@ -411,7 +411,7 @@ limitations under the License.
               viewer.hasAnimationLoop = false;
               viewer.continueAnimation = false;
             }
-            console.log("displayOptions", displayOptions)
+            
             viewer = new Viewer(display, displayOptions, nc, null);
             
             
@@ -712,7 +712,7 @@ limitations under the License.
                 if (config._splash) {
                     const displayOptions = getDisplayOptions();
                     config.zoom = Math.min(1.0, displayOptions.cadWidth / displayOptions.height);
-                    debugLog("logo zoom =", config.zoom);
+                    // debugLog("logo zoom =", config.zoom);
                 }
 
                 showViewer(meshData.shapes, config);
