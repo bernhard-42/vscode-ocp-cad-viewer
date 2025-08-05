@@ -61,6 +61,7 @@ limitations under the License.
             pinning: false,
             measureTools: true,
             selectTool: true,
+            measurementDebug: false,
             keymap: {
                 "shift": "shiftKey",
                 "ctrl": "ctrlKey",
@@ -369,7 +370,9 @@ limitations under the License.
                 tools: tools,
                 keymap: keymap,
                 newTreeBehavior: newTreeBehavior,
-                measurementDebug: false
+                measureTools: displayDefaultOptions.measureTools,
+                selectTool: displayDefaultOptions.selectTool,
+                measurementDebug: displayDefaultOptions.measurementDebug
             }
         }
 
@@ -433,8 +436,6 @@ limitations under the License.
                 edgeColor: preset(_config, "default_edgecolor", renderDefaultOptions.defaultEdgecolor),
                 defaultOpacity: preset(_config, "default_opacity", renderDefaultOptions.defaultOpacity),
                 normalLen: preset(_config, "normal_len", renderDefaultOptions.normalLen),
-                measureTools: true,
-                selectTool: true
             };
 
             viewerOptions = {
@@ -449,8 +450,6 @@ limitations under the License.
                 timeit: preset(_config, "timeit", viewerDefaultOptions.timeit),
                 tools: preset(_config, "tools", viewerDefaultOptions.tools),
                 glass: preset(_config, "glass", viewerDefaultOptions.glass),
-                measureTools: true,
-                selectTool: true,
                 up: preset(_config, "up", viewerDefaultOptions.up),
                 transparent: preset(_config, "transparent", viewerDefaultOptions.transparent),
                 control: preset(_config, "control", viewerDefaultOptions.control),
