@@ -531,10 +531,10 @@ class ConfigTests(Tests):
         c2 = Cone(2, 1, 3)
         t = Torus(5, 1)
         b.color = "blue"
-        c.color = (0, 255, 255)
+        c.color = (0, 1, 1)
         s.color = bd.Color(1, 0.5, 0)
-        c2.color = ot.utils.Color((0, 128, 255))
-        t.color = ot.utils.Color((0.25, 1, 0.5))
+        c2.color = ot.utils.Color((0, 128, 255)).percentage
+        t.color = ot.utils.Color((0.25, 1, 0.5)).percentage
 
         r = show((b, c, s, c2, t))
 
