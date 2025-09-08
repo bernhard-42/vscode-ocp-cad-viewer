@@ -1172,10 +1172,6 @@ def show_all(
         ):
             continue
 
-        if hasattr(obj, "area") and obj.area > 1e99:  # inifinite face
-            print(f"infinite face {name} skipped")
-            continue
-
         if classes is None or isinstance(obj, tuple(classes)):
 
             if hasattr(obj, "locations") and hasattr(obj, "local_locations"):
