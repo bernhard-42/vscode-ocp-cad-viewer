@@ -356,13 +356,13 @@ limitations under the License.
             return ((config == null) || (config[key] == null)) ? val : config[key];
         }
 
-        function getDisplayOptions() {
+        function getDisplayOptions(theme) {
             const size = getSize();
             const glass = preset(_config, "glass", displayDefaultOptions.glass);
-            const theme = displayDefaultOptions.theme;
+            theme = (theme)?theme : displayDefaultOptions.theme;
             const tools = preset(_config, "tools", displayDefaultOptions.tools);
             const treeWidth = (glass || !tools) ? 0 : preset(_config, "treeWidth", displayDefaultOptions.treeWidth);
-            const keymap = preset(_config, "modifier_keys", viewerDefaultOptions.keymap);
+            const keymap = preset(_config, "modifier_keys", displayDefaultOptions.keymap);
             const newTreeBehavior = preset(_config, "new_tree_behavior", viewerDefaultOptions.newTreeBehavior);
             const cadWidth = normalizeWidth(size.width, glass, tools);
             return {
@@ -392,7 +392,7 @@ limitations under the License.
             _shapes = shapes;
             _config = config;
 
-            const displayOptions = getDisplayOptions();
+            const displayOptions = getDisplayOptions(config.theme);
             
             if (display==null){
                 const container = document.getElementById("cad_viewer");
