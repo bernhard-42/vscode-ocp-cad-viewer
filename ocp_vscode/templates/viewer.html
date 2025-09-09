@@ -59,6 +59,14 @@ limitations under the License.
             theme: "{{ theme }}",
             tools: JSON.parse("{{ tools|tojson }}"), // make linter happy
             pinning: false,
+            keymap: {
+              shift: "shiftKey",
+              ctrl: "ctrlKey",
+              meta: "metaKey",
+              alt: "altKey",
+            },
+            newTreeBehavior: true,
+            measurementDebug: false,
             measureTools: true,
             selectTool: true,
             measurementDebug: false,

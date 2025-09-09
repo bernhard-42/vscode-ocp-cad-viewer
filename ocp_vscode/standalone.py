@@ -205,6 +205,14 @@ class Viewer:
             else:
                 self.config[k] = v
 
+        # for compatibility with 2.9.0
+        if (
+            self.config.get("modifier_keys") is not None
+            and self.config["modifier_keys"].get("alt") is None
+        ):
+            self.config["modifier_keys"]["alt"] = "altKey"
+
+        print(self.config)
         self.debug_print("\nConfig:", self.config)
 
     def start(self):

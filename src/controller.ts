@@ -62,6 +62,8 @@ export class OCPCADController {
     }
 
     public async logo() {
+        var conf = this.config();
+        logo["config"]["modifier_keys"] = conf["modifier_keys"];
         return await this.view?.postMessage(logo);
     }
 
