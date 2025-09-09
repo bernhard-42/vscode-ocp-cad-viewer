@@ -27,7 +27,7 @@ limitations under the License.
     {{ standalone_scripts|safe }}
     <script type="module">
         import { Viewer, Display, Timer } from "{{ scriptSrc }}";
-        {{ standalone_imports|safe }}
+        {{ standalone_imports|safe }} // prettier-ignore
                 
         var viewer = null;
         var display = null;
@@ -47,7 +47,7 @@ limitations under the License.
         var last_bb_radius = null;
 
         const minWidth = 450;
-        {{ standalone_comms|safe }}
+        {{ standalone_comms|safe }} // prettier-ignore
         
         var message = {};
         
