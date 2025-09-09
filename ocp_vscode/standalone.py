@@ -39,6 +39,7 @@ DEFAULTS = {
         "shift": "shiftKey",
         "ctrl": "ctrlKey",
         "meta": "metaKey",
+        "alt": "altKey",
     },
     "new_tree_behavior": True,
     "pan_speed": 0.5,

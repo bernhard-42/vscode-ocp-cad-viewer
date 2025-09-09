@@ -421,7 +421,8 @@
           "default": {
             "shift": "shiftKey",
             "ctrl": "ctrlKey",
-            "meta": "metaKey"
+            "meta": "metaKey",
+            "alt": "altKey"
           },
           "description": "Mapping of modifier keys shift, ctrl and meta (cmd on Mac, Windows on Windows)",
           "order": 33
