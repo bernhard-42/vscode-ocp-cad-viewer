@@ -19,895 +19,1175 @@ limitations under the License.
 
 <!-- {var} are template variables and will be resolved in display.js-->
 <html>
+    <head>
+        <meta charset="utf-8" />
+        <title>OCP CAD Viewer</title>
+        <link rel="stylesheet" href="{{ styleSrc }}" />
+        {{ standalone_scripts|safe }}
+        <script type="module">
+            import { Viewer, Display, Timer } from "{{ scriptSrc }}";
+            {{ standalone_imports|safe }} // prettier-ignore
 
-<head>
-    <meta charset="utf-8" />
-    <title>OCP CAD Viewer</title>
-    <link rel="stylesheet" href="{{ styleSrc }}" />
-    {{ standalone_scripts|safe }}
-    <script type="module">
-        import { Viewer, Display, Timer } from "{{ scriptSrc }}";
-        {{ standalone_imports|safe }} // prettier-ignore
-                
-        var viewer = null;
-        var display = null;
-        var _shapes = null;
-        var _states = null;
-        var _config = null;
-        var _zoom = null;
-        var _position = null;
-        var _camera_distance = null;
-        var _quaternion = null;
-        var _target = null;
-        var _clipping = {
-            sliders: [], normals: [], planeHelpers: null, objectColors: null, intersection: null,
-        };
-        var oldStates = null;
-        var viewerOptions = {};
-        var last_bb_radius = null;
+            var viewer = null;
+            var display = null;
+            var _shapes = null;
+            var _states = null;
+            var _config = null;
+            var _zoom = null;
+            var _position = null;
+            var _camera_distance = null;
+            var _quaternion = null;
+            var _target = null;
+            var _clipping = {
+                sliders: [],
+                normals: [],
+                planeHelpers: null,
+                objectColors: null,
+                intersection: null
+            };
+            var oldStates = null;
+            var viewerOptions = {};
+            var last_bb_radius = null;
 
-        const minWidth = 450;
-        {{ standalone_comms|safe }} // prettier-ignore
-        
-        var message = {};
-        
-        const displayDefaultOptions = {
-            cadWidth: 730,
-            height: 525,
-            treeWidth: JSON.parse("{{ treeWidth }}"), // make linter happy
-            glass: JSON.parse("{{ glass|tojson }}"), // make linter happy
-            theme: "{{ theme }}",
-            tools: JSON.parse("{{ tools|tojson }}"), // make linter happy
-            pinning: false,
-            keymap: {
-              shift: "shiftKey",
-              ctrl: "ctrlKey",
-              meta: "metaKey",
-              alt: "altKey",
-            },
-            newTreeBehavior: true,
-            measurementDebug: false,
-            measureTools: true,
-            selectTool: true,
-            explodeTool: true,
-            zscaleTool: false,
-        };
+            const minWidth = 450;
+            {{ standalone_comms|safe }} // prettier-ignore
 
-        const viewerDefaultOptions = {
-            timeit: false,
-            tools: JSON.parse("{{ tools|tojson }}"), // make linter happy
-            glass: JSON.parse("{{ glass|tojson }}"), // make linter happy
-            up: "{{ up }}",
-            zoom: 1.0,
-            position: null,
-            quaternion: null,
-            target: null,
-            control: "{{ control }}",
-            centerGrid: false,
-            newTreeBehavior: true,
-        };
+            var message = {};
 
-        const renderDefaultOptions = {
-            ambientIntensity: 1.00,
-            directIntensity: 1.10,
-            metalness: 0.30,
-            roughness: 0.65,
-            edgeColor: 0x707070,
-            defaultOpacity: 0.5,
-            normalLen: 0,
-            angularTolerance: 0.2,
-            deviation: 0.1,
-            defaultColor: "#e8b024"
-        };
+            const displayDefaultOptions = {
+                cadWidth: 730,
+                height: 525,
+                treeWidth: JSON.parse("{{ treeWidth }}"), // make linter happy
+                glass: JSON.parse("{{ glass|tojson }}"), // make linter happy
+                theme: "{{ theme }}",
+                tools: JSON.parse("{{ tools|tojson }}"), // make linter happy
+                pinning: false,
+                keymap: {
+                    shift: "shiftKey",
+                    ctrl: "ctrlKey",
+                    meta: "metaKey",
+                    alt: "altKey"
+                },
+                newTreeBehavior: true,
+                measurementDebug: false,
+                measureTools: true,
+                selectTool: true,
+                explodeTool: true,
+                zscaleTool: false
+            };
 
-        function debugLog(tag, obj) {
-            console.log(tag, obj);
-            var msg = tag + (obj ? (" " + JSON.stringify(obj)) : "")
-            send("log", msg)
-        }
+            const viewerDefaultOptions = {
+                timeit: false,
+                tools: JSON.parse("{{ tools|tojson }}"), // make linter happy
+                glass: JSON.parse("{{ glass|tojson }}"), // make linter happy
+                up: "{{ up }}",
+                zoom: 1.0,
+                position: null,
+                quaternion: null,
+                target: null,
+                control: "{{ control }}",
+                centerGrid: false,
+                newTreeBehavior: true
+            };
 
-        const MAP_HEX = {
-            0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6,
-            7: 7, 8: 8, 9: 9, a: 10, b: 11, c: 12, d: 13,
-            e: 14, f: 15, A: 10, B: 11, C: 12, D: 13,
-            E: 14, F: 15
-        };
+            const renderDefaultOptions = {
+                ambientIntensity: 1.0,
+                directIntensity: 1.1,
+                metalness: 0.3,
+                roughness: 0.65,
+                edgeColor: 0x707070,
+                defaultOpacity: 0.5,
+                normalLen: 0,
+                angularTolerance: 0.2,
+                deviation: 0.1,
+                defaultColor: "#e8b024"
+            };
 
-        function fromHex(hexString) {
-            const bytes = new Uint8Array(Math.floor((hexString || "").length / 2));
-            let i;
-            for (i = 0; i < bytes.length; i++) {
-                const a = MAP_HEX[hexString[i * 2]];
-                const b = MAP_HEX[hexString[i * 2 + 1]];
-                if (a === undefined || b === undefined) {
-                    break;
-                }
-                bytes[i] = (a << 4) | b;
+            function debugLog(tag, obj) {
+                console.log(tag, obj);
+                var msg = tag + (obj ? " " + JSON.stringify(obj) : "");
+                send("log", msg);
             }
-            return i === bytes.length ? bytes : bytes.slice(0, i);
-        }
 
-        function fromB64(s) {
-            let bytes = atob(s);
-            let uint = new Uint8Array(bytes.length);
-            for (var i = 0; i < bytes.length; i++) uint[i] = bytes[i].charCodeAt(0);
-            return uint;
-        }
+            const MAP_HEX = {
+                0: 0,
+                1: 1,
+                2: 2,
+                3: 3,
+                4: 4,
+                5: 5,
+                6: 6,
+                7: 7,
+                8: 8,
+                9: 9,
+                a: 10,
+                b: 11,
+                c: 12,
+                d: 13,
+                e: 14,
+                f: 15,
+                A: 10,
+                B: 11,
+                C: 12,
+                D: 13,
+                E: 14,
+                F: 15
+            };
 
-        function decode(data) {
-            function convert(obj) {
-                var result;
-                if (typeof obj.buffer == "string") {
-                    var buffer;
-                    if (obj.codec === "b64") {
-                        buffer = fromB64(obj.buffer);
-                    } else {
-                        buffer = fromHex(obj.buffer);
+            function fromHex(hexString) {
+                const bytes = new Uint8Array(
+                    Math.floor((hexString || "").length / 2)
+                );
+                let i;
+                for (i = 0; i < bytes.length; i++) {
+                    const a = MAP_HEX[hexString[i * 2]];
+                    const b = MAP_HEX[hexString[i * 2 + 1]];
+                    if (a === undefined || b === undefined) {
+                        break;
                     }
-                    if (obj.dtype === "float32") {
-                        result = new Float32Array(buffer.buffer);
-                    } else if (obj.dtype === "int32") {
-                        result = new Uint32Array(buffer.buffer);
-                    } else if (obj.dtype === "uint32") {
-                        result = new Uint32Array(buffer.buffer);
+                    bytes[i] = (a << 4) | b;
+                }
+                return i === bytes.length ? bytes : bytes.slice(0, i);
+            }
+
+            function fromB64(s) {
+                let bytes = atob(s);
+                let uint = new Uint8Array(bytes.length);
+                for (var i = 0; i < bytes.length; i++)
+                    uint[i] = bytes[i].charCodeAt(0);
+                return uint;
+            }
+
+            function decode(data) {
+                function convert(obj) {
+                    var result;
+                    if (typeof obj.buffer == "string") {
+                        var buffer;
+                        if (obj.codec === "b64") {
+                            buffer = fromB64(obj.buffer);
+                        } else {
+                            buffer = fromHex(obj.buffer);
+                        }
+                        if (obj.dtype === "float32") {
+                            result = new Float32Array(buffer.buffer);
+                        } else if (obj.dtype === "int32") {
+                            result = new Uint32Array(buffer.buffer);
+                        } else if (obj.dtype === "uint32") {
+                            result = new Uint32Array(buffer.buffer);
+                        } else {
+                            debugLog("Error: unknown dtype", obj.dtype);
+                        }
+                    } else if (Array.isArray(obj)) {
+                        result = [];
+                        for (var arr of obj) {
+                            result.push(convert(arr));
+                        }
+                        return result;
                     } else {
-                        debugLog("Error: unknown dtype", obj.dtype);
-                    }
-                } else if (Array.isArray(obj)) {
-                    result = [];
-                    for (var arr of obj) {
-                        result.push(convert(arr));
+                        debugLog("Error: unknown buffer type", obj.buffer);
                     }
                     return result;
-                } else {
-                    debugLog("Error: unknown buffer type", obj.buffer);
                 }
-                return result;
-            }
 
-            function combineFloatArrays(input) {
-                let totalLength = 0;
-                for (let i = 0; i < input.length; i++) {
-                    totalLength += input[i].length;
+                function combineFloatArrays(input) {
+                    let totalLength = 0;
+                    for (let i = 0; i < input.length; i++) {
+                        totalLength += input[i].length;
+                    }
+                    let output = new Float32Array(totalLength);
+                    let offset = 0;
+                    for (let i = 0; i < input.length; i++) {
+                        output.set(input[i], offset);
+                        offset += input[i].length;
+                    }
+                    return output;
                 }
-                let output = new Float32Array(totalLength);
-                let offset = 0;
-                for (let i = 0; i < input.length; i++) {
-                    output.set(input[i], offset);
-                    offset += input[i].length;
-                }
-                return output;
-            }
 
-            function walk(obj) {
-                var type = null;
-                for (var attr in obj) {
-                    if (attr === "parts") {
-                        for (var i in obj.parts) {
-                            walk(obj.parts[i]);
-                        }
-
-                    } else if (attr === "type") {
-                        type = obj.type;
-
-                    } else if (attr === "shape") {
-                        if (type === "shapes") {
-                            if (obj.shape.ref === undefined) {
-                                obj.shape.vertices = convert(obj.shape.vertices);
-                                obj.shape.obj_vertices = convert(obj.shape.obj_vertices);
-                                obj.shape.normals = convert(obj.shape.normals);
-                                obj.shape.edge_types = convert(obj.shape.edge_types);
-                                obj.shape.face_types = convert(obj.shape.face_types);
-                                obj.shape.triangles = convert(obj.shape.triangles);
-                                obj.shape.triangles_per_face = convert(obj.shape.triangles_per_face);
+                function walk(obj) {
+                    var type = null;
+                    for (var attr in obj) {
+                        if (attr === "parts") {
+                            for (var i in obj.parts) {
+                                walk(obj.parts[i]);
+                            }
+                        } else if (attr === "type") {
+                            type = obj.type;
+                        } else if (attr === "shape") {
+                            if (type === "shapes") {
+                                if (obj.shape.ref === undefined) {
+                                    obj.shape.vertices = convert(
+                                        obj.shape.vertices
+                                    );
+                                    obj.shape.obj_vertices = convert(
+                                        obj.shape.obj_vertices
+                                    );
+                                    obj.shape.normals = convert(
+                                        obj.shape.normals
+                                    );
+                                    obj.shape.edge_types = convert(
+                                        obj.shape.edge_types
+                                    );
+                                    obj.shape.face_types = convert(
+                                        obj.shape.face_types
+                                    );
+                                    obj.shape.triangles = convert(
+                                        obj.shape.triangles
+                                    );
+                                    obj.shape.triangles_per_face = convert(
+                                        obj.shape.triangles_per_face
+                                    );
+                                    obj.shape.edges = convert(obj.shape.edges);
+                                    obj.shape.segments_per_edge = convert(
+                                        obj.shape.segments_per_edge
+                                    );
+                                } else {
+                                    const ind = obj.shape.ref;
+                                    if (ind !== undefined) {
+                                        obj.shape = instances[ind];
+                                    }
+                                }
+                            } else if (type === "edges") {
                                 obj.shape.edges = convert(obj.shape.edges);
-                                obj.shape.segments_per_edge = convert(obj.shape.segments_per_edge);
+                                obj.shape.segments_per_edge = convert(
+                                    obj.shape.segments_per_edge
+                                );
+                                obj.shape.obj_vertices = convert(
+                                    obj.shape.obj_vertices
+                                );
                             } else {
-                                const ind = obj.shape.ref;
-                                if (ind !== undefined) {
-                                    obj.shape = instances[ind];
+                                obj.shape.obj_vertices = convert(
+                                    obj.shape.obj_vertices
+                                );
+                            }
+                        }
+                    }
+                }
+
+                const instances = data.data.instances;
+
+                data.data.instances.forEach((instance) => {
+                    instance.vertices = convert(instance.vertices);
+                    instance.obj_vertices = convert(instance.obj_vertices);
+                    instance.normals = convert(instance.normals);
+                    instance.edge_types = convert(instance.edge_types);
+                    instance.face_types = convert(instance.face_types);
+                    instance.triangles = convert(instance.triangles);
+                    instance.triangles_per_face = convert(
+                        instance.triangles_per_face
+                    );
+                    instance.edges = convert(instance.edges);
+                    instance.segments_per_edge = convert(
+                        instance.segments_per_edge
+                    );
+                });
+
+                walk(data.data.shapes);
+
+                data.data.instances = [];
+            }
+
+            function vector3(initArray) {
+                if (viewer) {
+                    let v = viewer.camera.getCamera().position.clone(); // just get some THREE.Vector3
+                    if (initArray) {
+                        v.fromArray(initArray);
+                    } else {
+                        v.fromArray([0, 0, 0]);
+                    }
+                    return v;
+                } else {
+                }
+            }
+            function length(v) {
+                return Math.sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
+            }
+
+            function normalize(v) {
+                let n = length(v);
+                return [v[0] / n, v[1] / n, v[2] / n];
+            }
+
+            function send(command, message) {
+                vscode.postMessage({
+                    command: command,
+                    text: message
+                });
+            }
+
+            function nc(change) {
+                if (_config.debug) {
+                    debugLog("notify", change);
+                }
+                if (change.zoom !== undefined) {
+                    _zoom = change.zoom.new;
+                }
+                if (change.position !== undefined) {
+                    _position = change.position.new;
+                }
+                if (change.quaternion !== undefined) {
+                    _quaternion = change.quaternion.new;
+                }
+                if (change.target !== undefined) {
+                    _target = change.target.new;
+                }
+                if (change.clip_intersection !== undefined) {
+                    _clipping.intersection = change.clip_intersection.new;
+                }
+                if (change.clip_planes !== undefined) {
+                    _clipping.planeHelpers = change.clip_planes.new;
+                }
+                if (change.clip_object_colors !== undefined) {
+                    _clipping.objectColors = change.clip_object_colors.new;
+                }
+                if (change.clip_slider_0 !== undefined) {
+                    _clipping.sliders[0] = change.clip_slider_0.new;
+                }
+                if (change.clip_slider_1 !== undefined) {
+                    _clipping.sliders[1] = change.clip_slider_1.new;
+                }
+                if (change.clip_slider_2 !== undefined) {
+                    _clipping.sliders[2] = change.clip_slider_2.new;
+                }
+                if (change.clip_normal_0 !== undefined) {
+                    _clipping.normals[0] = change.clip_normal_0.new;
+                }
+                if (change.clip_normal_1 !== undefined) {
+                    _clipping.normals[1] = change.clip_normal_1.new;
+                }
+                if (change.clip_normal_2 !== undefined) {
+                    _clipping.normals[2] = change.clip_normal_2.new;
+                }
+
+                var changed = false;
+                Object.keys(change).forEach((k) => {
+                    if (
+                        // (k !== "states") &&
+                        change[k].new !== undefined
+                    ) {
+                        message[k] = change[k].new;
+                        changed = true;
+                    }
+                });
+                if (viewer != null && viewer.treeview != null) {
+                    // ensure to clone the object
+                    const states_json = JSON.stringify(
+                        viewer.treeview.getStates()
+                    );
+                    const states = JSON.parse(states_json);
+                    if (
+                        oldStates == null ||
+                        JSON.stringify(oldStates) != states_json
+                    ) {
+                        message["states"] = states;
+                        oldStates = states;
+                        changed = true;
+                    }
+                }
+                if (changed) {
+                    send("status", message);
+                }
+            }
+
+            function normalizeWidth(width, glass, tools) {
+                const treeWidth =
+                    glass || !tools
+                        ? 0
+                        : preset(
+                              _config,
+                              "treeWidth",
+                              displayDefaultOptions.treeWidth
+                          );
+                return Math.max(minWidth - treeWidth, width - treeWidth - 20);
+            }
+
+            function normalizeHeight(height) {
+                return height - 65;
+            }
+
+            function getSize() {
+                return {
+                    width: window.innerWidth || document.body.clientWidth,
+                    height: window.innerHeight || document.body.clientHeight
+                };
+            }
+
+            function preset(config, key, val) {
+                return config == null || config[key] == null
+                    ? val
+                    : config[key];
+            }
+
+            function getDisplayOptions(theme) {
+                const size = getSize();
+                const glass = preset(
+                    _config,
+                    "glass",
+                    displayDefaultOptions.glass
+                );
+                theme = theme ? theme : displayDefaultOptions.theme;
+                const tools = preset(
+                    _config,
+                    "tools",
+                    displayDefaultOptions.tools
+                );
+                const treeWidth =
+                    glass || !tools
+                        ? 0
+                        : preset(
+                              _config,
+                              "treeWidth",
+                              displayDefaultOptions.treeWidth
+                          );
+                const keymap = preset(
+                    _config,
+                    "modifier_keys",
+                    displayDefaultOptions.keymap
+                );
+                const newTreeBehavior = preset(
+                    _config,
+                    "new_tree_behavior",
+                    viewerDefaultOptions.newTreeBehavior
+                );
+                const cadWidth = normalizeWidth(size.width, glass, tools);
+                return {
+                    glass: glass,
+                    treeWidth: treeWidth,
+                    cadWidth: cadWidth,
+                    height: normalizeHeight(size.height),
+                    theme: theme,
+                    tools: tools,
+                    keymap: keymap,
+                    newTreeBehavior: newTreeBehavior,
+                    measureTools: displayDefaultOptions.measureTools,
+                    selectTool: displayDefaultOptions.selectTool,
+                    measurementDebug: displayDefaultOptions.measurementDebug
+                };
+            }
+
+            function showViewer(shapes, config) {
+                debugLog("showViewer called");
+                if (viewer != null) {
+                    viewer.hasAnimationLoop = false;
+                    viewer.continueAnimation = false;
+                    viewer.dispose();
+                    viewer = null;
+                }
+
+                _shapes = shapes;
+                _config = config;
+
+                const displayOptions = getDisplayOptions(config.theme);
+
+                if (display == null) {
+                    const container = document.getElementById("cad_viewer");
+                    container.innerHTML = "";
+                    display = new Display(container, displayOptions);
+                }
+
+                if (_config == null) {
+                    debugLog("OCP CAD Viewer: config is null");
+                    _config = {};
+                }
+
+                if (_config.debug) {
+                    debugLog("_config", _config);
+                    debugLog("displayOptions", displayOptions);
+                }
+
+                // Turn of animation loop of last viewer
+                if (viewer != null) {
+                    viewer.hasAnimationLoop = false;
+                    viewer.continueAnimation = false;
+                }
+
+                viewer = new Viewer(display, displayOptions, nc, null);
+
+                if (_shapes) render();
+
+                display.glassMode(displayOptions.glass);
+                display.showTools(displayOptions.tools);
+
+                debugLog("showViewer finished");
+
+                return viewer;
+
+                // viewer.trimUI(["axes", "axes0", "grid", "ortho", "more", "help"])
+            }
+
+            function render() {
+                const renderOptions = {
+                    ambientIntensity: preset(
+                        _config,
+                        "ambient_intensity",
+                        renderDefaultOptions.ambientIntensity
+                    ),
+                    directIntensity: preset(
+                        _config,
+                        "direct_intensity",
+                        renderDefaultOptions.directIntensity
+                    ),
+                    metalness: preset(
+                        _config,
+                        "metalness",
+                        renderDefaultOptions.metalness
+                    ),
+                    roughness: preset(
+                        _config,
+                        "roughness",
+                        renderDefaultOptions.roughness
+                    ),
+                    edgeColor: preset(
+                        _config,
+                        "default_edgecolor",
+                        renderDefaultOptions.defaultEdgecolor
+                    ),
+                    defaultOpacity: preset(
+                        _config,
+                        "default_opacity",
+                        renderDefaultOptions.defaultOpacity
+                    ),
+                    normalLen: preset(
+                        _config,
+                        "normal_len",
+                        renderDefaultOptions.normalLen
+                    )
+                };
+
+                viewerOptions = {
+                    axes: preset(_config, "axes", viewerDefaultOptions.axes),
+                    axes0: preset(_config, "axes0", viewerDefaultOptions.axes0),
+                    blackEdges: preset(
+                        _config,
+                        "black_edges",
+                        viewerDefaultOptions.blackEdges
+                    ),
+                    grid: preset(_config, "grid", viewerDefaultOptions.grid),
+                    collapse: preset(
+                        _config,
+                        "collapse",
+                        viewerDefaultOptions.collapse
+                    ),
+                    ortho: preset(_config, "ortho", viewerDefaultOptions.ortho),
+                    ticks: preset(_config, "ticks", viewerDefaultOptions.ticks),
+                    centerGrid: preset(
+                        _config,
+                        "center_grid",
+                        viewerDefaultOptions.centerGrid
+                    ),
+                    timeit: preset(
+                        _config,
+                        "timeit",
+                        viewerDefaultOptions.timeit
+                    ),
+                    tools: preset(_config, "tools", viewerDefaultOptions.tools),
+                    glass: preset(_config, "glass", viewerDefaultOptions.glass),
+                    up: preset(_config, "up", viewerDefaultOptions.up),
+                    transparent: preset(
+                        _config,
+                        "transparent",
+                        viewerDefaultOptions.transparent
+                    ),
+                    control: preset(
+                        _config,
+                        "control",
+                        viewerDefaultOptions.control
+                    ),
+                    panSpeed: preset(
+                        _config,
+                        "pan_speed",
+                        viewerDefaultOptions.panSpeed
+                    ),
+                    zoomSpeed: preset(
+                        _config,
+                        "zoom_speed",
+                        viewerDefaultOptions.zoomSpeed
+                    ),
+                    rotateSpeed: preset(
+                        _config,
+                        "rotate_speed",
+                        viewerDefaultOptions.rotateSpeed
+                    ),
+                    clipSlider0: preset(
+                        _config,
+                        "clip_slider_0",
+                        viewerDefaultOptions.clipSlider0
+                    ),
+                    clipSlider1: preset(
+                        _config,
+                        "clip_slider_1",
+                        viewerDefaultOptions.clipSlider1
+                    ),
+                    clipSlider2: preset(
+                        _config,
+                        "clip_slider_2",
+                        viewerDefaultOptions.clipSlider2
+                    ),
+                    clipNormal0: preset(
+                        _config,
+                        "clip_normal_0",
+                        viewerDefaultOptions.clipNormal0
+                    ),
+                    clipNormal1: preset(
+                        _config,
+                        "clip_normal_1",
+                        viewerDefaultOptions.clipNormal1
+                    ),
+                    clipNormal2: preset(
+                        _config,
+                        "clip_normal_2",
+                        viewerDefaultOptions.clipNormal2
+                    ),
+                    clipIntersection: preset(
+                        _config,
+                        "clip_intersection",
+                        viewerDefaultOptions.clipIntersection
+                    ),
+                    clipPlaneHelpers: preset(
+                        _config,
+                        "clip_planes",
+                        viewerDefaultOptions.clipPlaneHelpers
+                    ),
+                    clipObjectColors: preset(
+                        _config,
+                        "clip_object_colors",
+                        viewerDefaultOptions.clipObjectColors
+                    )
+                };
+
+                var reset_camera = preset(_config, "reset_camera", "reset");
+
+                if (_config.debug) {
+                    debugLog("renderOptions", renderOptions);
+                    debugLog("viewerOptions", viewerOptions);
+                    debugLog("reset_camera", reset_camera);
+                }
+
+                // var shapesAndTree = viewer.renderTessellatedShapes(_shapes, _states, renderOptions)
+                const bbox = _shapes["bb"];
+                const center = [
+                    (bbox.xmax + bbox.xmin) / 2,
+                    (bbox.ymax + bbox.ymin) / 2,
+                    (bbox.zmax + bbox.zmin) / 2
+                ];
+                let bb_radius = Math.max(
+                    // bbox.boundingSphere().radius,
+                    Math.sqrt(
+                        Math.pow(bbox.xmax - bbox.xmin, 2) +
+                            Math.pow(bbox.ymax - bbox.ymin, 2) +
+                            Math.pow(bbox.zmax - bbox.zmin, 2)
+                    ),
+                    length(center)
+                );
+
+                // if ((reset_camera === "keep") && (last_bb_radius != null) && ((bb_radius < last_bb_radius / 2) || (bb_radius > last_bb_radius * 2))) {
+                //     reset_camera = "center";
+                //     const msg = `Bounding box 2 times smaller/larger than before, changed reset_camera to Camera.CENTER`;
+                //     send("info", msg);
+                //     if (_config.debug) {
+                //         debugLog(msg);
+                //     }
+                // }
+                last_bb_radius = bb_radius;
+                // debugLog("bb_radius", bb_radius)
+                if (reset_camera === "reset") {
+                    // even if reset is requested, respect the position settings from the object
+
+                    if (_config.zoom !== undefined) {
+                        viewerOptions.zoom = _config.zoom;
+                    }
+                    if (_config.position !== undefined) {
+                        viewerOptions.position = _config.position;
+                    }
+                    if (_config.quaternion !== undefined) {
+                        viewerOptions.quaternion = _config.quaternion;
+                    }
+                    if (_config.target !== undefined) {
+                        viewerOptions.target = _config.target;
+                    }
+                    if (_config.clip_slider_0 != undefined) {
+                        viewerOptions.clipSlider0 = _config.clip_slider_0;
+                    }
+                    if (_config.clip_slider_1 != undefined) {
+                        viewerOptions.clipSlider1 = _config.clip_slider_1;
+                    }
+                    if (_config.clip_slider_2 != undefined) {
+                        viewerOptions.clipSlider2 = _config.clip_slider_2;
+                    }
+                    if (_config.clip_normal_0 != undefined) {
+                        viewerOptions.clipNormal0 = _config.clip_normal_0;
+                    }
+                    if (_config.clip_normal_1 != undefined) {
+                        viewerOptions.clipNormal1 = _config.clip_normal_1;
+                    }
+                    if (_config.clip_normal_2 != undefined) {
+                        viewerOptions.clipNormal2 = _config.clip_normal_2;
+                    }
+                    if (_config.clip_intersection != undefined) {
+                        viewerOptions.clipIntersection =
+                            _config.clip_intersection;
+                    }
+                    if (_config.clip_planes != undefined) {
+                        viewerOptions.clipPlaneHelpers = _config.clip_planes;
+                    }
+                    if (_config.clip_object_colors != undefined) {
+                        viewerOptions.clipObjectColors =
+                            _config.clip_object_colors;
+                    }
+                    _camera_distance = null;
+                } else {
+                    if (_config.position) {
+                        viewerOptions.position = _config.position;
+                    } else if (_position) {
+                        if (reset_camera === "keep") {
+                            const camera_distance = 2.5 * bb_radius;
+
+                            var p = [0, 0, 0];
+                            for (var i = 0; i < 3; i++) {
+                                p[i] = _position[i] - _target[i];
+                            }
+                            p = normalize(p);
+                            var offset =
+                                reset_camera === "keep" ? _target : [0, 0, 0];
+                            for (var i = 0; i < 3; i++) {
+                                p[i] = p[i] * camera_distance + offset[i];
+                            }
+                        } else if (reset_camera === "center") {
+                            // center
+                            var p = [0, 0, 0];
+                            for (var i = 0; i < 3; i++) {
+                                p[i] = _position[i] - _target[i] + center[i];
+                            }
+                            _target = center;
+                        }
+                        // do nothing when reset_camera is a preset view
+                    }
+                    viewerOptions.position = p;
+                    _position = viewerOptions.position;
+
+                    if (_config.quaternion) {
+                        viewerOptions.quaternion = _config.quaternion;
+                    } else if (_quaternion) {
+                        viewerOptions.quaternion = _quaternion;
+                    }
+
+                    if (_config.target) {
+                        viewerOptions.target = _config.target;
+                    } else if (_target) {
+                        viewerOptions.target = _target;
+                    }
+
+                    if (_config.zoom) {
+                        viewerOptions.zoom = _config.zoom;
+                    } else if (_zoom) {
+                        viewerOptions.zoom = _zoom;
+                    }
+
+                    if (_config.clip_slider_0 != undefined) {
+                        viewerOptions.clipSlider0 = _config.clip_slider_0;
+                    } else {
+                        viewerOptions.clipSlider0 = _clipping.sliders[0];
+                    }
+                    if (_config.clip_slider_1 != undefined) {
+                        viewerOptions.clipSlider1 = _config.clip_slider_1;
+                    } else {
+                        viewerOptions.clipSlider1 = _clipping.sliders[1];
+                    }
+                    if (_config.clip_slider_2 != undefined) {
+                        viewerOptions.clipSlider2 = _config.clip_slider_2;
+                    } else {
+                        viewerOptions.clipSlider2 = _clipping.sliders[2];
+                    }
+                    if (_config.clip_normal_0 != undefined) {
+                        viewerOptions.clipNormal0 = _config.clip_normal_0;
+                    } else {
+                        viewerOptions.clipNormal0 = _clipping.normals[0];
+                    }
+                    if (_config.clip_normal_1 != undefined) {
+                        viewerOptions.clipNormal1 = _config.clip_normal_1;
+                    } else {
+                        viewerOptions.clipNormal1 = _clipping.normals[1];
+                    }
+                    if (_config.clip_normal_2 != undefined) {
+                        viewerOptions.clipNormal2 = _config.clip_normal_2;
+                    } else {
+                        viewerOptions.clipNormal2 = _clipping.normals[2];
+                    }
+                    if (_config.clip_intersection != undefined) {
+                        viewerOptions.clipIntersection =
+                            _config.clip_intersection;
+                    } else {
+                        viewerOptions.clipIntersection = _clipping.intersection;
+                    }
+                    if (_config.clip_planes != undefined) {
+                        viewerOptions.clipPlaneHelpers = _config.clip_planes;
+                    } else {
+                        viewerOptions.clipPlaneHelpers = _clipping.planeHelpers;
+                    }
+                    if (_config.clip_object_colors != undefined) {
+                        viewerOptions.clipObjectColors =
+                            _config.clip_object_colors;
+                    } else {
+                        viewerOptions.clipObjectColors = _clipping.objectColors;
+                    }
+                }
+
+                if (_config.debug) {
+                    debugLog("viewerOptions (modified)", viewerOptions);
+                }
+                debugLog("Rendering objects with three-cad-viewer");
+                viewer.render(_shapes, renderOptions, viewerOptions);
+                debugLog("Rendering done");
+
+                if (reset_camera === "keep" && _camera_distance != null) {
+                    // debugLog("camera_distance", _camera_distance, viewer.camera.camera_distance, viewer.camera.camera_distance/_camera_distance);
+                    viewer.setCameraZoom(
+                        ((_zoom == null ? 1.0 : _zoom) *
+                            viewer.camera.camera_distance) /
+                            _camera_distance
+                    );
+                }
+
+                if (
+                    [
+                        "iso",
+                        "left",
+                        "right",
+                        "top",
+                        "bottom",
+                        "rear",
+                        "front"
+                    ].includes(reset_camera)
+                ) {
+                    viewer.display.setView(reset_camera);
+                }
+
+                _position = message["position"] = viewer.getCameraPosition();
+                _quaternion = message["quaternion"] =
+                    viewer.getCameraQuaternion();
+                _target = message["target"] = viewer.controls
+                    .getTarget()
+                    .toArray();
+                _zoom = message["zoom"] = viewer.getCameraZoom();
+                _camera_distance = viewer.camera.camera_distance;
+
+                _clipping = {
+                    sliders: [
+                        viewer.getClipSlider(0),
+                        viewer.getClipSlider(1),
+                        viewer.getClipSlider(2)
+                    ],
+                    normals: [
+                        viewer.getClipNormal(0),
+                        viewer.getClipNormal(1),
+                        viewer.getClipNormal(2)
+                    ],
+                    planeHelpers: viewer.getClipPlaneHelpers(),
+                    objectColors: viewer.getObjectColorCaps(),
+                    intersection: viewer.getClipIntersection()
+                };
+                send("status", message);
+
+                if (_config.explode) {
+                    viewer.display.setExplode("", true);
+                    viewer.display.setExplodeCheck(true);
+                }
+
+                if (_config.debug) {
+                    console.log("viewer", viewer);
+                }
+            }
+
+            window.addEventListener(
+                "resize",
+                function (event) {
+                    if (viewer != null) {
+                        const displayOptions = getDisplayOptions(_config.theme);
+                        viewer.resizeCadView(
+                            displayOptions.cadWidth,
+                            displayOptions.treeWidth,
+                            displayOptions.height,
+                            displayOptions.glass
+                        );
+                    }
+                },
+                true
+            );
+
+            debugLog("resize listener registered");
+
+            window.addEventListener("message", (event) => {
+                function getStates(meshData) {
+                    const states = {};
+                    function walk(meshData) {
+                        if (meshData.parts != null) {
+                            for (var i in meshData.parts) {
+                                walk(meshData.parts[i]);
+                            }
+                        } else {
+                            states[meshData.id] = meshData.state;
+                        }
+                    }
+                    walk(meshData);
+                    return states;
+                }
+
+                var data =
+                    typeof event.data === "string" ||
+                    event.data instanceof String
+                        ? JSON.parse(event.data)
+                        : event.data;
+
+                if (data.type === "data") {
+                    const timer = new Timer("webView", data.config.timeit);
+
+                    decode(data);
+                    timer.split("data decoded");
+
+                    var old_states =
+                        viewer == null
+                            ? {}
+                            : viewer.treeview == null
+                            ? {}
+                            : viewer.treeview.getStates();
+
+                    let meshData = data.data;
+                    let config = data.config;
+
+                    if (config._splash) {
+                        const displayOptions = getDisplayOptions(config.theme);
+                        config.zoom = Math.min(
+                            1.0,
+                            displayOptions.cadWidth / displayOptions.height
+                        );
+                        // debugLog("logo zoom =", config.zoom);
+                    }
+
+                    showViewer(meshData.shapes, config);
+                    var new_states = getStates(meshData.shapes);
+
+                    const new_keys = Object.keys(new_states);
+
+                    Object.keys(old_states).forEach((key) => {
+                        if (new_keys.includes(key)) {
+                            if (
+                                new_states[key][0] !== old_states[key][0] ||
+                                new_states[key][1] !== old_states[key][1]
+                            ) {
+                                if (data.config.measure_tools) {
+                                    viewer.treeview.handleStateChange(
+                                        "node",
+                                        key,
+                                        0,
+                                        old_states[key][0]
+                                    );
+                                    viewer.treeview.handleStateChange(
+                                        "node",
+                                        key,
+                                        1,
+                                        old_states[key][1]
+                                    );
+                                } else {
+                                    viewer.setState(key, old_states[key]);
                                 }
                             }
-                        } else if (type === "edges") {
-                            obj.shape.edges = convert(obj.shape.edges);
-                            obj.shape.segments_per_edge = convert(obj.shape.segments_per_edge);
-                            obj.shape.obj_vertices = convert(obj.shape.obj_vertices);
-                        } else {
-                            obj.shape.obj_vertices = convert(obj.shape.obj_vertices);
                         }
-                    }
-                }
-            }
-            
-            const instances = data.data.instances;
+                    });
+                    timer.split("states updated");
 
-            data.data.instances.forEach((instance) => {
-                instance.vertices = convert(instance.vertices);
-                instance.obj_vertices = convert(instance.obj_vertices);
-                instance.normals = convert(instance.normals);
-                instance.edge_types = convert(instance.edge_types);
-                instance.face_types = convert(instance.face_types);
-                instance.triangles = convert(instance.triangles);
-                instance.triangles_per_face = convert(instance.triangles_per_face);
-                instance.edges = convert(instance.edges);
-                instance.segments_per_edge = convert(instance.segments_per_edge);
-            });
-
-            walk(data.data.shapes);
-
-            data.data.instances = []
-        }
-
-        function vector3(initArray) {
-            if (viewer) {
-                let v = viewer.camera.getCamera().position.clone() // just get some THREE.Vector3
-                if (initArray) {
-                    v.fromArray(initArray);
-                } else {
-                    v.fromArray([0, 0, 0]);
-                }
-                return v;
-            } else {
-
-            }
-        }
-        function length(v) {
-            return Math.sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
-        }
-
-        function normalize(v) {
-            let n = length(v);
-            return [v[0] / n, v[1] / n, v[2] / n];
-        }
-
-        function send(command, message) {
-            vscode.postMessage({
-                command: command,
-                text: message
-            });
-        }
-
-        function nc(change) {
-            if (_config.debug) {
-                debugLog("notify", change);
-            }
-            if (change.zoom !== undefined) {
-                _zoom = change.zoom.new;
-            }
-            if (change.position !== undefined) {
-                _position = change.position.new;
-            }
-            if (change.quaternion !== undefined) {
-                _quaternion = change.quaternion.new;
-            }
-            if (change.target !== undefined) {
-                _target = change.target.new;
-            }
-            if (change.clip_intersection !== undefined) {
-                _clipping.intersection = change.clip_intersection.new;
-            }
-            if (change.clip_planes !== undefined) {
-                _clipping.planeHelpers = change.clip_planes.new;
-            }
-            if (change.clip_object_colors !== undefined) {
-                _clipping.objectColors = change.clip_object_colors.new;
-            }
-            if (change.clip_slider_0 !== undefined) {
-                _clipping.sliders[0] = change.clip_slider_0.new;
-            }
-            if (change.clip_slider_1 !== undefined) {
-                _clipping.sliders[1] = change.clip_slider_1.new;
-            }
-            if (change.clip_slider_2 !== undefined) {
-                _clipping.sliders[2] = change.clip_slider_2.new;
-            }
-            if (change.clip_normal_0 !== undefined) {
-                _clipping.normals[0] = change.clip_normal_0.new;
-            }
-            if (change.clip_normal_1 !== undefined) {
-                _clipping.normals[1] = change.clip_normal_1.new;
-            }
-            if (change.clip_normal_2 !== undefined) {
-                _clipping.normals[2] = change.clip_normal_2.new;
-            }
-
-            var changed = false;
-            Object.keys(change).forEach((k) => {
-                if (
-                    // (k !== "states") &&
-                    (change[k].new !== undefined)
-                ) {
-                    message[k] = change[k].new;
-                    changed = true;
-                }
-            });
-            if (viewer != null && viewer.treeview != null) {
-                // ensure to clone the object
-                const states_json = JSON.stringify(viewer.treeview.getStates());
-                const states = JSON.parse(states_json);
-                if (oldStates == null || JSON.stringify(oldStates) != states_json) {
-                    message["states"] = states;
-                    oldStates = states;
-                    changed = true;
-                }
-            }
-            if (changed) {
-                send('status', message);
-            }
-        }
-
-        function normalizeWidth(width, glass, tools) {
-            const treeWidth = (glass || !tools) ? 0 : preset(_config, "treeWidth", displayDefaultOptions.treeWidth);
-            return Math.max(minWidth - treeWidth, width - treeWidth - 20);
-        }
-
-        function normalizeHeight(height) {
-            return height - 65;
-        }
-
-        function getSize() {
-            return {
-                width: window.innerWidth || document.body.clientWidth,
-                height: window.innerHeight || document.body.clientHeight
-            }
-        }
-
-        function preset(config, key, val) {
-            return ((config == null) || (config[key] == null)) ? val : config[key];
-        }
-
-        function getDisplayOptions(theme) {
-            const size = getSize();
-            const glass = preset(_config, "glass", displayDefaultOptions.glass);
-            theme = (theme)?theme : displayDefaultOptions.theme;
-            const tools = preset(_config, "tools", displayDefaultOptions.tools);
-            const treeWidth = (glass || !tools) ? 0 : preset(_config, "treeWidth", displayDefaultOptions.treeWidth);
-            const keymap = preset(_config, "modifier_keys", displayDefaultOptions.keymap);
-            const newTreeBehavior = preset(_config, "new_tree_behavior", viewerDefaultOptions.newTreeBehavior);
-            const cadWidth = normalizeWidth(size.width, glass, tools);
-            return {
-                glass: glass,
-                treeWidth: treeWidth,
-                cadWidth: cadWidth,
-                height: normalizeHeight(size.height),
-                theme: theme,
-                tools: tools,
-                keymap: keymap,
-                newTreeBehavior: newTreeBehavior,
-                measureTools: displayDefaultOptions.measureTools,
-                selectTool: displayDefaultOptions.selectTool,
-                measurementDebug: displayDefaultOptions.measurementDebug
-            }
-        }
-
-        function showViewer(shapes, config) {
-            debugLog("showViewer called");
-            if (viewer != null) {
-                viewer.hasAnimationLoop = false;
-                viewer.continueAnimation = false;
-                viewer.dispose()
-                viewer = null;
-            }            
-            
-            _shapes = shapes;
-            _config = config;
-
-            const displayOptions = getDisplayOptions(config.theme);
-            
-            if (display==null){
-                const container = document.getElementById("cad_viewer");
-                container.innerHTML = "";
-                display = new Display(container, displayOptions)
-            }            
-
-            if (_config == null) {
-                debugLog("OCP CAD Viewer: config is null");
-                _config = {}
-            }
-
-            if (_config.debug) {
-                debugLog("_config", _config);
-                debugLog("displayOptions", displayOptions);
-            }
-
-            // Turn of animation loop of last viewer
-            if (viewer != null) {
-              viewer.hasAnimationLoop = false;
-              viewer.continueAnimation = false;
-            }
-            
-            viewer = new Viewer(display, displayOptions, nc, null);
-            
-            
-            if (_shapes) render();
-            
-            display.glassMode(displayOptions.glass);
-            display.showTools(displayOptions.tools);
-            
-            debugLog("showViewer finished");
-
-            return viewer;
-            
-            // viewer.trimUI(["axes", "axes0", "grid", "ortho", "more", "help"])           
-        }
-
-        function render() {
-            const renderOptions = {
-                ambientIntensity: preset(_config, "ambient_intensity", renderDefaultOptions.ambientIntensity),
-                directIntensity: preset(_config, "direct_intensity", renderDefaultOptions.directIntensity),
-                metalness: preset(_config, "metalness", renderDefaultOptions.metalness),
-                roughness: preset(_config, "roughness", renderDefaultOptions.roughness),
-                edgeColor: preset(_config, "default_edgecolor", renderDefaultOptions.defaultEdgecolor),
-                defaultOpacity: preset(_config, "default_opacity", renderDefaultOptions.defaultOpacity),
-                normalLen: preset(_config, "normal_len", renderDefaultOptions.normalLen),
-            };
-
-            viewerOptions = {
-                axes: preset(_config, "axes", viewerDefaultOptions.axes),
-                axes0: preset(_config, "axes0", viewerDefaultOptions.axes0),
-                blackEdges: preset(_config, "black_edges", viewerDefaultOptions.blackEdges),
-                grid: preset(_config, "grid", viewerDefaultOptions.grid),
-                collapse: preset(_config, "collapse", viewerDefaultOptions.collapse),
-                ortho: preset(_config, "ortho", viewerDefaultOptions.ortho),
-                ticks: preset(_config, "ticks", viewerDefaultOptions.ticks),
-                centerGrid: preset(_config, "center_grid", viewerDefaultOptions.centerGrid),
-                timeit: preset(_config, "timeit", viewerDefaultOptions.timeit),
-                tools: preset(_config, "tools", viewerDefaultOptions.tools),
-                glass: preset(_config, "glass", viewerDefaultOptions.glass),
-                up: preset(_config, "up", viewerDefaultOptions.up),
-                transparent: preset(_config, "transparent", viewerDefaultOptions.transparent),
-                control: preset(_config, "control", viewerDefaultOptions.control),
-                panSpeed: preset(_config, "pan_speed", viewerDefaultOptions.panSpeed),
-                zoomSpeed: preset(_config, "zoom_speed", viewerDefaultOptions.zoomSpeed),
-                rotateSpeed: preset(_config, "rotate_speed", viewerDefaultOptions.rotateSpeed),
-                clipSlider0: preset(_config, "clip_slider_0", viewerDefaultOptions.clipSlider0),
-                clipSlider1: preset(_config, "clip_slider_1", viewerDefaultOptions.clipSlider1),
-                clipSlider2: preset(_config, "clip_slider_2", viewerDefaultOptions.clipSlider2),
-                clipNormal0: preset(_config, "clip_normal_0", viewerDefaultOptions.clipNormal0),
-                clipNormal1: preset(_config, "clip_normal_1", viewerDefaultOptions.clipNormal1),
-                clipNormal2: preset(_config, "clip_normal_2", viewerDefaultOptions.clipNormal2),
-                clipIntersection: preset(_config, "clip_intersection", viewerDefaultOptions.clipIntersection),
-                clipPlaneHelpers: preset(_config, "clip_planes", viewerDefaultOptions.clipPlaneHelpers),
-                clipObjectColors: preset(_config, "clip_object_colors", viewerDefaultOptions.clipObjectColors)
-            };
-
-            var reset_camera = preset(_config, "reset_camera", "reset");
-
-            if (_config.debug) {
-                debugLog("renderOptions", renderOptions);
-                debugLog("viewerOptions", viewerOptions);
-                debugLog("reset_camera", reset_camera);
-            }
-
-            // var shapesAndTree = viewer.renderTessellatedShapes(_shapes, _states, renderOptions)
-            const bbox = _shapes["bb"];
-            const center = [(bbox.xmax+bbox.xmin)/2, (bbox.ymax+bbox.ymin)/2, (bbox.zmax+bbox.zmin)/2];
-            let bb_radius = Math.max(
-                // bbox.boundingSphere().radius,
-                Math.sqrt(Math.pow(bbox.xmax - bbox.xmin, 2) + Math.pow(bbox.ymax - bbox.ymin, 2) + Math.pow(bbox.zmax - bbox.zmin, 2)),
-                length(center)
-            );
-
-            // if ((reset_camera === "keep") && (last_bb_radius != null) && ((bb_radius < last_bb_radius / 2) || (bb_radius > last_bb_radius * 2))) {
-            //     reset_camera = "center";
-            //     const msg = `Bounding box 2 times smaller/larger than before, changed reset_camera to Camera.CENTER`;
-            //     send("info", msg);
-            //     if (_config.debug) {
-            //         debugLog(msg);
-            //     }
-            // }
-            last_bb_radius = bb_radius;
-            // debugLog("bb_radius", bb_radius)
-            if (reset_camera === "reset") {
-                // even if reset is requested, respect the position settings from the object
-
-                if (_config.zoom !== undefined) {
-                    viewerOptions.zoom = _config.zoom;
-                }
-                if (_config.position !== undefined) {
-                    viewerOptions.position = _config.position;
-                }
-                if (_config.quaternion !== undefined) {
-                    viewerOptions.quaternion = _config.quaternion;
-                }
-                if (_config.target !== undefined) {
-                    viewerOptions.target = _config.target;
-                }
-                if (_config.clip_slider_0 != undefined) {
-                    viewerOptions.clipSlider0 = _config.clip_slider_0;
-                }
-                if (_config.clip_slider_1 != undefined) {
-                    viewerOptions.clipSlider1 = _config.clip_slider_1;
-                }
-                if (_config.clip_slider_2 != undefined) {
-                    viewerOptions.clipSlider2 = _config.clip_slider_2;
-                }
-                if (_config.clip_normal_0 != undefined) {
-                    viewerOptions.clipNormal0 = _config.clip_normal_0;
-                }
-                if (_config.clip_normal_1 != undefined) {
-                    viewerOptions.clipNormal1 = _config.clip_normal_1;
-                }
-                if (_config.clip_normal_2 != undefined) {
-                    viewerOptions.clipNormal2 = _config.clip_normal_2;
-                }
-                if (_config.clip_intersection != undefined) {
-                    viewerOptions.clipIntersection = _config.clip_intersection;
-                }
-                if (_config.clip_planes != undefined) {
-                    viewerOptions.clipPlaneHelpers = _config.clip_planes;
-                }
-                if (_config.clip_object_colors != undefined) {
-                    viewerOptions.clipObjectColors = _config.clip_object_colors;
-                }
-                _camera_distance = null;
-
-            } else {
-                if (_config.position) {
-                    viewerOptions.position = _config.position;
-                } else if (_position) {
-                    if (reset_camera === "keep") {
-                        const camera_distance = 2.5 * bb_radius;
-
-                        var p = [0, 0, 0];
-                        for (var i = 0; i < 3; i++) {
-                            p[i] = _position[i] - _target[i];
-                        }
-                        p = normalize(p);
-                        var offset = (reset_camera === "keep") ? _target : [0,0,0];
-                        for (var i = 0; i < 3; i++) {
-                            p[i] = p[i] * camera_distance + offset[i];
-                        }                       
-                    } else if (reset_camera === "center") { // center
-                        var p = [0, 0, 0];
-                        for (var i = 0; i < 3; i++) {
-                            p[i] = _position[i] - _target[i] + center[i];
-                        }
-                        _target = center
-                    } 
-                    // do nothing when reset_camera is a preset view
-                }
-                viewerOptions.position = p;
-                _position = viewerOptions.position;
-
-                if (_config.quaternion) {
-                    viewerOptions.quaternion = _config.quaternion;
-                } else if (_quaternion) {
-                    viewerOptions.quaternion = _quaternion;
-                }
-
-                if (_config.target) {
-                    viewerOptions.target = _config.target;
-                } else if (_target) {
-                    viewerOptions.target = _target;
-                }
-
-                if (_config.zoom) {
-                    viewerOptions.zoom = _config.zoom;
-                } else if (_zoom) {
-                    viewerOptions.zoom = _zoom;
-                }
-
-                if (_config.clip_slider_0 != undefined) {
-                    viewerOptions.clipSlider0 = _config.clip_slider_0;
-                } else {
-                    viewerOptions.clipSlider0 = _clipping.sliders[0];
-                }
-                if (_config.clip_slider_1 != undefined) {
-                    viewerOptions.clipSlider1 = _config.clip_slider_1;
-                } else {
-                    viewerOptions.clipSlider1 = _clipping.sliders[1];
-                }
-                if (_config.clip_slider_2 != undefined) {
-                    viewerOptions.clipSlider2 = _config.clip_slider_2;
-                } else {
-                    viewerOptions.clipSlider2 = _clipping.sliders[2];
-                }
-                if (_config.clip_normal_0 != undefined) {
-                    viewerOptions.clipNormal0 = _config.clip_normal_0;
-                } else {
-                    viewerOptions.clipNormal0 = _clipping.normals[0];
-                }
-                if (_config.clip_normal_1 != undefined) {
-                    viewerOptions.clipNormal1 = _config.clip_normal_1;
-                } else {
-                    viewerOptions.clipNormal1 = _clipping.normals[1];
-                }
-                if (_config.clip_normal_2 != undefined) {
-                    viewerOptions.clipNormal2 = _config.clip_normal_2;
-                } else {
-                    viewerOptions.clipNormal2 = _clipping.normals[2];
-                }
-                if (_config.clip_intersection != undefined) {
-                    viewerOptions.clipIntersection = _config.clip_intersection;
-                } else {
-                    viewerOptions.clipIntersection = _clipping.intersection;
-                }
-                if (_config.clip_planes != undefined) {
-                    viewerOptions.clipPlaneHelpers = _config.clip_planes;
-                } else {
-                    viewerOptions.clipPlaneHelpers = _clipping.planeHelpers;
-                }
-                if (_config.clip_object_colors != undefined) {
-                    viewerOptions.clipObjectColors = _config.clip_object_colors;
-                } else {
-                    viewerOptions.clipObjectColors = _clipping.objectColors;
-                }
-            }
-
-            if (_config.debug) {
-                debugLog("viewerOptions (modified)", viewerOptions);
-            }
-            debugLog("Rendering objects with three-cad-viewer");
-            viewer.render(
-                _shapes,
-                renderOptions,
-                viewerOptions,
-            );
-            debugLog("Rendering done");
-
-            if (reset_camera === "keep" && _camera_distance != null) {
-                // debugLog("camera_distance", _camera_distance, viewer.camera.camera_distance, viewer.camera.camera_distance/_camera_distance);
-                viewer.setCameraZoom((_zoom==null ? 1.0 : _zoom) * viewer.camera.camera_distance / _camera_distance)
-            }
-            
-            if (["iso", "left", "right", "top", "bottom", "rear", "front"].includes(reset_camera)) {
-                viewer.display.setView(reset_camera)
-            }
-
-            _position = message["position"] = viewer.getCameraPosition();
-            _quaternion = message["quaternion"] = viewer.getCameraQuaternion();
-            _target = message["target"] = viewer.controls.getTarget().toArray();
-            _zoom = message["zoom"] = viewer.getCameraZoom();
-            _camera_distance = viewer.camera.camera_distance;
-            
-            _clipping = {
-                "sliders": [viewer.getClipSlider(0), viewer.getClipSlider(1), viewer.getClipSlider(2)],
-                "normals": [viewer.getClipNormal(0), viewer.getClipNormal(1), viewer.getClipNormal(2)],
-                "planeHelpers": viewer.getClipPlaneHelpers(),
-                "objectColors": viewer.getObjectColorCaps(),
-                "intersection": viewer.getClipIntersection()
-            }
-            send('status', message);
-
-            if (_config.explode) {
-                viewer.display.setExplode("", true);
-                viewer.display.setExplodeCheck(true);
-            }
-
-            if (_config.debug) {
-                console.log("viewer", viewer);
-            }
-        }
-
-        window.addEventListener('resize', function (event) {
-            if (viewer != null) {
-                const displayOptions = getDisplayOptions(_config.theme);
-                viewer.resizeCadView(displayOptions.cadWidth, displayOptions.treeWidth, displayOptions.height, displayOptions.glass);
-            }
-        }, true);
-
-        debugLog("resize listener registered");
-
-        window.addEventListener('message', event => {
-            function getStates(meshData) {
-                const states = {};
-                function walk(meshData) {
-                    if (meshData.parts != null) {
-                        for (var i in meshData.parts) {
-                            walk(meshData.parts[i]);
-                        }
-                    } else {
-                        states[meshData.id] = meshData.state;
-                    }
-                }
-                walk(meshData);
-                return states;
-            }
-
-            var data = (typeof event.data === "string" || event.data instanceof String) ? JSON.parse(event.data) : event.data;
-
-            if (data.type === "data") {
-                const timer = new Timer("webView", data.config.timeit);
-
-                decode(data);
-                timer.split("data decoded");
-
-                var old_states = (viewer == null) ? {} : (viewer.treeview == null) ? {} : viewer.treeview.getStates();
-
-                let meshData = data.data;
-                let config = data.config;
-                
-                if (config._splash) {
-                    const displayOptions = getDisplayOptions(config.theme);
-                    config.zoom = Math.min(1.0, displayOptions.cadWidth / displayOptions.height);
-                    // debugLog("logo zoom =", config.zoom);
-                }
-
-                showViewer(meshData.shapes, config);
-                var new_states = getStates(meshData.shapes);
-
-                const new_keys = Object.keys(new_states);
-
-                Object.keys(old_states).forEach((key) => {
-                    if (new_keys.includes(key)) {
-                        if (new_states[key][0] !== old_states[key][0] || new_states[key][1] !== old_states[key][1]) {
-                            if (data.config.measure_tools) {
-                                viewer.treeview.handleStateChange("node", key, 0, old_states[key][0])
-                                viewer.treeview.handleStateChange("node", key, 1, old_states[key][1])
-                            } else {
-                                viewer.setState(key, old_states[key]);
-                            }
-                        }
-                    }
-                });
-                timer.split("states updated");
-
-                timer.stop()                
-
-            } else if (data.type === "screenshot") {
-                var promise = viewer.getImage(data.filename);
-                promise.then((result) => {
-                    send("screenshot", {"filename": result.task, "data":result.dataUrl});
-                });
-            } else if (data.type === "backend_response") {
-                viewer.handleBackendResponse(data);
-            } else if (data.type === "clear") {
-                viewer.clear();
-            } else if (data.type === "show") {
-                showViewer();
-            } else if (data.type === "ui") {
-                if (_config["_splash"]) {
-                    return
-                }
-                if (data.config.debug) {
-                    debugLog("data.config", data.config)
-                }
-                Object.keys(data.config).forEach((key) => {
-                    if (key === "axes") {
-                        viewer.setAxes(data.config[key]);
-                    } else if (key === "axes0") {
-                        viewer.setAxes0(data.config[key]);
-                    } else if (key === "grid") {
-                        viewer.setGrids(data.config[key]);
-                    } else if (key === "center_grid") {
-                        viewer.setGridCenter(data.config[key]);                           
-                    } else if (key === "ortho") {
-                        viewer.setOrtho(data.config[key]);
-                    } else if (key === "transparent") {
-                        viewer.setTransparent(data.config[key]);
-                    } else if (key === "black_edges") {
-                        viewer.setBlackEdges(data.config[key]);
-                    } else if (key === "zoom") {
-                        viewer.setCameraZoom(data.config[key]);
-                    } else if (key === "position") {
-                        viewer.setCameraPosition(data.config[key]);
-                    } else if (key === "quaternion") {
-                        viewer.setCameraQuaternion(data.config[key]);
-                    } else if (key === "up") {
-                        viewer.camera.up = data.config[key];
-                        const change = {};
-                        change[key] = {"new": data.config[key]};
-                        nc(change);
-                        viewer.camera.updateProjectionMatrix();
-                    } else if (key === "target") {
-                        viewer.setCameraTarget(data.config[key]);
-                    } else if (key === "default_edgecolor") {
-                        viewer.setEdgeColor(data.config[key]);
-                        const change = {};
-                        change[key] = {"new": data.config[key]};
-                        nc(change);
-                    } else if (key === "default_opacity") {
-                        viewer.setOpacity(data.config[key]);
-                        const change = {};
-                        change[key] = {"new": data.config[key]};
-                        nc(change);
-                    } else if (key === "ambient_intensity") {
-                        viewer.display.setAmbientLight(data.config[key]);
-                    } else if (key === "direct_intensity") {
-                        viewer.display.setDirectLight(data.config[key]);
-                    } else if (key === "metalness") {
-                        viewer.display.setMetalness(data.config[key]);
-                    } else if (key === "roughness") {
-                        viewer.display.setRoughness(data.config[key]);
-                    } else if (key === "zoom_speed") {
-                        viewer.setZoomSpeed(data.config[key]);
-                        const change = {};
-                        change[key] = {"new": data.config[key]};
-                        nc(change);
-                    } else if (key === "pan_speed") {
-                        viewer.setPanSpeed(data.config[key]);
-                        const change = {};
-                        change[key] = {"new": data.config[key]};
-                        nc(change);
-                    } else if (key === "rotate_speed") {
-                        viewer.setRotateSpeed(data.config[key]);
-                        const change = {};
-                        change[key] = {"new": data.config[key]};
-                        nc(change);
-                    } else if (key === "glass") {
-                        viewer.display.glassMode(data.config[key]);
-                        const change = {};
-                        change[key] = {"new": data.config[key]};
-                        nc(change);
-                    } else if (key === "tools") {
-                        viewer.display.showTools(data.config[key]);
-                        const change = {};
-                        change[key] = {"new": data.config[key]};
-                        nc(change);
-                    } else if (key === "collapse") {
-                        viewer.display.collapseNodes(data.config[key]);
-                        const change = {};
-                        change[key] = {"new": data.config[key]};
-                        nc(change);                        
-                    } else if (key === "tree_width") {
-                        const displayOptions = getDisplayOptions(data.config.theme);
-                        const glass = (data.config.glass !== undefined) ? data.config.glass : displayOptions.glass;
-                        viewer.resizeCadView(displayOptions.cadWidth, data.config[key], displayOptions.height, glass);
-                    } else if (key === "reset_camera") {
-                        if (data.config[key] === "reset") {
-                            viewer.display.reset();
-                        } else if (["iso", "left", "right", "top", "bottom", "rear", "front"].includes(data.config[key])) {
-                            viewer.display.setView(data.config[key])
-                        }
-                    } else if (key === "explode") {
-                        viewer.display.setExplode("", data.config[key])
-                        const change = {};
-                        change[key] = {"new": data.config[key]};
-                        nc(change);
-                        viewer.display.setExplodeCheck(data.config[key])
-                    } else if (key === "states") {
-                        const states = Object.keys(viewer.treeview.getStates());
-                        Object.keys(data.config[key]).forEach((key2) => {
-                            if (states.includes(key2)) {
-                                viewer.setState(key2, data.config[key][key2]);
-                            }
+                    timer.stop();
+                } else if (data.type === "screenshot") {
+                    var promise = viewer.getImage(data.filename);
+                    promise.then((result) => {
+                        send("screenshot", {
+                            filename: result.task,
+                            data: result.dataUrl
                         });
-                    } else if (key === "tab") {
-                        viewer.display.selectTabByName(data.config[key]);
-                    } else if (key === "clip_intersection") {
-                        viewer.setClipIntersection(data.config[key]);
-                    } else if (key.startsWith("clip_slider")) {
-                        const index = parseInt(key.slice(-1));
-                        viewer.setClipSlider(index, data.config[key]);
-                    } else if (key.startsWith("clip_normal")) {
-                        const index = parseInt(key.slice(-1));
-                        viewer.setClipNormal(index, data.config[key], viewer.getClipSlider(index));
-                    } else if (key === "clip_planes") {
-                        viewer.setClipPlaneHelpers(data.config[key]);
-                    } else if (key === "clip_object_colors") {
-                        viewer.setClipObjectColorCaps(data.config[key]);
+                    });
+                } else if (data.type === "backend_response") {
+                    viewer.handleBackendResponse(data);
+                } else if (data.type === "clear") {
+                    viewer.clear();
+                } else if (data.type === "show") {
+                    showViewer();
+                } else if (data.type === "ui") {
+                    if (_config["_splash"]) {
+                        return;
                     }
-                })
-
-            } else if (data.type === "animation") {
-                // turn off explode 
-                viewer.display.setExplode({ target: { checked: false } });
-                viewer.display.setExplodeCheck(false);
-                const tracks = data.data;
-                for (var track of tracks) {
-                    viewer.addAnimationTrack(...track);
+                    if (data.config.debug) {
+                        debugLog("data.config", data.config);
+                    }
+                    Object.keys(data.config).forEach((key) => {
+                        if (key === "axes") {
+                            viewer.setAxes(data.config[key]);
+                        } else if (key === "axes0") {
+                            viewer.setAxes0(data.config[key]);
+                        } else if (key === "grid") {
+                            viewer.setGrids(data.config[key]);
+                        } else if (key === "center_grid") {
+                            viewer.setGridCenter(data.config[key]);
+                        } else if (key === "ortho") {
+                            viewer.setOrtho(data.config[key]);
+                        } else if (key === "transparent") {
+                            viewer.setTransparent(data.config[key]);
+                        } else if (key === "black_edges") {
+                            viewer.setBlackEdges(data.config[key]);
+                        } else if (key === "zoom") {
+                            viewer.setCameraZoom(data.config[key]);
+                        } else if (key === "position") {
+                            viewer.setCameraPosition(data.config[key]);
+                        } else if (key === "quaternion") {
+                            viewer.setCameraQuaternion(data.config[key]);
+                        } else if (key === "up") {
+                            viewer.camera.up = data.config[key];
+                            const change = {};
+                            change[key] = { new: data.config[key] };
+                            nc(change);
+                            viewer.camera.updateProjectionMatrix();
+                        } else if (key === "target") {
+                            viewer.setCameraTarget(data.config[key]);
+                        } else if (key === "default_edgecolor") {
+                            viewer.setEdgeColor(data.config[key]);
+                            const change = {};
+                            change[key] = { new: data.config[key] };
+                            nc(change);
+                        } else if (key === "default_opacity") {
+                            viewer.setOpacity(data.config[key]);
+                            const change = {};
+                            change[key] = { new: data.config[key] };
+                            nc(change);
+                        } else if (key === "ambient_intensity") {
+                            viewer.display.setAmbientLight(data.config[key]);
+                        } else if (key === "direct_intensity") {
+                            viewer.display.setDirectLight(data.config[key]);
+                        } else if (key === "metalness") {
+                            viewer.display.setMetalness(data.config[key]);
+                        } else if (key === "roughness") {
+                            viewer.display.setRoughness(data.config[key]);
+                        } else if (key === "zoom_speed") {
+                            viewer.setZoomSpeed(data.config[key]);
+                            const change = {};
+                            change[key] = { new: data.config[key] };
+                            nc(change);
+                        } else if (key === "pan_speed") {
+                            viewer.setPanSpeed(data.config[key]);
+                            const change = {};
+                            change[key] = { new: data.config[key] };
+                            nc(change);
+                        } else if (key === "rotate_speed") {
+                            viewer.setRotateSpeed(data.config[key]);
+                            const change = {};
+                            change[key] = { new: data.config[key] };
+                            nc(change);
+                        } else if (key === "glass") {
+                            viewer.display.glassMode(data.config[key]);
+                            const change = {};
+                            change[key] = { new: data.config[key] };
+                            nc(change);
+                        } else if (key === "tools") {
+                            viewer.display.showTools(data.config[key]);
+                            const change = {};
+                            change[key] = { new: data.config[key] };
+                            nc(change);
+                        } else if (key === "collapse") {
+                            viewer.display.collapseNodes(data.config[key]);
+                            const change = {};
+                            change[key] = { new: data.config[key] };
+                            nc(change);
+                        } else if (key === "tree_width") {
+                            const displayOptions = getDisplayOptions(
+                                data.config.theme
+                            );
+                            const glass =
+                                data.config.glass !== undefined
+                                    ? data.config.glass
+                                    : displayOptions.glass;
+                            viewer.resizeCadView(
+                                displayOptions.cadWidth,
+                                data.config[key],
+                                displayOptions.height,
+                                glass
+                            );
+                        } else if (key === "reset_camera") {
+                            if (data.config[key] === "reset") {
+                                viewer.display.reset();
+                            } else if (
+                                [
+                                    "iso",
+                                    "left",
+                                    "right",
+                                    "top",
+                                    "bottom",
+                                    "rear",
+                                    "front"
+                                ].includes(data.config[key])
+                            ) {
+                                viewer.display.setView(data.config[key]);
+                            }
+                        } else if (key === "explode") {
+                            viewer.display.setExplode("", data.config[key]);
+                            const change = {};
+                            change[key] = { new: data.config[key] };
+                            nc(change);
+                            viewer.display.setExplodeCheck(data.config[key]);
+                        } else if (key === "states") {
+                            const states = Object.keys(
+                                viewer.treeview.getStates()
+                            );
+                            Object.keys(data.config[key]).forEach((key2) => {
+                                if (states.includes(key2)) {
+                                    viewer.setState(
+                                        key2,
+                                        data.config[key][key2]
+                                    );
+                                }
+                            });
+                        } else if (key === "tab") {
+                            viewer.display.selectTabByName(data.config[key]);
+                        } else if (key === "clip_intersection") {
+                            viewer.setClipIntersection(data.config[key]);
+                        } else if (key.startsWith("clip_slider")) {
+                            const index = parseInt(key.slice(-1));
+                            viewer.setClipSlider(index, data.config[key]);
+                        } else if (key.startsWith("clip_normal")) {
+                            const index = parseInt(key.slice(-1));
+                            viewer.setClipNormal(
+                                index,
+                                data.config[key],
+                                viewer.getClipSlider(index)
+                            );
+                        } else if (key === "clip_planes") {
+                            viewer.setClipPlaneHelpers(data.config[key]);
+                        } else if (key === "clip_object_colors") {
+                            viewer.setClipObjectColorCaps(data.config[key]);
+                        }
+                    });
+                } else if (data.type === "animation") {
+                    // turn off explode
+                    viewer.display.setExplode({ target: { checked: false } });
+                    viewer.display.setExplodeCheck(false);
+                    const tracks = data.data;
+                    for (var track of tracks) {
+                        viewer.addAnimationTrack(...track);
+                    }
+                    const duration = Math.max(
+                        ...tracks.map((track) => Math.max(...track[2]))
+                    );
+                    if (data.config.speed > 0) {
+                        viewer.initAnimation(duration, data.config.speed);
+                    }
                 }
-                const duration = Math.max(
-                    ...tracks.map((track) => Math.max(...track[2]))
-                );
-                if (data.config.speed > 0) {
-                    viewer.initAnimation(duration, data.config.speed);
-                }
-            }
-        });
-        debugLog("message listener registered");
+            });
+            debugLog("message listener registered");
 
-        window.addEventListener('load', function() {
-            setTimeout(() => {
-                send("started", {})
-            }, 200);
-        });
-    </script>
-</head>
+            window.addEventListener("load", function () {
+                setTimeout(() => {
+                    send("started", {});
+                }, 200);
+            });
+        </script>
+    </head>
 
-<body style="padding:0px; width:fit-content;" {{ standalone_init|safe }}>
-    <div id="cad_viewer"></div>
-</body>
-
+    <body style="padding: 0px; width: fit-content" {{ standalone_init|safe }}>
+        <div id="cad_viewer"></div>
+    </body>
 </html>
