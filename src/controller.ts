@@ -64,13 +64,24 @@ export class OCPCADController {
     public async logo() {
         var conf = this.config();
         logo["config"]["modifier_keys"] = conf["modifier_keys"];
+        logo["config"]["theme"] = conf["theme"];
         return await this.view?.postMessage(logo);
     }
 
     public config() {
         let options = vscode.workspace.getConfiguration("OcpCadViewer.view");
+
+        let theme = options.get("theme");
+        if (options.get("dark") == true) {
+            vscode.window.showWarningMessage(
+                "Setting OcpCadViewer.view.dark is " +
+                    "deprecated, use OcpCadViewer.view.theme"
+            );
+            theme = "dark";
+        }
+
         let c: Record<string, any> = {
-            theme: options.get("dark") ? "dark" : "light",
+            theme: theme,
             tree_width: options.get("tree_width"),
             control: options.get("orbit_control") ? "orbit" : "trackball",
             up: options.get("up"),

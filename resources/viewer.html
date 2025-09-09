@@ -681,7 +681,7 @@ limitations under the License.
 
         window.addEventListener('resize', function (event) {
             if (viewer != null) {
-                const displayOptions = getDisplayOptions();
+                const displayOptions = getDisplayOptions(_config.theme);
                 viewer.resizeCadView(displayOptions.cadWidth, displayOptions.treeWidth, displayOptions.height, displayOptions.glass);
             }
         }, true);
@@ -704,7 +704,7 @@ limitations under the License.
                 return states;
             }
 
-            var data = JSON.parse(event.data);
+            var data = (typeof event.data === "string" || event.data instanceof String) ? JSON.parse(event.data) : event.data;
 
             if (data.type === "data") {
                 const timer = new Timer("webView", data.config.timeit);
@@ -718,7 +718,7 @@ limitations under the License.
                 let config = data.config;
                 
                 if (config._splash) {
-                    const displayOptions = getDisplayOptions();
+                    const displayOptions = getDisplayOptions(config.theme);
                     config.zoom = Math.min(1.0, displayOptions.cadWidth / displayOptions.height);
                     // debugLog("logo zoom =", config.zoom);
                 }
@@ -840,7 +840,7 @@ limitations under the License.
                         change[key] = {"new": data.config[key]};
                         nc(change);                        
                     } else if (key === "tree_width") {
-                        const displayOptions = getDisplayOptions();
+                        const displayOptions = getDisplayOptions(data.config.theme);
                         const glass = (data.config.glass !== undefined) ? data.config.glass : displayOptions.glass;
                         viewer.resizeCadView(displayOptions.cadWidth, data.config[key], displayOptions.height, glass);
                     } else if (key === "reset_camera") {

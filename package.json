@@ -273,7 +273,17 @@
         "OcpCadViewer.view.dark": {
           "type": "boolean",
           "default": false,
-          "description": "Use dark mode (default: false)",
+          "description": "Use dark mode (DEPRECATED)",
+          "order": 3
+        },
+        "OcpCadViewer.view.theme": {
+          "enum": [
+            "browser",
+            "light",
+            "dark"
+          ],
+          "default": "browser",
+          "description": "Select color theme (default: browser)",
           "order": 3
         },
         "OcpCadViewer.view.orbit_control": {
@@ -764,7 +774,7 @@
     "follow-redirects": "^1.15.2",
     "proper-lockfile": "^4.1.2",
     "semver": "^7.5.1",
-    "three-cad-viewer": "3.5.1",
+    "three-cad-viewer": "./three-cad-viewer-v3.6.2.tgz",
     "ws": "^8.13.0"
   },
   "packageManager": "yarn@1.22.22"
