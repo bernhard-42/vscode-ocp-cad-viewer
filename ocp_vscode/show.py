@@ -108,7 +108,18 @@ def _tessellate(
 
     conf = combined_config(viewer=viewer, port=port)
     if conf.get("_splash") == True:
-        reset_camera = Camera.RESET
+        if not conf.get("reset_camera") in [
+            Camera.ISO,
+            Camera.LEFT,
+            Camera.RIGHT,
+            Camera.BACK,
+            Camera.FRONT,
+            Camera.TOP,
+            Camera.BOTTOM,
+        ]:
+            reset_camera = Camera.RESET
+        else:
+            reset_camera = conf.get("reset_camera")
     else:
         reset_camera = conf.get("reset_camera", Camera.RESET)
 
@@ -468,6 +479,8 @@ def show(
         reset_camera:            Camera.RESET: Reset camera position, rotation, zoom and target
                                  Camera.CENTER: Keep camera position, rotation, zoom, but look at center
                                  Camera.KEEP: Keep camera position, rotation, zoom, and target
+                                 Or, choose one of the presets Camera.ISO, Camera.LEFT, Camera.RIGHT,
+                                 Camera.TOP, Camera.BOTTOM, Camera.FRONT, Camera.BACK
                                  (default=Camera.RESET)
 
         clip_slider_0:           Setting of clipping slider 0 (default=None)
@@ -761,6 +774,8 @@ def show_object(
         reset_camera:            Camera.RESET: Reset camera position, rotation, zoom and target
                                  Camera.CENTER: Keep camera position, rotation, zoom, but look at center
                                  Camera.KEEP: Keep camera position, rotation, zoom, and target
+                                 Or, choose one of the presets Camera.ISO, Camera.LEFT, Camera.RIGHT,
+                                 Camera.TOP, Camera.BOTTOM, Camera.FRONT, Camera.BACK
                                  (default=Camera.RESET)
 
         clip_slider_0:           Setting of clipping slider 0 (default=None)
@@ -1044,6 +1059,8 @@ def show_objects(
         reset_camera:            Camera.RESET: Reset camera position, rotation, zoom and target
                                  Camera.CENTER: Keep camera position, rotation, zoom, but look at center
                                  Camera.KEEP: Keep camera position, rotation, zoom, and target
+                                 Or, choose one of the presets Camera.ISO, Camera.LEFT, Camera.RIGHT,
+                                 Camera.TOP, Camera.BOTTOM, Camera.FRONT, Camera.BACK
                                  (default=Camera.RESET)
 
         clip_slider_0:           Setting of clipping slider 0 (default=None)

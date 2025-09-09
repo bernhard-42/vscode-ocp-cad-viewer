@@ -55,6 +55,13 @@ class Camera(Enum):
     RESET = "reset"
     CENTER = "center"
     KEEP = "keep"
+    ISO = "iso"
+    TOP = "top"
+    BOTTOM = "bottom"
+    LEFT = "left"
+    RIGHT = "right"
+    BACK = "rear"  #  intentionally
+    FRONT = "front"
 
 
 class Collapse(Enum):
@@ -365,6 +372,8 @@ def set_defaults(
         reset_camera:      Camera.RESET: Reset camera position, rotation, zoom and target
                            Camera.CENTER: Keep camera position, rotation, zoom, but look at center
                            Camera.KEEP: Keep camera position, rotation, zoom, and target
+                           Or, choose one of the presets Camera.ISO, Camera.LEFT, Camera.RIGHT,
+                           Camera.TOP, Camera.BOTTOM, Camera.FRONT, Camera.BACK
                            (default=Camera.RESET)
         clip_slider_0:     Setting of clipping slider 0 (default=None)
         clip_slider_1:     Setting of clipping slider 1 (default=None)

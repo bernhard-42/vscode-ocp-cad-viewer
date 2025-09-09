@@ -410,7 +410,14 @@
           "enum": [
             "RESET",
             "KEEP",
-            "CENTER"
+            "CENTER",
+            "ISO",
+            "TOP",
+            "BOTTOM",
+            "LEFT",
+            "RIGHT",
+            "FRONT",
+            "BACK"
           ],
           "default": "RESET",
           "description": "Reset camera (angle and zoom) between show commands",

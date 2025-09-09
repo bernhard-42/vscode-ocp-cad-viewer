@@ -558,13 +558,14 @@ limitations under the License.
                         for (var i = 0; i < 3; i++) {
                             p[i] = p[i] * camera_distance + offset[i];
                         }                       
-                    } else { // center
+                    } else if (reset_camera === "center") { // center
                         var p = [0, 0, 0];
                         for (var i = 0; i < 3; i++) {
                             p[i] = _position[i] - _target[i] + center[i];
                         }
                         _target = center
-                    }
+                    } 
+                    // do nothing when reset_camera is a preset view
                 }
                 viewerOptions.position = p;
                 _position = viewerOptions.position;
@@ -648,6 +649,10 @@ limitations under the License.
             if (reset_camera === "keep" && _camera_distance != null) {
                 // debugLog("camera_distance", _camera_distance, viewer.camera.camera_distance, viewer.camera.camera_distance/_camera_distance);
                 viewer.setCameraZoom((_zoom==null ? 1.0 : _zoom) * viewer.camera.camera_distance / _camera_distance)
+            }
+            
+            if (["iso", "left", "right", "top", "bottom", "rear", "front"].includes(reset_camera)) {
+                viewer.display.setView(reset_camera)
             }
 
             _position = message["position"] = viewer.getCameraPosition();
@@ -840,8 +845,10 @@ limitations under the License.
                         const glass = (data.config.glass !== undefined) ? data.config.glass : displayOptions.glass;
                         viewer.resizeCadView(displayOptions.cadWidth, data.config[key], displayOptions.height, glass);
                     } else if (key === "reset_camera") {
-                        if (data.config[key]) {
+                        if (data.config[key] === "reset") {
                             viewer.display.reset();
+                        } else if (["iso", "left", "right", "top", "bottom", "rear", "front"].includes(data.config[key])) {
+                            viewer.display.setView(data.config[key])
                         }
                     } else if (key === "explode") {
                         viewer.display.setExplode("", data.config[key])
