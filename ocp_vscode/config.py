@@ -408,7 +408,8 @@ def set_defaults(
         show_parent:       Render parent of faces, edges or vertices as wireframe (default=False)
         show_sketch_local: In build123d show local sketch in addition to relocate sketch (default=True)
         helper_scale:      Scale of rendered helpers (locations, axis, mates for MAssemblies) (default=1)
-
+                           If it is a float < 1, used the max distance to nested bounding box times
+                           helper_scale to determine the absolut value of it
     - Debug
         debug:             Show debug statements to the VS Code browser console (default=False)
         timeit:            Show timing information from level 0-3 (default=False)

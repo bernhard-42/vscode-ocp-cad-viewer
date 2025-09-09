@@ -50,6 +50,7 @@ from ocp_tessellate.ocp_utils import (
     is_topods_shape,
     is_vector,
     is_wrapped,
+    nested_bounding_box,
 )
 from ocp_tessellate.utils import Color, Timer, numpy_to_buffer_json
 
@@ -186,6 +187,18 @@ def _tessellate(
 
     with Timer(timeit, "", "to_ocpgroup", 1):
         changed_config = get_changed_config()
+
+        if (
+            isinstance(kwargs.get("helper_scale"), float)
+            and kwargs.get("helper_scale") < 1.0
+        ):
+            bb = nested_bounding_box(cad_objs)
+            helper_scale = bb.max_dist_from_center() * kwargs.get("helper_scale")
+        else:
+            helper_scale = kwargs.get(
+                "helper_scale", changed_config.get("helper_scale")
+            )
+
         part_group, instances = to_ocpgroup(
             *cad_objs,
             names=names,
@@ -195,7 +208,7 @@ def _tessellate(
             render_joints=kwargs.get(
                 "render_joints", changed_config.get("render_joints")
             ),
-            helper_scale=kwargs.get("helper_scale", changed_config.get("helper_scale")),
+            helper_scale=helper_scale,
             default_color=kwargs.get(
                 "default_color", changed_config.get("default_color")
             ),
@@ -519,6 +532,8 @@ def show(
         show_parent:             Render parent of faces, edges or vertices as wireframe (default=False)
         show_sketch_local:       In build123d show local sketch in addition to relocate sketch (default=True)
         helper_scale:            Scale of rendered helpers (locations, axis, mates for MAssemblies) (default=1)
+                                 If it is a float < 1, used the max distance to nested bounding box times
+                                 helper_scale to determine the absolut value of it
 
     - Debug
         debug:                   Show debug statements to the VS Code browser console (default=False)
@@ -815,7 +830,8 @@ def show_object(
         show_parent:             Render parent of faces, edges or vertices as wireframe (default=False)
         show_sketch_local:       In build123d show local sketch in addition to relocate sketch (default=True)
         helper_scale:            Scale of rendered helpers (locations, axis, mates for MAssemblies) (default=1)
-
+                                 If it is a float < 1, used the max distance to nested bounding box times
+                                 helper_scale to determine the absolut value of it
     - Debug
         debug:                   Show debug statements to the VS Code browser console (default=False)
         timeit:                  Show timing information from level 0-3 (default=False)
@@ -1100,7 +1116,8 @@ def show_objects(
         show_parent:             Render parent of faces, edges or vertices as wireframe (default=False)
         show_sketch_local:       In build123d show local sketch in addition to relocate sketch (default=True)
         helper_scale:            Scale of rendered helpers (locations, axis, mates for MAssemblies) (default=1)
-
+                                 If it is a float < 1, used the max distance to nested bounding box times
+                                 helper_scale to determine the absolut value of it
     - Debug
         debug:                   Show debug statements to the VS Code browser console (default=False)
         timeit:                  Show timing information from level 0-3 (default=False)
