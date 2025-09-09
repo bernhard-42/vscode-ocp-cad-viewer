@@ -1,5 +1,4 @@
 from math import pi
-from urllib import response
 
 from ocp_tessellate.ocp_utils import (
     area,
@@ -159,7 +158,7 @@ def get_properties(shape):
                 angle = calc_angle(rect(1, 1), tangent_edge_at(shape, i))
                 if angle is not None:
                     response[f"Angle@{i} to XY"] = angle["angle"]
-            except:
+            except Exception:
                 pass
 
     elif shape_type == "Face":
@@ -210,7 +209,7 @@ def get_properties(shape):
             angle = calc_angle(rect(1, 1), shape)
             if angle is not None:
                 response["Angle to XY"] = angle["angle"]
-        except:
+        except Exception:
             pass
 
     elif shape_type in ["Solid", "CompSolid", "Compound"]:
@@ -410,7 +409,6 @@ def calc_angle(shape1, shape2):
 
 
 def get_distance(shape1, shape2, center):
-
     response = calc_distance(shape1, shape2, center)
 
     angle = calc_angle(shape1, shape2)

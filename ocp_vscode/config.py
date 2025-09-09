@@ -23,9 +23,10 @@ if os.environ.get("JUPYTER_CADQUERY") is None:
 
     is_jupyter_cadquery = False
 else:
-    from jupyter_cadquery.comms import send_config, send_command
+    from jupyter_cadquery.comms import send_config, send_command  # type: ignore
 
-    is_pytest = lambda: False
+    def is_pytest():
+        return False
 
     is_jupyter_cadquery = True
 

@@ -319,14 +319,12 @@ def main(ctx, **kwargs):
     """
 
     if kwargs.get("create_configfile"):
-
         config_file = Path(CONFIG_FILE)
         with open(config_file, "w", encoding="utf-8") as f:
             f.write(yaml.dump(DEFAULTS))
         print(f"Created config file {config_file}")
 
     elif kwargs.get("backend"):
-
         port = kwargs["port"]
 
         backend = ViewerBackend(port)
@@ -347,7 +345,7 @@ def main(ctx, **kwargs):
             try:
                 host = get_interface_ip(socket.AF_INET)
                 print(f"  - http://{host}:{port}/viewer\n")
-            except:  # pylint: disable=bare-except
+            except Exception:
                 pass
         else:
             print(f"\nThe viewer is running on http://{host}:{port}/viewer\n")

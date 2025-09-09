@@ -49,7 +49,6 @@ from ocp_tessellate.ocp_utils import (
     is_topods_compound,
     is_topods_shape,
     is_vector,
-    is_wrapped,
     nested_bounding_box,
 )
 from ocp_tessellate.utils import Color, Timer, numpy_to_buffer_json
@@ -57,7 +56,11 @@ from ocp_tessellate.utils import Color, Timer, numpy_to_buffer_json
 from ocp_vscode.colors import BaseColorMap, get_colormap
 
 if os.environ.get("JUPYTER_CADQUERY") == "1":
-    from jupyter_cadquery.comms import send_backend, send_command, send_data
+    from jupyter_cadquery.comms import (  # pyright: ignore[reportMissingImports]
+        send_backend,
+        send_command,
+        send_data,
+    )
 
     is_jupyter_cadquery = True
 
@@ -76,7 +79,6 @@ from ocp_vscode.config import (
     Camera,
     Collapse,
     check_deprecated,
-    get_default,
     get_defaults,
     preset,
 )
@@ -108,8 +110,8 @@ def _tessellate(
     port = kwargs.get("port")
 
     conf = combined_config(viewer=viewer, port=port)
-    if conf.get("_splash") == True:
-        if not conf.get("reset_camera") in [
+    if conf.get("_splash"):
+        if conf.get("reset_camera") not in [
             Camera.ISO,
             Camera.LEFT,
             Camera.RIGHT,
@@ -1207,7 +1209,6 @@ def show_all(
             continue
 
         if classes is None or isinstance(obj, tuple(classes)):
-
             if hasattr(obj, "locations") and hasattr(obj, "local_locations"):
                 obj = obj.locations
 

@@ -1,5 +1,6 @@
 """ocp_vscode - OCC viewer for VSCode"""
 
+# ruff: noqa: F403, F401
 #
 # Copyright 2025 Bernhard Walter
 #
@@ -15,10 +16,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-__version__ = "2.9.0"
+__version__ = "2.10.0"
 
 import os
-import sys
 
 from .show import *
 from .config import *
@@ -47,5 +47,5 @@ try:
         "To disable, call `disable_native_tessellator()`\n"
         "To enable, call `enable_native_tessellator()`\n"
     )
-except:
+except Exception:
     pass

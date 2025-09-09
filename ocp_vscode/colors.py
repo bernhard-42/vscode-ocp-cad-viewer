@@ -33,7 +33,7 @@ try:
 
     HAS_MATPLOTLIB = True
 
-except:  # pylint: disable=bare-except
+except Exception:  # pylint: disable=bare-except
     HAS_MATPLOTLIB = False
 
 

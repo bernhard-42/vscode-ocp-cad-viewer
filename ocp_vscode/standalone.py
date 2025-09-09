@@ -243,7 +243,6 @@ class Viewer:
         )
 
     def handle_message(self, ws):
-
         while True:
             data = ws.receive()
             if isinstance(data, bytes):

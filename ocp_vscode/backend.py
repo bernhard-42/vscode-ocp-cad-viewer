@@ -128,7 +128,7 @@ class ViewerBackend:
         """
         Handle the activated tool, there is a special behavior for each tool
         """
-        if not "selectedShapeIDs" in changes:
+        if "selectedShapeIDs" not in changes:
             return
 
         selected_objs = changes["selectedShapeIDs"]
