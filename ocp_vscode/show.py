@@ -240,7 +240,7 @@ def _tessellate(
                     "cad_width",
                     "height",
                     # controlled by VSCode settings
-                    "tree_width",
+                    # "tree_width",
                     "theme",
                 )
             )
@@ -254,7 +254,7 @@ def _tessellate(
             )
 
         elif not is_jupyter_cadquery and k in [
-            "tree_width",
+            # "tree_width",
             "theme",
         ]:
             print(f"Setting {k} can only be set in VSCode config")

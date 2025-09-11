@@ -394,7 +394,7 @@ limitations under the License.
                         ? 0
                         : preset(
                               _config,
-                              "treeWidth",
+                              "tree_width",
                               displayDefaultOptions.treeWidth
                           );
                 return Math.max(minWidth - treeWidth, width - treeWidth - 20);
@@ -406,8 +406,8 @@ limitations under the License.
 
             function getSize() {
                 return {
-                    width: window.innerWidth || document.body.clientWidth,
-                    height: window.innerHeight || document.body.clientHeight
+                    width: window.innerWidth,
+                    height: window.innerHeight
                 };
             }
 
@@ -430,14 +430,11 @@ limitations under the License.
                     "tools",
                     displayDefaultOptions.tools
                 );
-                const treeWidth =
-                    glass || !tools
-                        ? 0
-                        : preset(
-                              _config,
-                              "treeWidth",
-                              displayDefaultOptions.treeWidth
-                          );
+                const treeWidth = preset(
+                    _config,
+                    "tree_width",
+                    displayDefaultOptions.treeWidth
+                );
                 const keymap = preset(
                     _config,
                     "modifier_keys",
@@ -834,9 +831,19 @@ limitations under the License.
                 if (_config.debug) {
                     debugLog("viewerOptions (modified)", viewerOptions);
                 }
+
                 debugLog("Rendering objects with three-cad-viewer");
                 viewer.render(_shapes, renderOptions, viewerOptions);
                 debugLog("Rendering done");
+
+                if (_config.tree_width) {
+                    viewer.resizeCadView(
+                        viewer.cadWidth,
+                        viewer.treeWidth,
+                        viewer.height,
+                        viewer.glass
+                    );
+                }
 
                 if (reset_camera === "keep" && _camera_distance != null) {
                     // debugLog("camera_distance", _camera_distance, viewer.camera.camera_distance, viewer.camera.camera_distance/_camera_distance);

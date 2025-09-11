@@ -65,6 +65,7 @@ export class OCPCADController {
         var conf = this.config();
         logo["config"]["modifier_keys"] = conf["modifier_keys"];
         logo["config"]["theme"] = conf["theme"];
+        logo["config"]["tree_width"] = conf["tree_width"];
         return await this.view?.postMessage(logo);
     }
 
