@@ -27,10 +27,6 @@ classifiers = [
     "Programming Language :: Python :: 3",
 ]
 
-[project.urls]
-"Homepage" = "https://github.com/bernhard-42/vscode-ocp-cad-viewer"
-"Bug Tracker" = "https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues"
-
 dependencies = [
     "ocp-tessellate>=3.0.17,<3.1.0",
     "requests",
@@ -46,9 +42,14 @@ dependencies = [
     "pip"
 ]
 
+[project.urls]
+"Homepage" = "https://github.com/bernhard-42/vscode-ocp-cad-viewer"
+"Bug Tracker" = "https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues"
+
 [tool.setuptools]
 packages = ["ocp_vscode"]
 package-dir = { "" = "." }
+exclude-package-data = { "ocp_vscode" = ["templates/*", "static/js/*", "static/css/*"] }
 
 [tool.setuptools.package-data]
 ocp_vscode = ["templates/*.html", "static/css/*.css", "static/js/*.js"]
