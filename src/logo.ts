@@ -224,7 +224,7 @@ export const logo: any = {
         roughness: 0.65,
         show_parent: false,
         show_sketch_local: true,
-        ticks: 10,
+        ticks: 20,
         timeit: false,
         tools: true,
         transparent: false,
