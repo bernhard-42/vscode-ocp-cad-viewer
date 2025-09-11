@@ -915,6 +915,8 @@ limitations under the License.
                             displayOptions.height,
                             displayOptions.glass
                         );
+                        viewer.gridHelper.clearCache();
+                        viewer.gridHelper.update(viewer.getCameraZoom(), true);
                     }
                 },
                 true
