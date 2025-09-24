@@ -193,6 +193,7 @@ export async function activate(context: vscode.ExtensionContext) {
     }
     statusBarItem.command = "ocpCadViewer.toggleWatch";
     context.subscriptions.push(statusBarItem);
+    statusBarItem.show();
 
     await statusManager.refresh("");
     var python = await getPythonPath();
@@ -339,8 +340,15 @@ export async function activate(context: vscode.ExtensionContext) {
             if (!controller || !controller.isStarted()) {
                 conditionallyOpenViewer(editor.document);
             }
+            statusBarItem.show();
         }
     });
+
+    vscode.window.onDidChangeTextEditorSelection(() => statusBarItem.show());
+
+    vscode.window.onDidChangeTextEditorVisibleRanges(() =>
+        statusBarItem.show()
+    );
 
     //	Commands
 
