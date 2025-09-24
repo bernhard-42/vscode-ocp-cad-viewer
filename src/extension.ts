@@ -36,6 +36,7 @@ import {
     jupyterExtensionInstalled,
     isPortInUse,
     getPythonPath,
+    getPythonEnv,
     closeOcpCadViewerTab,
     editorColumns,
     getEditorColumn,
@@ -197,6 +198,9 @@ export async function activate(context: vscode.ExtensionContext) {
 
     await statusManager.refresh("");
     var python = await getPythonPath();
+    var pythonEnv = await getPythonEnv();
+    output.info(`Using python environment ${pythonEnv} and Python ${python}`);
+
     await libraryManager.refresh(python);
 
     if (vscode.window.visibleTextEditors.length > 0) {

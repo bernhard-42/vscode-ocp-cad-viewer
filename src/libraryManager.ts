@@ -56,11 +56,29 @@ function parsePackageData(
 export async function pipList(
     python: string
 ): Promise<Map<string, Omit<Package, "name">>> {
+    let result: any = null;
+
     try {
-        let result = execute(`${python} -m pip list -v --format json`, false);
-        return parsePackageData(result);
+        result = execute(`${python} -m pip list -v --format json`, false);
     } catch (error: any) {
-        output.error(error.stderr.toString());
+        if (error.message.indexOf("No module named pip") > 0) {
+            output.error("pip is not installed, trying uv pip");
+            try {
+                result = execute(
+                    `uv pip list -p ${python} -v --format json`,
+                    false
+                );
+            } catch (error: any) {
+                output.error(error.stderr.toString());
+                vscode.window.showErrorMessage(
+                    "Neither pip nor uv pip found, cannot list libraries"
+                );
+            }
+        }
+    }
+    if (result != null) {
+        return parsePackageData(result);
+    } else {
         return new Map<string, Omit<Package, "name">>();
     }
 }
@@ -267,8 +285,8 @@ export class LibraryManagerProvider
                 if (installLibs.includes(name)) {
                     this.installed[name] = [
                         lib["version"],
-                        lib["installer"],
-                        lib["location"],
+                        lib["installer"] || "uv",
+                        lib["location"] || python, // for uv, use python path
                         lib["editable_project_location"] || ""
                     ];
                 }
@@ -320,7 +338,7 @@ export class LibraryManagerProvider
                 let manager = this.installed[element.label][1] || "n/a";
                 let location = this.installed[element.label][2];
                 let p = location.split(path.sep);
-                let env = editable ? editable : p[p.length - 4];
+                let env = p[p.length - 4];
 
                 let libs: Library[] = [];
                 libs.push(
@@ -333,17 +351,24 @@ export class LibraryManagerProvider
                 libs.push(
                     new Library(
                         "environment",
-                        { location: location, env: env },
+                        {
+                            location: location
+                                .replace(/\/bin\/python.*$/g, "")
+                                .replace(/\/lib\/python.*$/g, ""), // clean up for uv and pip
+                            env: env
+                        },
                         vscode.TreeItemCollapsibleState.None
                     )
                 );
-                libs.push(
-                    new Library(
-                        "editable",
-                        { editable: (editable !== "").toString() },
-                        vscode.TreeItemCollapsibleState.None
-                    )
-                );
+                if (editable !== "") {
+                    libs.push(
+                        new Library(
+                            "editable",
+                            { editable: editable },
+                            vscode.TreeItemCollapsibleState.None
+                        )
+                    );
+                }
                 if (this.exampleDownloads[element.label]) {
                     libs.push(
                         new Library(
@@ -405,7 +430,7 @@ export class Library extends vscode.TreeItem {
             this.tooltip = options.location;
             this.description = options.env;
         } else if (options.editable !== undefined) {
-            this.tooltip = options.editable ? "editable" : "non-editable";
+            this.tooltip = options.editable;
             this.description = options.editable.toString();
         } else if (options.examples !== undefined) {
             this.tooltip = "Download examples from github";
