@@ -63,10 +63,11 @@ export class OCPCADController {
 
     public async logo() {
         var conf = this.config();
-        logo["config"]["modifier_keys"] = conf["modifier_keys"];
-        logo["config"]["theme"] = conf["theme"];
-        logo["config"]["tree_width"] = conf["tree_width"];
-        return await this.view?.postMessage(logo);
+        var l: any = logo();
+        l["config"]["modifier_keys"] = conf["modifier_keys"];
+        l["config"]["theme"] = conf["theme"];
+        l["config"]["tree_width"] = conf["tree_width"];
+        return await this.view?.postMessage(l);
     }
 
     public config() {
