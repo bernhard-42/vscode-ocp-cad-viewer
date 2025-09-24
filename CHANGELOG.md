@@ -2,6 +2,34 @@
 
 All notable changes to the "OCP CAD Viewer" extension will be documented in this file.
 
+## 2.10.0
+
+**Features**
+
+-   The grids are now dynamic: Fonts rescale when zooming to keep them the same size and grid refines with doubling the zoom factor (and vice versa)
+-   To not change the overall assembly hierarchy needed for animation, joints are now shown on the same level as the object they are attached to.
+-   Automatic theme switch (dark/bright) when theme of OS or browser is changed
+-   Trim infinite axes and planes to 10 x helper-scale [#192<](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/192)
+-   `helper_scale < 1.0` is treated as a relative scale: the absolute `helper_scale` will be calculated as the relative value times max bounding box, i.e. `helper_scale`s is a percentage of the max bounding box
+-   Allow `tree_width` to be changed by each `show` command
+-   `reset_camera` now supports `Camera.ISO`, `Camera.TOP`, `Camera.BOTTOM`, `Camera.LEFT`, `Camera.RIGHT`, `Camera.FRONT`, and `Camera.BACK` as new orientation defaults for the viewer [#189](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/189)
+-   Support for GDS chip design format
+    -   Add polygon renderer for GDS files
+    -   Add a z-scale tool for GDS files
+
+**Fixes**
+
+-   Fix `tree_width` to be respected when `no_glass` is `false` [#194](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/194)
+-   Add back default of 240 to standalone viewer call [#195](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/195)
+-   Change body element to dark in dark theme
+-   Change body element to dark in dark theme
+-   Properly add alt key to keymap
+-   Properly remove event listeneners in three-cad-viewer
+-   three-cad-viewer
+    -   Change memory management to a new paradigm using a global function deepDispose which works recursively
+    -   Fix setCameraTarget
+    -   Fix keymapping regression where keymaps were not used any more
+
 ## v2.9.0
 
 - The viewer now supports widths of < 815px with shrunken toolbar (using ellipsis). From 815px width the toolbar is fully visible ([#187](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/187))

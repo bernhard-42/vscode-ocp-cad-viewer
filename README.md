@@ -306,124 +306,31 @@ NATIVE_TESSELLATOR=1 OCP_VSCODE_PYTEST=1 pytest -v -s pytests/
 
 ## Changes
 
-### v2.9.0
-
-- The viewer now supports widths of < 815px with shrunken toolbar (using ellipsis). From 815px width the toolbar is fully visible ([#187](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/187))
-- The view preset buttons in the toolbar now respect shift and will center the to all visible objects only ([#185](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/185))
-- Brought back restoring the OCP Viewer when VS Code is restarted ([#177](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/177))
-- Reworked measure mode ([#175](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/175))
-  - Changed shift modifier in distance measure mode to distinguish between min and center distance
-  - Removed angle measure button, it is integrated in distance measure now, and simplified filter management without angle measure in the UI
-
-### v2.8.9
-
-**Fixes**
-
-- Add a robuts port in use detection to Windows
-
-### v2.8.8
-
-**Fixes**
-
-- Fix regression of wrong level for continue statement leading to show_all crashing
-
-### v2.8.7
-
-**Fixes**
-
-- Startup now checks all visible python files for trigger statements. If any has, autostart kicks in.
-- More than two Viewer columns are supported
-- Fixed a bug where an empty `~/.ocpvscode` file crashed `show` [#183](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/183)
-- Fixed calling jupyter console 
-- Moved all `show_all` warnings behind `debug=True` parameter
-
-### v2.8.6
+### 2.10.0
 
 **Features**
 
-- Fixed blank viewer issue by resolving a race condition properly ([#171](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/171))
-- Made statements that trigger OCP CAD Viewer to start editable in settings (`Ocp Cad Viewer > Advanced : Autostart Triggers`). They now default to `import ocp_vscode` and `from ocp_vscode import` and don't include "build123d" and "cadquery" any more
-- Set backend precision to 3 ([#179](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/179))
-- Clicking on a tree label with shift+meta hides all others without change of location ([#178](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/178))
-- Hid the `show_all` warnings about non viewable types. Can still be seen with the `debug` parameter
-- Added a button to the quickstart welcome screen to change the environment
+-   The grids are now dynamic: Fonts rescale when zooming to keep them the same size and grid refines with doubling the zoom factor (and vice versa)
+-   To not change the overall assembly hierarchy needed for animation, joints are now shown on the same level as the object they are attached to.
+-   Automatic theme switch (dark/bright) when theme of OS or browser is changed
+-   Trim infinite axes and planes to 10 x helper-scale [#192<](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/192)
+-   `helper_scale < 1.0` is treated as a relative scale: the absolute `helper_scale` will be calculated as the relative value times max bounding box, i.e. `helper_scale`s is a percentage of the max bounding box
+-   Allow `tree_width` to be changed by each `show` command
+-   `reset_camera` now supports `Camera.ISO`, `Camera.TOP`, `Camera.BOTTOM`, `Camera.LEFT`, `Camera.RIGHT`, `Camera.FRONT`, and `Camera.BACK` as new orientation defaults for the viewer [#189](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/189)
+-   Support for GDS chip design format
+    -   Add polygon renderer for GDS files
+    -   Add a z-scale tool for GDS files
 
 **Fixes**
 
-- Fix broken check for ocp_vscode when it is installed in user site-packages ([#181](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/181))
-- Ensured to refresh library and viewer manager at VS Code start, even when build123d is not imported ([#177](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/177))
-- Fix broken helix discretizing ([#176](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/176))
-- Ensure that lines and arrows for measurements are initialized once only to remove memory leaks ([#29](https://github.com/bernhard-42/three-cad-viewer/issues/29))  
-- Disable text selection of UI elements except info box
-- Fix isolate mode when there are only 1-dim objects in the viewer ([#178](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/178))
-- Keep camera position when "Isolate element" action is taken ([#174](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/174))
-
-### v2.8.5
-
-**Fixes**
-
-- Clean up viewerStarting flag in error case
-- Fix broken handling of mirrored curve in ocp-tessellate ([#170](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/170))
-- Remove deviding line deflection by 100 ([#172](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/172))
-
-### v2.8.4
-
-**Fixes**
-
-- Add handling of view log mesage forwarding to standalone mode
-
-### v2.8.3
-
-**Fixes**
-
-- Fix dual stack port detection on Linux ([#171](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/171))
-- Close old viewer window if exists on viewer start
-
-### v2.8.2
-
-**Features**
-
-- Add clear and update params to push_object
-- Add removal and update of an individual part in show_object
-- Introduce shortcuts select_face, select_edge, select_vertex for the selection mode
-
-**Fixes**
-
-- Rewrite port check and add more debug info
-- Ensure to wait for all async functions at startup
-- Fix grid_xz / grid_yz mix-up in standalone mode
-- Improve logging during viewer start
-
-### v2.8.1
-
-***Fixes**
-
-- Fixed typos in doc strings and everywhere else
-- Fixed a f-string issue with broken quotes
-- Enhanced port running check to tcp4 and tcp6
-- Documented visual debugging with pdb ([#164](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/164))
-
-### v2.8.0
-
-**Features**
-
-- Add a color marker behind the node name of the navigation tree showing the object color
-- New "select objects" mode that allows to retrieve stable object indices that can be used in python code to select objects
-- Removed the need of an open workspace. If the extension cannot identify a Python environment with ocp_vscode, it asks for it. ([#160](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/160), [#163](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/163))
-- Simplified port detection. Every viewer stores its port into `~/.ocpvscode`. If mode than one active port is detected, show let's you select the right one  ([#163](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/163))
-- Improve startup reliability and performance
-- Allow setting port in launch.json
-- Add `include` argument to `show_all`
-- Add `push_object` and `show_objects` to control showing objects in a lazy manner
-- Bump to three-cad-viewer 3.4.0
-
-
-**Fixes**
-- Clean up startup sequence and fix start issues with Jupyter interactive window
-- Fix disposing all viewer objects on closing the viewer
-- Ensure revive of viewer is not used in autostart mode
-- Improve pip list parsing
-- Start backend with a temp folder instead of work directory
-- Fix naming `vertex0` to `vertex_0` (and so on) in exploded mode (three-cad-viewer)
-- Fix clear and dispose behavior (three-cad-viewer [#27](https://github.com/bernhard-42/three-cad-viewer/issues/27))
-- Fix `save_screenshot` throwing an error ([#162](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/162))
+-   Fix `tree_width` to be respected when `no_glass` is `false` [#194](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/194)
+-   Add back default of 240 to standalone viewer call [#195](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/195)
+-   Change body element to dark in dark theme
+-   Change body element to dark in dark theme
+-   Properly add alt key to keymap
+-   Properly remove event listeneners in three-cad-viewer
+-   three-cad-viewer
+    -   Change memory management to a new paradigm using a global function deepDispose which works recursively
+    -   Fix setCameraTarget
+    -   Fix keymapping regression where keymaps were not used any more
+    
