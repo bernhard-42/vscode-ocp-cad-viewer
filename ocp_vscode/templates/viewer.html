@@ -651,6 +651,13 @@ limitations under the License.
                     )
                 };
 
+                if (!_config.theme || _config.theme === "browser") {
+                    viewerOptions.theme =
+                        document.body.className == "vscode-light"
+                            ? "light"
+                            : "dark";
+                }
+
                 var reset_camera = preset(_config, "reset_camera", "reset");
 
                 if (_config.debug) {
@@ -1187,6 +1194,23 @@ limitations under the License.
                 }
             });
             debugLog("message listener registered");
+
+            const observer = new MutationObserver(() => {
+                // handle theme change inside webview
+                if (displayDefaultOptions.theme === "browser") {
+                    viewer.display.setTheme(
+                        document.body.className === "vscode-light"
+                            ? "light"
+                            : "dark"
+                    );
+                } else {
+                    viewer.display.setTheme(displayDefaultOptions.theme);
+                }
+            });
+            observer.observe(document.body, {
+                attributes: true,
+                attributeFilter: ["class"]
+            });
 
             window.addEventListener("load", function () {
                 setTimeout(() => {
