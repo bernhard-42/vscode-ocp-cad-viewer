@@ -105,6 +105,7 @@ def track_param(ctx, param, value):
 )
 @click.option(
     "--tree_width",
+    default=240,
     help="OCP CAD Viewer navigation tree width (default: 240)",
     callback=track_param,
 )
