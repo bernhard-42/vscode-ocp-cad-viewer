@@ -10,7 +10,7 @@ All notable changes to the "OCP CAD Viewer" extension will be documented in this
 -   Small restructuring of the Library Manager list (`editable` now is only visible when the package is editable, and then shows the project path)
 -   Automatic theme switch (dark/bright) when theme of OS or browser is changed
 -   The grids are now dynamic: Fonts rescale when zooming to keep them the same size and grid refines with doubling the zoom factor (and vice versa)
--   To not change the overall assembly hierarchy needed for animation, joints are now shown on the same level as the object they are attached to.
+-   To not change the overall assembly hierarchy needed for animation, joints are now shown on the same level as the object they are attached to. [#138](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/138)
 -   Trim infinite axes and planes to 10 x helper-scale [#192](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/192)
 -   `helper_scale < 1.0` is treated as a relative scale: the absolute `helper_scale` will be calculated as the relative value times max bounding box, i.e. `helper_scale`s is a percentage of the max bounding box
 -   Allow `tree_width` to be changed by each `show` command
