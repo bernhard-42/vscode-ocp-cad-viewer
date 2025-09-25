@@ -59,13 +59,13 @@ export async function pipList(
     let result: any = null;
 
     try {
-        result = execute(`${python} -m pip list -v --format json`, false);
+        result = execute(`"${python}" -m pip list -v --format json`, false);
     } catch (error: any) {
         if (error.message.indexOf("No module named pip") > 0) {
             output.error("pip is not installed, trying uv pip");
             try {
                 result = execute(
-                    `uv pip list -p ${python} -v --format json`,
+                    `uv pip list -p "${python}" -v --format json`,
                     false
                 );
             } catch (error: any) {
@@ -85,7 +85,7 @@ export async function pipList(
 
 export function isPythonVersion(python: string, version: string) {
     try {
-        let result = execute(`${python} --version`);
+        let result = execute(`"${python}" --version`);
         return result.split(" ")[1].startsWith(version);
     } catch (error) {
         return false;

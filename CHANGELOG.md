@@ -21,7 +21,8 @@ All notable changes to the "OCP CAD Viewer" extension will be documented in this
 
 **Fixes**
 
--   Fix `tree_width` to be respected when `no_glass` is `false` [#194](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/194)
+-   Fix `tree_width` to be respected when `no_glass` is `false` [#194](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/194), [#196](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/196)
+-   Fix error when project path contains spaces [#197](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/197)
 -   Add back default of 240 to standalone viewer call [#195](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/195)
 -   Change body element to dark in dark theme
 -   Change body element to dark in dark theme
