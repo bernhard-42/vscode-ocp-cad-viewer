@@ -474,7 +474,7 @@ export async function activate(context: vscode.ExtensionContext) {
                     "ocpCadViewer.ocpCadViewer: Starting OCPCADController"
                 );
 
-                await closeOcpCadViewerTab();
+                // await closeOcpCadViewerTab();
 
                 var newColumn = editorColumns();
 
