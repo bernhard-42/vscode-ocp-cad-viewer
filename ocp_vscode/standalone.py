@@ -35,7 +35,7 @@ DEFAULTS = {
     "no_glass": False,
     "no_tools": False,
     "tree_width": 240,
-    "theme": "light",
+    "theme": "browser",
     "control": "trackball",
     "modifier_keys": {
         "shift": "shiftKey",

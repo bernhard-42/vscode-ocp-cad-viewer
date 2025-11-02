@@ -117,8 +117,8 @@ def track_param(ctx, param, value):
 )
 @click.option(
     "--theme",
-    default="light",
-    help="Use theme 'light' or 'dark' (default: 'light')",
+    default="browser",
+    help="Use theme 'light', 'dark', or 'browser' (default: 'browser')",
     callback=track_param,
 )
 @click.option(

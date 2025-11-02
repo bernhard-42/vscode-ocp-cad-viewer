@@ -651,11 +651,8 @@ limitations under the License.
                     )
                 };
 
-                if (!_config.theme || _config.theme === "browser") {
-                    viewerOptions.theme =
-                        document.body.className == "vscode-light"
-                            ? "light"
-                            : "dark";
+                if (!_config.theme) {
+                    _config.theme = getDisplayOptions().theme;
                 }
 
                 var reset_camera = preset(_config, "reset_camera", "reset");
