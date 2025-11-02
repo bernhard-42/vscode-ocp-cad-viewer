@@ -196,7 +196,15 @@ def _tessellate(
             and kwargs.get("helper_scale") < 1.0
         ):
             bb = nested_bounding_box(cad_objs)
-            helper_scale = bb.max_dist_from_center() * kwargs.get("helper_scale")
+            if bb.max_dist_from_center() > 1e50:
+                helper_scale = 1.0
+                print(
+                    "Warning: Infinite objects detected and helper_scale < 1.0: Setting helper_scale to 1"
+                )
+            else:
+                helper_scale = bb.max_dist_from_center() * kwargs.get("helper_scale")
+                if kwargs.get("debug"):
+                    print(f"Helper scale set to {helper_scale}")
         else:
             helper_scale = kwargs.get(
                 "helper_scale", changed_config.get("helper_scale")
