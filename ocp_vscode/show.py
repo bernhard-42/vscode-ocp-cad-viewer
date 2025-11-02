@@ -16,12 +16,12 @@
 # limitations under the License.
 #
 
-from copy import deepcopy
 import os
 import pathlib
 import re
 import time
 import types
+from copy import deepcopy
 from enum import Enum
 from logging import Logger
 
@@ -70,16 +70,13 @@ else:
 
     is_jupyter_cadquery = False
 
-from ocp_vscode.config import (
-    combined_config,
-    get_changed_config,
-)
-
 from ocp_vscode.comms import is_pytest
 from ocp_vscode.config import (
     Camera,
     Collapse,
     check_deprecated,
+    combined_config,
+    get_changed_config,
     get_defaults,
     preset,
 )
@@ -1269,16 +1266,6 @@ def show_all(
             elif isinstance(obj, OcpWrapper):
                 objects.append(obj)
                 names.append(name)
-
-            elif hasattr(obj, "to_build123d"):
-                try:
-                    objects.append(deepcopy(obj).to_build123d())
-                    names.append(name)
-                except Exception as ex:
-                    print(
-                        f"Cannot use 'to_build123d()' on '{name}' of type {type(obj)}:",
-                        ex,
-                    )
 
             else:
                 if kwargs.get("debug", False):
