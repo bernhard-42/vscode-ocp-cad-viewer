@@ -342,11 +342,11 @@ def _convert(
     with Timer(timeit, "", "create data obj", 1):
         if is_pytest():
             return (instances, shapes, config, count_shapes), mapping
-
+        data = numpy_to_buffer_json(
+            dict(instances=instances, shapes=shapes),
+        )
         return {
-            "data": numpy_to_buffer_json(
-                dict(instances=instances, shapes=shapes),
-            ),
+            "data": data,
             "type": "data",
             "config": config,
             "count": count_shapes,
