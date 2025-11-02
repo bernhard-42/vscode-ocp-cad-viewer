@@ -132,6 +132,8 @@ class Viewer:
         self.config = {}
         self.debug = params.get("debug", False)
         self.params = params
+        self.port = params.get("port", 3939)
+        self.host = params.get("host", "127.0.0.1")
 
         self.configure(self.params)
 
