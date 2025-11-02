@@ -1261,6 +1261,16 @@ def show_all(
                 objects.append(obj)
                 names.append(name)
 
+            elif hasattr(obj, "to_build123d"):
+                try:
+                    objects.append(deepcopy(obj).to_build123d())
+                    names.append(name)
+                except Exception as ex:
+                    print(
+                        f"Cannot use 'to_build123d()' on '{name}' of type {type(obj)}:",
+                        ex,
+                    )
+
             else:
                 if kwargs.get("debug", False):
                     print(
