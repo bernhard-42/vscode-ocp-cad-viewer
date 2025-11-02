@@ -116,9 +116,8 @@ class Animation:
                 raise ValueError(f"Path '{path}' does not exist in assembly")
 
         elif self.is_build123d:
-            ...
-            # if path not in self.paths:
-            #     raise ValueError(f"Path '{path}' does not exist in assembly")
+            if path not in self.paths:
+                raise ValueError(f"Path '{path}' does not exist in assembly")
 
         self.tracks.append((path, action, times, values))
 
