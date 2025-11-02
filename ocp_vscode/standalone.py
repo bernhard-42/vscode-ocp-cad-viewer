@@ -316,7 +316,6 @@ class Viewer:
         ):
             self.config["modifier_keys"]["alt"] = "altKey"
 
-        print(self.config)
         self.debug_print("\nConfig:", self.config)
 
     def start(self):
