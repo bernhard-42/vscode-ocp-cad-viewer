@@ -99,7 +99,7 @@ def COMMS(host, port):
         }};
         const standaloneViewer = () => {{
             
-            const ocpLogo = JSON.parse(logo);
+            const ocpLogo = logo();
             decode(ocpLogo);
             
             viewer = showViewer(ocpLogo.data.shapes, ocpLogo.config);
