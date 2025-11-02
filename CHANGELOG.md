@@ -8,30 +8,32 @@ All notable changes to the "OCP CAD Viewer" extension will be documented in this
 
 -   Support for pure `uv` without `pip`. The viewer now tries `/env/path/to/python -m pip list` for the library manager and if that fails it uses `uv pip list -p /env/path/to/python`. The install commands in the workspace settings need to change to use `uv add -p {python}` [#166](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/166)
 -   Small restructuring of the Library Manager list (`editable` now is only visible when the package is editable, and then shows the project path)
--   Automatic theme switch (dark/bright) when theme of OS or browser is changed
+-   Automatic theme switch (dark/bright) when theme of OS or browser is changed => NOTE: Unselect Ocp Cad Viewer > View:Dark in the VS Code settings!
 -   The grids are now dynamic: Fonts rescale when zooming to keep them the same size and grid refines with doubling the zoom factor (and vice versa)
--   To not change the overall assembly hierarchy needed for animation, joints are now shown on the same level as the object they are attached to. [#138](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/138)
--   Trim infinite axes and planes to 10 x helper-scale [#192](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/192)
--   `helper_scale < 1.0` is treated as a relative scale: the absolute `helper_scale` will be calculated as the relative value times max bounding box, i.e. `helper_scale`s is a percentage of the max bounding box
+-   To not change the overall assembly hierarchy needed for animation, joints are now shown on the same level as the object they are attached to. ([#138](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/138))
+-   Trim infinite axes and planes to 10 x helper-scale ([#192](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/192))
+-   `helper_scale < 1.0` is treated as a relative scale: the absolute `helper_scale` will be calculated as the relative value times max bounding box size, i.e. `helper_scale`s is a percentage of the max bounding box. For inifinite objects, helper_scale will be set to 1.0
 -   Allow `tree_width` to be changed by each `show` command
--   `reset_camera` now supports `Camera.ISO`, `Camera.TOP`, `Camera.BOTTOM`, `Camera.LEFT`, `Camera.RIGHT`, `Camera.FRONT`, and `Camera.BACK` as new orientation defaults for the viewer [#189](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/189)
+-   `reset_camera` now supports `Camera.ISO`, `Camera.TOP`, `Camera.BOTTOM`, `Camera.LEFT`, `Camera.RIGHT`, `Camera.FRONT`, and `Camera.BACK` as new orientation defaults for the viewer ([#189](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/189))
 -   Support for GDS chip design format
     -   Add polygon renderer for GDS files
     -   Add a z-scale tool for GDS files
+-   The library manager will now install `ocp_vscode~={ocp_vscode_version}`, to simplifiy pure Python patch distribution (patch verions are compatible with the viewer)
+-   Help dialog can be closed by clicking outside on the canvas
 
 **Fixes**
 
--   Fix `tree_width` to be respected when `no_glass` is `false` [#194](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/194), [#196](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/196)
--   Fix error when project path contains spaces [#197](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/197)
--   Add back default of 240 to standalone viewer call [#195](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/195)
--   Change body element to dark in dark theme
+-   Fix `tree_width` to be respected when `no_glass` is `false` ([#194](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/194))
+-   Fix error when project path contains spaces ([#197](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/197))
+-   Add back default of 240 to standalone viewer call ([#195](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/195), [#196](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/196))
 -   Change body element to dark in dark theme
 -   Properly add alt key to keymap
 -   Properly remove event listeneners in three-cad-viewer
--   three-cad-viewer
+-   Existing viewer tab of the last session will be reused
+-   **?** three-cad-viewer
     -   Change memory management to a new paradigm using a global function deepDispose which works recursively
     -   Fix setCameraTarget
-    -   Fix keymapping regression where keymaps were not used any more
+    -   **?** Fix keymapping regression where keymaps were not used any more
 
 ## v2.9.0
 
