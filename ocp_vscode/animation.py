@@ -46,7 +46,7 @@ class Animation:
         else:
             self.paths = collect_paths(assembly)
 
-    def add_track(self, path, action, times, values):
+    def add_track(self, path, action, times, values, animate_joints=False):
         # pylint: disable=line-too-long
         """
         Adding a three.js animation track.
@@ -120,6 +120,9 @@ class Animation:
                 raise ValueError(f"Path '{path}' does not exist in assembly")
 
         self.tracks.append((path, action, times, values))
+
+        if animate_joints:
+            self.tracks.append((f"{path}.joints", action, times, values))
 
     def animate(self, speed):
         """Animate the tracks"""
