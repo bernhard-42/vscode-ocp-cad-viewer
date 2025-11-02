@@ -1888,7 +1888,7 @@ text-table@^0.2.0:
 
 three-cad-viewer@./three-cad-viewer-v3.6.2.tgz:
   version "3.6.2"
-  resolved "./three-cad-viewer-v3.6.2.tgz#7d0f2609b928ee6a10bbbbb41db4049745ade382"
+  resolved "./three-cad-viewer-v3.6.2.tgz#ee9b0f0dd0897fd7a5caa46da0ad958a0545b541"
   dependencies:
     three "0.180.0"
     yarn "^1.22.22"
