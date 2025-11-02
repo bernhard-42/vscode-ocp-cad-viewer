@@ -199,7 +199,7 @@ export const logo = () => {
             center_grid: false,
             collapse: 3,
             control: "trackball",
-            debug: true,
+            debug: false,
             default_color: "#e8b024",
             default_edgecolor: "#707070",
             default_facecolor: "Violet",
