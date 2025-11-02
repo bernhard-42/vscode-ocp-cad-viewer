@@ -383,8 +383,8 @@
         },
         "OcpCadViewer.view.ticks": {
           "type": "number",
-          "default": 10,
-          "description": "Default number of ticks (default: 10)",
+          "default": 5,
+          "description": "Default number of ticks (default: 5)",
           "order": 18
         },
         "OcpCadViewer.view.transparent": {
