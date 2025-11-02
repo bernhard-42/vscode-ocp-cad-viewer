@@ -102,6 +102,7 @@ export class OCPCADController {
                 options.get("grid_YZ")
             ],
             center_grid: options.get("center_grid"),
+            grid_font_size: options.get("grid_font_size"),
             collapse: options.get("collapse"),
             ortho: options.get("ortho"),
             ticks: options.get("ticks"),

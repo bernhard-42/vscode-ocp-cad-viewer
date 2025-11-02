@@ -225,7 +225,7 @@ export const logo = () => {
             roughness: 0.65,
             show_parent: false,
             show_sketch_local: true,
-            ticks: 10,
+            ticks: 5,
             timeit: false,
             tools: true,
             transparent: false,
