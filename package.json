@@ -569,7 +569,7 @@
               "{python} -m pip install --upgrade cadquery_ocp"
             ],
             "ocp_vscode": [
-              "{python} -m pip install --upgrade ocp_vscode=={ocp_vscode_version}"
+              "{python} -m pip install --upgrade ocp_vscode~={ocp_vscode_version}"
             ],
             "ocp_tessellate": [
               "{python} -m pip install --upgrade \"ocp_tessellate>=3.1.0,<3.2.0\""
