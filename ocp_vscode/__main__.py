@@ -336,21 +336,6 @@ def main(ctx, **kwargs):
 
     else:
         viewer = Viewer(ctx.params_set)
-
-        port = kwargs["port"]
-        host = kwargs["host"]
-
-        if host == "0.0.0.0":
-            print("\nThe viewer is running on all addresses:")
-            print(f"  - http://127.0.0.1:{port}/viewer")
-            try:
-                host = get_interface_ip(socket.AF_INET)
-                print(f"  - http://{host}:{port}/viewer\n")
-            except Exception:
-                pass
-        else:
-            print(f"\nThe viewer is running on http://{host}:{port}/viewer\n")
-
         viewer.start()
 
 

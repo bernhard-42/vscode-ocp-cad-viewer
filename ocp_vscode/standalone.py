@@ -19,7 +19,7 @@ import shutil
 import time
 import yaml
 from pathlib import Path
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect
 from flask_sock import Sock
 from ocp_vscode.comms import MessageType
 from ocp_vscode.backend import ViewerBackend
@@ -146,6 +146,9 @@ class Viewer:
 
         self.sock.route("/")(self.handle_message)
         self.app.add_url_rule("/viewer", "viewer", self.index)
+        self.app.add_url_rule(
+            "/", "redirect_to_viewer", lambda: redirect("/viewer", code=302)
+        )
 
     def debug_print(self, *msg):
         if self.debug:
