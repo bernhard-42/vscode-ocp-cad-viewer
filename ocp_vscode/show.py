@@ -16,6 +16,7 @@
 # limitations under the License.
 #
 
+from copy import deepcopy
 import os
 import pathlib
 import re
