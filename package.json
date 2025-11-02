@@ -566,7 +566,7 @@
               "{python} -m pip install --upgrade build123d"
             ],
             "cadquery_ocp": [
-              "{python} -m pip install --upgrade \"cadquery_ocp\""
+              "{python} -m pip install --upgrade cadquery_ocp"
             ],
             "ocp_vscode": [
               "{python} -m pip install --upgrade ocp_vscode=={ocp_vscode_version}"
