@@ -126,6 +126,104 @@ def save_png_data_url(data_url, output_path):
         print("Cannot save png file:", str(ex))
 
 
+def is_port_in_use(port, host="127.0.0.1"):
+    """
+    Check if a port is in use on both IPv4 and IPv6 localhost.
+
+    This function checks multiple addresses to handle dual-stack scenarios
+    where a server might be listening on IPv6 and accepting IPv4 connections.
+
+    Args:
+        port: The port number to check
+        host: The host to check (default: "127.0.0.1")
+
+    Returns:
+        True if the port is in use on either IPv4 or IPv6, False otherwise
+    """
+    import errno as errno_module
+    import sys
+
+    hosts_to_check = []
+
+    # Determine which hosts to check based on the requested host
+    if host == "127.0.0.1" or host == "localhost":
+        # Check both IPv4 and IPv6 localhost
+        hosts_to_check = [
+            ("127.0.0.1", socket.AF_INET),
+            ("::1", socket.AF_INET6),
+        ]
+    elif host == "0.0.0.0":
+        # Check all interfaces (both IPv4 and IPv6)
+        hosts_to_check = [
+            ("0.0.0.0", socket.AF_INET),
+            ("::", socket.AF_INET6),
+        ]
+    else:
+        # For specific hosts, determine the address family
+        try:
+            info = socket.getaddrinfo(host, port, socket.AF_UNSPEC, socket.SOCK_STREAM)
+            if info:
+                family = info[0][0]
+                hosts_to_check = [(host, family)]
+        except socket.gaierror:
+            # If we can't resolve the host, try IPv4 by default
+            hosts_to_check = [(host, socket.AF_INET)]
+
+    for check_host, family in hosts_to_check:
+        # First try a connection test (more reliable, especially on Windows)
+        try:
+            test_sock = socket.socket(family, socket.SOCK_STREAM)
+            test_sock.settimeout(0.5)
+            result = test_sock.connect_ex((check_host, port))
+            test_sock.close()
+
+            # If connection succeeds or is refused, port is in use
+            if result == 0:  # Connected successfully
+                return True
+            # ECONNREFUSED means nothing is listening, port is free
+            # Any other error, we'll fall through to the bind test
+        except (socket.error, socket.timeout):
+            # Connection test failed, try bind test
+            pass
+
+        # Bind test - try to bind to the port
+        try:
+            bind_sock = socket.socket(family, socket.SOCK_STREAM)
+            # SO_REUSEADDR allows binding to TIME_WAIT sockets
+            bind_sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+
+            # For IPv6, try to set IPV6_V6ONLY to avoid dual-stack issues
+            if family == socket.AF_INET6 and hasattr(socket, "IPV6_V6ONLY"):
+                try:
+                    bind_sock.setsockopt(socket.IPPROTO_IPV6, socket.IPV6_V6ONLY, 1)
+                except (socket.error, OSError):
+                    pass  # Not critical if this fails
+
+            bind_sock.bind((check_host, port))
+            bind_sock.close()
+        except OSError as e:
+            # Check for EADDRINUSE across platforms
+            # macOS: errno.EADDRINUSE = 48
+            # Linux: errno.EADDRINUSE = 98
+            # Windows: errno.WSAEADDRINUSE = 10048
+            if e.errno == errno_module.EADDRINUSE or (
+                sys.platform == "win32" and e.errno == 10048
+            ):
+                return True
+            # Other errors (like EADDRNOTAVAIL for IPv6 when disabled)
+            # are not definitive, so continue checking
+        except Exception:
+            # Unexpected error - continue to check other addresses
+            pass
+        finally:
+            try:
+                bind_sock.close()
+            except:
+                pass
+
+    return False
+
+
 class Viewer:
     def __init__(self, params):
         self.status = {}
@@ -222,9 +320,17 @@ class Viewer:
         self.debug_print("\nConfig:", self.config)
 
     def start(self):
-        self.app.run(debug=self.debug, port=self.port, host=self.host)
-        self.sock.init_app(self.app)
+        # Check if port is in use on both IPv4 and IPv6
+        if is_port_in_use(self.port, self.host):
+            print(
+                f"Port {self.port} is already in use. "
+                "Please choose a different port or stop the other service using this port."
+            )
+            sys.exit(1)
+
         self.backend.load_model(logo)
+
+        self.app.run(port=self.port, host=self.host)
 
     def index(self):
         # The browser will connect with an ip/hostname that is reachable from remote.
