@@ -114,6 +114,7 @@ CONFIG_WORKSPACE_KEYS = CONFIG_UI_KEYS + [
     "orbit_control",
     "ticks",
     "center_grid",
+    "grid_font_size",
     "tools",
     "tree_width",
     "up",
@@ -299,6 +300,7 @@ def set_defaults(
     collapse=None,
     ticks=None,
     center_grid=None,
+    grid_font_size=None,
     up=None,
     explode=None,
     zoom=None,
@@ -361,8 +363,9 @@ def set_defaults(
                            Collapse.ALL: collapse all nodes,
                            Collapse.NONE: expand all nodes
                            (default=Collapse.ROOT)
-        ticks:             Hint for the number of ticks in both directions (default=10)
+        ticks:             Hint for the number of ticks in both directions (default=5)
         center_grid:       Center the grid at the origin or center of mass (default=False)
+        grid_font_size:    Size for the font used for grid axis labels (default=12)
         up:                Use z-axis ('Z') or y-axis ('Y') as up direction for the camera (default="Z")
         explode:           Turn on explode mode (default=False)
 

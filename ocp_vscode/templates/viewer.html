@@ -87,6 +87,7 @@ limitations under the License.
                 target: null,
                 control: "{{ control }}",
                 centerGrid: false,
+                gridFontSize: 12,
                 newTreeBehavior: true
             };
 
@@ -571,6 +572,11 @@ limitations under the License.
                         "center_grid",
                         viewerDefaultOptions.centerGrid
                     ),
+                    gridFontSize: preset(
+                        _config,
+                        "grid_font_size",
+                        viewerDefaultOptions.gridFontSize
+                    ),
                     timeit: preset(
                         _config,
                         "timeit",
@@ -921,6 +927,7 @@ limitations under the License.
                         );
                         viewer.gridHelper.clearCache();
                         viewer.gridHelper.update(viewer.getCameraZoom(), true);
+                        viewer.update(true, true);
                     }
                 },
                 true

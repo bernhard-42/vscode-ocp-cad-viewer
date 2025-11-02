@@ -403,6 +403,7 @@ def show(
     explode=None,
     ticks=None,
     center_grid=None,
+    grid_font_size=None,
     up=None,
     tab=None,
     zoom=None,
@@ -482,8 +483,9 @@ def show(
                                  Collapse.ALL: collapse all nodes,
                                  Collapse.NONE: expand all nodes
                                  (default=Collapse.ROOT)
-        ticks:                   Hint for the number of ticks in both directions (default=10)
+        ticks:                   Hint for the number of ticks in both directions (default=5)
         center_grid:             Center the grid at the origin or center of mass (default=False)
+        grid_font_size:          Size for the font used for grid axis labels (default=12)
         up:                      Use z-axis ('Z') or y-axis ('Y') as up direction for the camera (default="Z")
         explode:                 Turn on explode mode (default=False)
 
@@ -697,6 +699,7 @@ def show_object(
     collapse=None,
     ticks=None,
     center_grid=None,
+    grid_font_size=None,
     up=None,
     zoom=None,
     position=None,
@@ -780,8 +783,9 @@ def show_object(
                                  Collapse.ALL: collapse all nodes,
                                  Collapse.NONE: expand all nodes
                                  (default=Collapse.ROOT)
-        ticks:                   Hint for the number of ticks in both directions (default=10)
+        ticks:                   Hint for the number of ticks in both directions (default=5)
         center_grid:             Center the grid at the origin or center of mass (default=False)
+        grid_font_size:          Size for the font used for grid axis labels (default=12)
         up:                      Use z-axis ('Z') or y-axis ('Y') as up direction for the camera (default="Z")
 
         zoom:                    Zoom factor of view (default=1.0)
@@ -994,6 +998,7 @@ def show_objects(
     collapse=None,
     ticks=None,
     center_grid=None,
+    grid_font_size=None,
     up=None,
     zoom=None,
     position=None,
@@ -1066,8 +1071,9 @@ def show_objects(
                                  Collapse.ALL: collapse all nodes,
                                  Collapse.NONE: expand all nodes
                                  (default=Collapse.ROOT)
-        ticks:                   Hint for the number of ticks in both directions (default=10)
+        ticks:                   Hint for the number of ticks in both directions (default=5)
         center_grid:             Center the grid at the origin or center of mass (default=False)
+        grid_font_size:          Size for the font used for grid axis labels (default=12)
         up:                      Use z-axis ('Z') or y-axis ('Y') as up direction for the camera (default="Z")
 
         zoom:                    Zoom factor of view (default=1.0)

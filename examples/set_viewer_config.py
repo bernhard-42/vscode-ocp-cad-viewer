@@ -76,11 +76,17 @@ show(a1, debug=True)
 
 # %%
 
-state("axes", "axes0", "grid", "center_grid")
+state("axes", "axes0", "grid", "center_grid", "grid_font_size")
 
 # %%
 
-c = dict(axes=True, axes0=True, grid=(True, False, False), center_grid=True)
+c = dict(
+    axes=True,
+    axes0=True,
+    grid=(True, False, False),
+    center_grid=True,
+    grid_font_size=16,
+)
 
 set_viewer_config(**c)
 

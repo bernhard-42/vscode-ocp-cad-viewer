@@ -45,6 +45,7 @@ set_viewer_config(tab="clip")
 show(
     Box(1, 2, 3, align=(Align.MIN, Align.MIN, Align.MIN)),
     center_grid=True,
+    grid_font_size=16,
     grid=(True, False, False),
 )
 # %%

@@ -206,6 +206,12 @@ def track_param(ctx, param, value):
     callback=track_param,
 )
 @click.option(
+    "--grid_font_size",
+    default=12,
+    help="Size of grid's axis label font (default: 12)",
+    callback=track_param,
+)
+@click.option(
     "--collapse",
     default=1,
     help="leaves: collapse all leaf nodes, all: collapse all nodes, none: expand all nodes, root: expand root only (default: leaves)",
@@ -219,8 +225,8 @@ def track_param(ctx, param, value):
 )
 @click.option(
     "--ticks",
-    default=10,
-    help="Default number of ticks (default: 10)",
+    default=5,
+    help="Default number of ticks (default: 5)",
     callback=track_param,
 )
 @click.option(
