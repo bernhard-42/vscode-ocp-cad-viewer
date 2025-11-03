@@ -2,26 +2,29 @@
 
 All notable changes to the "OCP CAD Viewer" extension will be documented in this file.
 
-## 2.10.0
+## 3.0.0
 
 **Features**
 
--   The grids are now dynamic: Fonts rescale when zooming to keep them the same size and grid refines when zoom factor doubles (and vice versa)
--   The `tick` hint parameter now only refers to the positive axis and defaults to `5` (so overall it is still `10`)
--   `reset_camera` now supports `Camera.ISO`, `Camera.TOP`, `Camera.BOTTOM`, `Camera.LEFT`, `Camera.RIGHT`, `Camera.FRONT`, and `Camera.BACK` as new orientation defaults for the viewer ([#189](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/189))
--   Joints are now shown with suffix `.joints` on the same level as the object they are attached to, in order to not change the overall assembly hierarchy needed for animation,  ([#138](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/138))
--   Animation of joints now needs to provide `animate_joints` parameter (in synch with `render_joints`)
--   HTTP root redirect of http://localhost:8080 in standalone mode to show the viewer (no need of using http://localhost:8080/viewer any more)
--   Trim infinite axes and planes to 10 x `helper_-_scale` ([#192](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/192))
--   Automatic theme switch (dark/bright) when theme of OS or browser is changed => NOTE: Unselect Ocp Cad Viewer > View:Dark in the VS Code settings!
--   Support for pure `uv` environments without `pip`. The viewer now tries `/env/path/to/python -m pip list` for the library manager and if that fails it uses `uv pip list -p /env/path/to/python`. The install commands in the workspace settings need to change to use `uv add -p {python}` [#166](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/166)
--   `helper_scale < 1.0` is treated as a relative scale: the absolute `helper_scale` will be calculated as the relative value times max bounding box size, i.e. `helper_scale`s is a percentage of the max bounding box. For inifinite objects, helper_scale will be set to 1.0
--   The library manager will now install `ocp_vscode~={ocp_vscode_version}`, to simplifiy pure Python patch distribution (patch verions are compatible with the viewer)
--   Small restructuring of the Library Manager list (`editable` now is only visible when the package is editable, and then shows the project path)
--   Allow `tree_width` to be changed by each `show` command
--   Help dialog can be closed by clicking outside on the canvas
--   Added `cadquery_ocp` to default install commands
--   Support for `to_build123d()` method: Objects with a `to_build123d()` will be viewed using this method [experimental]
+-   Viewer UI
+    -   The grids are now dynamic: Fonts rescale when zooming to keep them the same size and grid refines when zoom factor doubles (and vice versa)
+    -   Automatic theme switch (dark/bright) when theme of OS or browser is changed => NOTE: Unselect Ocp Cad Viewer > View:Dark in the VS Code settings!
+    -   The `tick` hint parameter now only refers to the positive axis and defaults to `5` (so overall it is still `10`)
+    -   Help dialog can be closed by clicking outside on the canvas
+-   `show` command
+    -   `reset_camera` now supports `Camera.ISO`, `Camera.TOP`, `Camera.BOTTOM`, `Camera.LEFT`, `Camera.RIGHT`, `Camera.FRONT`, and `Camera.BACK` as new orientation defaults for the viewer ([#189](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/189))
+    -   Joints are now shown with suffix `.joints` on the same level as the object they are attached to, in order to not change the overall assembly hierarchy needed for animation, ([#138](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/138))
+    -   Animation of joints now needs to provide `animate_joints` parameter (in synch with `render_joints`)
+    -   Trim infinite axes and planes to 10 x `helper_scale` ([#192](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/192))
+    -   `helper_scale < 1.0` is treated as a relative scale: the absolute `helper_scale` will be calculated as the relative value times max bounding box size, i.e. `helper_scale`s is a percentage of the max bounding box. For inifinite objects, helper_scale will be set to 1.0
+    -   Allow `tree_width` to be changed by each `show` command
+-   Standalone
+    -   HTTP root redirect of http://localhost:8080 in standalone mode to show the viewer (no need of using http://localhost:8080/viewer any more)
+-   Library manager
+    -   The library manager will now install `ocp_vscode~={ocp_vscode_version}` per default, to simplifiy pure Python patch distribution (patch verions are compatible with the viewer). NOTE: Check your user/workspace settings.
+    -   Small restructuring of the Library Manager list (`editable` now is only visible when the package is editable, and then shows the project path)
+    -   Added `cadquery_ocp` to default install commands
+-   Support for pure `uv` environments without `pip`. The viewer now tries `/env/path/to/python -m pip list` for the library manager and if that fails it uses `uv pip list -p /env/path/to/python`. The install commands in the workspace settings need to change to use `uv add -p {python}`, see [here](./README.md#uv-config-for-settings) [#166](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/166)
 -   Support for [GDS chip design format](https://en.wikipedia.org/wiki/GDSII)
     -   Add polygon renderer for GDS files
     -   Add a z-scale tool for GDS files
@@ -31,10 +34,9 @@ All notable changes to the "OCP CAD Viewer" extension will be documented in this
 -   Fix `tree_width` to be respected when `no_glass` is `false` ([#194](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/194))
 -   Fix error when project path contains spaces, especially for `pip list` ([#197](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/197))
 -   Add back default of 240 to standalone viewer call ([#195](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/195), [#196](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/196))
--   Change body element to respect the selected theme
 -   Bump questionary to fix VSplit error
 -   Properly add `alt` key to keymap
--   Existing viewer tab of the last session will be reused
+-   Change body element to respect the selected theme
 -   Fix new behavior of VS Code in status bar handling to ensure status bar is always visible
 -   Properly check ports vor IPv4 and IPv6 for standalone to avoid using the same port twice, once for IPv4 and once for IPv6
 -   three-cad-viewer
