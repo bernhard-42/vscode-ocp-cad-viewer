@@ -957,7 +957,10 @@ limitations under the License.
                         ? JSON.parse(event.data)
                         : event.data;
 
-                if (data.type === "data") {
+                if (
+                    data.type === "data" &&
+                    data?.data?.shapes?.parts?.length > 0
+                ) {
                     const timer = new Timer("webView", data.config.timeit);
 
                     decode(data);
