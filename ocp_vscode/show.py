@@ -276,6 +276,11 @@ def _tessellate(
 
     params["_splash"] = False  # after the first show, _splash is False
 
+    if kwargs.get("reset_camera") is not None and isinstance(
+        kwargs["reset_camera"], Enum
+    ):
+        params["reset_camera"] = kwargs["reset_camera"].value
+
     if kwargs.get("debug") is not None and kwargs["debug"]:
         print("\ntessellation parameters:\n", params)
 
