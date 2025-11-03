@@ -696,7 +696,7 @@ limitations under the License.
                 // }
                 last_bb_radius = bb_radius;
                 // debugLog("bb_radius", bb_radius)
-                if (reset_camera === "reset") {
+                if (reset_camera !== "keep" && reset_camera !== "center") {
                     // even if reset is requested, respect the position settings from the object
 
                     if (_config.zoom !== undefined) {
