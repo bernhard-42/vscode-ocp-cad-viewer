@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ocp_vscode"
-version = "2.10.0"
+version = "3.0.0"
 authors = [{ name = "Bernhard Walter", email = "b_walter@arcor.de" }]
 description = "OCP CAD Viewer for VSCode"
 readme = "README.md"
