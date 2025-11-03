@@ -20,8 +20,8 @@ import os
 import pathlib
 import re
 import time
+import traceback
 import types
-from copy import deepcopy
 from enum import Enum
 from logging import Logger
 
@@ -1303,6 +1303,7 @@ def show_all(
                 return result
         except Exception as ex:  # pylint: disable=broad-exception-caught
             print("show_all:", ex)
+            traceback.print_exc()
     else:
         if is_pytest():
             return None
