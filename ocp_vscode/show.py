@@ -240,7 +240,7 @@ def _tessellate(
         k: v
         for k, v in conf.items()
         if not (
-            k in ("position", "rotation", "target")
+            k in ("position", "quaternion", "target")
             or (
                 not is_jupyter_cadquery
                 and k
