@@ -177,6 +177,9 @@ def _tessellate(
 
         conf.update(clip_defaults)
 
+    if kwargs.get("helper_scale") is not None:
+        conf["helper_scale"] = kwargs["helper_scale"]
+
     timeit = preset("timeit", kwargs.get("timeit"))
 
     if timeit is None:
@@ -189,8 +192,8 @@ def _tessellate(
         changed_config = get_changed_config()
 
         if (
-            isinstance(kwargs.get("helper_scale"), float)
-            and kwargs.get("helper_scale") < 1.0
+            isinstance(conf.get("helper_scale"), float)
+            and conf.get("helper_scale") < 1.0
         ):
             bb = nested_bounding_box(cad_objs)
             if bb.max_dist_from_center() > 1e50:
