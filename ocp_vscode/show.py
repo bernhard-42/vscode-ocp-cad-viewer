@@ -270,7 +270,6 @@ def _tessellate(
 
         elif v is not None:
             if k == "reset_camera" and params.get("_splash") is True:
-                print(k, v)
                 # do not keep the position and rotation of the splash screen
                 continue
             params[k] = v
