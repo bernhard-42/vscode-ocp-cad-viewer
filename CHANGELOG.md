@@ -9,15 +9,16 @@ All notable changes to the "OCP CAD Viewer" extension will be documented in this
 -   Viewer UI
     -   The grids are now dynamic: Fonts rescale when zooming to keep them the same size and grid refines when zoom factor doubles (and vice versa)
     -   Automatic theme switch (dark/bright) when theme of OS or browser is changed => NOTE: Unselect Ocp Cad Viewer > View:Dark in the VS Code settings!
-    -   The `tick` hint parameter now only refers to the positive axis and defaults to `5` (so overall it is still `10`)
+    -   The `tick` hint parameter now only refers to the positive axis and defaults to `5` (so overall it is still `10`), see [migration](./README.md#migration-from-v290)
     -   Help dialog can be closed by clicking outside on the canvas
 -   `show` command
     -   `reset_camera` now supports `Camera.ISO`, `Camera.TOP`, `Camera.BOTTOM`, `Camera.LEFT`, `Camera.RIGHT`, `Camera.FRONT`, and `Camera.BACK` as new orientation defaults for the viewer ([#189](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/189))
     -   Joints are now shown with suffix `.joints` on the same level as the object they are attached to, in order to not change the overall assembly hierarchy needed for animation, ([#138](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/138))
-    -   Animation of joints now needs to provide `animate_joints` parameter (in synch with `render_joints`)
+    -   Animation of joints now needs to provide `animate_joints` parameter (in synch with `render_joints`), see [migration](./README.md#migration-from-v290)
     -   Trim infinite axes and planes to 10 x `helper_scale` ([#192](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/192))
     -   `helper_scale < 1.0` is treated as a relative scale: the absolute `helper_scale` will be calculated as the relative value times max bounding box size, i.e. `helper_scale`s is a percentage of the max bounding box. For inifinite objects, helper_scale will be set to 1.0
     -   Allow `tree_width` to be changed by each `show` command
+    -   List with unviewable objects only are not shown as empty objects any more but ignored
 -   Standalone
     -   HTTP root redirect of http://localhost:8080 in standalone mode to show the viewer (no need of using http://localhost:8080/viewer any more)
 -   Library manager
