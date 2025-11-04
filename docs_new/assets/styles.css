@@ -1,0 +1,24 @@
+.md-header__button.md-logo {
+    margin: 0;
+    padding: 0;
+}
+
+.md-header__button.md-logo img,
+.md-header__button.md-logo svg {
+    height: 4.0rem;
+    width: 4.2rem;
+}
+.md-typeset img {
+  border-radius: 0.5rem; /* Adjust value for more/less rounding */
+}
+
+img.center {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.md-tooltip2__inner {
+  font-size: 0.6rem !important;  
+  font-weight: 400 !important;
+}

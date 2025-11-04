@@ -5,6 +5,7 @@ build/
 src/
 docs/
 docs_old/
+docs_new/
 includes/
 mkdocs.yml
 ocp_vscode/

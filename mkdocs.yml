@@ -1,0 +1,103 @@
+site_name: OCP CAD Viewer
+repo_url: https://github.com/bernhard-42/vscode-ocp-cad-viewer
+repo_name: GitHub
+
+watch:
+  - includes
+
+extra_css:
+  - assets/styles.css
+
+nav:
+  - Home: index.md
+  - Concepts:
+    - concepts/index.md
+  - Installation:
+    - installation/index.md
+  - User Guide:
+    - guide/index.md
+  - Reference:
+    - reference/index.md
+  - Changes:
+    - CHANGELOG.md
+  - Troubleshooting:
+      - General: troubleshooting/general.md
+      - Python: troubleshooting/python.md
+      - Model Viewing: troubleshooting/viewing.md
+
+theme:
+  name: material
+  icon:
+    annotation: material/plus-circle-outline
+  palette:
+    - media: "(prefers-color-scheme)"
+      primary: blue
+      toggle:
+        icon: material/brightness-auto
+        name: Switch to light mode
+
+    # Palette toggle for light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default 
+      primary: blue
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+
+    # Palette toggle for dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: blue
+      toggle:
+        icon: material/brightness-4
+        name: Switch to system preference
+
+  logo: assets/ocp-logo.svg
+
+  features:
+    # Colors
+    - palette.toggle
+
+    # Navigation
+    - navigation.tabs
+    - navigation.tabs.sticky
+    # - navigation.expand
+    # - navigation.path
+    # - navigation.instant
+    # - navigation.tracking
+    # - navigation.sections
+    # - navigation.indexes
+    # - navigation.top
+    
+    # Table of contents
+    - toc.follow
+    - toc.integrate
+    
+    # Content
+    - content.tooltips
+    - content.code.annotate
+    - content.code.copy
+
+    # Search
+    # - search.highlight
+    # - search.share
+
+markdown_extensions:
+  - abbr
+  - attr_list
+  - admonition
+  - footnotes
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.highlight:
+     linenums: true
+  - pymdownx.snippets:
+      auto_append:
+        - includes/glossary.md
+plugins:
+  - search
+  - tags
+  - privacy  
+  - glightbox
