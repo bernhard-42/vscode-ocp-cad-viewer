@@ -47,6 +47,7 @@ dependencies = [
 [tool.setuptools]
 packages = ["ocp_vscode"]
 package-dir = { "" = "." }
+include-package-data = false
 
 [tool.setuptools.package-data]
 ocp_vscode = ["templates/*.html", "static/css/*.css", "static/js/*.js"]
