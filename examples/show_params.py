@@ -274,3 +274,5 @@ show(b.edges().group_by()[-1], show_parent=True)
 # %%
 
 show(b, c, timeit=True)
+
+# %%

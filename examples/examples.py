@@ -209,3 +209,5 @@ show(b)
 b = Box(1, 2, 3)
 b = fillet(b.edges(), 0.2).vertices()
 show(b)
+
+# %%
