@@ -199,7 +199,12 @@ def _tessellate(
             if bb.max_dist_from_center() > 1e50:
                 helper_scale = 1.0
                 print(
-                    "Warning: Infinite objects detected and helper_scale < 1.0: Setting helper_scale to 1"
+                    "Warning: Infinite objects detected with helper_scale < 1.0: Setting helper_scale to 1"
+                )
+            if bb.max_dist_from_center() < 1e-6:
+                helper_scale = 1.0
+                print(
+                    "Warning: Very small objects detected with helper_scale < 1.0: Setting helper_scale to 1"
                 )
             else:
                 helper_scale = bb.max_dist_from_center() * kwargs.get("helper_scale")
