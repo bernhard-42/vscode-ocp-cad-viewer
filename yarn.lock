@@ -1886,12 +1886,12 @@ text-table@^0.2.0:
   resolved "https://registry.npmjs.org/text-table/-/text-table-0.2.0.tgz"
   integrity sha512-N+8UisAXDGk8PFXP4HAzVR9nbfmVJ3zYLAWiTIoqC5v5isinhr+r5uaO8+7r3BMfuNIufIsA7RdpVgacC2cSpw==
 
-three-cad-viewer@./three-cad-viewer-v3.6.2.tgz:
+three-cad-viewer@3.6.2:
   version "3.6.2"
-  resolved "./three-cad-viewer-v3.6.2.tgz#ee9b0f0dd0897fd7a5caa46da0ad958a0545b541"
+  resolved "https://registry.yarnpkg.com/three-cad-viewer/-/three-cad-viewer-3.6.2.tgz#1e965141dd4b7bbb35b5bd302b8b94f7f92e320f"
+  integrity sha512-rxK6Jwwa+uDdod1BPeS9sSlWW3GaQhbVvGfeB1OZXUDv3JgyTyU3DL7gvsX/49Y1s/Iogcq26DgZ28v/z/SGGQ==
   dependencies:
     three "0.180.0"
-    yarn "^1.22.22"
 
 three@0.180.0:
   version "0.180.0"
