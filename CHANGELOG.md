@@ -34,7 +34,7 @@ All notable changes to the "OCP CAD Viewer" extension will be documented in this
 
 -   Fix `tree_width` to be respected when `no_glass` is `false` ([#194](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/194))
 -   Fix error when project path contains spaces, especially for `pip list` ([#197](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/197))
--   Add back default of 240 to standalone viewer call ([#195](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/195), [#196](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/196))
+-   Add back default of 240 for `tree_width` to standalone viewer call ([#195](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/195), [#196](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/196), [#200](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/200))
 -   Bump questionary to fix VSplit error
 -   Properly add `alt` key to keymap
 -   Change body element to respect the selected theme
