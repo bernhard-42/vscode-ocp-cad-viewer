@@ -372,12 +372,12 @@ NATIVE_TESSELLATOR=1 OCP_VSCODE_PYTEST=1 pytest -v -s pytests/
 -   Viewer UI
     -   The grids are now dynamic: Fonts rescale when zooming to keep them the same size and grid refines when zoom factor doubles (and vice versa)
     -   Automatic theme switch (dark/bright) when theme of OS or browser is changed => NOTE: Unselect Ocp Cad Viewer > View:Dark in the VS Code settings!
-    -   The `tick` hint parameter now only refers to the positive axis and defaults to `5` (so overall it is still `10`)
+    -   The `tick` hint parameter now only refers to the positive axis and defaults to `5` (so overall it is still `10`), see [migration](./README.md#migration-from-v290-to-v30x)
     -   Help dialog can be closed by clicking outside on the canvas
 -   `show` command
     -   `reset_camera` now supports `Camera.ISO`, `Camera.TOP`, `Camera.BOTTOM`, `Camera.LEFT`, `Camera.RIGHT`, `Camera.FRONT`, and `Camera.BACK` as new orientation defaults for the viewer ([#189](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/189))
     -   Joints are now shown with suffix `.joints` on the same level as the object they are attached to, in order to not change the overall assembly hierarchy needed for animation, ([#138](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/138))
-    -   Animation of joints now needs to provide `animate_joints` parameter (in synch with `render_joints`)
+    -   Animation of joints now needs to provide `animate_joints` parameter (in synch with `render_joints`), see [migration](./README.md#migration-from-v290-to-v30x)
     -   Trim infinite axes and planes to 10 x `helper_scale` ([#192](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/192))
     -   `helper_scale < 1.0` is treated as a relative scale: the absolute `helper_scale` will be calculated as the relative value times max bounding box size, i.e. `helper_scale`s is a percentage of the max bounding box. For inifinite objects, helper_scale will be set to 1.0
     -   Allow `tree_width` to be changed by each `show` command
@@ -397,7 +397,7 @@ NATIVE_TESSELLATOR=1 OCP_VSCODE_PYTEST=1 pytest -v -s pytests/
 
 -   Fix `tree_width` to be respected when `no_glass` is `false` ([#194](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/194))
 -   Fix error when project path contains spaces, especially for `pip list` ([#197](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/197))
--   Add back default of 240 to standalone viewer call ([#195](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/195), [#196](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/196))
+-   Add back default of 240 for `tree_width` to standalone viewer call ([#195](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/195), [#196](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/196), [#200](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/200))
 -   Bump questionary to fix VSplit error
 -   Properly add `alt` key to keymap
 -   Change body element to respect the selected theme
