@@ -78,7 +78,7 @@ _OCP CAD Viewer_ for VS Code is an extension to show [CadQuery](https://github.c
        +- joint2
     ```
 
-    Since joints are not under the `object_name` group, they do not automate automatically any more. Use the keyword `animate_joints=True` with `add_track`
+    Since joints are not under the `object_name` group, they do not animate automatically any more. Use the keyword `animate_joints=True` with `add_track`
 
 -   List with unviewable objects only are not shown as empty objects any more but ignored. So possibly less objects will be shown, and you might need to change how you access to these rendered objects.
 
