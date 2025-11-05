@@ -8,7 +8,7 @@
   "license": "Apache-2.0",
   "repository": "https://github.com/bernhard-42/vscode-ocp-cad-viewer",
   "engines": {
-    "vscode": "^1.87.0"
+    "vscode": "^1.85.0"
   },
   "categories": [
     "Other"
@@ -763,30 +763,31 @@
   "devDependencies": {
     "@types/adm-zip": "^0.5.0",
     "@types/follow-redirects": "^1.14.1",
-    "@types/glob": "^8.1.0",
     "@types/mocha": "^10.0.1",
     "@types/node": "^18.14.6",
     "@types/proper-lockfile": "^4.1.4",
+    "@types/semver": "7.7.1",
     "@types/vscode": "^1.85.0",
-    "@types/ws": "^8.5.4",
-    "@typescript-eslint/eslint-plugin": "^5.31.0",
-    "@typescript-eslint/parser": "^5.31.0",
+    "@types/ws": "^8.18.1",
     "@vscode/test-electron": "^2.1.5",
-    "@vscode/vsce": "^2.19.0",
-    "eslint": "^8.20.0",
-    "glob": "^8.1.0",
+    "@vscode/vsce": "^3.6.2",
+    "eslint": "^9.39.1",
+    "typescript": "~5.9.0",
+    "glob": "^9.0.0",
     "mocha": "^10.0.0",
-    "typescript": "4.9",
     "yarn": "^1.22.22"
   },
   "dependencies": {
-    "@vscode/python-extension": "^1.0.0",
-    "adm-zip": "^0.5.10",
-    "follow-redirects": "^1.15.2",
+    "@vscode/python-extension": "^1.0.6",
+    "adm-zip": "^0.5.16",
+    "follow-redirects": "^1.15.11",
     "proper-lockfile": "^4.1.2",
-    "semver": "^7.5.1",
+    "semver": "^7.7.3",
     "three-cad-viewer": "3.6.2",
-    "ws": "^8.13.0"
+    "ws": "^8.18.3"
+  },
+  "resolutions": {
+    "brace-expansion": "^2.0.2"
   },
   "packageManager": "yarn@1.22.22"
 }
