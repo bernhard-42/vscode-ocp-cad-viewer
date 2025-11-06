@@ -64,7 +64,6 @@ class Tests(unittest.TestCase):
 
 
 class ShowTests(Tests):
-
     def test_show_simple_box(self):
         obj = Box(1, 1, 1)
 
@@ -117,28 +116,27 @@ class ShowTests(Tests):
         self.get(r)
         self.assertEqual(len(self.instances), 4)
         self.assertEqual(self.shapes["version"], 3)
-        self.assertEqual(len(self.shapes["parts"]), 6)
+        self.assertEqual(len(self.shapes["parts"]), 5)
 
         self.assertPartsElementsEqual(
             "id",
             [
                 "/Group/Solid",
-                "/Group/List",
                 "/Group/Solid(2)",
                 "/Group/Object (empty)",
+                "/Group/List",
                 "/Group/List(2)",
-                "/Group/List(3)",
             ],
         )
-        self.assertEqual(self.parts[4]["parts"][0]["id"], "/Group/List(2)/sphere")
+        self.assertEqual(self.parts[3]["parts"][0]["id"], "/Group/List/sphere")
         self.assertPartsElementsEqual(
             "color",
-            ["#000000", None, "#00ffff", "#000000", None, None],
+            ["#000000", "#00ffff", "#000000", None, None],
         )
-        self.assertEqual(self.parts[4]["parts"][0]["color"], "#c0c0c0")
+        self.assertEqual(self.parts[3]["parts"][0]["color"], "#c0c0c0")
 
-        self.assertEqual(len(self.mapping["parts"]), 6)
-        self.assertEqual(len(self.mapping["parts"][5]["parts"][1]["parts"]), 25)
+        self.assertEqual(len(self.mapping["parts"]), 5)
+        self.assertEqual(len(self.mapping["parts"][4]["parts"][1]["parts"]), 25)
 
     def test_show_nested_array_with_names(self):
         box = Box(1, 2, 3)
@@ -186,7 +184,6 @@ class ShowTests(Tests):
             "id",
             [
                 "/Group/box",
-                "/Group/align",
                 "/Group/cyl",
                 "/Group/emptyObject (empty)",
                 "/Group/sphere",
@@ -204,9 +201,7 @@ class ShowAllTests(Tests):
         self.get(r)
         self.assertPartsElementsEqual(
             "id",
-            [
-                "/MIDDLE/MIDDLE (empty)",
-            ],
+            [],
         )
 
     def test_show_pos_list(self):
@@ -363,7 +358,7 @@ class ShowAllTests(Tests):
         self.get(r)
         self.assertEqual(len(self.instances), 4)
         self.assertEqual(self.shapes["version"], 3)
-        self.assertEqual(len(self.parts), 9)
+        self.assertEqual(len(self.parts), 7)
         self.assertPartsElementsEqual(
             "id",
             [
@@ -371,8 +366,6 @@ class ShowAllTests(Tests):
                 "/Group/cyl",
                 "/Group/sphere",
                 "/Group/dbox",
-                "/Group/col",
-                "/Group/align",
                 "/Group/pos",
                 "/Group/loc",
                 "/Group/emptyObject (empty)",
@@ -387,26 +380,23 @@ class ShowAllTests(Tests):
                 "#006400",
                 None,
                 None,
-                None,
-                None,
                 "#000000",
             ],
         )
         self.assertListEqual(
-            self.parts[6]["parts"][0]["color"], ["#ff0000", "#008000", "#0000ff"]
+            self.parts[4]["parts"][0]["color"], ["#ff0000", "#008000", "#0000ff"]
         )
         self.assertListEqual(
-            self.parts[7]["parts"][0]["color"], ["#ff0000", "#008000", "#0000ff"]
+            self.parts[5]["parts"][0]["color"], ["#ff0000", "#008000", "#0000ff"]
         )
         self.assertListEqual(
-            self.parts[7]["parts"][24]["color"], ["#ff0000", "#008000", "#0000ff"]
+            self.parts[5]["parts"][24]["color"], ["#ff0000", "#008000", "#0000ff"]
         )
-        self.assertEqual(len(self.mapping["parts"]), 9)
-        self.assertEqual(len(self.mapping["parts"][7]["parts"]), 25)
+        self.assertEqual(len(self.mapping["parts"]), 7)
+        self.assertEqual(len(self.mapping["parts"][5]["parts"]), 25)
 
 
 class SimpleShowTests(Tests):
-
     def test_show_part(self):
         with BuildPart() as obj:
             Box(1, 2, 3)
@@ -453,14 +443,12 @@ class SimpleShowTests(Tests):
         self.assertEqual(len(self.parts), 3)
 
     def test_show_vector(self):
-
         r = show(Vector(1, 2, 3), Vector(4, 5, 6), names=["a", "b"])
 
         self.get(r)
         self.assertEqual(len(self.parts), 2)
 
     def test_show_vector(self):
-
         r = show(Vector(1, 2, 3), Vector(4, 5, 6), names=["a"])
 
         self.get(r)
@@ -471,7 +459,6 @@ class SimpleShowTests(Tests):
         )
 
     def test_show_dict(self):
-
         r = show(dict(b=Box(1, 2, 3), c=Cylinder(0.1, 5)))
 
         self.get(r)
@@ -482,7 +469,6 @@ class SimpleShowTests(Tests):
         )
 
     def test_show_named_dict(self):
-
         r = show(dict(b=Box(1, 2, 3), c=Cylinder(0.1, 5)), names=["boxcyl"])
 
         self.get(r)

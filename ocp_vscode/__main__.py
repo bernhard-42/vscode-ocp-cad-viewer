@@ -105,6 +105,7 @@ def track_param(ctx, param, value):
 )
 @click.option(
     "--tree_width",
+    default=240,
     help="OCP CAD Viewer navigation tree width (default: 240)",
     callback=track_param,
 )
@@ -116,8 +117,8 @@ def track_param(ctx, param, value):
 )
 @click.option(
     "--theme",
-    default="light",
-    help="Use theme 'light' or 'dark' (default: 'light')",
+    default="browser",
+    help="Use theme 'light', 'dark', or 'browser' (default: 'browser')",
     callback=track_param,
 )
 @click.option(
@@ -205,6 +206,12 @@ def track_param(ctx, param, value):
     callback=track_param,
 )
 @click.option(
+    "--grid_font_size",
+    default=12,
+    help="Size of grid's axis label font (default: 12)",
+    callback=track_param,
+)
+@click.option(
     "--collapse",
     default=1,
     help="leaves: collapse all leaf nodes, all: collapse all nodes, none: expand all nodes, root: expand root only (default: leaves)",
@@ -218,8 +225,8 @@ def track_param(ctx, param, value):
 )
 @click.option(
     "--ticks",
-    default=10,
-    help="Default number of ticks (default: 10)",
+    default=5,
+    help="Default number of ticks (default: 5)",
     callback=track_param,
 )
 @click.option(
@@ -319,14 +326,12 @@ def main(ctx, **kwargs):
     """
 
     if kwargs.get("create_configfile"):
-
         config_file = Path(CONFIG_FILE)
         with open(config_file, "w", encoding="utf-8") as f:
             f.write(yaml.dump(DEFAULTS))
         print(f"Created config file {config_file}")
 
     elif kwargs.get("backend"):
-
         port = kwargs["port"]
 
         backend = ViewerBackend(port)
@@ -337,21 +342,6 @@ def main(ctx, **kwargs):
 
     else:
         viewer = Viewer(ctx.params_set)
-
-        port = kwargs["port"]
-        host = kwargs["host"]
-
-        if host == "0.0.0.0":
-            print("\nThe viewer is running on all addresses:")
-            print(f"  - http://127.0.0.1:{port}/viewer")
-            try:
-                host = get_interface_ip(socket.AF_INET)
-                print(f"  - http://{host}:{port}/viewer\n")
-            except:  # pylint: disable=bare-except
-                pass
-        else:
-            print(f"\nThe viewer is running on http://{host}:{port}/viewer\n")
-
         viewer.start()
 
 

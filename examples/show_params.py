@@ -48,6 +48,7 @@ show(
     axes0=True,
     grid=(True, False, False),
     center_grid=True,
+    grid_font_size=10,
     ortho=False,
     transparent=True,
     default_opacity=0.1,
@@ -64,6 +65,7 @@ show(
     axes0=False,
     grid=(False, True, False),
     center_grid=False,
+    grid_font_size=12,
     ortho=True,
     transparent=True,
     default_opacity=0.9,
@@ -272,3 +274,5 @@ show(b.edges().group_by()[-1], show_parent=True)
 # %%
 
 show(b, c, timeit=True)
+
+# %%

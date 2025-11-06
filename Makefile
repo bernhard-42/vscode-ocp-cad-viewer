@@ -1,4 +1,6 @@
-.PHONY: clean_notebooks wheel install tests check_version dist check_dist upload_test upload bump release create-release docker docker_upload dist tests
+.PHONY: clean_notebooks wheel install tests check_version dist check_dist upload_test upload \
+		bump release create-release docker docker_upload dist tests reload reload-tcv prepare \
+		native_tests
 
 PYCACHE := $(shell find . -name '__pycache__')
 EGGS := $(wildcard *.egg-info)
@@ -33,7 +35,8 @@ dist: clean
 	@cp resources/viewer.html ocp_vscode/templates
 	@cp node_modules/three-cad-viewer/dist/three-cad-viewer.esm.js ocp_vscode/static/js
 	@cp node_modules/three-cad-viewer/dist/three-cad-viewer.css ocp_vscode/static/css
-	
+	@cp src/logo.ts ocp_vscode/static/js/logo.js
+
 	@python -m build -n
 	vsce package --yarn
 	@ls -l dist/
@@ -62,6 +65,14 @@ create-release:
 	@github-release upload  -u bernhard-42 -r vscode-ocp-cad-viewer -t v$(CURRENT_VERSION) -n ocp-cad-viewer-$(CURRENT_VERSION).vsix -f ocp-cad-viewer-$(CURRENT_VERSION).vsix
 	@github-release upload  -u bernhard-42 -r vscode-ocp-cad-viewer -t v$(CURRENT_VERSION) -n ocp_vscode-$(CURRENT_VERSION)-py3-none-any.whl -f dist/ocp_vscode-$(CURRENT_VERSION)-py3-none-any.whl 
 	@github-release upload  -u bernhard-42 -r vscode-ocp-cad-viewer -t v$(CURRENT_VERSION) -n ocp_vscode-$(CURRENT_VERSION).tar.gz -f dist/ocp_vscode-$(CURRENT_VERSION).tar.gz 
+
+reload-tcv:
+	yarn remove three-cad-viewer
+	yarn cache clean
+	yarn add ./three-cad-viewer-v3.6.2.tgz
+
+reload: reload-tcv install-vsix
+	@echo done
 
 # install: dist
 # 	@echo "=> Installing jupyter_cadquery"

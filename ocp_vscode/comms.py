@@ -40,10 +40,10 @@ from IPython import get_ipython
 
 # pylint: disable=unused-import
 try:
-    import jupyter_console
+    import jupyter_console  # noqa: F401
 
     JCONSOLE = True
-except:  # pylint: disable=bare-except
+except Exception:
     JCONSOLE = False
 
 CMD_URL = "ws://127.0.0.1"
@@ -172,7 +172,7 @@ def _send(data, message_type, port=None, timeit=False):
                     ws.send(j)
 
                     with Timer(
-                        timeit, "", f"websocket send {len(j)/1024/1024:.3f} MB", 1
+                        timeit, "", f"websocket send {len(j) / 1024 / 1024:.3f} MB", 1
                     ):
                         result = None
                         if message_type == MessageType.COMMAND and not (
@@ -317,7 +317,7 @@ def find_and_set_port():
 
     try:
         port = int(os.environ.get("OCP_PORT", "0"))
-    except ValueError as ex:
+    except ValueError:
         print(
             f"Port {os.environ.get('OCP_PORT')} taken from environment variable OCP_PORT is invalid"
         )

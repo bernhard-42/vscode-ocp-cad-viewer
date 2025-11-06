@@ -21,7 +21,7 @@ Keywords for show_object:
     parent:                  Add another object, usually the parent of e.g. edges or vertices with alpha=0.25
     clear:                   In interactive mode, clear the stack of objects to be shown
                                 (typically used for the first object)
-    update:                  Update the object (remove old version)                                
+    update:                  Update the object (remove old version)
     port:                    The port the viewer listens to. Typically use 'set_port(port)' instead
     progress:                Show progress of tessellation with None is no progress indicator. (default="-+*c")
                                 for object: "-": is reference,
@@ -49,8 +49,9 @@ Valid keywords to configure the viewer (**kwargs):
                                 Collapse.ALL: collapse all nodes,
                                 Collapse.NONE: expand all nodes
                                 (default=Collapse.LEAVES)
-    ticks:                   Hint for the number of ticks in both directions (default=10)
+    ticks:                   Hint for the number of ticks in both directions (default=5)
     center_grid:             Center the grid at the origin or center of mass (default=False)
+    grid_font_size:          Size for the font used for grid axis labels (default=12)
     up:                      Use z-axis ('Z') or y-axis ('Y') as up direction for the camera (default="Z")
 
     zoom:                    Zoom factor of view (default=1.0)
@@ -107,13 +108,13 @@ Valid keywords to configure the viewer (**kwargs):
 
 ### Typically useful parameters
 
-- Reset the object stack:
+-   Reset the object stack:
 
-  `reset_show()`
+    `reset_show()`
 
-- Restart a new objects stack
+-   Restart a new objects stack
 
-  `show_object(obj, clear=True)`
+    `show_object(obj, clear=True)`
 
 For more detail, see [show](show.md)
 

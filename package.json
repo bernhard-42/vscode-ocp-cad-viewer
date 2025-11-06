@@ -2,7 +2,7 @@
   "name": "ocp-cad-viewer",
   "displayName": "OCP CAD Viewer",
   "description": "An integrated OCP CAD viewer for CadQuery and build123d",
-  "version": "2.9.0",
+  "version": "3.0.0",
   "publisher": "bernhard-42",
   "icon": "resources/ocp-logo.png",
   "license": "Apache-2.0",
@@ -273,7 +273,17 @@
         "OcpCadViewer.view.dark": {
           "type": "boolean",
           "default": false,
-          "description": "Use dark mode (default: false)",
+          "description": "Use dark mode (DEPRECATED)",
+          "order": 3
+        },
+        "OcpCadViewer.view.theme": {
+          "enum": [
+            "browser",
+            "light",
+            "dark"
+          ],
+          "default": "browser",
+          "description": "Select color theme (default: browser)",
           "order": 3
         },
         "OcpCadViewer.view.orbit_control": {
@@ -373,8 +383,8 @@
         },
         "OcpCadViewer.view.ticks": {
           "type": "number",
-          "default": 10,
-          "description": "Default number of ticks (default: 10)",
+          "default": 5,
+          "description": "Default number of ticks (default: 5)",
           "order": 18
         },
         "OcpCadViewer.view.transparent": {
@@ -400,7 +410,14 @@
           "enum": [
             "RESET",
             "KEEP",
-            "CENTER"
+            "CENTER",
+            "ISO",
+            "TOP",
+            "BOTTOM",
+            "LEFT",
+            "RIGHT",
+            "FRONT",
+            "BACK"
           ],
           "default": "RESET",
           "description": "Reset camera (angle and zoom) between show commands",
@@ -411,7 +428,8 @@
           "default": {
             "shift": "shiftKey",
             "ctrl": "ctrlKey",
-            "meta": "metaKey"
+            "meta": "metaKey",
+            "alt": "altKey"
           },
           "description": "Mapping of modifier keys shift, ctrl and meta (cmd on Mac, Windows on Windows)",
           "order": 33
@@ -529,10 +547,10 @@
           "description": "Shell commands to install the quickstart recipes. The values for placeholders {python}, {conda_env}, {ocp_vscode_version} will be replaced accordingly during execution",
           "default": {
             "cadquery": [
-              "{unset_conda} {python} -m pip install ocp_vscode=={ocp_vscode_version} cadquery"
+              "{unset_conda} {python} -m pip install ocp_vscode~={ocp_vscode_version} cadquery"
             ],
             "build123d": [
-              "{python} -m pip install ocp_vscode=={ocp_vscode_version} build123d"
+              "{python} -m pip install ocp_vscode~={ocp_vscode_version} build123d"
             ]
           },
           "order": 56
@@ -547,11 +565,14 @@
             "build123d": [
               "{python} -m pip install --upgrade build123d"
             ],
+            "cadquery_ocp": [
+              "{python} -m pip install --upgrade cadquery_ocp"
+            ],
             "ocp_vscode": [
-              "{python} -m pip install --upgrade ocp_vscode=={ocp_vscode_version}"
+              "{python} -m pip install --upgrade ocp_vscode~={ocp_vscode_version}"
             ],
             "ocp_tessellate": [
-              "{python} -m pip install --upgrade \"ocp_tessellate>=3.0.17,<3.1.0\""
+              "{python} -m pip install --upgrade ocp_tessellate"
             ],
             "ipykernel": [
               "{python} -m pip install --upgrade ipykernel"
@@ -764,7 +785,7 @@
     "follow-redirects": "^1.15.2",
     "proper-lockfile": "^4.1.2",
     "semver": "^7.5.1",
-    "three-cad-viewer": "3.5.1",
+    "three-cad-viewer": "3.6.2",
     "ws": "^8.13.0"
   },
   "packageManager": "yarn@1.22.22"

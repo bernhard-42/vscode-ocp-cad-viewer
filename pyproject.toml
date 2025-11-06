@@ -1,10 +1,10 @@
 [build-system]
-requires = ["setuptools>=45", "wheel"]
+requires = ["setuptools>=80", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "ocp_vscode"
-version = "2.9.0"
+version = "3.0.0"
 authors = [{ name = "Bernhard Walter", email = "b_walter@arcor.de" }]
 description = "OCP CAD Viewer for VSCode"
 readme = "README.md"
@@ -20,15 +20,14 @@ keywords = [
     "opencscade",
     "python",
 ]
-license = { text = "Apache-2.0" }
+license = "Apache-2.0"
 classifiers = [
-    "License :: OSI Approved :: Apache Software License",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
 ]
 
 dependencies = [
-    "ocp-tessellate>=3.0.17,<3.1.0",
+    "ocp-tessellate>=3.1.0,<3.2.0",
     "requests",
     "ipykernel",
     "orjson",
@@ -38,34 +37,31 @@ dependencies = [
     "flask_sock>=0.7,<1.0",
     "click>=8.1,<9.0",
     "pyperclip==1.9.0",
-    "questionary==2.1.0",
-    "pip"
+    "questionary==2.1.1",
 ]
-
-[tool.setuptools]
-packages = ["ocp_vscode"]
-package-dir = { "" = "." }
-
-[tool.setuptools.package-data]
-ocp_vscode = ["templates/*.html", "static/css/*.css", "static/js/*.js"]
-
-[project.optional-dependencies]
-dev = ["questionary~=1.10.0", "bump-my-version", "black", "twine"]
 
 [project.urls]
 "Homepage" = "https://github.com/bernhard-42/vscode-ocp-cad-viewer"
 "Bug Tracker" = "https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues"
 
-# black settings
+[tool.setuptools]
+packages = ["ocp_vscode"]
+package-dir = { "" = "." }
+include-package-data = false
 
-[tool.black]
-target-version = ["py39", "py310", "py311", "py312"]
+[tool.setuptools.package-data]
+ocp_vscode = ["templates/*.html", "static/css/*.css", "static/js/*.js"]
+
+[project.optional-dependencies]
+dev = ["questionary~=1.10.0", "bump-my-version", "ruff", "twine"]
+
+[tool.ruff]
 line-length = 88
 
 # bump-my-version settings
 
 [tool.bumpversion]
-current_version = "2.9.0"
+current_version = "3.0.0"
 commit = false
 tag = false
 parse = "(?P<major>\\d+)\\.(?P<minor>\\d+)\\.(?P<patch>\\d+)(?P<release>\\d*)(?P<build>\\d*)"

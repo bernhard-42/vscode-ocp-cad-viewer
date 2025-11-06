@@ -11,22 +11,21 @@ push_object(obj, name=None, color=None, alpha=None, clear=False, update=False)
 ### Arguments
 
     Parameters:
-        obj: The object to be added or updated. Must have 'name', 'label', 'color', or 'alpha' 
+        obj: The object to be added or updated. Must have 'name', 'label', 'color', or 'alpha'
             ttributes if corresponding arguments are not provided.
-        name (str, optional): The name to associate with the object. If not provided, 
+        name (str, optional): The name to associate with the object. If not provided,
             attempts to use 'name' or 'label' attribute of obj.
-        color (any, optional): The color to associate with the object. If not provided, 
+        color (any, optional): The color to associate with the object. If not provided,
             attempts to use 'color' attribute of obj.
-        alpha (float, optional): The alpha (transparency) value for the object. If not provided, 
+        alpha (float, optional): The alpha (transparency) value for the object. If not provided,
             attempts to use 'alpha' attribute of obj, defaults to 1.0.
         clear (bool, optional): If True, clears the OBJECTS registry before adding the new object.
-        update (bool, optional): If True, updates an existing object with the same name; 
+        update (bool, optional): If True, updates an existing object with the same name;
             otherwise, appends as a new object.
 
     Raises:
         ValueError: If no name is provided and the object does not have a 'name' or 'label' attribute.
     """
-
 
 ### Command
 
@@ -65,8 +64,9 @@ show_objects(<keyword arguments>)
                                  Collapse.ALL: collapse all nodes,
                                  Collapse.NONE: expand all nodes
                                  (default=Collapse.ROOT)
-        ticks:                   Hint for the number of ticks in both directions (default=10)
+        ticks:                   Hint for the number of ticks in both directions (default=5)
         center_grid:             Center the grid at the origin or center of mass (default=False)
+        grid_font_size:          Size for the font used for grid axis labels (default=12)
         up:                      Use z-axis ('Z') or y-axis ('Y') as up direction for the camera (default="Z")
 
         zoom:                    Zoom factor of view (default=1.0)
@@ -120,8 +120,6 @@ show_objects(<keyword arguments>)
         debug:                   Show debug statements to the VS Code browser console (default=False)
         timeit:                  Show timing information from level 0-3 (default=False)
 ```
-
-
 
 ### Example
 

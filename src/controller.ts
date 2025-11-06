@@ -62,13 +62,28 @@ export class OCPCADController {
     }
 
     public async logo() {
-        return await this.view?.postMessage(logo);
+        var conf = this.config();
+        var l: any = logo();
+        l["config"]["modifier_keys"] = conf["modifier_keys"];
+        l["config"]["theme"] = conf["theme"];
+        l["config"]["tree_width"] = conf["tree_width"];
+        return await this.view?.postMessage(l);
     }
 
     public config() {
         let options = vscode.workspace.getConfiguration("OcpCadViewer.view");
+
+        let theme = options.get("theme");
+        if (options.get("dark") == true) {
+            vscode.window.showWarningMessage(
+                "Setting OcpCadViewer.view.dark is " +
+                    "deprecated, unset it and use OcpCadViewer.view.theme"
+            );
+            theme = "dark";
+        }
+
         let c: Record<string, any> = {
-            theme: options.get("dark") ? "dark" : "light",
+            theme: theme,
             tree_width: options.get("tree_width"),
             control: options.get("orbit_control") ? "orbit" : "trackball",
             up: options.get("up"),
@@ -87,6 +102,7 @@ export class OCPCADController {
                 options.get("grid_YZ")
             ],
             center_grid: options.get("center_grid"),
+            grid_font_size: options.get("grid_font_size"),
             collapse: options.get("collapse"),
             ortho: options.get("ortho"),
             ticks: options.get("ticks"),

@@ -45,3 +45,5 @@ set_defaults(
     reset_camera=Camera.RESET,
     grid=(False, False, False),
 )
+
+# %%

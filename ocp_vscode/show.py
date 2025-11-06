@@ -20,6 +20,7 @@ import os
 import pathlib
 import re
 import time
+import traceback
 import types
 from enum import Enum
 from logging import Logger
@@ -49,14 +50,18 @@ from ocp_tessellate.ocp_utils import (
     is_topods_compound,
     is_topods_shape,
     is_vector,
-    is_wrapped,
+    nested_bounding_box,
 )
 from ocp_tessellate.utils import Color, Timer, numpy_to_buffer_json
 
 from ocp_vscode.colors import BaseColorMap, get_colormap
 
 if os.environ.get("JUPYTER_CADQUERY") == "1":
-    from jupyter_cadquery.comms import send_backend, send_command, send_data
+    from jupyter_cadquery.comms import (  # pyright: ignore[reportMissingImports]
+        send_backend,
+        send_command,
+        send_data,
+    )
 
     is_jupyter_cadquery = True
 
@@ -65,17 +70,13 @@ else:
 
     is_jupyter_cadquery = False
 
-from ocp_vscode.config import (
-    combined_config,
-    get_changed_config,
-)
-
 from ocp_vscode.comms import is_pytest
 from ocp_vscode.config import (
     Camera,
     Collapse,
     check_deprecated,
-    get_default,
+    combined_config,
+    get_changed_config,
     get_defaults,
     preset,
 )
@@ -107,8 +108,19 @@ def _tessellate(
     port = kwargs.get("port")
 
     conf = combined_config(viewer=viewer, port=port)
-    if conf.get("_splash") == True:
-        reset_camera = Camera.RESET
+    if conf.get("_splash"):
+        if conf.get("reset_camera") not in [
+            Camera.ISO,
+            Camera.LEFT,
+            Camera.RIGHT,
+            Camera.BACK,
+            Camera.FRONT,
+            Camera.TOP,
+            Camera.BOTTOM,
+        ]:
+            reset_camera = Camera.RESET
+        else:
+            reset_camera = conf.get("reset_camera")
     else:
         reset_camera = conf.get("reset_camera", Camera.RESET)
 
@@ -165,6 +177,9 @@ def _tessellate(
 
         conf.update(clip_defaults)
 
+    if kwargs.get("helper_scale") is not None:
+        conf["helper_scale"] = kwargs["helper_scale"]
+
     timeit = preset("timeit", kwargs.get("timeit"))
 
     if timeit is None:
@@ -175,6 +190,31 @@ def _tessellate(
 
     with Timer(timeit, "", "to_ocpgroup", 1):
         changed_config = get_changed_config()
+
+        if (
+            isinstance(conf.get("helper_scale"), float)
+            and conf.get("helper_scale") < 1.0
+        ):
+            bb = nested_bounding_box(cad_objs)
+            if bb.max_dist_from_center() > 1e50:
+                helper_scale = 1.0
+                print(
+                    "Warning: Infinite objects detected with helper_scale < 1.0: Setting helper_scale to 1"
+                )
+            if bb.max_dist_from_center() < 1e-6:
+                helper_scale = 1.0
+                print(
+                    "Warning: Very small objects detected with helper_scale < 1.0: Setting helper_scale to 1"
+                )
+            else:
+                helper_scale = bb.max_dist_from_center() * kwargs.get("helper_scale")
+                if kwargs.get("debug"):
+                    print(f"Helper scale set to {helper_scale}")
+        else:
+            helper_scale = kwargs.get(
+                "helper_scale", changed_config.get("helper_scale")
+            )
+
         part_group, instances = to_ocpgroup(
             *cad_objs,
             names=names,
@@ -184,7 +224,7 @@ def _tessellate(
             render_joints=kwargs.get(
                 "render_joints", changed_config.get("render_joints")
             ),
-            helper_scale=kwargs.get("helper_scale", changed_config.get("helper_scale")),
+            helper_scale=helper_scale,
             default_color=kwargs.get(
                 "default_color", changed_config.get("default_color")
             ),
@@ -205,7 +245,7 @@ def _tessellate(
         k: v
         for k, v in conf.items()
         if not (
-            k in ("position", "rotation", "target")
+            k in ("position", "quaternion", "target")
             or (
                 not is_jupyter_cadquery
                 and k
@@ -214,7 +254,7 @@ def _tessellate(
                     "cad_width",
                     "height",
                     # controlled by VSCode settings
-                    "tree_width",
+                    # "tree_width",
                     "theme",
                 )
             )
@@ -228,19 +268,23 @@ def _tessellate(
             )
 
         elif not is_jupyter_cadquery and k in [
-            "tree_width",
+            # "tree_width",
             "theme",
         ]:
             print(f"Setting {k} can only be set in VSCode config")
 
         elif v is not None:
             if k == "reset_camera" and params.get("_splash") is True:
-                print(k, v)
                 # do not keep the position and rotation of the splash screen
                 continue
             params[k] = v
 
     params["_splash"] = False  # after the first show, _splash is False
+
+    if kwargs.get("reset_camera") is not None and isinstance(
+        kwargs["reset_camera"], Enum
+    ):
+        params["reset_camera"] = kwargs["reset_camera"].value
 
     if kwargs.get("debug") is not None and kwargs["debug"]:
         print("\ntessellation parameters:\n", params)
@@ -307,11 +351,11 @@ def _convert(
     with Timer(timeit, "", "create data obj", 1):
         if is_pytest():
             return (instances, shapes, config, count_shapes), mapping
-
+        data = numpy_to_buffer_json(
+            dict(instances=instances, shapes=shapes),
+        )
         return {
-            "data": numpy_to_buffer_json(
-                dict(instances=instances, shapes=shapes),
-            ),
+            "data": data,
             "type": "data",
             "config": config,
             "count": count_shapes,
@@ -377,6 +421,7 @@ def show(
     explode=None,
     ticks=None,
     center_grid=None,
+    grid_font_size=None,
     up=None,
     tab=None,
     zoom=None,
@@ -456,8 +501,9 @@ def show(
                                  Collapse.ALL: collapse all nodes,
                                  Collapse.NONE: expand all nodes
                                  (default=Collapse.ROOT)
-        ticks:                   Hint for the number of ticks in both directions (default=10)
+        ticks:                   Hint for the number of ticks in both directions (default=5)
         center_grid:             Center the grid at the origin or center of mass (default=False)
+        grid_font_size:          Size for the font used for grid axis labels (default=12)
         up:                      Use z-axis ('Z') or y-axis ('Y') as up direction for the camera (default="Z")
         explode:                 Turn on explode mode (default=False)
 
@@ -468,6 +514,8 @@ def show(
         reset_camera:            Camera.RESET: Reset camera position, rotation, zoom and target
                                  Camera.CENTER: Keep camera position, rotation, zoom, but look at center
                                  Camera.KEEP: Keep camera position, rotation, zoom, and target
+                                 Or, choose one of the presets Camera.ISO, Camera.LEFT, Camera.RIGHT,
+                                 Camera.TOP, Camera.BOTTOM, Camera.FRONT, Camera.BACK
                                  (default=Camera.RESET)
 
         clip_slider_0:           Setting of clipping slider 0 (default=None)
@@ -506,6 +554,8 @@ def show(
         show_parent:             Render parent of faces, edges or vertices as wireframe (default=False)
         show_sketch_local:       In build123d show local sketch in addition to relocate sketch (default=True)
         helper_scale:            Scale of rendered helpers (locations, axis, mates for MAssemblies) (default=1)
+                                 If it is a float < 1, used the max distance to nested bounding box times
+                                 helper_scale to determine the absolut value of it
 
     - Debug
         debug:                   Show debug statements to the VS Code browser console (default=False)
@@ -667,6 +717,7 @@ def show_object(
     collapse=None,
     ticks=None,
     center_grid=None,
+    grid_font_size=None,
     up=None,
     zoom=None,
     position=None,
@@ -750,8 +801,9 @@ def show_object(
                                  Collapse.ALL: collapse all nodes,
                                  Collapse.NONE: expand all nodes
                                  (default=Collapse.ROOT)
-        ticks:                   Hint for the number of ticks in both directions (default=10)
+        ticks:                   Hint for the number of ticks in both directions (default=5)
         center_grid:             Center the grid at the origin or center of mass (default=False)
+        grid_font_size:          Size for the font used for grid axis labels (default=12)
         up:                      Use z-axis ('Z') or y-axis ('Y') as up direction for the camera (default="Z")
 
         zoom:                    Zoom factor of view (default=1.0)
@@ -761,6 +813,8 @@ def show_object(
         reset_camera:            Camera.RESET: Reset camera position, rotation, zoom and target
                                  Camera.CENTER: Keep camera position, rotation, zoom, but look at center
                                  Camera.KEEP: Keep camera position, rotation, zoom, and target
+                                 Or, choose one of the presets Camera.ISO, Camera.LEFT, Camera.RIGHT,
+                                 Camera.TOP, Camera.BOTTOM, Camera.FRONT, Camera.BACK
                                  (default=Camera.RESET)
 
         clip_slider_0:           Setting of clipping slider 0 (default=None)
@@ -800,7 +854,8 @@ def show_object(
         show_parent:             Render parent of faces, edges or vertices as wireframe (default=False)
         show_sketch_local:       In build123d show local sketch in addition to relocate sketch (default=True)
         helper_scale:            Scale of rendered helpers (locations, axis, mates for MAssemblies) (default=1)
-
+                                 If it is a float < 1, used the max distance to nested bounding box times
+                                 helper_scale to determine the absolut value of it
     - Debug
         debug:                   Show debug statements to the VS Code browser console (default=False)
         timeit:                  Show timing information from level 0-3 (default=False)
@@ -961,6 +1016,7 @@ def show_objects(
     collapse=None,
     ticks=None,
     center_grid=None,
+    grid_font_size=None,
     up=None,
     zoom=None,
     position=None,
@@ -1033,8 +1089,9 @@ def show_objects(
                                  Collapse.ALL: collapse all nodes,
                                  Collapse.NONE: expand all nodes
                                  (default=Collapse.ROOT)
-        ticks:                   Hint for the number of ticks in both directions (default=10)
+        ticks:                   Hint for the number of ticks in both directions (default=5)
         center_grid:             Center the grid at the origin or center of mass (default=False)
+        grid_font_size:          Size for the font used for grid axis labels (default=12)
         up:                      Use z-axis ('Z') or y-axis ('Y') as up direction for the camera (default="Z")
 
         zoom:                    Zoom factor of view (default=1.0)
@@ -1044,6 +1101,8 @@ def show_objects(
         reset_camera:            Camera.RESET: Reset camera position, rotation, zoom and target
                                  Camera.CENTER: Keep camera position, rotation, zoom, but look at center
                                  Camera.KEEP: Keep camera position, rotation, zoom, and target
+                                 Or, choose one of the presets Camera.ISO, Camera.LEFT, Camera.RIGHT,
+                                 Camera.TOP, Camera.BOTTOM, Camera.FRONT, Camera.BACK
                                  (default=Camera.RESET)
 
         clip_slider_0:           Setting of clipping slider 0 (default=None)
@@ -1083,7 +1142,8 @@ def show_objects(
         show_parent:             Render parent of faces, edges or vertices as wireframe (default=False)
         show_sketch_local:       In build123d show local sketch in addition to relocate sketch (default=True)
         helper_scale:            Scale of rendered helpers (locations, axis, mates for MAssemblies) (default=1)
-
+                                 If it is a float < 1, used the max distance to nested bounding box times
+                                 helper_scale to determine the absolut value of it
     - Debug
         debug:                   Show debug statements to the VS Code browser console (default=False)
         timeit:                  Show timing information from level 0-3 (default=False)
@@ -1173,7 +1233,6 @@ def show_all(
             continue
 
         if classes is None or isinstance(obj, tuple(classes)):
-
             if hasattr(obj, "locations") and hasattr(obj, "local_locations"):
                 obj = obj.locations
 
@@ -1249,6 +1308,7 @@ def show_all(
                 return result
         except Exception as ex:  # pylint: disable=broad-exception-caught
             print("show_all:", ex)
+            traceback.print_exc()
     else:
         if is_pytest():
             return None

@@ -71,7 +71,7 @@ a1 = (
     .add(box4, name="blue box", color=(43, 131, 186, 0.3))  # transparent, alpha = 0.3
 )
 
-show(a1, debug=True)
+show(a1, debug=True, reset_camera=Camera.RESET)
 
 
 # %%
@@ -80,7 +80,12 @@ state("axes", "axes0", "grid", "center_grid")
 
 # %%
 
-c = dict(axes=True, axes0=True, grid=(True, False, False), center_grid=True)
+c = dict(
+    axes=True,
+    axes0=True,
+    grid=(True, False, False),
+    center_grid=True,
+)
 
 set_viewer_config(**c)
 
@@ -205,15 +210,15 @@ state("position", "quaternion", "target", "zoom")
 # %%
 
 c = dict(
-    zoom=0.25,
-    position=(-31.94953273066467, -113.96334389070142, 64.89655331113694),
+    zoom=0.5,
+    position=(-82.8758620758301, -90.1348297727537, 50.05278713951289),
     quaternion=(
-        0.4132988655589423,
-        -0.0639778909519982,
-        -0.13895512880168057,
-        0.8976538026303535,
+        0.5260854883489195,
+        -0.20303675503687996,
+        -0.27189350671238977,
+        0.7797974455333987,
     ),
-    target=(-0.3630343271324728, -14.38330228182363, -24.503437918045126),
+    target=(0, 7.5, 0),
 )
 set_viewer_config(**c)
 
@@ -271,13 +276,19 @@ state(*c.keys())
 check(c)
 
 # %%
-
+set_viewer_config(
+    ambient_intensity=1, direct_intensity=1.1, metalness=0.3, roughness=0.65, tab="tree"
+)
+# %%
 state("zoom_speed", "pan_speed", "rotate_speed")
 
 # %%
 
 c = dict(zoom_speed=0.1, pan_speed=0.1, rotate_speed=0.1)
 set_viewer_config(**c)
+
+# %%
+set_viewer_config(zoom_speed=1, pan_speed=1, rotate_speed=1)
 
 # %%
 
@@ -406,17 +417,20 @@ set_viewer_config(tab="clip")
 
 # %%
 
-state(
-    "clip_slider_0",
-    "clip_slider_1",
-    "clip_slider_2",
-    "clip_normal_0",
-    "clip_normal_1",
-    "clip_normal_2",
-    "clip_intersection",
-    "clip_planes",
-    "clip_object_colors",
-), ("clip_normal_0", "clip_normal_1", "clip_normal_2")
+(
+    state(
+        "clip_slider_0",
+        "clip_slider_1",
+        "clip_slider_2",
+        "clip_normal_0",
+        "clip_normal_1",
+        "clip_normal_2",
+        "clip_intersection",
+        "clip_planes",
+        "clip_object_colors",
+    ),
+    ("clip_normal_0", "clip_normal_1", "clip_normal_2"),
+)
 
 # %%
 
@@ -438,3 +452,5 @@ set_viewer_config(**c)
 
 state(*c.keys())
 check(c)
+
+# %%

@@ -75,7 +75,7 @@ try:
 
         return __bd.ShapeList(result)
 
-except:
+except Exception:
     pass
 
 
@@ -92,7 +92,6 @@ try:
             result.append(objects[i])
 
         if is_cadquery(obj):
-
             return obj.newObject([cls(e) for e in result])
 
         elif is_cadquery_sketch(obj):
@@ -101,7 +100,7 @@ try:
 
         return []
 
-except:
+except Exception:
     pass
 
 

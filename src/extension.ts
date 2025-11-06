@@ -36,6 +36,7 @@ import {
     jupyterExtensionInstalled,
     isPortInUse,
     getPythonPath,
+    getPythonEnv,
     closeOcpCadViewerTab,
     editorColumns,
     getEditorColumn,
@@ -193,9 +194,13 @@ export async function activate(context: vscode.ExtensionContext) {
     }
     statusBarItem.command = "ocpCadViewer.toggleWatch";
     context.subscriptions.push(statusBarItem);
+    statusBarItem.show();
 
     await statusManager.refresh("");
     var python = await getPythonPath();
+    var pythonEnv = await getPythonEnv();
+    output.info(`Using python environment ${pythonEnv} and Python ${python}`);
+
     await libraryManager.refresh(python);
 
     if (vscode.window.visibleTextEditors.length > 0) {
@@ -339,8 +344,15 @@ export async function activate(context: vscode.ExtensionContext) {
             if (!controller || !controller.isStarted()) {
                 conditionallyOpenViewer(editor.document);
             }
+            statusBarItem.show();
         }
     });
+
+    vscode.window.onDidChangeTextEditorSelection(() => statusBarItem.show());
+
+    vscode.window.onDidChangeTextEditorVisibleRanges(() =>
+        statusBarItem.show()
+    );
 
     //	Commands
 
@@ -462,7 +474,7 @@ export async function activate(context: vscode.ExtensionContext) {
                     "ocpCadViewer.ocpCadViewer: Starting OCPCADController"
                 );
 
-                await closeOcpCadViewerTab();
+                // await closeOcpCadViewerTab();
 
                 var newColumn = editorColumns();
 

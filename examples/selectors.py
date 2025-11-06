@@ -1,3 +1,4 @@
+# %%
 from build123d import *
 import cadquery as cq
 from ocp_vscode import *
@@ -22,7 +23,7 @@ show(select_faces(b, [8, 9, 0, 2, 4, 7]))
 
 # %%
 
-show(select_vertices(b, [2, 14, 5, 11, 9, 1, 7, 12]))
+show(select_vertices(b, [2, 14, 5, 11, 9, 1, 7, 12]), show_parent=True)
 
 # %% Build123d
 

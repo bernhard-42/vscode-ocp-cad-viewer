@@ -24,7 +24,14 @@ export function template(
 ) {
     let options = vscode.workspace.getConfiguration("OcpCadViewer.view");
 
-    const theme = options.get("dark") ? "dark" : "light";
+    var theme: string = options.get("theme") || "browser";
+    if (options.get("dark") == true) {
+        vscode.window.showWarningMessage(
+            "Setting OcpCadViewer.view.dark is " +
+                "deprecated, unset it and use OcpCadViewer.view.theme"
+        );
+        theme = "dark";
+    }
     const treeWidth = options.get("tree_width");
     const control = options.get("orbit_control") ? "orbit" : "trackball";
     const up = options.get("up");

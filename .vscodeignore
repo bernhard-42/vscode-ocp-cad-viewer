@@ -4,6 +4,10 @@ test/
 build/
 src/
 docs/
+docs_old/
+docs_new/
+includes/
+mkdocs.yml
 ocp_vscode/
 ocp_vscode.egg-info/
 .gitignore
@@ -11,14 +15,18 @@ ocp_vscode.egg-info/
 .pytest_cache
 .vscode
 .mypy_cache
+.cache
 ocp_vscode/.mypy_cache
-main.py
+*.py
 setup.cfg
 setup.py
+pyproject.toml
+pytests
 vsc-extension-quickstart.md
 test.sh
 
 out/logo_alt.js
+tsconfig.json
 
 screenshots/*.gif
 screenshots/ocp_vscode_debug.png

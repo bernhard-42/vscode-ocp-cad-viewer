@@ -1,5 +1,4 @@
 from math import pi
-from urllib import response
 
 from ocp_tessellate.ocp_utils import (
     area,
@@ -159,7 +158,7 @@ def get_properties(shape):
                 angle = calc_angle(rect(1, 1), tangent_edge_at(shape, i))
                 if angle is not None:
                     response[f"Angle@{i} to XY"] = angle["angle"]
-            except:
+            except Exception:
                 pass
 
     elif shape_type == "Face":
@@ -210,7 +209,7 @@ def get_properties(shape):
             angle = calc_angle(rect(1, 1), shape)
             if angle is not None:
                 response["Angle to XY"] = angle["angle"]
-        except:
+        except Exception:
             pass
 
     elif shape_type in ["Solid", "CompSolid", "Compound"]:
@@ -306,13 +305,19 @@ def calc_distance(shape1, shape2, center=False):
         dist, p1, p2 = dist_shapes(p1, p2)
     else:
         dist, p1, p2 = dist_shapes(shape1, shape2)
+    p1 = get_point(p1)
+    p2 = get_point(p2)
+    xdist = abs(p2[0] - p1[0])
+    ydist = abs(p2[1] - p1[1])
+    zdist = abs(p2[2] - p1[2])
     return {
         "distance": dist,
-        "Point 1": get_point(p1),
-        "Point 2": get_point(p2),
+        "⇒ X | Y | Z": [xdist, ydist, zdist],
+        "Point 1": p1,
+        "Point 2": p2,
         "info": "center" if center else "min",
-        "refpoint1": get_point(p1),
-        "refpoint2": get_point(p2),
+        "refpoint1": p1,
+        "refpoint2": p2,
     }
 
 
@@ -404,7 +409,6 @@ def calc_angle(shape1, shape2):
 
 
 def get_distance(shape1, shape2, center):
-
     response = calc_distance(shape1, shape2, center)
 
     angle = calc_angle(shape1, shape2)

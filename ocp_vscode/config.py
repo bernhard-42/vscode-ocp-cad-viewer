@@ -23,9 +23,10 @@ if os.environ.get("JUPYTER_CADQUERY") is None:
 
     is_jupyter_cadquery = False
 else:
-    from jupyter_cadquery.comms import send_config, send_command
+    from jupyter_cadquery.comms import send_config, send_command  # type: ignore
 
-    is_pytest = lambda: False
+    def is_pytest():
+        return False
 
     is_jupyter_cadquery = True
 
@@ -55,6 +56,13 @@ class Camera(Enum):
     RESET = "reset"
     CENTER = "center"
     KEEP = "keep"
+    ISO = "iso"
+    TOP = "top"
+    BOTTOM = "bottom"
+    LEFT = "left"
+    RIGHT = "right"
+    BACK = "rear"  #  intentionally
+    FRONT = "front"
 
 
 class Collapse(Enum):
@@ -106,6 +114,7 @@ CONFIG_WORKSPACE_KEYS = CONFIG_UI_KEYS + [
     "orbit_control",
     "ticks",
     "center_grid",
+    "grid_font_size",
     "tools",
     "tree_width",
     "up",
@@ -291,6 +300,7 @@ def set_defaults(
     collapse=None,
     ticks=None,
     center_grid=None,
+    grid_font_size=None,
     up=None,
     explode=None,
     zoom=None,
@@ -353,8 +363,9 @@ def set_defaults(
                            Collapse.ALL: collapse all nodes,
                            Collapse.NONE: expand all nodes
                            (default=Collapse.ROOT)
-        ticks:             Hint for the number of ticks in both directions (default=10)
+        ticks:             Hint for the number of ticks in both directions (default=5)
         center_grid:       Center the grid at the origin or center of mass (default=False)
+        grid_font_size:    Size for the font used for grid axis labels (default=12)
         up:                Use z-axis ('Z') or y-axis ('Y') as up direction for the camera (default="Z")
         explode:           Turn on explode mode (default=False)
 
@@ -365,6 +376,8 @@ def set_defaults(
         reset_camera:      Camera.RESET: Reset camera position, rotation, zoom and target
                            Camera.CENTER: Keep camera position, rotation, zoom, but look at center
                            Camera.KEEP: Keep camera position, rotation, zoom, and target
+                           Or, choose one of the presets Camera.ISO, Camera.LEFT, Camera.RIGHT,
+                           Camera.TOP, Camera.BOTTOM, Camera.FRONT, Camera.BACK
                            (default=Camera.RESET)
         clip_slider_0:     Setting of clipping slider 0 (default=None)
         clip_slider_1:     Setting of clipping slider 1 (default=None)
@@ -399,7 +412,8 @@ def set_defaults(
         show_parent:       Render parent of faces, edges or vertices as wireframe (default=False)
         show_sketch_local: In build123d show local sketch in addition to relocate sketch (default=True)
         helper_scale:      Scale of rendered helpers (locations, axis, mates for MAssemblies) (default=1)
-
+                           If it is a float < 1, used the max distance to nested bounding box times
+                           helper_scale to determine the absolut value of it
     - Debug
         debug:             Show debug statements to the VS Code browser console (default=False)
         timeit:            Show timing information from level 0-3 (default=False)

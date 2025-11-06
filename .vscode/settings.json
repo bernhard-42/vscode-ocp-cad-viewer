@@ -18,5 +18,8 @@
         "ocpgroup",
         "colormap",
         "colormaps"
-   ]
+    ],
+    "[python]": {
+        "editor.defaultFormatter": "charliermarsh.ruff"
+    }
 }
