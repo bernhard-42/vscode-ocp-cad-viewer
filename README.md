@@ -56,6 +56,25 @@ _OCP CAD Viewer_ for VS Code is an extension to show [CadQuery](https://github.c
 
 -   If you run into issues, see [Troubleshooting](#troubleshooting)
 
+
+### Install Via CLI
+
+If you aren't using vscode, you can install/use this extension via cmd line 
+
+Since this is a python extension, it is recommended to install/activate a virtual environment first, (e.g. uv, venv. poetry, conda, pip, etc)
+
+```
+source .venv/bin/activate # activate virtual environment
+uv add ocp-viewer # install via uv
+
+# alternative
+pip install ocp-viewer # OR install via pip
+
+```
+
+The extension is in pypi also, and can be installed directly from [there](https://pypi.org/project/ocp-vscode/)
+
+
 ## Migration from v2.9.0 to v3.0.X
 
 -   Change `show` parameter `ticks` to `ticks/2`
