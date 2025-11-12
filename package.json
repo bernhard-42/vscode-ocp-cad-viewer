@@ -785,7 +785,7 @@
     "follow-redirects": "^1.15.2",
     "proper-lockfile": "^4.1.2",
     "semver": "^7.5.1",
-    "three-cad-viewer": "3.6.2",
+    "three-cad-viewer": "3.6.3",
     "ws": "^8.13.0"
   },
   "packageManager": "yarn@1.22.22"
