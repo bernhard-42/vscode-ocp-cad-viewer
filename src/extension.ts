@@ -725,7 +725,7 @@ export async function activate(context: vscode.ExtensionContext) {
                                 setTimeout(async () => {
                                     var python = await getPythonPath(true);
                                     terminal.sendText(
-                                        `${python} -m jupyter console --existing ${connectionFile}`
+                                        `"${python}" -m jupyter console --existing ${connectionFile}`
                                     );
                                     output.debug(
                                         `${python} -m jupyter --existing ${connectionFile} started`
