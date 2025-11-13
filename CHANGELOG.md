@@ -2,6 +2,13 @@
 
 All notable changes to the "OCP CAD Viewer" extension will be documented in this file.
 
+## 3.0.1
+
+**Fixes**
+
+-   Bring back explode tool and selection tool
+-   Ensure jupyter console can be launched when the path contains spaces
+
 ## 3.0.0
 
 **Features**

@@ -56,6 +56,29 @@ _OCP CAD Viewer_ for VS Code is an extension to show [CadQuery](https://github.c
 
 -   If you run into issues, see [Troubleshooting](#troubleshooting)
 
+### Install Via CLI
+
+If you aren't using VS Code, you can install/use this extension via command line
+
+Since this is a python extension, it is recommended to install/activate a virtual environment first, (e.g. uv, venv. poetry, conda, pip, etc)
+
+-   uv based virtual environemnts:
+
+    ```
+    source .venv/bin/activate  # to activate the uv virtual environment
+    uv add ocp-viewer
+    ```
+
+-   pip for other virtual environments:
+
+    ```
+    source .venv/bin/activate  # to activate venv virtual environments
+    conda / mamba / micromamba activate <env>  # to activate conda like virtual environments
+    pip install ocp-viewer
+    ```
+
+Note: The extension is in pypi only [pypi](https://pypi.org/project/ocp-vscode/), so for conda, mamba or micromamba environments `pip` or `uv pip` needs to be used.
+
 ## Migration from v2.9.0 to v3.0.X
 
 -   Change `show` parameter `ticks` to `ticks/2`
@@ -159,7 +182,7 @@ You can also use "Library Manager" in the _OCP CAD Viewer_ sidebar to manage the
 
 ## Standalone mode
 
-Standalone mode allows to use OCP CAD Viewer without VS Code: `python -m ocp_vscode`. This will start a Flask server and the viewer can be reached under `http://127.0.0.1/viewer`. All client side feature of the VS Code variant (i.e. `show*` features) should be available (including measurement mode) except visual debugging (see above) which relies on VS Code.
+Standalone mode allows to use OCP CAD Viewer without VS Code: `python -m ocp_vscode`. This will start a Flask server and the viewer can be reached under `http://127.0.0.1:<port number>` (per default http://127.0.0.1:3939). All client side feature of the VS Code variant (i.e. `show*` features) should be available (including measurement mode) except visual debugging (see above) which relies on VS Code.
 
 Use `python -m ocp_vscode --help` to understand the command line args:
 
@@ -364,6 +387,13 @@ NATIVE_TESSELLATOR=1 OCP_VSCODE_PYTEST=1 pytest -v -s pytests/
     **Solution:** [Delete the VS Code browser cache on Linux](https://bobbyhadz.com/blog/vscode-clear-cache) (go to the section for your operating system)
 
 ## Changes
+
+### 3.0.1
+
+**Fixes**
+
+-   Bring back explode tool and selection tool
+-   Ensure jupyter console can be launched when the path contains spaces
 
 ### 3.0.0
 
