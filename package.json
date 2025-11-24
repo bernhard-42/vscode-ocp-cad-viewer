@@ -772,9 +772,9 @@
     "@vscode/test-electron": "^2.1.5",
     "@vscode/vsce": "^3.6.2",
     "eslint": "^9.39.1",
-    "typescript": "~5.9.0",
     "glob": "^9.0.0",
     "mocha": "^10.0.0",
+    "typescript": "~5.9.0",
     "yarn": "^1.22.22"
   },
   "dependencies": {
@@ -783,7 +783,7 @@
     "follow-redirects": "^1.15.11",
     "proper-lockfile": "^4.1.2",
     "semver": "^7.5.1",
-    "three-cad-viewer": "3.6.3",
+    "three-cad-viewer": "./three-cad-viewer-v3.7.0.tgz",
     "ws": "^8.13.0"
   },
   "packageManager": "yarn@1.22.22"
