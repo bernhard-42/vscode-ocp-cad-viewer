@@ -69,7 +69,7 @@ create-release:
 reload-tcv:
 	yarn remove three-cad-viewer
 	yarn cache clean
-	yarn add ./three-cad-viewer-v3.6.2.tgz
+	yarn add ./$(shell ls three-cad-viewer-v*.tgz | sort -V | tail -n 1)
 
 reload: reload-tcv install-vsix
 	@echo done
