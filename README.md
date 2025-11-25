@@ -398,6 +398,7 @@ NATIVE_TESSELLATOR=1 OCP_VSCODE_PYTEST=1 pytest -v -s pytests/
 -   The standalone server wirtes its port to ~/.ocpvscode for show to pick it up
 -   Reduced standalone output without --debug to a bare minimum
 -   Streamlined standalone debugging output
+-   VS Code only supports esm modules now, so replace proper-lockfile with own esm version of it
 
 ### 3.0.0
 
