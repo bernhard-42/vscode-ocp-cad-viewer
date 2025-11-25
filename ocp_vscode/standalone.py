@@ -15,6 +15,7 @@
 
 import atexit
 import base64
+import logging
 import orjson
 import shutil
 import socket
@@ -24,6 +25,7 @@ import yaml
 from pathlib import Path
 from flask import Flask, render_template, request, redirect
 from flask_sock import Sock
+from flask import cli
 from ocp_vscode.comms import MessageType
 from ocp_vscode.backend import ViewerBackend
 from ocp_vscode.backend_logo import logo
@@ -241,14 +243,22 @@ def is_port_in_use(port, host="127.0.0.1"):
 
 class Viewer:
     def __init__(self, params):
+
         self.status = {}
         self.config = {}
         self.debug = params.get("debug", False)
         self.params = params
-        self.port = params.get("port", 3939)
         self.host = params.get("host", "127.0.0.1")
+        self.port = params.get("port", 3939)
 
+        self.last_changes = {}
+        self.last_config = {}
         self.configure(self.params)
+
+        if not self.debug:
+            cli.show_server_banner = lambda *args, **kwargs: None
+            log = logging.getLogger("werkzeug")
+            log.setLevel(logging.ERROR)
 
         self.app = Flask(__name__)
         self.sock = Sock(self.app)
@@ -269,7 +279,18 @@ class Viewer:
         if self.debug:
             print("Debug:", *msg)
 
+    @staticmethod
+    def _dict_diff(d1, d2):
+        result = {}
+        for key in d2:
+            if key not in d1:
+                result[key] = d2[key]
+            elif d2[key] != d1[key]:
+                result[key] = d2[key]
+        return result
+
     def configure(self, params):
+
         # Start with defaults
         local_config = DEFAULTS.copy()
 
@@ -331,7 +352,10 @@ class Viewer:
         ):
             self.config["modifier_keys"]["alt"] = "altKey"
 
-        self.debug_print("\nConfig:", self.config)
+        diff_config = Viewer._dict_diff(self.last_config, self.config)
+        if len(diff_config) > 0:
+            self.debug_print("\nConfig:", self.config)
+        self.last_config = dict(self.config)
 
     def start(self):
         global PORT
@@ -349,7 +373,9 @@ class Viewer:
 
         print(f"Info: OCP CAD Viewer runs at http://{self.host}:{self.port}")
 
-        self.app.run(port=self.port, host=self.host)
+        self.app.run(
+            port=self.port, host=self.host, debug=self.debug, use_reloader=False
+        )
 
     def index(self):
         # The browser will connect with an ip/hostname that is reachable from remote.
@@ -385,17 +411,17 @@ class Viewer:
                 self.python_client = ws
                 cmd = orjson.loads(data)
                 if cmd == "status":
-                    self.debug_print("Received status command")
+                    self.debug_print(f"[{message_type}] Received status command")
                     self.python_client.send(orjson.dumps({"text": self.status}))
 
                 elif cmd == "config":
-                    self.debug_print("Received config command")
+                    self.debug_print(f"[{message_type}] Received config command")
                     self.configure(self.params)
                     self.config["_splash"] = self.splash
                     self.python_client.send(orjson.dumps(self.config))
 
                 elif cmd.get("type") == "screenshot":
-                    self.debug_print("Received screenshot command")
+                    self.debug_print(f"[{message_type}] Received screenshot command")
                     if self.javascript_client is None:
                         self.not_registered()
                         continue
@@ -403,7 +429,7 @@ class Viewer:
 
             elif message_type == "D":
                 self.python_client = ws
-                self.debug_print("Received a new model")
+                self.debug_print(f"[{message_type}] Received a new model")
                 if self.javascript_client is None:
                     self.not_registered()
                     continue
@@ -417,15 +443,29 @@ class Viewer:
                 if message["command"] == "screenshot":
                     filename = message["text"]["filename"]
                     data_url = message["text"]["data"]
-                    self.debug_print("Received screenshot data for file", filename)
+                    self.debug_print(
+                        f"[{message_type}:{message['command']}] Received screenshot data for file",
+                        filename,
+                    )
                     save_png_data_url(data_url, filename)
                 elif message["command"] == "log":
-                    self.debug_print("Viewer.log:", message["text"])
+                    self.debug_print(
+                        f"[{message_type}:{message['command']}]", message["text"]
+                    )
                 elif message["command"] == "started":
-                    self.debug_print("Viewer.log:", "Viewer has started")
+                    self.debug_print(
+                        f"[{message_type}:{message['command']}] Viewer has started"
+                    )
                 else:
                     changes = message["text"]
-                    self.debug_print("Received incremental UI changes", changes)
+                    diff_changes = Viewer._dict_diff(self.last_changes, changes)
+                    if len(diff_changes) > 0:
+                        self.debug_print(
+                            f"[{message_type}:{message['command']}] Received incremental UI changes",
+                            diff_changes,
+                        )
+                    self.last_changes = dict(changes)
+
                     for key, value in changes.items():
                         if key == "selected":
                             pyperclip.copy((",").join(changes.get("selected", [])))
@@ -435,7 +475,7 @@ class Viewer:
 
             elif message_type == "S":
                 self.python_client = ws
-                self.debug_print("Received a config")
+                self.debug_print(f"[{message_type}] Received a config")
                 if self.javascript_client is None:
                     self.not_registered()
                     continue
@@ -444,12 +484,12 @@ class Viewer:
 
             elif message_type == "L":
                 self.javascript_client = ws
-                print("\nBrowser as viewer client registered\n")
+                print("Info: Browser as viewer client registered")
 
             elif message_type == "B":
                 model = orjson.loads(data)["model"]
                 self.backend.handle_event(model, MessageType.DATA)
-                self.debug_print("Model data sent to the backend")
+                self.debug_print(f"[{message_type}] Model data sent to the backend")
 
             elif message_type == "R":
                 self.python_client = ws
@@ -457,4 +497,4 @@ class Viewer:
                     self.not_registered()
                     continue
                 self.javascript_client.send(data)
-                self.debug_print("Backend response received.", data)
+                self.debug_print(f"[{message_type}] Backend response received.", data)
