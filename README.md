@@ -394,6 +394,7 @@ NATIVE_TESSELLATOR=1 OCP_VSCODE_PYTEST=1 pytest -v -s pytests/
 
 -   Bring back explode tool and selection tool
 -   Ensure jupyter console can be launched when the path contains spaces
+-   Give the 'show' and 'get_defaults' parameter 'port' precedence over asking for a port
 
 ### 3.0.0
 
