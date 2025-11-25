@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import atexit
 import base64
 import orjson
 import shutil
@@ -26,6 +27,7 @@ from flask_sock import Sock
 from ocp_vscode.comms import MessageType
 from ocp_vscode.backend import ViewerBackend
 from ocp_vscode.backend_logo import logo
+from ocp_vscode.state import add_port, del_port
 import pyperclip
 
 CONFIG_FILE = Path.home() / ".ocpvscode_standalone"
@@ -89,6 +91,16 @@ STATIC = """
         import { Comms } from "./static/js/comms.js";
         import { logo } from "./static/js/logo.js";
 """
+
+PORT = 0
+
+
+def cleanup():
+    print(f"Cleaning up with port {PORT}...")
+    del_port(PORT)
+
+
+atexit.register(cleanup)
 
 
 def COMMS(host, port):
@@ -322,6 +334,7 @@ class Viewer:
         self.debug_print("\nConfig:", self.config)
 
     def start(self):
+        global PORT
         # Check if port is in use on both IPv4 and IPv6
         if is_port_in_use(self.port, self.host):
             print(
@@ -331,6 +344,10 @@ class Viewer:
             sys.exit(1)
 
         self.backend.load_model(logo)
+        add_port(self.port)
+        PORT = self.port
+
+        print(f"Info: OCP CAD Viewer runs at http://{self.host}:{self.port}")
 
         self.app.run(port=self.port, host=self.host)
 
