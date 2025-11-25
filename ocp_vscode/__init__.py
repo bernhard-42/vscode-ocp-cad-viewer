@@ -42,10 +42,10 @@ try:
     else:
         enable_native_tessellator()
 
-    print(
-        "Found and enabled native tessellator.\n"
-        "To disable, call `disable_native_tessellator()`\n"
-        "To enable, call `enable_native_tessellator()`\n"
-    )
+    print("Found and enabled native tessellator.")
+    # print(
+    #     "To disable, call `disable_native_tessellator()`\n"
+    #     "To enable, call `enable_native_tessellator()`\n"
+    # )
 except Exception:
     pass
