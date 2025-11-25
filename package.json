@@ -782,7 +782,7 @@
     "@vscode/python-extension": "^1.0.0",
     "adm-zip": "^0.5.10",
     "follow-redirects": "^1.15.2",
-    "proper-lockfile": "^4.1.2",
+    "proper-lockfile": "./proper-lockfile-4.1.2-esm.tgz",
     "semver": "^7.5.1",
     "three-cad-viewer": "3.6.3",
     "ws": "^8.13.0"
