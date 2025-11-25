@@ -13,12 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import socket
 from pathlib import Path
 
 import click
 import yaml
-from werkzeug.serving import get_interface_ip
 
 from ocp_vscode.backend import ViewerBackend
 from ocp_vscode.standalone import CONFIG_FILE, DEFAULTS, Viewer
