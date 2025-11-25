@@ -336,6 +336,7 @@ def set_defaults(
     mate_scale=None,  # DEPRECATED
     debug=None,
     timeit=None,
+    port=None,
     # Jupyter CadQuery
     viewer=None,
     cad_width=None,
@@ -418,6 +419,9 @@ def set_defaults(
         debug:             Show debug statements to the VS Code browser console (default=False)
         timeit:            Show timing information from level 0-3 (default=False)
 
+    - VS Code only:
+        port:              THe port the viewer is running on
+
     - Jupyter Cadquery only:
         viewer:            The title of the sidecar in Jupyter CadQuery
         cad_width:         The viewer width in  Jupyter CadQuery
@@ -433,11 +437,15 @@ def set_defaults(
             is_jupyter_cadquery and key in ["viewer", "cad_width", "height"]
         ):
             DEFAULTS[key] = value
+        elif key == "port":
+            continue
         else:
             print(f"'{key}' is an unknown config, ignored!")
 
     set_viewer_config(
-        viewer=viewer, **{k: v for k, v in kwargs.items() if k in CONFIG_SET_KEYS}
+        viewer=viewer,
+        port=port,
+        **{k: v for k, v in kwargs.items() if k in CONFIG_SET_KEYS},
     )
 
 
