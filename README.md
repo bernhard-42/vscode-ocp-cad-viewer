@@ -395,6 +395,9 @@ NATIVE_TESSELLATOR=1 OCP_VSCODE_PYTEST=1 pytest -v -s pytests/
 -   Bring back explode tool and selection tool
 -   Ensure jupyter console can be launched when the path contains spaces
 -   Give the 'show' and 'get_defaults' parameter 'port' precedence over asking for a port
+-   The standalone server wirtes its port to ~/.ocpvscode for show to pick it up
+-   Reduced standalone output without --debug to a bare minimum
+-   Streamlined standalone debugging output
 
 ### 3.0.0
 
