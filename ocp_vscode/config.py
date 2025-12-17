@@ -533,10 +533,11 @@ def combined_config(port=None, viewer=None):
 
     use_status = not wspace_config.get("_splash", False)
 
-    wspace_config.update(DEFAULTS)
-
     if use_status:
         wspace_config.update(workspace_filter(wspace_status))
+
+    wspace_config.update(DEFAULTS)
+
     return dict(sorted(wspace_config.items()))
 
 
