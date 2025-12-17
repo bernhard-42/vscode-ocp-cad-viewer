@@ -9,7 +9,10 @@ from ocp_vscode import *
 s = cq.Sketch().trapezoid(4, 3, 90).vertices().circle(0.5, mode="s").reset()
 select_vertices(s, [1, 2, 6, 5])
 
-show(s.fillet(0.25).reset().rarray(0.6, 1, 5, 1).slot(1.5, 0.4, mode="s", angle=90))
+show(
+    s.fillet(0.25).reset().rarray(0.6, 1, 5, 1).slot(1.5, 0.4, mode="s", angle=90),
+    debug=True,
+)
 
 # %%
 b = cq.Workplane().box(1, 2, 3).cut(cq.Workplane().box(0.2, 4, 4))

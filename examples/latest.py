@@ -6,7 +6,7 @@ set_defaults(reset_camera=Camera.KEEP, clip_planes=True, clip_object_colors=True
 
 # %%
 
-show(Sphere(0.5))
+show(Sphere(0.5), clip_planes=True)
 
 # %%
 
@@ -15,9 +15,9 @@ p2 = Box(1, 1, 1)
 show(
     p2,
     debug=True,
-    clip_intersection=False,
-    clip_planes=True,
-    clip_object_colors=False,
+    # clip_intersection=False,
+    # clip_planes=False,
+    # clip_object_colors=False,
     clip_slider_0=0.1,
     clip_slider_1=0.15,
     clip_slider_2=0.2,
@@ -34,7 +34,7 @@ set_viewer_config(tab="clip")
 # %%
 
 show(Sphere(0.5))
-set_viewer_config(tab="clip", clip_object_colors=True)
+set_viewer_config(tab="clip", clip_object_colors=False)
 
 # %%
 show(Sphere(0.5), reset_camera=True)
@@ -70,7 +70,7 @@ a = {
     ],
 }
 x = 0
-y = (1,2)
+y = (1, 2)
 b = [
     Pos(2, 4, 2) * Sphere(1),
     "wert",
