@@ -288,6 +288,54 @@ limitations under the License.
                 data.data.instances = [];
             }
 
+            function addAnimationTrack(viewer, track) {
+                const [selector, action, times, values] = track;
+
+                switch (action) {
+                    case "t":
+                        viewer.addPositionTrack(selector, times, values);
+                        break;
+                    case "tx":
+                        viewer.addTranslationTrack(
+                            selector,
+                            "x",
+                            times,
+                            values
+                        );
+                        break;
+                    case "ty":
+                        viewer.addTranslationTrack(
+                            selector,
+                            "y",
+                            times,
+                            values
+                        );
+                        break;
+                    case "tz":
+                        viewer.addTranslationTrack(
+                            selector,
+                            "z",
+                            times,
+                            values
+                        );
+                        break;
+                    case "q":
+                        viewer.addQuaternionTrack(selector, times, values);
+                        break;
+                    case "rx":
+                        viewer.addRotationTrack(selector, "x", times, values);
+                        break;
+                    case "ry":
+                        viewer.addRotationTrack(selector, "y", times, values);
+                        break;
+                    case "rz":
+                        viewer.addRotationTrack(selector, "z", times, values);
+                        break;
+                    default:
+                        console.error(`Unknown animation action: ${action}`);
+                }
+            }
+
             function vector3(initArray) {
                 if (viewer) {
                     let v = viewer.camera.getCamera().position.clone(); // just get some THREE.Vector3
@@ -506,8 +554,8 @@ limitations under the License.
 
                 if (_shapes) render();
 
-                display.glassMode(displayOptions.glass);
-                display.showTools(displayOptions.tools);
+                viewer.glassMode(displayOptions.glass);
+                viewer.showTools(displayOptions.tools);
 
                 debugLog("showViewer finished");
 
@@ -879,7 +927,7 @@ limitations under the License.
                         "front"
                     ].includes(reset_camera)
                 ) {
-                    viewer.display.setView(reset_camera);
+                    viewer.setView(reset_camera);
                 }
 
                 _position = message["position"] = viewer.getCameraPosition();
@@ -909,8 +957,7 @@ limitations under the License.
                 send("status", message);
 
                 if (_config.explode) {
-                    viewer.display.setExplode("", true);
-                    viewer.display.setExplodeCheck(true);
+                    viewer.setExplode(true);
                 }
 
                 if (_config.debug) {
@@ -1083,13 +1130,13 @@ limitations under the License.
                             change[key] = { new: data.config[key] };
                             nc(change);
                         } else if (key === "ambient_intensity") {
-                            viewer.display.setAmbientLight(data.config[key]);
+                            viewer.setAmbientLight(data.config[key]);
                         } else if (key === "direct_intensity") {
-                            viewer.display.setDirectLight(data.config[key]);
+                            viewer.setDirectLight(data.config[key]);
                         } else if (key === "metalness") {
-                            viewer.display.setMetalness(data.config[key]);
+                            viewer.setMetalness(data.config[key]);
                         } else if (key === "roughness") {
-                            viewer.display.setRoughness(data.config[key]);
+                            viewer.setRoughness(data.config[key]);
                         } else if (key === "zoom_speed") {
                             viewer.setZoomSpeed(data.config[key]);
                             const change = {};
@@ -1106,17 +1153,17 @@ limitations under the License.
                             change[key] = { new: data.config[key] };
                             nc(change);
                         } else if (key === "glass") {
-                            viewer.display.glassMode(data.config[key]);
+                            viewer.glassMode(data.config[key]);
                             const change = {};
                             change[key] = { new: data.config[key] };
                             nc(change);
                         } else if (key === "tools") {
-                            viewer.display.showTools(data.config[key]);
+                            viewer.showTools(data.config[key]);
                             const change = {};
                             change[key] = { new: data.config[key] };
                             nc(change);
                         } else if (key === "collapse") {
-                            viewer.display.collapseNodes(data.config[key]);
+                            viewer.collapseNodes(data.config[key]);
                             const change = {};
                             change[key] = { new: data.config[key] };
                             nc(change);
@@ -1136,7 +1183,7 @@ limitations under the License.
                             );
                         } else if (key === "reset_camera") {
                             if (data.config[key] === "reset") {
-                                viewer.display.reset();
+                                viewer.reset();
                             } else if (
                                 [
                                     "iso",
@@ -1148,14 +1195,13 @@ limitations under the License.
                                     "front"
                                 ].includes(data.config[key])
                             ) {
-                                viewer.display.setView(data.config[key]);
+                                viewer.setView(data.config[key]);
                             }
                         } else if (key === "explode") {
-                            viewer.display.setExplode("", data.config[key]);
+                            viewer.setExplode(data.config[key]);
                             const change = {};
                             change[key] = { new: data.config[key] };
                             nc(change);
-                            viewer.display.setExplodeCheck(data.config[key]);
                         } else if (key === "states") {
                             const states = Object.keys(
                                 viewer.treeview.getStates()
@@ -1169,7 +1215,7 @@ limitations under the License.
                                 }
                             });
                         } else if (key === "tab") {
-                            viewer.display.selectTabByName(data.config[key]);
+                            viewer.setActiveTab(data.config[key]);
                         } else if (key === "clip_intersection") {
                             viewer.setClipIntersection(data.config[key]);
                         } else if (key.startsWith("clip_slider")) {
@@ -1190,11 +1236,10 @@ limitations under the License.
                     });
                 } else if (data.type === "animation") {
                     // turn off explode
-                    viewer.display.setExplode({ target: { checked: false } });
-                    viewer.display.setExplodeCheck(false);
+                    viewer.setExplode(false);
                     const tracks = data.data;
                     for (var track of tracks) {
-                        viewer.addAnimationTrack(...track);
+                        addAnimationTrack(viewer, track);
                     }
                     const duration = Math.max(
                         ...tracks.map((track) => Math.max(...track[2]))
@@ -1209,13 +1254,13 @@ limitations under the License.
             const observer = new MutationObserver(() => {
                 // handle theme change inside webview
                 if (displayDefaultOptions.theme === "browser") {
-                    viewer.display.setTheme(
+                    viewer.setTheme(
                         document.body.className === "vscode-light"
                             ? "light"
                             : "dark"
                     );
                 } else {
-                    viewer.display.setTheme(displayDefaultOptions.theme);
+                    viewer.setTheme(displayDefaultOptions.theme);
                 }
             });
             observer.observe(document.body, {
