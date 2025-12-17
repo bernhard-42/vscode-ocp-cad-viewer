@@ -288,6 +288,54 @@ limitations under the License.
                 data.data.instances = [];
             }
 
+            function addAnimationTrack(viewer, track) {
+                const [selector, action, times, values] = track;
+
+                switch (action) {
+                    case "t":
+                        viewer.addPositionTrack(selector, times, values);
+                        break;
+                    case "tx":
+                        viewer.addTranslationTrack(
+                            selector,
+                            "x",
+                            times,
+                            values
+                        );
+                        break;
+                    case "ty":
+                        viewer.addTranslationTrack(
+                            selector,
+                            "y",
+                            times,
+                            values
+                        );
+                        break;
+                    case "tz":
+                        viewer.addTranslationTrack(
+                            selector,
+                            "z",
+                            times,
+                            values
+                        );
+                        break;
+                    case "q":
+                        viewer.addQuaternionTrack(selector, times, values);
+                        break;
+                    case "rx":
+                        viewer.addRotationTrack(selector, "x", times, values);
+                        break;
+                    case "ry":
+                        viewer.addRotationTrack(selector, "y", times, values);
+                        break;
+                    case "rz":
+                        viewer.addRotationTrack(selector, "z", times, values);
+                        break;
+                    default:
+                        console.error(`Unknown animation action: ${action}`);
+                }
+            }
+
             function vector3(initArray) {
                 if (viewer) {
                     let v = viewer.camera.getCamera().position.clone(); // just get some THREE.Vector3
@@ -1194,7 +1242,7 @@ limitations under the License.
                     viewer.display.setExplodeCheck(false);
                     const tracks = data.data;
                     for (var track of tracks) {
-                        viewer.addAnimationTrack(...track);
+                        addAnimationTrack(viewer, track);
                     }
                     const duration = Math.max(
                         ...tracks.map((track) => Math.max(...track[2]))
