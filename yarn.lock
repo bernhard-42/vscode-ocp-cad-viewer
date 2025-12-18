@@ -2930,17 +2930,6 @@ textextensions@^6.11.0:
   dependencies:
     editions "^6.21.0"
 
-three-cad-viewer@./three-cad-viewer-v3.7.0.tgz:
-  version "3.7.0"
-  resolved "./three-cad-viewer-v3.7.0.tgz#27c0e31f377c4c8ec57e0ddc4def2e3f5db379ff"
-  dependencies:
-    three "0.180.0"
-
-three@0.180.0:
-  version "0.180.0"
-  resolved "https://registry.yarnpkg.com/three/-/three-0.180.0.tgz#b930cabfb524f6d36bf63e874b4d866888b50487"
-  integrity sha512-o+qycAMZrh+TsE01GqWUxUIKR1AL0S8pq7zDkYOQw8GqfX8b8VoCKYUoHbhiX5j+7hr8XsuHDVU6+gkQJQKg9w==
-
 tmp@^0.2.3:
   version "0.2.5"
   resolved "https://registry.yarnpkg.com/tmp/-/tmp-0.2.5.tgz#b06bcd23f0f3c8357b426891726d16015abfd8f8"
