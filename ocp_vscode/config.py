@@ -68,19 +68,17 @@ class Camera(Enum):
 class Collapse(Enum):
     """Collapse modes for the CAD navigation tree"""
 
-    NONE = 0
-    LEAVES = 1
-    ALL = 2
-    ROOT = 3
+    NONE = 2
+    LEAVES = -1
+    ALL = 0
+    ROOT = 1
 
-
-COLLAPSE_MAPPING = ["E", "1", "C", "R"]
 
 COLLAPSE_REVERSE_MAPPING = {
-    "E": Collapse.NONE,
-    "1": Collapse.LEAVES,
-    "C": Collapse.ALL,
-    "R": Collapse.ROOT,
+    2: Collapse.NONE,
+    -1: Collapse.LEAVES,
+    0: Collapse.ALL,
+    1: Collapse.ROOT,
 }
 
 CONFIG_UI_KEYS = [
@@ -201,7 +199,7 @@ DEFAULTS = {
     "show_parent": False,
     "show_sketch_local": True,
     "timeit": False,
-    "collapse": Collapse.ROOT,
+    # "collapse": Collapse.ROOT,
     "debug": False,
 }
 
@@ -255,7 +253,7 @@ def set_viewer_config(
     config = {k: v for k, v in locals().items() if v is not None}
 
     if config.get("collapse") is not None:
-        config["collapse"] = COLLAPSE_MAPPING[config["collapse"].value]
+        config["collapse"] = config["collapse"].value
     if config.get("default_edgecolor") is not None:
         config["default_edgecolor"] = Color(config["default_edgecolor"]).web_color
 
@@ -576,7 +574,7 @@ def reset_defaults():
         "show_parent": False,
         "show_sketch_local": True,
         "timeit": False,
-        "collapse": Collapse.ROOT,
+        # "collapse": Collapse.ROOT,
         "debug": False,
         # "reset_camera": Camera.RESET,
     }
