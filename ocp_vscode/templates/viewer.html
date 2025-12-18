@@ -1113,22 +1113,13 @@ limitations under the License.
                             viewer.setCameraQuaternion(data.config[key]);
                         } else if (key === "up") {
                             viewer.camera.up = data.config[key];
-                            const change = {};
-                            change[key] = { new: data.config[key] };
-                            nc(change);
                             viewer.camera.updateProjectionMatrix();
                         } else if (key === "target") {
                             viewer.setCameraTarget(data.config[key]);
                         } else if (key === "default_edgecolor") {
                             viewer.setEdgeColor(data.config[key]);
-                            const change = {};
-                            change[key] = { new: data.config[key] };
-                            nc(change);
                         } else if (key === "default_opacity") {
                             viewer.setOpacity(data.config[key]);
-                            const change = {};
-                            change[key] = { new: data.config[key] };
-                            nc(change);
                         } else if (key === "ambient_intensity") {
                             viewer.setAmbientLight(data.config[key]);
                         } else if (key === "direct_intensity") {
@@ -1139,34 +1130,16 @@ limitations under the License.
                             viewer.setRoughness(data.config[key]);
                         } else if (key === "zoom_speed") {
                             viewer.setZoomSpeed(data.config[key]);
-                            const change = {};
-                            change[key] = { new: data.config[key] };
-                            nc(change);
                         } else if (key === "pan_speed") {
                             viewer.setPanSpeed(data.config[key]);
-                            const change = {};
-                            change[key] = { new: data.config[key] };
-                            nc(change);
                         } else if (key === "rotate_speed") {
                             viewer.setRotateSpeed(data.config[key]);
-                            const change = {};
-                            change[key] = { new: data.config[key] };
-                            nc(change);
                         } else if (key === "glass") {
                             viewer.glassMode(data.config[key]);
-                            const change = {};
-                            change[key] = { new: data.config[key] };
-                            nc(change);
                         } else if (key === "tools") {
                             viewer.showTools(data.config[key]);
-                            const change = {};
-                            change[key] = { new: data.config[key] };
-                            nc(change);
                         } else if (key === "collapse") {
                             viewer.collapseNodes(data.config[key]);
-                            const change = {};
-                            change[key] = { new: data.config[key] };
-                            nc(change);
                         } else if (key === "tree_width") {
                             const displayOptions = getDisplayOptions(
                                 data.config.theme
@@ -1199,9 +1172,6 @@ limitations under the License.
                             }
                         } else if (key === "explode") {
                             viewer.setExplode(data.config[key]);
-                            const change = {};
-                            change[key] = { new: data.config[key] };
-                            nc(change);
                         } else if (key === "states") {
                             const states = Object.keys(
                                 viewer.treeview.getStates()
