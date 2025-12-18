@@ -320,4 +320,64 @@ show(b, c, transparent=transparent)
 
 reset_defaults()
 show(b, c)
+
+# %%
+# Show zebra stripes with blackwhite color scheme and reflection mapping
+
+show(
+    b,
+    c,
+    zebra_count=20,
+    zebra_opacity=0.8,
+    zebra_direction=45,
+    zebra_color_scheme="blackwhite",
+    zebra_mapping_mode="reflection",
+)
+
+# %%
+# Show zebra stripes with colorful color scheme and normal mapping
+
+show(
+    b,
+    c,
+    zebra_count=35,
+    zebra_opacity=1.0,
+    zebra_direction=0,
+    zebra_color_scheme="colorful",
+    zebra_mapping_mode="normal",
+)
+
+# %%
+# Show zebra stripes with grayscale color scheme
+
+show(
+    b,
+    c,
+    zebra_count=10,
+    zebra_opacity=0.5,
+    zebra_direction=90,
+    zebra_color_scheme="grayscale",
+    zebra_mapping_mode="reflection",
+)
+
+# %%
+# Set zebra defaults
+
+reset_defaults()
+
+set_defaults(
+    zebra_count=25,
+    zebra_opacity=0.7,
+    zebra_direction=30,
+    zebra_color_scheme="blackwhite",
+    zebra_mapping_mode="reflection",
+)
+
+# %%
+
+show(b, c)
+
+# %%
+
+reset_defaults()
 # %%

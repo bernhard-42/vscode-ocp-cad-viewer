@@ -86,8 +86,3 @@ show_object(
     b.solids()[0], name="green", options={"color": "green", "alpha": 0.7}, clear=True
 )
 show_object(b.solids()[1], name="default", options={"alpha": 0.3})
-
-# %%
-
-
-# %%

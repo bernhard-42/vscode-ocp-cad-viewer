@@ -45,6 +45,13 @@ limitations under the License.
                 objectColors: null,
                 intersection: null
             };
+            var _zebra = {
+                count: null,
+                opacity: null,
+                direction: null,
+                colorScheme: null,
+                mappingMode: null
+            };
             var oldStates = null;
             var viewerOptions = {};
             var last_bb_radius = null;
@@ -407,6 +414,21 @@ limitations under the License.
                 if (change.clip_normal_2 !== undefined) {
                     _clipping.normals[2] = change.clip_normal_2.new;
                 }
+                if (change.zebra_count !== undefined) {
+                    _zebra.count = change.zebra_count.new;
+                }
+                if (change.zebra_opacity !== undefined) {
+                    _zebra.opacity = change.zebra_opacity.new;
+                }
+                if (change.zebra_direction !== undefined) {
+                    _zebra.direction = change.zebra_direction.new;
+                }
+                if (change.zebra_color_scheme !== undefined) {
+                    _zebra.colorScheme = change.zebra_color_scheme.new;
+                }
+                if (change.zebra_mapping_mode !== undefined) {
+                    _zebra.mappingMode = change.zebra_mapping_mode.new;
+                }
 
                 var changed = false;
                 Object.keys(change).forEach((k) => {
@@ -706,6 +728,31 @@ limitations under the License.
                         _config,
                         "clip_object_colors",
                         viewerDefaultOptions.clipObjectColors
+                    ),
+                    zebraCount: preset(
+                        _config,
+                        "zebra_count",
+                        viewerDefaultOptions.zebraCount
+                    ),
+                    zebraOpacity: preset(
+                        _config,
+                        "zebra_opacity",
+                        viewerDefaultOptions.zebraOpacity
+                    ),
+                    zebraDirection: preset(
+                        _config,
+                        "zebra_direction",
+                        viewerDefaultOptions.zebraDirection
+                    ),
+                    zebraColorScheme: preset(
+                        _config,
+                        "zebra_color_scheme",
+                        viewerDefaultOptions.zebraColorScheme
+                    ),
+                    zebraMappingMode: preset(
+                        _config,
+                        "zebra_mapping_mode",
+                        viewerDefaultOptions.zebraMappingMode
                     )
                 };
 
@@ -791,6 +838,21 @@ limitations under the License.
                     if (_config.clip_object_colors != undefined) {
                         viewerOptions.clipObjectColors =
                             _config.clip_object_colors;
+                    }
+                    if (_config.zebra_count != undefined) {
+                        viewerOptions.zebraCount = _config.zebra_count;
+                    }
+                    if (_config.zebra_opacity != undefined) {
+                        viewerOptions.zebraOpacity = _config.zebra_opacity;
+                    }
+                    if (_config.zebra_direction != undefined) {
+                        viewerOptions.zebraDirection = _config.zebra_direction;
+                    }
+                    if (_config.zebra_color_scheme != undefined) {
+                        viewerOptions.zebraColorScheme = _config.zebra_color_scheme;
+                    }
+                    if (_config.zebra_mapping_mode != undefined) {
+                        viewerOptions.zebraMappingMode = _config.zebra_mapping_mode;
                     }
                     _camera_distance = null;
                 } else {
@@ -888,6 +950,31 @@ limitations under the License.
                     } else {
                         viewerOptions.clipObjectColors = _clipping.objectColors;
                     }
+                    if (_config.zebra_count != undefined) {
+                        viewerOptions.zebraCount = _config.zebra_count;
+                    } else {
+                        viewerOptions.zebraCount = _zebra.count;
+                    }
+                    if (_config.zebra_opacity != undefined) {
+                        viewerOptions.zebraOpacity = _config.zebra_opacity;
+                    } else {
+                        viewerOptions.zebraOpacity = _zebra.opacity;
+                    }
+                    if (_config.zebra_direction != undefined) {
+                        viewerOptions.zebraDirection = _config.zebra_direction;
+                    } else {
+                        viewerOptions.zebraDirection = _zebra.direction;
+                    }
+                    if (_config.zebra_color_scheme != undefined) {
+                        viewerOptions.zebraColorScheme = _config.zebra_color_scheme;
+                    } else {
+                        viewerOptions.zebraColorScheme = _zebra.colorScheme;
+                    }
+                    if (_config.zebra_mapping_mode != undefined) {
+                        viewerOptions.zebraMappingMode = _config.zebra_mapping_mode;
+                    } else {
+                        viewerOptions.zebraMappingMode = _zebra.mappingMode;
+                    }
                 }
 
                 if (_config.debug) {
@@ -953,6 +1040,13 @@ limitations under the License.
                     planeHelpers: viewer.getClipPlaneHelpers(),
                     objectColors: viewer.getObjectColorCaps(),
                     intersection: viewer.getClipIntersection()
+                };
+                _zebra = {
+                    count: viewer.getZebraCount(),
+                    opacity: viewer.getZebraOpacity(),
+                    direction: viewer.getZebraDirection(),
+                    colorScheme: viewer.getZebraColorScheme(),
+                    mappingMode: viewer.getZebraMappingMode()
                 };
                 send("status", message);
 
@@ -1202,6 +1296,16 @@ limitations under the License.
                             viewer.setClipPlaneHelpers(data.config[key]);
                         } else if (key === "clip_object_colors") {
                             viewer.setClipObjectColorCaps(data.config[key]);
+                        } else if (key === "zebra_count") {
+                            viewer.setZebraCount(data.config[key]);
+                        } else if (key === "zebra_opacity") {
+                            viewer.setZebraOpacity(data.config[key]);
+                        } else if (key === "zebra_direction") {
+                            viewer.setZebraDirection(data.config[key]);
+                        } else if (key === "zebra_color_scheme") {
+                            viewer.setZebraColorScheme(data.config[key]);
+                        } else if (key === "zebra_mapping_mode") {
+                            viewer.setZebraMappingMode(data.config[key]);
                         }
                     });
                 } else if (data.type === "animation") {

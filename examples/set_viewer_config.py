@@ -455,3 +455,90 @@ state(*c.keys())
 check(c)
 
 # %%
+
+show(a1, debug=True)
+
+# %%
+
+set_viewer_config(tab="zebra")
+
+# %%
+
+state(
+    "zebra_count",
+    "zebra_opacity",
+    "zebra_direction",
+    "zebra_color_scheme",
+    "zebra_mapping_mode",
+)
+
+# %%
+
+c = dict(
+    zebra_count=25,
+    zebra_opacity=0.8,
+    zebra_direction=45,
+    zebra_color_scheme="blackwhite",
+    zebra_mapping_mode="reflection",
+)
+set_viewer_config(**c)
+
+# %%
+
+state(*c.keys())
+check(c)
+
+
+# %%
+
+show(a1, debug=True)
+
+# %%
+
+set_viewer_config(tab="zebra")
+
+# %%
+
+state(
+    "zebra_count",
+    "zebra_opacity",
+    "zebra_direction",
+    "zebra_color_scheme",
+    "zebra_mapping_mode",
+)
+
+# %%
+
+c = dict(
+    zebra_count=10,
+    zebra_opacity=0.5,
+    zebra_direction=30,
+    zebra_color_scheme="colorful",
+    zebra_mapping_mode="normal",
+)
+
+set_viewer_config(**c)
+
+# %%
+
+state(*c.keys())
+check(c)
+
+# %%
+
+c = dict(
+    zebra_count=50,
+    zebra_opacity=1.0,
+    zebra_direction=90,
+    zebra_color_scheme="grayscale",
+    zebra_mapping_mode="reflection",
+)
+
+set_viewer_config(**c)
+
+# %%
+
+state(*c.keys())
+check(c)
+
+# %%

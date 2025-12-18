@@ -177,6 +177,23 @@ def _tessellate(
 
         conf.update(clip_defaults)
 
+        # Reset zebra parameters when reset_camera is RESET
+        zebra_defaults = {
+            k: v for k, v in get_defaults().items() if k.startswith("zebra")
+        }
+        if conf.get("zebra_count") is not None:
+            del conf["zebra_count"]
+        if conf.get("zebra_opacity") is not None:
+            del conf["zebra_opacity"]
+        if conf.get("zebra_direction") is not None:
+            del conf["zebra_direction"]
+        if conf.get("zebra_color_scheme") is not None:
+            del conf["zebra_color_scheme"]
+        if conf.get("zebra_mapping_mode") is not None:
+            del conf["zebra_mapping_mode"]
+
+        conf.update(zebra_defaults)
+
     if kwargs.get("helper_scale") is not None:
         conf["helper_scale"] = kwargs["helper_scale"]
 
@@ -438,6 +455,11 @@ def show(
     clip_intersection=None,
     clip_planes=None,
     clip_object_colors=None,
+    zebra_count=None,
+    zebra_opacity=None,
+    zebra_direction=None,
+    zebra_color_scheme=None,
+    zebra_mapping_mode=None,
     pan_speed=None,
     rotate_speed=None,
     zoom_speed=None,
@@ -527,6 +549,12 @@ def show(
         clip_intersection:       Use clipping intersection mode (default=False)
         clip_planes:             Show clipping plane helpers (default=False)
         clip_object_colors:      Use object color for clipping caps (default=False)
+
+        zebra_count:             Setting of zebra stripe count (default=9, range: 2-50)
+        zebra_opacity:           Setting of zebra opacity (default=1, range: 0-1)
+        zebra_direction:         Setting of zebra direction angle (default=0, range: 0-90)
+        zebra_color_scheme:      Zebra color scheme: "blackwhite", "grayscale", or "colorful" (default="blackwhite")
+        zebra_mapping_mode:      Zebra mapping mode: "reflection" or "normal" (default="reflection")
 
         pan_speed:               Speed of mouse panning (default=1)
         rotate_speed:            Speed of mouse rotate (default=1)
@@ -733,6 +761,11 @@ def show_object(
     clip_intersection=None,
     clip_planes=None,
     clip_object_colors=None,
+    zebra_count=None,
+    zebra_opacity=None,
+    zebra_direction=None,
+    zebra_color_scheme=None,
+    zebra_mapping_mode=None,
     pan_speed=None,
     rotate_speed=None,
     zoom_speed=None,
@@ -826,6 +859,12 @@ def show_object(
         clip_intersection:       Use clipping intersection mode (default=[False])
         clip_planes:             Show clipping plane helpers (default=False)
         clip_object_colors:      Use object color for clipping caps (default=False)
+
+        zebra_count:             Setting of zebra stripe count (default=9, range: 2-50)
+        zebra_opacity:           Setting of zebra opacity (default=1, range: 0-1)
+        zebra_direction:         Setting of zebra direction angle (default=0, range: 0-90)
+        zebra_color_scheme:      Zebra color scheme: "blackwhite", "grayscale", or "colorful" (default="blackwhite")
+        zebra_mapping_mode:      Zebra mapping mode: "reflection" or "normal" (default="reflection")
 
         pan_speed:               Speed of mouse panning (default=1)
         rotate_speed:            Speed of mouse rotate (default=1)
@@ -1032,6 +1071,11 @@ def show_objects(
     clip_intersection=None,
     clip_planes=None,
     clip_object_colors=None,
+    zebra_count=None,
+    zebra_opacity=None,
+    zebra_direction=None,
+    zebra_color_scheme=None,
+    zebra_mapping_mode=None,
     pan_speed=None,
     rotate_speed=None,
     zoom_speed=None,
@@ -1114,6 +1158,12 @@ def show_objects(
         clip_intersection:       Use clipping intersection mode (default=[False])
         clip_planes:             Show clipping plane helpers (default=False)
         clip_object_colors:      Use object color for clipping caps (default=False)
+
+        zebra_count:             Setting of zebra stripe count (default=9, range: 2-50)
+        zebra_opacity:           Setting of zebra opacity (default=1, range: 0-1)
+        zebra_direction:         Setting of zebra direction angle (default=0, range: 0-90)
+        zebra_color_scheme:      Zebra color scheme: "blackwhite", "grayscale", or "colorful" (default="blackwhite")
+        zebra_mapping_mode:      Zebra mapping mode: "reflection" or "normal" (default="reflection")
 
         pan_speed:               Speed of mouse panning (default=1)
         rotate_speed:            Speed of mouse rotate (default=1)

@@ -102,6 +102,11 @@ CONFIG_UI_KEYS = [
     "clip_planes",
     "clip_intersection",
     "clip_object_colors",
+    "zebra_count",
+    "zebra_opacity",
+    "zebra_direction",
+    "zebra_color_scheme",
+    "zebra_mapping_mode",
 ]
 
 CONFIG_WORKSPACE_KEYS = CONFIG_UI_KEYS + [
@@ -243,6 +248,11 @@ def set_viewer_config(
     clip_intersection=None,
     clip_planes=None,
     clip_object_colors=None,
+    zebra_count=None,
+    zebra_opacity=None,
+    zebra_direction=None,
+    zebra_color_scheme=None,
+    zebra_mapping_mode=None,
     port=None,
     viewer=None,
 ):
@@ -312,6 +322,11 @@ def set_defaults(
     clip_intersection=None,
     clip_planes=None,
     clip_object_colors=None,
+    zebra_count=None,
+    zebra_opacity=None,
+    zebra_direction=None,
+    zebra_color_scheme=None,
+    zebra_mapping_mode=None,
     pan_speed=None,
     rotate_speed=None,
     zoom_speed=None,
@@ -343,83 +358,89 @@ def set_defaults(
     """Set viewer defaults
     Keywords to configure the viewer:
     - UI
-        glass:             Use glass mode where tree is an overlay over the cad object (default=False)
-        tools:             Show tools (default=True)
-        tree_width:        Width of the object tree (default=240)
+        glass:              Use glass mode where tree is an overlay over the cad object (default=False)
+        tools:              Show tools (default=True)
+        tree_width:         Width of the object tree (default=240)
 
     - Viewer
-        axes:              Show axes (default=False)
-        axes0:             Show axes at (0,0,0) (default=False)
-        grid:              Show grid (default=False)
-        ortho:             Use orthographic projections (default=True)
-        transparent:       Show objects transparent (default=False)
-        default_opacity:   Opacity value for transparent objects (default=0.5)
-        black_edges:       Show edges in black color (default=False)
-        orbit_control:     Mouse control use "orbit" control instead of "trackball" control (default=False)
-        collapse:          Collapse.LEAVES: collapse all single leaf nodes,
-                           Collapse.ROOT: expand root only,
-                           Collapse.ALL: collapse all nodes,
-                           Collapse.NONE: expand all nodes
-                           (default=Collapse.ROOT)
-        ticks:             Hint for the number of ticks in both directions (default=5)
-        center_grid:       Center the grid at the origin or center of mass (default=False)
-        grid_font_size:    Size for the font used for grid axis labels (default=12)
-        up:                Use z-axis ('Z') or y-axis ('Y') as up direction for the camera (default="Z")
-        explode:           Turn on explode mode (default=False)
+        axes:               Show axes (default=False)
+        axes0:              Show axes at (0,0,0) (default=False)
+        grid:               Show grid (default=False)
+        ortho:              Use orthographic projections (default=True)
+        transparent:        Show objects transparent (default=False)
+        default_opacity:    Opacity value for transparent objects (default=0.5)
+        black_edges:        Show edges in black color (default=False)
+        orbit_control:      Mouse control use "orbit" control instead of "trackball" control (default=False)
+        collapse:           Collapse.LEAVES: collapse all single leaf nodes,
+                            Collapse.ROOT: expand root only,
+                            Collapse.ALL: collapse all nodes,
+                            Collapse.NONE: expand all nodes
+                            (default=Collapse.ROOT)
+        ticks:              Hint for the number of ticks in both directions (default=5)
+        center_grid:        Center the grid at the origin or center of mass (default=False)
+        grid_font_size:     Size for the font used for grid axis labels (default=12)
+        up:                 Use z-axis ('Z') or y-axis ('Y') as up direction for the camera (default="Z")
+        explode:            Turn on explode mode (default=False)
 
-        zoom:              Zoom factor of view (default=1.0)
-        position:          Camera position
-        quaternion:        Camera orientation as quaternion
-        target:            Camera look at target
-        reset_camera:      Camera.RESET: Reset camera position, rotation, zoom and target
-                           Camera.CENTER: Keep camera position, rotation, zoom, but look at center
-                           Camera.KEEP: Keep camera position, rotation, zoom, and target
-                           Or, choose one of the presets Camera.ISO, Camera.LEFT, Camera.RIGHT,
-                           Camera.TOP, Camera.BOTTOM, Camera.FRONT, Camera.BACK
-                           (default=Camera.RESET)
-        clip_slider_0:     Setting of clipping slider 0 (default=None)
-        clip_slider_1:     Setting of clipping slider 1 (default=None)
-        clip_slider_2:     Setting of clipping slider 2 (default=None)
-        clip_normal_0:     Setting of clipping normal 0 (default=[-1,0,0])
-        clip_normal_1:     Setting of clipping normal 1 (default=[0,-1,0])
-        clip_normal_2:     Setting of clipping normal 2 (default=[0,0,-1])
-        clip_intersection: Use clipping intersection mode (default=[False])
-        clip_planes:       Show clipping plane helpers (default=False)
+        zoom:               Zoom factor of view (default=1.0)
+        position:           Camera position
+        quaternion:         Camera orientation as quaternion
+        target:             Camera look at target
+        reset_camera:       Camera.RESET: Reset camera position, rotation, zoom and target
+                            Camera.CENTER: Keep camera position, rotation, zoom, but look at center
+                            Camera.KEEP: Keep camera position, rotation, zoom, and target
+                            Or, choose one of the presets Camera.ISO, Camera.LEFT, Camera.RIGHT,
+                            Camera.TOP, Camera.BOTTOM, Camera.FRONT, Camera.BACK
+                            (default=Camera.RESET)
+        clip_slider_0:      Setting of clipping slider 0 (default=None)
+        clip_slider_1:      Setting of clipping slider 1 (default=None)
+        clip_slider_2:      Setting of clipping slider 2 (default=None)
+        clip_normal_0:      Setting of clipping normal 0 (default=[-1,0,0])
+        clip_normal_1:      Setting of clipping normal 1 (default=[0,-1,0])
+        clip_normal_2:      Setting of clipping normal 2 (default=[0,0,-1])
+        clip_intersection:  Use clipping intersection mode (default=[False])
+        clip_planes:        Show clipping plane helpers (default=False)
         clip_object_colors: Use object color for clipping caps (default=False)
 
-        pan_speed:         Speed of mouse panning (default=1)
-        rotate_speed:      Speed of mouse rotate (default=1)
-        zoom_speed:        Speed of mouse zoom (default=1)
+        zebra_count:        Setting of zebra stripe count (default=9, range: 2-50)
+        zebra_opacity:      Setting of zebra opacity (default=1, range: 0-1)
+        zebra_direction:    Setting of zebra direction angle (default=0, range: 0-90)
+        zebra_color_scheme: Zebra color scheme: "blackwhite", "grayscale", or "colorful" (default="blackwhite")
+        zebra_mapping_mode: Zebra mapping mode: "reflection" or "normal" (default="reflection")
+
+        pan_speed:          Speed of mouse panning (default=1)
+        rotate_speed:       Speed of mouse rotate (default=1)
+        zoom_speed:         Speed of mouse zoom (default=1)
 
     - Renderer
-        deviation:         Shapes: Deviation from linear deflection value (default=0.1)
-        angular_tolerance: Shapes: Angular deflection in radians for tessellation (default=0.2)
-        edge_accuracy:     Edges: Precision of edge discretization (default: mesh quality / 100)
+        deviation:          Shapes: Deviation from linear deflection value (default=0.1)
+        angular_tolerance:  Shapes: Angular deflection in radians for tessellation (default=0.2)
+        edge_accuracy:      Edges: Precision of edge discretization (default: mesh quality / 100)
 
-        default_color:     Default mesh color (default=(232, 176, 36))
-        default_edgecolor: Default mesh color (default=(128, 128, 128))
-        ambient_intensity: Intensity of ambient light (default=1.00)
-        direct_intensity:  Intensity of direct light (default=1.10)
-        metalness:         Metalness property of the default material (default=0.30)
-        roughness:         Roughness property of the default material (default=0.65)
+        default_color:      Default mesh color (default=(232, 176, 36))
+        default_edgecolor:  Default mesh color (default=(128, 128, 128))
+        ambient_intensity:  Intensity of ambient light (default=1.00)
+        direct_intensity:   Intensity of direct light (default=1.10)
+        metalness:          Metalness property of the default material (default=0.30)
+        roughness:          Roughness property of the default material (default=0.65)
 
-        render_edges:      Render edges  (default=True)
-        render_normals:    Render normals (default=False)
-        render_mates:      Render mates for MAssemblies (default=False)
-        render_joints:     Render mates for MAssemblies (default=False)
-        show_parent:       Render parent of faces, edges or vertices as wireframe (default=False)
-        show_sketch_local: In build123d show local sketch in addition to relocate sketch (default=True)
-        helper_scale:      Scale of rendered helpers (locations, axis, mates for MAssemblies) (default=1)
-                           If it is a float < 1, used the max distance to nested bounding box times
-                           helper_scale to determine the absolut value of it
+        render_edges:       Render edges  (default=True)
+        render_normals:     Render normals (default=False)
+        render_mates:       Render mates for MAssemblies (default=False)
+        render_joints:      Render mates for MAssemblies (default=False)
+        show_parent:        Render parent of faces, edges or vertices as wireframe (default=False)
+        show_sketch_local:  In build123d show local sketch in addition to relocate sketch (default=True)
+        helper_scale:       Scale of rendered helpers (locations, axis, mates for MAssemblies) (default=1)
+                            If it is a float < 1, used the max distance to nested bounding box times
+                            helper_scale to determine the absolut value of it
     - Debug
-        debug:             Show debug statements to the VS Code browser console (default=False)
-        timeit:            Show timing information from level 0-3 (default=False)
+        debug:              Show debug statements to the VS Code browser console (default=False)
+        timeit:             Show timing information from level 0-3 (default=False)
 
     - Jupyter Cadquery only:
-        viewer:            The title of the sidecar in Jupyter CadQuery
-        cad_width:         The viewer width in  Jupyter CadQuery
-        height:            The viewer height in  Jupyter CadQuery
+        viewer:             The title of the sidecar in Jupyter CadQuery
+        cad_width:          The viewer width in  Jupyter CadQuery
+        height:             The viewer height in  Jupyter CadQuery
     """
 
     kwargs = {k: v for k, v in locals().items() if v is not None}
