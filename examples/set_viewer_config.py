@@ -100,6 +100,7 @@ reset_defaults()
 
 # %%
 
+
 check(dict(axes=False, axes0=True, grid=(False, False, False), center_grid=False))
 
 # %%
@@ -288,12 +289,12 @@ c = dict(zoom_speed=0.1, pan_speed=0.1, rotate_speed=0.1)
 set_viewer_config(**c)
 
 # %%
-set_viewer_config(zoom_speed=1, pan_speed=1, rotate_speed=1)
-
-# %%
 
 state(*c.keys())
 check(c)
+
+# %%
+set_viewer_config(zoom_speed=1, pan_speed=1, rotate_speed=1)
 
 # %%
 
