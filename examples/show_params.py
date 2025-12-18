@@ -4,7 +4,7 @@ from ocp_vscode import *
 from build123d import Box, Pos, fillet, Location
 import cadquery as cq
 
-b = Pos(0, 0, -2) * Box(1, 1, 3)
+b = Pos(0, 0, -2.5) * Box(1, 1, 3)
 c = cq.Workplane().cylinder(1, 1.5)
 
 # %%
@@ -20,15 +20,15 @@ show(
 
 # %%
 
-show(b, c, Box(0.1, 0.1, 4), progress="+")
+show(b, c, Box(0.1, 0.1, 4), progress="*+")
 
 # %%
 
-show(b, c, Box(0.1, 0.1, 4), progress="+")
+show(b, c, Box(0.1, 0.1, 4), progress="*+c")
 
 # %%
 
-show(b, c, glass=False, tools=True)
+show(b, c, glass=False, tools=True, debug=True)
 
 
 # %%
@@ -252,6 +252,7 @@ show(
     direct_intensity=2.70,
     metalness=0.75,
     roughness=0.70,
+    debug=True,
 )
 
 # %%
@@ -266,6 +267,10 @@ show(b, c, render_normals=True)
 # %%
 
 show(b, b.faces().sort_by()[-1].center_location, helper_scale=2)
+
+# %%
+
+show(b, b.faces().sort_by()[-1].center_location, helper_scale=0.1)
 
 # %%
 
