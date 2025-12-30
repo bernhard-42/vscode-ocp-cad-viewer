@@ -1,12 +1,11 @@
 # %%
 import copy
-from functools import reduce
 
 import numpy as np
 
 from build123d import *
-from ocp_vscode.animation import Animation, collect_paths
-from ocp_vscode import show
+from ocp_vscode.animation import Animation
+from ocp_vscode import *
 
 thickness = 2
 height = 40
