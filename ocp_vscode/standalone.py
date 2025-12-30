@@ -369,7 +369,7 @@ class Viewer:
                 cmd = orjson.loads(data)
                 if cmd == "status":
                     self.debug_print("Received status command")
-                    self.python_client.send(orjson.dumps({"text": self.status}))
+                    self.python_client.send(orjson.dumps({"command": "status", "text": self.status}))
 
                 elif cmd == "config":
                     self.debug_print("Received config command")
