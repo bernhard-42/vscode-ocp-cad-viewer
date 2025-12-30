@@ -281,14 +281,14 @@ def set_viewer_config(
         ) from ex
 
 
-def get_default(key):
+def get_default(key, port=None):
     """Get default value for key"""
-    return get_defaults().get(key)
+    return get_defaults(port=port).get(key)
 
 
-def get_defaults():
+def get_defaults(port=None):
     """Get all defaults"""
-    result = dict(workspace_config())
+    result = dict(workspace_config(port=port))
     result.update(DEFAULTS)
     return result
 
@@ -349,6 +349,7 @@ def set_defaults(
     mate_scale=None,  # DEPRECATED
     debug=None,
     timeit=None,
+    port=None,
     # Jupyter CadQuery
     viewer=None,
     cad_width=None,
@@ -437,6 +438,9 @@ def set_defaults(
         debug:              Show debug statements to the VS Code browser console (default=False)
         timeit:             Show timing information from level 0-3 (default=False)
 
+    - VS Code only:
+        port:              THe port the viewer is running on
+
     - Jupyter Cadquery only:
         viewer:             The title of the sidecar in Jupyter CadQuery
         cad_width:          The viewer width in  Jupyter CadQuery
@@ -452,17 +456,21 @@ def set_defaults(
             is_jupyter_cadquery and key in ["viewer", "cad_width", "height"]
         ):
             DEFAULTS[key] = value
+        elif key == "port":
+            continue
         else:
             print(f"'{key}' is an unknown config, ignored!")
 
     set_viewer_config(
-        viewer=viewer, **{k: v for k, v in kwargs.items() if k in CONFIG_SET_KEYS}
+        viewer=viewer,
+        port=port,
+        **{k: v for k, v in kwargs.items() if k in CONFIG_SET_KEYS},
     )
 
 
-def preset(key, value):
+def preset(key, value, port=None):
     """Set default value for key"""
-    return get_default(key) if value is None else value
+    return get_default(key, port=port) if value is None else value
 
 
 def ui_filter(conf):
@@ -560,9 +568,9 @@ def combined_config(port=None, viewer=None):
     return dict(sorted(wspace_config.items()))
 
 
-def get_changed_config(key=None):
+def get_changed_config(key=None, port=None):
     """Get changed config from workspace and status"""
-    wspace_config = workspace_config()
+    wspace_config = workspace_config(port=port)
     wspace_config.update(DEFAULTS)
     if key is None:
         return wspace_config
@@ -570,13 +578,13 @@ def get_changed_config(key=None):
         return wspace_config.get(key)
 
 
-def reset_defaults():
+def reset_defaults(port=None):
     """Reset defaults not given in workspace config"""
     global DEFAULTS  # pylint: disable=global-statement
 
     config = {
         key: value
-        for key, value in workspace_config().items()
+        for key, value in workspace_config(port=port).items()
         if key in CONFIG_SET_KEYS
     }
     config["reset_camera"] = Camera.RESET

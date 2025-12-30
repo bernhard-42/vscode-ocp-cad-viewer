@@ -92,6 +92,33 @@ def update_state(port, connectionFile):
     return atomic_operation(callback)
 
 
+def add_port(port):
+    """Add standalone port to config file"""
+
+    def callback(config):
+        config["services"][str(port)] = ""
+        with open(CONFIG_FILE, "w") as f:
+            json.dump(config, f, indent=2)
+
+    return atomic_operation(callback)
+
+
+def del_port(port):
+    """Add standalone port to config file"""
+
+    def callback(config):
+        try:
+            config["services"] = {
+                k: v for k, v in config["services"].items() if k != str(port)
+            }
+        except Exception:
+            pass
+        with open(CONFIG_FILE, "w") as f:
+            json.dump(config, f, indent=2)
+
+    return atomic_operation(callback)
+
+
 def get_ports():
     """Get the config file"""
 

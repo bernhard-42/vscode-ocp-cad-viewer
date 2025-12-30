@@ -154,7 +154,7 @@ def _tessellate(
     # only use clipping settings when reset_camera is not RESET
     if reset_camera == Camera.RESET or kwargs.get("reset_camera") == Camera.RESET:
         clip_defaults = {
-            k: v for k, v in get_defaults().items() if k.startswith("clip")
+            k: v for k, v in get_defaults(port=port).items() if k.startswith("clip")
         }
         if conf.get("clip_slider_0") is not None:
             del conf["clip_slider_0"]
@@ -197,7 +197,7 @@ def _tessellate(
     if kwargs.get("helper_scale") is not None:
         conf["helper_scale"] = kwargs["helper_scale"]
 
-    timeit = preset("timeit", kwargs.get("timeit"))
+    timeit = preset("timeit", kwargs.get("timeit"), port=port)
 
     if timeit is None:
         timeit = False
@@ -206,7 +206,7 @@ def _tessellate(
         progress = Progress([c for c in "-+c"])
 
     with Timer(timeit, "", "to_ocpgroup", 1):
-        changed_config = get_changed_config()
+        changed_config = get_changed_config(port=port)
 
         if (
             isinstance(conf.get("helper_scale"), float)
@@ -340,7 +340,7 @@ def _convert(
     progress=None,
     **kwargs,
 ):
-    timeit = preset("timeit", kwargs.get("timeit"))
+    timeit = preset("timeit", kwargs.get("timeit"), port=kwargs.get("port"))
 
     if progress is None:
         progress = Progress([c for c in "-+c"])
@@ -632,7 +632,6 @@ def _show(*cad_objs, **kwargs):
             "names",
             "colors",
             "alphas",
-            "port",
             "progress",
             "LAST_CALL",
         ]
@@ -644,7 +643,7 @@ def _show(*cad_objs, **kwargs):
         if isinstance(kwargs["grid"], bool):
             kwargs["grid"] = [kwargs["grid"]] * 3
 
-    timeit = preset("timeit", timeit)
+    timeit = preset("timeit", timeit, port=port)
 
     names = align_attrs(names, len(cad_objs), None, "names")
 
