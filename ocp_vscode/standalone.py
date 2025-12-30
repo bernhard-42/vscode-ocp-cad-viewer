@@ -384,6 +384,13 @@ class Viewer:
                         continue
                     self.javascript_client.send(data)
 
+                elif cmd.get("type") == "set_relative_time":
+                    self.debug_print("Received set_relative_time command")
+                    if self.javascript_client is None:
+                        self.not_registered()
+                        continue
+                    self.javascript_client.send(data)
+
             elif message_type == "D":
                 self.python_client = ws
                 self.debug_print("Received a new model")

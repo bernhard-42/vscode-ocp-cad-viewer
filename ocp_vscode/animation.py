@@ -19,7 +19,7 @@
 import json
 
 from ocp_tessellate.utils import numpy_to_json
-from .comms import send_data
+from .comms import send_data, send_command
 
 
 def collect_paths(assembly, path=""):
@@ -128,3 +128,17 @@ class Animation:
         """Animate the tracks"""
         data = {"data": self.tracks, "type": "animation", "config": {"speed": speed}}
         send_data(json.loads(numpy_to_json(data)))
+
+    def set_relative_time(self, fraction, port=None):
+        """
+        Set the animation playback position.
+
+        Parameters
+        ----------
+        fraction : float
+            A value between 0 and 1 representing the relative position
+            in the animation timeline (0 = start, 1 = end).
+        port : int, optional
+            The port to send the command to (default=None).
+        """
+        send_command({"type": "set_relative_time", "value": fraction}, port=port)

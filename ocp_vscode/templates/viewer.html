@@ -52,6 +52,7 @@ limitations under the License.
                 colorScheme: null,
                 mappingMode: null
             };
+            var _relativeTime = null;
             var oldStates = null;
             var viewerOptions = {};
             var last_bb_radius = null;
@@ -428,6 +429,9 @@ limitations under the License.
                 }
                 if (change.zebra_mapping_mode !== undefined) {
                     _zebra.mappingMode = change.zebra_mapping_mode.new;
+                }
+                if (change.relative_time !== undefined) {
+                    _relativeTime = change.relative_time.new;
                 }
 
                 var changed = false;
@@ -1048,6 +1052,7 @@ limitations under the License.
                     colorScheme: viewer.getZebraColorScheme(),
                     mappingMode: viewer.getZebraMappingMode()
                 };
+                _relativeTime = viewer.getRelativeTime();
                 send("status", message);
 
                 if (_config.explode) {
@@ -1171,6 +1176,10 @@ limitations under the License.
                             data: result.dataUrl
                         });
                     });
+                } else if (data.type === "set_relative_time") {
+                    if (viewer) {
+                        viewer.setRelativeTime(data.value);
+                    }
                 } else if (data.type === "backend_response") {
                     viewer.handleBackendResponse(data);
                 } else if (data.type === "clear") {

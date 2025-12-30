@@ -231,6 +231,8 @@ export class OCPCADController {
                                 socket.send(JSON.stringify(this.config()));
                             } else if (cmd.type === "screenshot") {
                                 this.view?.postMessage(JSON.stringify(cmd));
+                            } else if (cmd.type === "set_relative_time") {
+                                this.view?.postMessage(JSON.stringify(cmd));
                             }
                         } else if (messageType === "D") {
                             output.debug(
