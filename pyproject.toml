@@ -31,7 +31,7 @@ dependencies = [
     "requests",
     "ipykernel",
     "orjson",
-    "websockets>=13.0,<14.0",
+    "websockets>=16.0,<17.0",
     "pyaml",
     "flask>=3.0,<4.0",
     "flask_sock>=0.7,<1.0",
