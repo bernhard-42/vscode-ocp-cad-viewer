@@ -141,4 +141,5 @@ class Animation:
         port : int, optional
             The port to send the command to (default=None).
         """
-        send_command({"type": "set_relative_time", "value": fraction}, port=port)
+        send_command({"type": "set_relative_time", "value": float(fraction)}, port=port)
+
