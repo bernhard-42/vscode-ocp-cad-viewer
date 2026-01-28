@@ -66,7 +66,7 @@ Since this is a python extension, it is recommended to install/activate a virtua
 
     ```
     source .venv/bin/activate  # to activate the uv virtual environment
-    uv add ocp-viewer
+    uv add ocp-vscode
     ```
 
 -   pip for other virtual environments:
@@ -74,7 +74,7 @@ Since this is a python extension, it is recommended to install/activate a virtua
     ```
     source .venv/bin/activate  # to activate venv virtual environments
     conda / mamba / micromamba activate <env>  # to activate conda like virtual environments
-    pip install ocp-viewer
+    pip install ocp-vscode
     ```
 
 Note: The extension is in pypi only [pypi](https://pypi.org/project/ocp-vscode/), so for conda, mamba or micromamba environments `pip` or `uv pip` needs to be used.
@@ -109,8 +109,8 @@ Note: The extension is in pypi only [pypi](https://pypi.org/project/ocp-vscode/)
 
 ### Running code using Jupyter
 
--   Start the _OCP CAD Viewer_ by pressing the box-arrow button in the "Viewer Manager" section of the _OCP CAD Viewer_ sidebar (hover over the `ocp_vscode` entry to see the button).
--   Import ocp_vscode and the CAD library by using the paste button being the library names in the "Viewer Manager" section
+-   Start the _OCP CAD _ by pressing the box-arrow button in the " Manager" section of the _OCP CAD _ sidebar (hover over the `ocp_vscode` entry to see the button).
+-   Import ocp_vscode and the CAD library by using the paste button being the library names in the " Manager" section
 -   Use the usual Run menu to run the code
 
 ![Running code](screenshots/ocp_vscode_run.png)
@@ -129,16 +129,16 @@ Note:
 
 ### Library Manager
 
-You can also use "Library Manager" in the _OCP CAD Viewer_ sidebar to manage the Python libraries for _build123d_, _cadquery_, _ipython_ and _ocp_tessellate_ (Press the down-arrow when hovering over a library name to install/upgrade it)
+You can also use "Library Manager" in the _OCP CAD _ sidebar to manage the Python libraries for _build123d_, _cadquery_, _ipython_ and _ocp_tessellate_ (Press the down-arrow when hovering over a library name to install/upgrade it)
 
 #### Default pip config for Settings
 
 ```json
-  "OcpCadViewer.advanced.quickstartCommands": {
+  "OcpCad.advanced.quickstartCommands": {
     "cadquery": ["{unset_conda} {python} -m pip install ocp_vscode=={ocp_vscode_version} cadquery"],
     "build123d": ["{python} -m pip install ocp_vscode=={ocp_vscode_version} build123d"]
   },
-  "OcpCadViewer.advanced.installCommands": {
+  "OcpCad.advanced.installCommands": {
     "cadquery": ["{unset_conda} {python} -m pip install --upgrade cadquery"],
     "build123d": ["{python} -m pip install --upgrade build123d"],
     "ocp_vscode": ["{python} -m pip install --upgrade ocp_vscode=={ocp_vscode_version}"],
@@ -151,11 +151,11 @@ You can also use "Library Manager" in the _OCP CAD Viewer_ sidebar to manage the
 #### uv config for Settings
 
 ```json
-  "OcpCadViewer.advanced.quickstartCommands": {
+  "OcpCad.advanced.quickstartCommands": {
     "cadquery": ["uv add -p {python} ocp_vscode=={ocp_vscode_version} cadquery"],
     "build123d": ["uv add -p {python} ocp_vscode=={ocp_vscode_version} build123d"]
   },
-  "OcpCadViewer.advanced.installCommands": {
+  "OcpCad.advanced.installCommands": {
     "cadquery": ["uv add -p {python} --upgrade cadquery"],
     "build123d": ["uv add -p {python} --upgrade build123d"],
     "ocp_vscode": ["uv add -p {python} --upgrade ocp_vscode=={ocp_vscode_version}"],
@@ -176,13 +176,13 @@ You can also use "Library Manager" in the _OCP CAD Viewer_ sidebar to manage the
 -   [Use the `show_object` command](docs/show_object.md)
 -   [Use the `push_object` and `show_objects` command](docs/push_object.md)
 -   [Use the `show_all` command](docs/show_all.md)
--   [Use the `set_viewer_config` command](docs/set_viewer_config.md)
+-   [Use the `set__config` command](docs/set__config.md)
 -   [Download examples for build123d or cadquery](docs/examples.md)
 -   [Use the build123d snippets](docs/snippets.md)
 
 ## Standalone mode
 
-Standalone mode allows to use OCP CAD Viewer without VS Code: `python -m ocp_vscode`. This will start a Flask server and the viewer can be reached under `http://127.0.0.1:<port number>` (per default http://127.0.0.1:3939). All client side feature of the VS Code variant (i.e. `show*` features) should be available (including measurement mode) except visual debugging (see above) which relies on VS Code.
+Standalone mode allows to use OCP CAD  without VS Code: `python -m ocp_vscode`. This will start a Flask server and the  can be reached under `http://127.0.0.1:<port number>` (per default http://127.0.0.1:3939). All client side feature of the VS Code variant (i.e. `show*` features) should be available (including measurement mode) except visual debugging (see above) which relies on VS Code.
 
 Use `python -m ocp_vscode --help` to understand the command line args:
 
@@ -196,7 +196,7 @@ Options:
   --port INTEGER                 The port to start OCP CAD with
   --debug                        Show debugging information
   --timeit                       Show timing information
-  --tree_width TEXT              OCP CAD Viewer navigation tree width
+  --tree_width TEXT              OCP CAD  navigation tree width
                                  (default: 240)
   --no_glass                     Do not use glass mode with transparent
                                  navigation tree
@@ -253,8 +253,8 @@ Options:
 
 ## Standalone mode with Docker
 
-If you are not using vscode and you prefer to keep the standalone web viewer running separated in a container,
-then take a look at [docker-vscode-ocp-cad-viewer](https://github.com/nilcons/docker-vscode-ocp-cad-viewer).
+If you are not using vscode and you prefer to keep the standalone web  running separated in a container,
+then take a look at [docker-vscode-ocp-cad-](https://github.com/nilcons/docker-vscode-ocp-cad-).
 
 ## Best practices
 
