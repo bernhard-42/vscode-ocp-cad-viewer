@@ -177,14 +177,16 @@ def _send(data, message_type, port=None, timeit=False):
                         result = None
                         no_response_commands = ("screenshot", "set_relative_time")
                         if message_type == MessageType.COMMAND and not (
-                            isinstance(data, dict) and data.get("type") in no_response_commands
+                            isinstance(data, dict)
+                            and data.get("type") in no_response_commands
                         ):
                             try:
                                 result = json.loads(ws.recv())
                             except Exception as ex:  # pylint: disable=broad-except
                                 print(ex)
                         elif message_type == MessageType.COMMAND and (
-                            isinstance(data, dict) and data.get("type") in no_response_commands
+                            isinstance(data, dict)
+                            and data.get("type") in no_response_commands
                         ):
                             result = {}
 
