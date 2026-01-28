@@ -27,7 +27,7 @@ classifiers = [
 ]
 
 dependencies = [
-    "ocp-tessellate>=3.1.0,<3.2.0",
+    "ocp-tessellate>=3.1.2,<3.2.0",
     "requests",
     "ipykernel",
     "orjson",
