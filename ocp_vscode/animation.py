@@ -17,9 +17,14 @@
 #
 
 import json
+import time
+import tempfile
+from PIL import Image
+import numpy as np
 
 from ocp_tessellate.utils import numpy_to_json
 from .comms import send_data, send_command
+from .show import save_screenshot
 
 
 def collect_paths(assembly, path=""):
@@ -143,3 +148,44 @@ class Animation:
         """
         send_command({"type": "set_relative_time", "value": float(fraction)}, port=port)
 
+    def save_as_gif(
+        self,
+        output,
+        duration,
+        fps=30,
+        loop=0,
+        endpoint=False,
+        bg_color="white",
+        pause=0.05,
+    ):
+        n_frames = int(duration * fps)
+        frame_duration = 1000 / fps
+
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".png") as tmp:
+            filename = tmp.name
+            frames = []
+            for t in np.linspace(0, 1000, n_frames, endpoint=endpoint):
+                print(f"{t:8.3f}", end=" ", flush=True)
+                self.set_relative_time(t / 1000)
+                time.sleep(pause)
+                save_screenshot(filename)
+                img = Image.open(filename)
+                # Convert RGBA to RGB with white background to avoid transparency issues
+                if img.mode == "RGBA":
+                    background = Image.new("RGB", img.size, bg_color)
+                    background.paste(
+                        img, mask=img.split()[3]
+                    )  # Use alpha channel as mask
+                    img = background
+                else:
+                    img = img.convert("RGB")
+                frames.append(img)
+            print()
+
+            frames[0].save(
+                output,
+                save_all=True,
+                append_images=frames[1:],
+                duration=frame_duration,
+                loop=loop,
+            )
