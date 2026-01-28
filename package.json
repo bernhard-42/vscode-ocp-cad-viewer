@@ -781,7 +781,7 @@
     "@vscode/python-extension": "^1.0.6",
     "adm-zip": "^0.5.16",
     "follow-redirects": "^1.15.11",
-    "proper-lockfile": "^4.1.2",
+    "proper-lockfile": "./proper-lockfile-4.1.2-esm.tgz",
     "semver": "^7.5.1",
     "ws": "^8.13.0"
   },
