@@ -1364,7 +1364,7 @@ def show_all(
         show_clear()
 
 
-def save_screenshot(filename, port=None, polling=True):
+def save_screenshot(filename, port=None, polling=True, progress_only=False):
     """Save a screenshot of the current view"""
     if not filename.startswith(os.sep):
         prefix = pathlib.Path(".").absolute()
@@ -1380,7 +1380,10 @@ def save_screenshot(filename, port=None, polling=True):
         done = False
         for i in range(20):
             if p.exists() and p.stat().st_mtime > mtime:
-                print("Screenshot saved to ", full_path)
+                if progress_only:
+                    print(".", end="")
+                else:
+                    print("Screenshot saved to ", full_path)
                 done = True
                 break
             time.sleep(0.1)

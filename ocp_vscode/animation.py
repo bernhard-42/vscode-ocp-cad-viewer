@@ -50,6 +50,7 @@ class Animation:
             self.paths = list(assembly.objects.keys())
         else:
             self.paths = collect_paths(assembly)
+        self.max_duration = 0
 
     def add_track(self, path, action, times, values, animate_joints=False):
         # pylint: disable=line-too-long
@@ -126,11 +127,17 @@ class Animation:
 
         self.tracks.append((path, action, times, values))
 
+        if times[-1] > self.max_duration:
+            self.max_duration = float(times[-1])
+
         if animate_joints:
             self.tracks.append((f"{path}.joints", action, times, values))
 
     def animate(self, speed):
         """Animate the tracks"""
+        if self.max_duration == 0:
+            raise RuntimeError("Use add_tracks to add animation tracks")
+
         data = {"data": self.tracks, "type": "animation", "config": {"speed": speed}}
         send_data(json.loads(numpy_to_json(data)))
 
@@ -151,24 +158,72 @@ class Animation:
     def save_as_gif(
         self,
         output,
-        duration,
-        fps=30,
-        loop=0,
+        fps=25,
+        loops=0,
         endpoint=False,
         bg_color="white",
-        pause=0.05,
+        pause=0.02,
     ):
-        n_frames = int(duration * fps)
-        frame_duration = 1000 / fps
+        """
+        Save the animation as a GIF file.
+
+        Parameters
+        ----------
+        output : str
+            The output file path for the GIF.
+        fps : int, default=25
+            Frames per second. GIF format stores frame delays in centiseconds
+            (1/100s), so only certain fps values produce exact timing:
+
+            - 10 fps → 100 ms/frame (exact)
+            - 20 fps → 50 ms/frame (exact)
+            - 25 fps → 40 ms/frame (exact)
+            - 50 fps → 20 ms/frame (exact)
+            - 100 fps → 10 ms/frame (exact)
+
+            Other values like 30 fps (33.33 ms) or 60 fps (16.67 ms) will be
+            rounded, causing the GIF to play faster or slower than expected.
+        loops : int, default=0
+            Number of times to loop the animation:
+
+            - 0 = loop infinitely
+            - N = play N times
+
+            Note: Some viewers might ignore the loop settings for GIFs.
+            Typically, web browsers respect the loop count.
+        endpoint : bool, default=False
+            Whether to include the final frame at t=1.0.
+        bg_color : str, default="white"
+            Background color for transparent areas.
+        pause : float, default=0.02
+            Delay in seconds between capturing frames (for rendering stability).
+        """
+        if fps not in [10, 20, 25, 50, 100]:
+            print(
+                "For exact duration in gif (using 1/100s), use fps 10, 20, 25, 50, or 100"
+            )
+
+        if loops == 0:
+            loop = 0
+        elif loops == 1:
+            loop = None
+        elif isinstance(loops, int) and loops > 1:
+            loop = loops - 1
+        else:
+            raise ValueError(f"{loop} is not a positive interger or 0")
+
+        n_frames = int(self.max_duration * fps)
+        frame_duration = round(1000 / fps)
+
+        print(n_frames, frame_duration)
 
         with tempfile.NamedTemporaryFile(delete=False, suffix=".png") as tmp:
             filename = tmp.name
             frames = []
-            for t in np.linspace(0, 1000, n_frames, endpoint=endpoint):
-                print(f"{t:8.3f}", end=" ", flush=True)
+            for i, t in enumerate(np.linspace(0, 1000, n_frames, endpoint=endpoint)):
                 self.set_relative_time(t / 1000)
                 time.sleep(pause)
-                save_screenshot(filename)
+                save_screenshot(filename, progress_only=True)
                 img = Image.open(filename)
                 # Convert RGBA to RGB with white background to avoid transparency issues
                 if img.mode == "RGBA":
@@ -180,7 +235,11 @@ class Animation:
                 else:
                     img = img.convert("RGB")
                 frames.append(img)
+                if i % 20 == 0:
+                    print(f"{100 * i / n_frames:3.0f}%", end=" ")
             print()
+
+            print("Saving animation ...")
 
             frames[0].save(
                 output,
@@ -189,3 +248,4 @@ class Animation:
                 duration=frame_duration,
                 loop=loop,
             )
+        print(f"Animation saved as {output}")
