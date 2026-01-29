@@ -100,6 +100,32 @@ OBJECTS = {"objs": [], "names": [], "colors": [], "alphas": []}
 
 LAST_CALL = "other"
 
+LAST_PATHS = []
+
+
+def set_last_paths(node):
+    """Extract all paths from nested OcpGroup/OcpObject structure."""
+    global LAST_PATHS
+
+    def collect_paths(node, path):
+        results = []
+        current_path = f"{path}/{node.name}"
+
+        if isinstance(node, OcpGroup):
+            results.append(current_path)
+            for obj in node.objects:
+                results.extend(collect_paths(obj, current_path))
+        else:  # OcpObject
+            results.append(current_path)
+
+        return results
+
+    LAST_PATHS = collect_paths(node, "")
+
+
+def get_last_paths():
+    return LAST_PATHS
+
 
 def _tessellate(
     *cad_objs, names=None, colors=None, alphas=None, progress=None, **kwargs
@@ -253,10 +279,7 @@ def _tessellate(
             debug=kwargs.get("debug", False),
         )
 
-        if len(part_group.objects) == 1 and isinstance(part_group.objects[0], OcpGroup):
-            loc = part_group.loc
-            part_group = part_group.objects[0]
-            part_group.loc = loc * part_group.loc
+    set_last_paths(part_group)
 
     params = {
         k: v

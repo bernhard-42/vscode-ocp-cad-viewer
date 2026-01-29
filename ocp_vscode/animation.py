@@ -24,32 +24,27 @@ import numpy as np
 
 from ocp_tessellate.utils import numpy_to_json
 from .comms import send_data, send_command
-from .show import save_screenshot
-
-
-def collect_paths(assembly, path=""):
-    """Collect all paths in the assembly tree"""
-    result = []
-    new_path = f"{path}/{assembly.label}"
-    result.append(new_path)
-    for child in assembly.children:
-        result.extend(collect_paths(child, new_path))
-    return result
+from .show import save_screenshot, get_last_paths
 
 
 class Animation:
     """Class to create animations for the viewer"""
 
-    def __init__(self, assembly):
+    def __init__(self, assembly=None):
+        if assembly is not None:
+            print("Deprecation: The parameter `assembly` is not needed any more\n")
+
         self.tracks = []
-        self.is_cadquery = hasattr(assembly, "mates") and not hasattr(
-            assembly, "fq_name"
+        self.paths = get_last_paths()
+
+        print(
+            "Note: The paths for animation are only valid for the specific `show` statement"
+            "\n(so do not change the objects between `show` and creating the Animation)."
+            "\nAvailable paths:"
         )
-        self.is_build123d = hasattr(assembly, "joints")
-        if self.is_cadquery:
-            self.paths = list(assembly.objects.keys())
-        else:
-            self.paths = collect_paths(assembly)
+        for p in self.paths:
+            print(f"- {p}")
+
         self.max_duration = 0
 
     def add_track(self, path, action, times, values, animate_joints=False):
@@ -115,15 +110,8 @@ class Animation:
         if len(times) != len(values):
             raise ValueError("Parameters 'times' and 'values' need to have same length")
 
-        if self.is_cadquery:
-            root, _, cq_path = path.strip("/").partition("/")
-
-            if root not in self.paths or cq_path not in self.paths + [""]:
-                raise ValueError(f"Path '{path}' does not exist in assembly")
-
-        elif self.is_build123d:
-            if path not in self.paths:
-                raise ValueError(f"Path '{path}' does not exist in assembly")
+        if path not in self.paths:
+            raise ValueError(f"Path '{path}' does not exist in assembly")
 
         self.tracks.append((path, action, times, values))
 
