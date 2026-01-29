@@ -22,7 +22,7 @@ import * as vscode from "vscode";
 import { version as ocp_vscode_version } from "./version";
 import * as output from "./output";
 import { getPythonPath, getEditor } from "./utils";
-import { execute } from "./system/shell";
+import { execute, getAutomationShellConfig } from "./system/shell";
 import { StatusManagerProvider } from "./statusManager";
 import { TerminalExecute } from "./system/terminal";
 
@@ -137,10 +137,11 @@ export async function installLib(
         }
     }
 
-    let term = vscode.window.createTerminal(
-        "Library Installations",
-        os.platform() === "win32" ? process.env.COMSPEC : undefined
-    );
+    const shellConfig = getAutomationShellConfig();
+    let term = vscode.window.createTerminal({
+        name: "Library Installations",
+        ...shellConfig
+    });
     term.show();
     const delay = vscode.workspace.getConfiguration("OcpCadViewer.advanced")[
         "terminalDelay"

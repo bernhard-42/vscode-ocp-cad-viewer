@@ -26,6 +26,7 @@ import { logo } from "./logo";
 import { StatusManagerProvider } from "./statusManager";
 import { getPythonPath, getTempFolder } from "./utils";
 import { removeState, getConfig } from "./state";
+import { getAutomationShellConfig } from "./system/shell";
 
 var serverStarted = false;
 
@@ -322,11 +323,11 @@ export class OCPCADController {
         let python = await getPythonPath();
         output.debug(`Backend.startBackend: Use python interpeter ${python}`);
 
+        const shellConfig = getAutomationShellConfig();
         let pythonBackendTerminal = vscode.window.createTerminal({
             name: "OCP backend",
             cwd: cwd,
-            shellPath:
-                os.platform() === "win32" ? process.env.COMSPEC : undefined
+            ...shellConfig
         });
         pythonBackendTerminal.show();
         output.debug("Backend.startBackend: Terminal started");

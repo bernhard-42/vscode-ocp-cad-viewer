@@ -54,6 +54,7 @@ import {
     getConfigFile,
     removeOldLockfile
 } from "./state";
+import { getAutomationShellConfig } from "./system/shell";
 
 function check_upgrade(libraryManager: LibraryManagerProvider) {
     const ocp_vscode_lib = libraryManager.installed["ocp_vscode"];
@@ -722,13 +723,11 @@ export async function activate(context: vscode.ExtensionContext) {
                         output.debug(`iopubPort: ${iopubPort}`);
                         net.createConnection(iopubPort, "localhost")
                             .on("connect", () => {
+                                const shellConfig = getAutomationShellConfig();
                                 let terminal = vscode.window.createTerminal({
                                     name: "Jupyter Console",
                                     location: vscode.TerminalLocation.Editor,
-                                    shellPath:
-                                        os.platform() === "win32"
-                                            ? process.env.COMSPEC
-                                            : undefined
+                                    ...shellConfig
                                 });
                                 terminal.show();
                                 const delay = vscode.workspace.getConfiguration(
