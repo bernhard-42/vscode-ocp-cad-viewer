@@ -160,7 +160,10 @@ export async function installLib(
     await new Promise((resolve) => setTimeout(resolve, delay));
     commands.push("exit");
     const command = commands.join(" && ");
-    term.sendText(command, true);
+    const shellCommandPrefix = vscode.workspace.getConfiguration(
+        "OcpCadViewer.advanced"
+    )["shellCommandPrefix"];
+    term.sendText(shellCommandPrefix + command, true);
 }
 
 export class LibraryManagerProvider

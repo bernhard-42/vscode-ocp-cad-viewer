@@ -341,8 +341,11 @@ export class OCPCADController {
             output.debug(
                 `Backend.startBackend: Starting Python backend with delay ${delay}`
             );
+            const shellCommandPrefix = vscode.workspace.getConfiguration(
+                "OcpCadViewer.advanced"
+            )["shellCommandPrefix"];
             pythonBackendTerminal.sendText(
-                `"${python}" -m ocp_vscode --backend --port ${this.port}`
+                `${shellCommandPrefix}"${python}" -m ocp_vscode --backend --port ${this.port}`
             );
             if (autohide) {
                 pythonBackendTerminal.hide();

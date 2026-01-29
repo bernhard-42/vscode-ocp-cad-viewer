@@ -542,6 +542,12 @@
           "description": "The start port where OCP CAD Viewer will start to search for a free port",
           "order": 55
         },
+        "OcpCadViewer.advanced.shellCommandPrefix": {
+          "type": "string",
+          "default": "",
+          "description": "Prefix for shell commands executed by the extension (e.g. ' ' to prevent shell history entries)",
+          "order": 56
+        },
         "OcpCadViewer.advanced.quickstartCommands": {
           "type": "object",
           "description": "Shell commands to install the quickstart recipes. The values for placeholders {python}, {conda_env}, {ocp_vscode_version} will be replaced accordingly during execution",
@@ -553,7 +559,7 @@
               "{python} -m pip install ocp_vscode~={ocp_vscode_version} build123d"
             ]
           },
-          "order": 56
+          "order": 57
         },
         "OcpCadViewer.advanced.installCommands": {
           "type": "object",
@@ -581,7 +587,7 @@
               "{python} -m pip install --upgrade jupyter_console"
             ]
           },
-          "order": 54
+          "order": 58
         },
         "OcpCadViewer.advanced.codeSnippets": {
           "type": "object",
@@ -600,7 +606,7 @@
               "\n# %%\n"
             ]
           },
-          "order": 55
+          "order": 59
         },
         "OcpCadViewer.advanced.exampleDownloads": {
           "type": "object",
@@ -615,7 +621,7 @@
               "example_path": "build123d-dev/examples"
             }
           },
-          "order": 56
+          "order": 60
         },
         "OcpCadViewer.snippets.dotVscodeSnippets": {
           "type": "object",
@@ -732,19 +738,19 @@
               }
             }
           },
-          "order": 57
+          "order": 61
         },
         "OcpCadViewer.advanced.terminalDelay": {
           "type": "number",
           "default": 1000,
           "description": "Delay until terminal command is started (default: 1000)",
-          "order": 58
+          "order": 62
         },
         "OcpCadViewer.advanced.autostartDelay": {
           "type": "number",
           "default": 250,
           "description": "Delay until autostart tries to refresh viewer and library manager at VS Code start (default: 250)",
-          "order": 58
+          "order": 63
         }
       }
     }
