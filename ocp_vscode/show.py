@@ -22,6 +22,7 @@ import re
 import time
 import traceback
 import types
+import warnings
 from enum import Enum
 from logging import Logger
 
@@ -74,6 +75,7 @@ from ocp_vscode.comms import is_pytest
 from ocp_vscode.config import (
     Camera,
     Collapse,
+    Mode,
     check_deprecated,
     combined_config,
     get_changed_config,
@@ -96,7 +98,7 @@ __all__ = [
     "none_filter",
 ]
 
-OBJECTS = {"objs": [], "names": [], "colors": [], "alphas": []}
+OBJECTS = {"objs": [], "names": [], "colors": [], "alphas": [], "modes": []}
 
 LAST_CALL = "other"
 
@@ -127,8 +129,35 @@ def get_last_paths():
     return LAST_PATHS
 
 
+_MODE_STATES = {
+    Mode.ALL: (1, 1),
+    Mode.WIRE: (0, 1),
+    Mode.FACE: (1, 0),
+    Mode.NONE: (0, 0),
+}
+
+
+def _apply_mode_to_node(node, state_faces, state_edges):
+    """Recursively set state_faces/state_edges on all OcpObject leaves."""
+    if isinstance(node, OcpGroup):
+        for obj in node.objects:
+            _apply_mode_to_node(obj, state_faces, state_edges)
+    else:
+        node.state_faces = state_faces
+        node.state_edges = state_edges
+
+
+def _apply_mode(part_group, mode_list):
+    """Apply per-object mode settings to the top-level entries of part_group."""
+    for i, mode in enumerate(mode_list):
+        if mode is None or i >= len(part_group.objects):
+            continue
+        state_faces, state_edges = _MODE_STATES[mode]
+        _apply_mode_to_node(part_group.objects[i], state_faces, state_edges)
+
+
 def _tessellate(
-    *cad_objs, names=None, colors=None, alphas=None, progress=None, **kwargs
+    *cad_objs, names=None, colors=None, alphas=None, modes=None, progress=None, **kwargs
 ):
     viewer = kwargs.get("viewer")
     port = kwargs.get("port")
@@ -281,6 +310,9 @@ def _tessellate(
 
     set_last_paths(part_group)
 
+    if modes is not None:
+        _apply_mode(part_group, modes)
+
     params = {
         k: v
         for k, v in conf.items()
@@ -326,6 +358,9 @@ def _tessellate(
     ):
         params["reset_camera"] = kwargs["reset_camera"].value
 
+    # Always compute edges so per-object mode and UI toggling work
+    params["render_edges"] = True
+
     if kwargs.get("debug") is not None and kwargs["debug"]:
         print("\ntessellation parameters:\n", params)
 
@@ -333,6 +368,11 @@ def _tessellate(
         instances, shapes, mapping = tessellate_group(
             part_group, instances, params, progress, params.get("timeit")
         )
+
+    # After tessellate_group, IDs are assigned. Send explicit states so
+    # the viewer applies them after restoring old UI states.
+    if modes is not None:
+        params["states"] = part_group.to_state()
 
     params["normal_len"] = get_normal_len(
         preset("render_normals", params.get("render_normals")),
@@ -360,6 +400,7 @@ def _convert(
     names=None,
     colors=None,
     alphas=None,
+    modes=None,
     progress=None,
     **kwargs,
 ):
@@ -373,6 +414,7 @@ def _convert(
         names=names,
         colors=colors,
         alphas=alphas,
+        modes=modes,
         progress=progress,
         **kwargs,
     )
@@ -443,6 +485,7 @@ def show(
     names=None,
     colors=None,
     alphas=None,
+    modes=None,
     port=None,
     progress="-+*c",
     glass=None,
@@ -519,6 +562,11 @@ def show(
         names:                   List of names for the cad_objs. Needs to have the same length as cad_objs
         colors:                  List of colors for the cad_objs. Needs to have the same length as cad_objs
         alphas:                  List of alpha values for the cad_objs. Needs to have the same length as cad_objs
+        modes:                   A Mode value or list of Mode values for the cad_objs (default=None, i.e. Mode.ALL).
+                                 Mode.ALL: show faces and edges
+                                 Mode.WIRE: show edges only
+                                 Mode.FACE: show faces only
+                                 Mode.NONE: hide object
         progress:                Show progress of tessellation with None is no progress indicator. (default="-+*c")
                                  for object: "-": is reference,
                                              "+": gets tessellated with Python code,
@@ -598,7 +646,7 @@ def show(
         metalness:               Metalness property of the default material (default=0.30)
         roughness:               Roughness property of the default material (default=0.65)
 
-        render_edges:            Render edges  (default=True)
+        render_edges:            Deprecated, use modes=Mode.FACE or Mode.ALL instead
         render_normals:          Render normals (default=False)
         render_mates:            Render mates for MAssemblies (default=False)
         render_joints:           Render build123d joints (default=False)
@@ -624,9 +672,11 @@ def _show(*cad_objs, **kwargs):
     names = kwargs.get("names")
     colors = kwargs.get("colors")
     alphas = kwargs.get("alphas")
+    modes = kwargs.pop("modes", None)
     default_edgecolor = kwargs.get("default_edgecolor")
     progress = kwargs.get("progress")
     _force_in_debug = kwargs.get("_force_in_debug")
+    render_edges = kwargs.get("render_edges")
 
     if (
         cad_objs is None
@@ -660,6 +710,16 @@ def _show(*cad_objs, **kwargs):
         ]
     }
 
+    # Handle render_edges backward compat before check_deprecated removes it
+    if render_edges is not None and modes is None:
+        warnings.warn(
+            "render_edges is deprecated, use modes=Mode.FACE or Mode.ALL instead",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        if not render_edges:
+            modes = Mode.FACE
+
     kwargs = check_deprecated(kwargs)
 
     if kwargs.get("grid") is not None:
@@ -669,6 +729,12 @@ def _show(*cad_objs, **kwargs):
     timeit = preset("timeit", timeit, port=port)
 
     names = align_attrs(names, len(cad_objs), None, "names")
+
+    # Normalize modes to a list
+    if isinstance(modes, Mode):
+        modes = [modes] * len(cad_objs)
+    if modes is not None:
+        modes = align_attrs(modes, len(cad_objs), None, "modes")
 
     # Handle colormaps
 
@@ -711,6 +777,7 @@ def _show(*cad_objs, **kwargs):
             names=names,
             colors=colors,
             alphas=alphas,
+            modes=modes,
             progress=progress,
             **kwargs,
         )
@@ -740,7 +807,7 @@ def reset_show():
     """Reset the stack of objects to be shown"""
     global OBJECTS  # pylint: disable=global-statement
 
-    OBJECTS = {"objs": [], "names": [], "colors": [], "alphas": []}
+    OBJECTS = {"objs": [], "names": [], "colors": [], "alphas": [], "modes": []}
 
 
 # pylint: disable=too-many-locals,too-many-arguments
@@ -751,6 +818,7 @@ def show_object(
     parent=None,
     clear=False,
     update=False,
+    mode=None,
     port=None,
     progress="-+*c",
     glass=None,
@@ -828,6 +896,11 @@ def show_object(
         clear:                   In interactive mode, clear the stack of objects to be shown
                                  (typically used for the first object)
         update:                  Update the object (remove old version)
+        mode:                    A Mode value for this object (default=None, i.e. Mode.ALL).
+                                 Mode.ALL: show faces and edges
+                                 Mode.WIRE: show edges only
+                                 Mode.FACE: show faces only
+                                 Mode.NONE: hide object
         port:                    The port the viewer listens to. Typically use 'set_port(port)' instead
         progress:                Show progress of tessellation with None is no progress indicator. (default="-+*c")
                                  for object: "-": is reference,
@@ -908,7 +981,7 @@ def show_object(
         roughness:               Roughness property of the default material (default=0.65)
 
 
-        render_edges:            Render edges  (default=True)
+        render_edges:            Deprecated, use modes=Mode.FACE or Mode.ALL instead
         render_normals:          Render normals (default=False)
         render_mates:            Render mates for MAssemblies (default=False)
         render_joints:           Render build123d joints (default=False)
@@ -928,7 +1001,7 @@ def remove_object(name, call_show=False, port=None, progress="-+*c"):
     """Remove object from the stack of objects by name"""
     try:
         index = OBJECTS["names"].index(name)
-        for key in ["objs", "names", "colors", "alphas"]:
+        for key in ["objs", "names", "colors", "alphas", "modes"]:
             del OBJECTS[key][index]
     except ValueError:
         pass  # Name not found; silently do nothing
@@ -939,6 +1012,7 @@ def remove_object(name, call_show=False, port=None, progress="-+*c"):
             names=OBJECTS["names"],
             colors=OBJECTS["colors"],
             alphas=OBJECTS["alphas"],
+            modes=OBJECTS["modes"],
             port=port,
             progress=progress,
         )
@@ -952,6 +1026,7 @@ def _show_object(obj, **kwargs):
     parent = kwargs.get("parent")
     options = kwargs.get("options")
     progress = kwargs.get("progress")
+    mode = kwargs.get("mode")
 
     kwargs = {
         k: v
@@ -967,6 +1042,7 @@ def _show_object(obj, **kwargs):
             "port",
             "progress",
             "update",
+            "mode",
         ]
     }
 
@@ -981,6 +1057,7 @@ def _show_object(obj, **kwargs):
         OBJECTS["names"].append("parent")
         OBJECTS["colors"].append(None)
         OBJECTS["alphas"].append(None)
+        OBJECTS["modes"].append(None)
 
     color = None
     alpha = None
@@ -997,22 +1074,24 @@ def _show_object(obj, **kwargs):
     OBJECTS["names"].append(name)
     OBJECTS["colors"].append(color)
     OBJECTS["alphas"].append(alpha)
+    OBJECTS["modes"].append(mode)
 
     return show(
         *OBJECTS["objs"],
         names=OBJECTS["names"],
         colors=OBJECTS["colors"],
         alphas=OBJECTS["alphas"],
+        modes=OBJECTS["modes"],
         port=port,
         progress=progress,
         **kwargs,
     )
 
 
-def push_object(obj, name=None, color=None, alpha=None, clear=False, update=False):
+def push_object(obj, name=None, color=None, alpha=None, mode=None, clear=False, update=False):
     """
-    Adds or updates an object in the global OBJECTS registry with optional name, color, and alpha
-    transparency.
+    Adds or updates an object in the global OBJECTS registry with optional name, color, alpha
+    transparency, and display mode.
 
     Parameters:
         obj: The object to be added or updated. Must have 'name', 'label', 'color', or 'alpha'
@@ -1023,6 +1102,8 @@ def push_object(obj, name=None, color=None, alpha=None, clear=False, update=Fals
             attempts to use 'color' attribute of obj.
         alpha (float, optional): The alpha (transparency) value for the object. If not provided,
             attempts to use 'alpha' attribute of obj, defaults to 1.0.
+        mode (Mode, optional): The display mode for this object (Mode.ALL, Mode.WIRE, Mode.FACE,
+            Mode.NONE). If not provided, defaults to Mode.ALL.
         clear (bool, optional): If True, clears the OBJECTS registry before adding the new object.
         update (bool, optional): If True, updates an existing object with the same name;
             otherwise, appends as a new object.
@@ -1053,14 +1134,17 @@ def push_object(obj, name=None, color=None, alpha=None, clear=False, update=Fals
         OBJECTS["objs"][index] = obj
         OBJECTS["colors"][index] = color
         OBJECTS["alphas"][index] = alpha
+        OBJECTS["modes"][index] = mode
     else:
         OBJECTS["objs"].append(obj)
         OBJECTS["names"].append(name)
         OBJECTS["colors"].append(color)
         OBJECTS["alphas"].append(alpha)
+        OBJECTS["modes"].append(mode)
 
 
 def show_objects(
+    modes=None,
     port=None,
     progress="-+*c",
     glass=None,
@@ -1207,7 +1291,7 @@ def show_objects(
         roughness:               Roughness property of the default material (default=0.65)
 
 
-        render_edges:            Render edges  (default=True)
+        render_edges:            Deprecated, use modes=Mode.FACE or Mode.ALL instead
         render_normals:          Render normals (default=False)
         render_mates:            Render mates for MAssemblies (default=False)
         render_joints:           Render build123d joints (default=False)
@@ -1221,6 +1305,10 @@ def show_objects(
         timeit:                  Show timing information from level 0-3 (default=False)
     """
     kwargs = none_filter(locals())
+    # Use per-object modes stored in OBJECTS
+    stored_modes = OBJECTS["modes"]
+    if any(m is not None for m in stored_modes):
+        kwargs["modes"] = stored_modes
     return show(
         *OBJECTS["objs"],
         names=OBJECTS["names"],

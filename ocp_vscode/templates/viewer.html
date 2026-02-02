@@ -1140,31 +1140,38 @@ limitations under the License.
 
                     const new_keys = Object.keys(new_states);
 
-                    Object.keys(old_states).forEach((key) => {
-                        if (new_keys.includes(key)) {
-                            if (
-                                new_states[key][0] !== old_states[key][0] ||
-                                new_states[key][1] !== old_states[key][1]
-                            ) {
-                                if (data.config.measure_tools) {
-                                    viewer.treeview.handleStateChange(
-                                        "node",
-                                        key,
-                                        0,
-                                        old_states[key][0]
-                                    );
-                                    viewer.treeview.handleStateChange(
-                                        "node",
-                                        key,
-                                        1,
-                                        old_states[key][1]
-                                    );
-                                } else {
-                                    viewer.setState(key, old_states[key]);
+                    if (config.states) {
+                        // Explicit states from modes parameter take precedence
+                        Object.keys(config.states).forEach((key) => {
+                            viewer.setState(key, config.states[key]);
+                        });
+                    } else {
+                        Object.keys(old_states).forEach((key) => {
+                            if (new_keys.includes(key)) {
+                                if (
+                                    new_states[key][0] !== old_states[key][0] ||
+                                    new_states[key][1] !== old_states[key][1]
+                                ) {
+                                    if (data.config.measure_tools) {
+                                        viewer.treeview.handleStateChange(
+                                            "node",
+                                            key,
+                                            0,
+                                            old_states[key][0]
+                                        );
+                                        viewer.treeview.handleStateChange(
+                                            "node",
+                                            key,
+                                            1,
+                                            old_states[key][1]
+                                        );
+                                    } else {
+                                        viewer.setState(key, old_states[key]);
+                                    }
                                 }
                             }
-                        }
-                    });
+                        });
+                    }
                     timer.split("states updated");
 
                     timer.stop();
