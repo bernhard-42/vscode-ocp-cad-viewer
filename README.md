@@ -388,57 +388,39 @@ NATIVE_TESSELLATOR=1 OCP_VSCODE_PYTEST=1 pytest -v -s pytests/
 
 ## Changes
 
-### 3.0.1
-
-**Fixes**
-
--   Bring back explode tool and selection tool
--   Ensure jupyter console can be launched when the path contains spaces
--   Give the 'show' and 'get_defaults' parameter 'port' precedence over asking for a port
--   The standalone server wirtes its port to ~/.ocpvscode for show to pick it up
--   Reduced standalone output without --debug to a bare minimum
--   Streamlined standalone debugging output
--   VS Code only supports esm modules now, so replace proper-lockfile with own esm version of it
-
-### 3.0.0
+## 3.1.0
 
 **Features**
 
--   Viewer UI
-    -   The grids are now dynamic: Fonts rescale when zooming to keep them the same size and grid refines when zoom factor doubles (and vice versa)
-    -   Automatic theme switch (dark/bright) when theme of OS or browser is changed => NOTE: Unselect Ocp Cad Viewer > View:Dark in the VS Code settings!
-    -   The `tick` hint parameter now only refers to the positive axis and defaults to `5` (so overall it is still `10`), see [migration](./README.md#migration-from-v290-to-v30x)
-    -   Help dialog can be closed by clicking outside on the canvas
--   `show` command
-    -   `reset_camera` now supports `Camera.ISO`, `Camera.TOP`, `Camera.BOTTOM`, `Camera.LEFT`, `Camera.RIGHT`, `Camera.FRONT`, and `Camera.BACK` as new orientation defaults for the viewer ([#189](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/189))
-    -   Joints are now shown with suffix `.joints` on the same level as the object they are attached to, in order to not change the overall assembly hierarchy needed for animation, ([#138](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/138))
-    -   Animation of joints now needs to provide `animate_joints` parameter (in synch with `render_joints`), see [migration](./README.md#migration-from-v290-to-v30x)
-    -   Trim infinite axes and planes to 10 x `helper_scale` ([#192](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/192))
-    -   `helper_scale < 1.0` is treated as a relative scale: the absolute `helper_scale` will be calculated as the relative value times max bounding box size, i.e. `helper_scale`s is a percentage of the max bounding box. For inifinite objects, helper_scale will be set to 1.0
-    -   Allow `tree_width` to be changed by each `show` command
-    -   List with unviewable objects only are not shown as empty objects any more but ignored
--   Standalone
-    -   HTTP root redirect of http://localhost:8080 in standalone mode to show the viewer (no need of using http://localhost:8080/viewer any more)
--   Library manager
-    -   The library manager will now install `ocp_vscode~={ocp_vscode_version}` per default, to simplifiy pure Python patch distribution (patch verions are compatible with the viewer). NOTE: Check your user/workspace settings.
-    -   Small restructuring of the Library Manager list (`editable` now is only visible when the package is editable, and then shows the project path)
-    -   Added `cadquery_ocp` to default install commands
--   Support for pure `uv` environments without `pip`. The viewer now tries `/env/path/to/python -m pip list` for the library manager and if that fails it uses `uv pip list -p /env/path/to/python`. The install commands in the workspace settings need to change to use `uv add -p {python}`, see [here](./README.md#uv-config-for-settings) [#166](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/166)
--   Support for [GDS chip design format](https://en.wikipedia.org/wiki/GDSII)
-    -   Add polygon renderer for GDS files
-    -   Add a z-scale tool for GDS files
+- Viewer UI:
+    - New Zebra tool with normal and reflective stripes
+    - Added per-object display mode control via `modes` parameter (`Mode.ALL`, `Mode.WIRE`, `Mode.FACE`, `Mode.NONE`). Deprecate `render_edges` in favor of `modes` ([#114](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/114))
+    - Based on a completely refactored [tcv-cad-viewer v4](https://github.com/bernhard-42/three-cad-viewer)
+        - Adapted to change API of tcv-cad-viewer v4
+        - Adapted to the new consistent notification system of three-cad-viewer v4
+        - Normalized control speed settings (pan, rotate, zoom) for consistent behavior across orbit and trackball modes.
+        - Fixed trackball panning speed to be more responsive
+    - Refreshed logo to use font Montserrat instead of Futura
+    - Change application order of defaults and UI status: the defaults set by `set_defaults` now take precedence over the viewer's current UI status
+    - Upgrade to websockets 16.0 for Python 3.14 and proxy autodetection support ([#210](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/210))
+- Animation
+    - Exposed animation.set_relative_time in 1/1000 steps to contol animation from within Python
+    - New feature to save animation as animated gif with fps and loop settings
+    - Animation now takes paths from actually shown object tree
+    - Animation allows to show additional objects beside the animated assembly (but the paths change!)
+- Extension status bar
+    - The `OCP on/off` entry in the status bar now show the currently used port in brackets (`OCP on/off (3939)`)
+    - The `OCP on/off` entry was moved to the right where Python status items live
+- Terminal
+    - A new Workspace config `OcpCadViewer.advanced.shellCommandPrefix` allows to exclude commands from shell history for bash, zsh, ... ([#204](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/204))
+    - The extension respects VS Code's automationProfile and defaultProfile terminal settings when creating terminals
+      Order: `automationProfile` (if set), then `defaultProfile` → resolved via profiles (if set) then OS login shell ([#198](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/198))
+- Python
+    - No support for Python 3.9 any more
 
 **Fixes**
 
--   Fix `tree_width` to be respected when `no_glass` is `false` ([#194](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/194))
--   Fix error when project path contains spaces, especially for `pip list` ([#197](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/197))
--   Add back default of 240 for `tree_width` to standalone viewer call ([#195](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/195), [#196](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/196), [#200](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/200))
--   Bump questionary to fix VSplit error
--   Properly add `alt` key to keymap
--   Change body element to respect the selected theme
--   Fix new behavior of VS Code in status bar handling to ensure status bar is always visible
--   Properly check ports vor IPv4 and IPv6 for standalone to avoid using the same port twice, once for IPv4 and once for IPv6
--   three-cad-viewer
-    -   Change memory management to a new paradigm using a global function deepDispose which works recursively
-    -   Fix setCameraTarget
-    -   Fix keymapping regression where keymaps were not used any more
+- Removed 'text' wrapper from standalone status command result ([205](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/205))
+- Setting timeit does not turn debug mode on any more ([#206](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/206))
+- Tessellator does not strip parent compound any more (when it only has a single child) ([#207](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/207))
+- Fixed animation for Quaternion based tracks ([#208](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/208))

@@ -2,6 +2,43 @@
 
 All notable changes to the "OCP CAD Viewer" extension will be documented in this file.
 
+## 3.1.0
+
+**Features**
+
+- Viewer UI:
+    - New Zebra tool with normal and reflective stripes
+    - Added per-object display mode control via `modes` parameter (`Mode.ALL`, `Mode.WIRE`, `Mode.FACE`, `Mode.NONE`). Deprecate `render_edges` in favor of `modes` ([#114](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/114))
+    - Based on a completely refactored [tcv-cad-viewer v4](https://github.com/bernhard-42/three-cad-viewer)
+        - Adapted to change API of tcv-cad-viewer v4
+        - Adapted to the new consistent notification system of three-cad-viewer v4
+        - Normalized control speed settings (pan, rotate, zoom) for consistent behavior across orbit and trackball modes.
+        - Fixed trackball panning speed to be more responsive
+    - Refreshed logo to use font Montserrat instead of Futura
+    - Change application order of defaults and UI status: the defaults set by `set_defaults` now take precedence over the viewer's current UI status
+    - Upgrade to websockets 16.0 for Python 3.14 and proxy autodetection support ([#210](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/210))
+- Animation
+    - Exposed animation.set_relative_time in 1/1000 steps to contol animation from within Python
+    - New feature to save animation as animated gif with fps and loop settings
+    - Animation now takes paths from actually shown object tree
+    - Animation allows to show additional objects beside the animated assembly (but the paths change!)
+- Extension status bar
+    - The `OCP on/off` entry in the status bar now show the currently used port in brackets (`OCP on/off (3939)`)
+    - The `OCP on/off` entry was moved to the right where Python status items live
+- Terminal
+    - A new Workspace config `OcpCadViewer.advanced.shellCommandPrefix` allows to exclude commands from shell history for bash, zsh, ... ([#204](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/204))
+    - The extension respects VS Code's automationProfile and defaultProfile terminal settings when creating terminals
+      Order: `automationProfile` (if set), then `defaultProfile` → resolved via profiles (if set) then OS login shell ([#198](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/198))
+- Python
+    - No support for Python 3.9 any more
+
+**Fixes**
+
+- Removed 'text' wrapper from standalone status command result ([205](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/205))
+- Setting timeit does not turn debug mode on any more ([#206](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/206))
+- Tessellator does not strip parent compound any more (when it only has a single child) ([#207](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/207))
+- Fixed animation for Quaternion based tracks ([#208](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/208))
+
 ## 3.0.1
 
 **Fixes**
