@@ -123,7 +123,7 @@ function shouldAutostart(document: vscode.TextDocument) {
 }
 
 function statusBarMessage(port: number, state: string) {
-    return `OCP(${port}):${state}`;
+    return `OCP:${state} (${port})`;
 }
 
 async function openViewer(document: vscode.TextDocument, column: number = 1) {
@@ -363,10 +363,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
     context.subscriptions.push(
         vscode.commands.registerCommand("ocpCadViewer.toggleWatch", () => {
-            if (
-                statusBarItem.text.startsWith("OCP") &&
-                statusBarItem.text.endsWith("on")
-            ) {
+            if (isWatching) {
                 isWatching = false;
                 statusBarItem.text = statusBarMessage(port, "off");
                 statusBarItem.tooltip = "OCP CAD Viewer: Visual debug off";
