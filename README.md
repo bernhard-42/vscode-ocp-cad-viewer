@@ -6,15 +6,15 @@ _OCP CAD Viewer_ for VS Code is an extension to show [CadQuery](https://github.c
 
 ### Prerequisites
 
--   A fairly recent version of Microsoft VS Code, e.g. 1.85.0 or newer
--   The [Python extension](https://marketplace.visualstudio.com/items?itemName=ms-python.python) installed in VS Code
--   Necessary tools:
-    -   `python` and `pip` available in the Python environment that will be used for CAD development. Note, even when you use another package manager, `pip ` is needed internally and needs to be available.
+- A fairly recent version of Microsoft VS Code, e.g. 1.85.0 or newer
+- The [Python extension](https://marketplace.visualstudio.com/items?itemName=ms-python.python) installed in VS Code
+- Necessary tools:
+    - `python` and `pip` available in the Python environment that will be used for CAD development. Note, even when you use another package manager, `pip ` is needed internally and needs to be available.
 
 **Notes**:
 
--   To use OCP CAD Viewer, start VS Code from the commandline in the Python environment you want to use or select the right Python interpreter in VS Code first. **OCP CAD Viewer depends on VS Code using the right Python interpreter** (i.e. mamba / conda / pyenv / poetry / ... environment).
--   For VSCodium, the extension is not available in the VS code market place. You need to download the the vsix file from the [release folder](https://github.com/bernhard-42/vscode-ocp-cad-viewer/releases) and install it manually.
+- To use OCP CAD Viewer, start VS Code from the commandline in the Python environment you want to use or select the right Python interpreter in VS Code first. **OCP CAD Viewer depends on VS Code using the right Python interpreter** (i.e. mamba / conda / pyenv / poetry / ... environment).
+- For VSCodium, the extension is not available in the VS code market place. You need to download the the vsix file from the [release folder](https://github.com/bernhard-42/vscode-ocp-cad-viewer/releases) and install it manually.
 
 ### Installation
 
@@ -29,7 +29,6 @@ _OCP CAD Viewer_ for VS Code is an extension to show [CadQuery](https://github.c
     ![](screenshots/init.png)
 
     You have 3 options:
-
     - Prepare _OCP CAD Viewer_ for working with [build123d](https://github.com/gumyr/build123d): Press the _Quickstart build123d_ button.
 
         This will install _OCP_, _build123d_, _ipykernel_ (_jupyter_client_), _ocp_tessellate_ and _ocp_vscode_ via `pip`
@@ -45,16 +44,15 @@ _OCP CAD Viewer_ for VS Code is an extension to show [CadQuery](https://github.c
     - Ignore the quick starts and use the "Library Manager" to install the libraries via `pip` (per default, this can be changed in the VS Code settings). Install the needed library by pressing the down-arrow behind the library name (hover over the library name to see the button) in the "Library Manager" section of the _OCP CAD Viewer_ sidebar. For more details, see [here](./docs/install.md)
 
     Quickstart will also
-
     - (optionally) install the the [Jupyter extension for VS Code from Microsoft](https://marketplace.visualstudio.com/items?itemName=ms-toolsai.jupyter)
     - start the OCP viewer
     - create a demo file in a temporary folder to quickly see a simple usage example
 
 **Notes:**
 
--   Do not use the _OCP CAD Viewer_ logo to verify your _OCP CAD Viewer_ settings! The logo overwrites all your settings in VS Code with its own settings to always look the same on each instance. Use a simple own model for checking your configuration
+- Do not use the _OCP CAD Viewer_ logo to verify your _OCP CAD Viewer_ settings! The logo overwrites all your settings in VS Code with its own settings to always look the same on each instance. Use a simple own model for checking your configuration
 
--   If you run into issues, see [Troubleshooting](#troubleshooting)
+- If you run into issues, see [Troubleshooting](#troubleshooting)
 
 ### Install Via CLI
 
@@ -62,14 +60,14 @@ If you aren't using VS Code, you can install/use this extension via command line
 
 Since this is a python extension, it is recommended to install/activate a virtual environment first, (e.g. uv, venv. poetry, conda, pip, etc)
 
--   uv based virtual environemnts:
+- uv based virtual environemnts:
 
     ```
     source .venv/bin/activate  # to activate the uv virtual environment
     uv add ocp-vscode
     ```
 
--   pip for other virtual environments:
+- pip for other virtual environments:
 
     ```
     source .venv/bin/activate  # to activate venv virtual environments
@@ -81,8 +79,8 @@ Note: The extension is in pypi only [pypi](https://pypi.org/project/ocp-vscode/)
 
 ## Migration from v2.9.0 to v3.0.X
 
--   Change `show` parameter `ticks` to `ticks/2`
--   For `joints` together with `render_joints`, instead of
+- Change `show` parameter `ticks` to `ticks/2`
+- For `joints` together with `render_joints`, instead of
 
     ```
     +- object_name
@@ -103,15 +101,15 @@ Note: The extension is in pypi only [pypi](https://pypi.org/project/ocp-vscode/)
 
     Since joints are not under the `object_name` group, they do not animate automatically any more. Use the keyword `animate_joints=True` with `add_track`
 
--   List with unviewable objects only are not shown as empty objects any more but ignored. So possibly less objects will be shown, and you might need to change how you access to these rendered objects.
+- List with unviewable objects only are not shown as empty objects any more but ignored. So possibly less objects will be shown, and you might need to change how you access to these rendered objects.
 
 ## Usage
 
 ### Running code using Jupyter
 
--   Start the _OCP CAD _ by pressing the box-arrow button in the " Manager" section of the _OCP CAD _ sidebar (hover over the `ocp_vscode` entry to see the button).
--   Import ocp_vscode and the CAD library by using the paste button being the library names in the " Manager" section
--   Use the usual Run menu to run the code
+- Start the _OCP CAD _ by pressing the box-arrow button in the " Manager" section of the _OCP CAD _ sidebar (hover over the `ocp_vscode` entry to see the button).
+- Import ocp_vscode and the CAD library by using the paste button being the library names in the " Manager" section
+- Use the usual Run menu to run the code
 
 ![Running code](screenshots/ocp_vscode_run.png)
 
@@ -120,10 +118,10 @@ Note: The extension is in pypi only [pypi](https://pypi.org/project/ocp-vscode/)
 After each step, the debugger checks all variables in `locals()` for being CAD objects and displays them with their variable name.
 Note:
 
--   Check that `OCP:on` is visible in the status bar
--   It also shows planes, locations and axis, so name your contexts
--   It remembers camera position and unselected variables in the tree
--   during debugging, `show` and `show_object` are disabled. They interfere with the visual debugging
+- Check that `OCP:on` is visible in the status bar
+- It also shows planes, locations and axis, so name your contexts
+- It remembers camera position and unselected variables in the tree
+- during debugging, `show` and `show_object` are disabled. They interfere with the visual debugging
 
 ![Debugging code](screenshots/ocp_vscode_debug.png)
 
@@ -167,22 +165,22 @@ You can also use "Library Manager" in the _OCP CAD _ sidebar to manage the Pytho
 
 ### Extra topics
 
--   [Quickstart experience on Windows](docs/quickstart.md)
--   [Use Jupyter to execute code](docs/run.md)
--   [Debug code with visual debugging](docs/debug.md)
--   [Measure mode](docs/measure.md)
--   [Object selection mode](docs/selector.md)
--   [Use the `show` command](docs/show.md)
--   [Use the `show_object` command](docs/show_object.md)
--   [Use the `push_object` and `show_objects` command](docs/push_object.md)
--   [Use the `show_all` command](docs/show_all.md)
--   [Use the `set__config` command](docs/set__config.md)
--   [Download examples for build123d or cadquery](docs/examples.md)
--   [Use the build123d snippets](docs/snippets.md)
+- [Quickstart experience on Windows](docs/quickstart.md)
+- [Use Jupyter to execute code](docs/run.md)
+- [Debug code with visual debugging](docs/debug.md)
+- [Measure mode](docs/measure.md)
+- [Object selection mode](docs/selector.md)
+- [Use the `show` command](docs/show.md)
+- [Use the `show_object` command](docs/show_object.md)
+- [Use the `push_object` and `show_objects` command](docs/push_object.md)
+- [Use the `show_all` command](docs/show_all.md)
+- [Use the `set__config` command](docs/set__config.md)
+- [Download examples for build123d or cadquery](docs/examples.md)
+- [Use the build123d snippets](docs/snippets.md)
 
 ## Standalone mode
 
-Standalone mode allows to use OCP CAD  without VS Code: `python -m ocp_vscode`. This will start a Flask server and the  can be reached under `http://127.0.0.1:<port number>` (per default http://127.0.0.1:3939). All client side feature of the VS Code variant (i.e. `show*` features) should be available (including measurement mode) except visual debugging (see above) which relies on VS Code.
+Standalone mode allows to use OCP CAD without VS Code: `python -m ocp_vscode`. This will start a Flask server and the can be reached under `http://127.0.0.1:<port number>` (per default http://127.0.0.1:3939). All client side feature of the VS Code variant (i.e. `show*` features) should be available (including measurement mode) except visual debugging (see above) which relies on VS Code.
 
 Use `python -m ocp_vscode --help` to understand the command line args:
 
@@ -253,12 +251,12 @@ Options:
 
 ## Standalone mode with Docker
 
-If you are not using vscode and you prefer to keep the standalone web  running separated in a container,
+If you are not using vscode and you prefer to keep the standalone web running separated in a container,
 then take a look at [docker-vscode-ocp-cad-](https://github.com/nilcons/docker-vscode-ocp-cad-).
 
 ## Best practices
 
--   Use the **Jupyter extension** for a more interactive experience. This allows to have one cell (separated by `# %%`) at the beginning to import all libraries
+- Use the **Jupyter extension** for a more interactive experience. This allows to have one cell (separated by `# %%`) at the beginning to import all libraries
 
     ```python
     # %%
@@ -273,13 +271,12 @@ then take a look at [docker-vscode-ocp-cad-](https://github.com/nilcons/docker-v
 
     and then only execute the code in the cell you are currently working on repeatedly.
 
--   The **config system** of OCP CAD Viewer
+- The **config system** of OCP CAD Viewer
 
     There are 3 levels:
-
-    -   Workspace configuration (part of the VS Code settings, you can access them e.g. via the gear symbol in OCP CAD Viewer's "Viewer Manager" when you hover over the label "VIEWER MANAGER" to see the button)
-    -   Defaults set with the command `set_defaults` per Python file
-    -   Parameters in `show` or `show_object` per command
+    - Workspace configuration (part of the VS Code settings, you can access them e.g. via the gear symbol in OCP CAD Viewer's "Viewer Manager" when you hover over the label "VIEWER MANAGER" to see the button)
+    - Defaults set with the command `set_defaults` per Python file
+    - Parameters in `show` or `show_object` per command
 
     `set_defaults` overrides the Workspace settings and parameters in `show` and `show_config` override the other two.
 
@@ -302,16 +299,14 @@ then take a look at [docker-vscode-ocp-cad-](https://github.com/nilcons/docker-v
     ```
 
     Explanation
+    - The first block imports build123d and CadQuery (omit what you are not interested in).
+    - The second block imports all commands for OCP CAD Viewer. `set_port` is only needed when you have more than one viewer open and can be omitted for the first viewer)
+    - The third block as an example sets helper_scale and reset_camera as defaults. Then every show_object or show command will respect it as the default
 
-    -   The first block imports build123d and CadQuery (omit what you are not interested in).
-    -   The second block imports all commands for OCP CAD Viewer. `set_port` is only needed when you have more than one viewer open and can be omitted for the first viewer)
-    -   The third block as an example sets helper_scale and reset_camera as defaults. Then every show_object or show command will respect it as the default
+- Debugging build123d with `show_all` and the **visual debugger**
+    - If you name your contexts (including `Location` contexts), the visual debugger will show the CAD objects assigned to the context.
 
--   Debugging build123d with `show_all` and the **visual debugger**
-
-    -   If you name your contexts (including `Location` contexts), the visual debugger will show the CAD objects assigned to the context.
-
-    -   Use `show_all` to show all cad objects in the current scope (`locals()`) of the Python interpreter (btw. the visual debugger uses `show_all` at each step)
+    - Use `show_all` to show all cad objects in the current scope (`locals()`) of the Python interpreter (btw. the visual debugger uses `show_all` at each step)
 
         ```python
         # %%
@@ -328,13 +323,12 @@ then take a look at [docker-vscode-ocp-cad-](https://github.com/nilcons/docker-v
 
         ![named contexts](./screenshots/context_vars.png)
 
--   **Keep camera orientation** of an object with `reset_camera`
+- **Keep camera orientation** of an object with `reset_camera`
 
     Sometimes it is helpful to keep the orientation of an object across code changes. This is what `reset_camera` does:
-
-    -   `reset_camera=Camera.Center` will keep position and rotation, but ignore panning. This means the new object will be repositioned to the center (most robust approach)
-    -   `reset_camera=Camera.KEEP` will keep position, rotation and panning. However, panning can be problematic. When the next object to be shown is much larger or smaller and the object before was panned, it can happen that nothing is visible (the new object at the pan location is outside of the viewer frustum). OCP CAD Viewer checks whether the bounding box of an object is 2x smaller or larger than the one of the last shown object. If so, it falls back to `Camera.CENTER`. A notification is written to the OCP CAD Viewer output panel.
-    -   `reset_camera=Camera.RESET` will ensure that position, rotation and panning will be reset to the initial default
+    - `reset_camera=Camera.Center` will keep position and rotation, but ignore panning. This means the new object will be repositioned to the center (most robust approach)
+    - `reset_camera=Camera.KEEP` will keep position, rotation and panning. However, panning can be problematic. When the next object to be shown is much larger or smaller and the object before was panned, it can happen that nothing is visible (the new object at the pan location is outside of the viewer frustum). OCP CAD Viewer checks whether the bounding box of an object is 2x smaller or larger than the one of the last shown object. If so, it falls back to `Camera.CENTER`. A notification is written to the OCP CAD Viewer output panel.
+    - `reset_camera=Camera.RESET` will ensure that position, rotation and panning will be reset to the initial default
 
 ## Development
 
@@ -353,8 +347,7 @@ NATIVE_TESSELLATOR=1 OCP_VSCODE_PYTEST=1 pytest -v -s pytests/
 
 ## Troubleshooting
 
--   **Generic ("it doesn't work")**
-
+- **Generic ("it doesn't work")**
     1. Confirm that VS Code extension and ocp_vscode have the same version. This can be seen in the OCP CAD Viewer UI. Or alternatively in the Output panel of VS Code:
 
         ```text
@@ -370,7 +363,7 @@ NATIVE_TESSELLATOR=1 OCP_VSCODE_PYTEST=1 pytest -v -s pytests/
         - `OCP Cad Viewer port: xxxx, folder: yyyy zzzz` **=> yyyy should be the right working folder?**
     5. If all looks fine until now, then toggle Developer tools in VS Code and check browser console. Often we see a WebGL error for the browser of VS Code used for the viewer.
 
--   **CAD Models almost always are invisible in the OCP viewer window**
+- **CAD Models almost always are invisible in the OCP viewer window**
 
     ```bash
     three-cad-viewer.esm.js:20276 THREE.WebGLProgram: Shader Error 0 - VALIDATE_STATUS false
