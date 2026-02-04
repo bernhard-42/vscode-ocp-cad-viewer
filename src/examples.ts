@@ -19,6 +19,7 @@ import * as vscode from "vscode";
 import * as fs from "fs";
 import * as os from "os";
 import * as path from "path";
+import * as output from "./output";
 import { IncomingMessage } from "http";
 import AdmZip from "adm-zip";
 import { https } from "follow-redirects";
@@ -30,9 +31,13 @@ export async function download(library: string, destination: string) {
     )["exampleDownloads"];
 
     const archiveUrl = exampleDownloads[library]["zip"];
+    output.info(
+        `extension.downloadExample: Example download URL: ${archiveUrl}`
+    );
     const examplePath = exampleDownloads[library]["example_path"];
     const filename = path.basename(archiveUrl);
     const targetPath = path.join(destination, `${library}_examples`);
+    output.info(`extension.downloadExample: Target path: ${targetPath}`);
 
     let request = https.get(archiveUrl, (response: IncomingMessage) => {
         if (response.statusCode === 200) {
@@ -53,13 +58,21 @@ export async function download(library: string, destination: string) {
                     vscode.window.showInformationMessage(
                         `File "${archiveUrl}" downloaded successfully.`
                     );
-
-                    const zip = new AdmZip(downloadPath);
+                    output.info(
+                        `extension.downloadExample: Archive URL ${archiveUrl} downloaded`
+                    );
                     try {
+                        const zip = new AdmZip(downloadPath);
                         zip.extractAllTo(folder, true);
+                        output.info(
+                            `extension.downloadExample: Archive unzipped to ${folder}`
+                        );
                     } catch (error) {
                         vscode.window.showErrorMessage(
                             `Unzipping "${downloadPath}" failed.`
+                        );
+                        output.error(
+                            `extension.downloadExample: Unzipping "${downloadPath}" failed: ${error}`
                         );
                         return;
                     }
@@ -71,9 +84,15 @@ export async function download(library: string, destination: string) {
                                 vscode.window.showErrorMessage(
                                     `Moving examples to "${targetPath}" failed.`
                                 );
+                                output.error(
+                                    `extension.downloadExample: Moving examples to "${targetPath}" failed: ${err}`
+                                );
                             } else {
                                 vscode.window.showInformationMessage(
                                     `Examples successfully downloaded to "${targetPath}".`
+                                );
+                                output.info(
+                                    `extension.downloadExample: Examples successfully downloaded to "${targetPath}".`
                                 );
                             }
                         }
@@ -82,6 +101,9 @@ export async function download(library: string, destination: string) {
             });
         } else {
             vscode.window.showErrorMessage(`Cannot download ${archiveUrl}`);
+            output.error(
+                `extension.downloadExample: ${archiveUrl} ${response.statusMessage} (${response.statusCode})`
+            );
         }
     });
 
@@ -91,5 +113,8 @@ export async function download(library: string, destination: string) {
 
     request.on("error", function (e: any) {
         vscode.window.showErrorMessage(`Cannot download ${archiveUrl}`);
+        output.error(
+            `extension.downloadExample: Cannot download ${archiveUrl} ${e}`
+        );
     });
 }
