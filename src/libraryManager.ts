@@ -62,7 +62,7 @@ export async function pipList(
         result = execute(`"${python}" -m pip list -v --format json`, false);
     } catch (error: any) {
         if (error.message.indexOf("No module named pip") > 0) {
-            output.error("pip is not installed, trying uv pip");
+            output.info("pip is not installed, trying uv pip");
             try {
                 result = execute(
                     `uv pip list -p "${python}" -v --format json`,
