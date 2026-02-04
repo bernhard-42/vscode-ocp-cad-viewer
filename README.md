@@ -341,8 +341,8 @@ When `OCP_VSCODE_PYTEST=1` is set, `show` will not send the tessellated results 
 A full test cycle consist of:
 
 ```bash
-NATIVE_TESSELLATOR=0 OCP_VSCODE_PYTEST=1 pytest -v -s pytests/
-NATIVE_TESSELLATOR=1 OCP_VSCODE_PYTEST=1 pytest -v -s pytests/
+NATIVE_TESSELLATOR=0 OCP_VSCODE_PYTEST=1 pytest -v -s tests/
+NATIVE_TESSELLATOR=1 OCP_VSCODE_PYTEST=1 pytest -v -s tests/
 ```
 
 ## Troubleshooting
@@ -393,9 +393,18 @@ NATIVE_TESSELLATOR=1 OCP_VSCODE_PYTEST=1 pytest -v -s pytests/
         - Adapted to the new consistent notification system of three-cad-viewer v4
         - Normalized control speed settings (pan, rotate, zoom) for consistent behavior across orbit and trackball modes.
         - Fixed trackball panning speed to be more responsive
+        - Added keyboard shortcuts for toolbar buttons, camera presets, tab navigation, and animation control. Default bindings:
+            - Toggle: `a`/`A` axes, `g`/`G` grid, `p` perspective, `t` transparent, `b` blackedges, `x` explode, `L` zscale, `D` distance, `P` properties, `S` select
+            - Views: `0` iso, `1`–`6` front/rear/top/bottom/left/right, `r` resize, `R` reset
+            - Tabs: `T` tree, `C` clip, `M` material, `Z` zebra
+            - Other: `h` help, `Space` play/pause, `Escape` stop/close-help
+    - Measure tool
+        - Unified angle computation at closest points via `BRepExtrema`, supporting all edge/face combinations (circles, splines, cylinders, spheres, …) ([#211](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/211))
+        - Sectioned response format for distance and properties: metadata at top level, grouped data in `result` array
+        - Returns direction/normal vectors and context-aware labels (`line`, `face normal`, `tangent at P1`, `surface normal at P2`)
+        - Measurement arrows adapt to point proximity: cones flip outward when points are close, and are hidden when coincident — preventing visual overlap
+        - Measurement panels now render grouped backend responses with horizontal separators between groups (backend is info master)
     - Refreshed logo to use font Montserrat instead of Futura
-    - Change application order of defaults and UI status: the defaults set by `set_defaults` now take precedence over the viewer's current UI status
-    - Upgrade to websockets 16.0 for Python 3.14 and proxy autodetection support ([#210](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/210))
 - Animation
     - Exposed animation.set_relative_time in 1/1000 steps to contol animation from within Python
     - New feature to save animation as animated gif with fps and loop settings
@@ -410,6 +419,8 @@ NATIVE_TESSELLATOR=1 OCP_VSCODE_PYTEST=1 pytest -v -s pytests/
       Order: `automationProfile` (if set), then `defaultProfile` → resolved via profiles (if set) then OS login shell ([#198](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/198))
 - Python
     - No support for Python 3.9 any more
+    - Upgrade to websockets 16.0 for Python 3.14 and proxy autodetection support ([#210](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/210))
+    - Change application order of defaults and UI status: the defaults set by `set_defaults` now take precedence over the viewer's current UI status
 
 **Fixes**
 
