@@ -21,7 +21,7 @@ ocp_vscode/.mypy_cache
 setup.cfg
 setup.py
 pyproject.toml
-pytests
+tests
 vsc-extension-quickstart.md
 test.sh
 
