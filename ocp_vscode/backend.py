@@ -225,7 +225,6 @@ class ViewerBackend:
         shape2 = self.model[id2]
 
         response = get_distance(shape1, shape2, center)
-
         response["type"] = "backend_response"
         response["subtype"] = "tool_response"
         response["tool_type"] = Tool.Distance

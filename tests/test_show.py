@@ -527,6 +527,6 @@ class ConfigTests(Tests):
         self.get(r)
         self.assertEqual(self.parts[0]["color"], "#0000ff")
         self.assertEqual(self.parts[1]["color"], "#00ffff")
-        self.assertEqual(self.parts[2]["color"], "#ff7f00")
+        self.assertEqual(self.parts[2]["color"], "#ff8000")
         self.assertEqual(self.parts[3]["color"], "#0080ff")
-        self.assertEqual(self.parts[4]["color"], "#3fff7f")
+        self.assertEqual(self.parts[4]["color"], "#40ff80")

@@ -1,15 +1,21 @@
 from math import pi
 
+from OCP.BRepAdaptor import BRepAdaptor_Curve
+from OCP.BRepExtrema import BRepExtrema_DistShapeShape, BRepExtrema_SupportType
+from OCP.BRepGProp import BRepGProp_Face
+from OCP.BRepTools import BRepTools
+from OCP.GeomAPI import GeomAPI_ProjectPointOnSurf
+from OCP.BRep import BRep_Tool
+from OCP.gp import gp_Dir, gp_Pnt, gp_Vec
+
 from ocp_tessellate.ocp_utils import (
     area,
-    axis_to_line,
     BoundingBox,
     center_of_geometry,
     center_of_mass,
     downcast,
     dist_shapes,
     get_curve,
-    get_plane,
     get_point,
     get_surface,
     is_closed,
@@ -22,8 +28,7 @@ from ocp_tessellate.ocp_utils import (
     is_vector,
     length,
     position_at,
-    tangent_edge_at,
-    rect,
+    tangent_at,
     vertex,
     volume,
 )
@@ -70,125 +75,137 @@ def get_properties(shape):
     shape_type = get_shape_type(shape)
     geom_type = get_geom_type(shape)
 
-    response = {
-        "shape_type": shape_type,
-        "geom_type": geom_type,
-    }
+    refpoint = None
+    sections = []
 
     if shape_type == "Vertex":
-        response["XYZ"] = get_point(shape)
-        response["refpoint"] = get_point(shape)
+        pt = get_point(shape)
+        refpoint = pt
+        sections.append({"xyz": pt})
 
     elif shape_type == "Edge":
         shape = downcast(shape)
+        geom_section = {}
+        pos_section = {}
+
         if geom_type == "Line":
-            response["Start"] = get_point(position_at(shape, 0))
-            response["Middle"] = get_point(position_at(shape, 0.5))
-            response["End"] = get_point(position_at(shape, 1))
-            response["refpoint"] = get_point(position_at(shape, 0.5))
+            pos_section["start"] = get_point(position_at(shape, 0))
+            pos_section["middle"] = get_point(position_at(shape, 0.5))
+            pos_section["end"] = get_point(position_at(shape, 1))
+            refpoint = get_point(position_at(shape, 0.5))
 
         elif geom_type == "Circle":
             circle = get_curve(shape).Circle()
-            response["Center"] = get_point(circle.Location())
-            response["Radius"] = circle.Radius()
-            response["Start"] = get_point(position_at(shape, 0))
+            geom_section["center"] = get_point(circle.Location())
+            geom_section["radius"] = circle.Radius()
+            pos_section["start"] = get_point(position_at(shape, 0))
             if not is_closed(shape):
-                # response["geom_type"] += " (Arc)"
-                response["End"] = get_point(position_at(shape, 1))
-                response["refpoint"] = get_point(position_at(shape, 0.5))
+                pos_section["end"] = get_point(position_at(shape, 1))
+                refpoint = get_point(position_at(shape, 0.5))
             else:
-                response["refpoint"] = get_point(position_at(shape, 0))
+                refpoint = get_point(position_at(shape, 0))
 
         elif geom_type == "Ellipse":
             ellipse = get_curve(shape).Ellipse()
-            response["Center"] = get_point(ellipse.Location())
-            response["Major radius"] = ellipse.MajorRadius()
-            response["Minor radius"] = ellipse.MinorRadius()
-            # response["focus1"] = get_point(ellipse.Focus1())
-            # response["focus2"] = get_point(ellipse.Focus2())
-            response["Start"] = get_point(position_at(shape, 0))
+            geom_section["center"] = get_point(ellipse.Location())
+            geom_section["major radius"] = ellipse.MajorRadius()
+            geom_section["minor radius"] = ellipse.MinorRadius()
+            pos_section["start"] = get_point(position_at(shape, 0))
             if not is_closed(shape):
-                # response["geom_type"] += " (Arc)"
-                response["End"] = get_point(position_at(shape, 1))
-                response["refpoint"] = get_point(position_at(shape, 0.5))
+                pos_section["end"] = get_point(position_at(shape, 1))
+                refpoint = get_point(position_at(shape, 0.5))
             else:
-                response["refpoint"] = get_point(position_at(shape, 0))
+                refpoint = get_point(position_at(shape, 0))
 
         elif geom_type == "Hyperbola":
             hyperbola = get_curve(shape).Hyperbola()
-            response["Start"] = get_point(position_at(shape, 0))
-            response["Vertex"] = get_point(hyperbola.Location())
-            response["End"] = get_point(position_at(shape, 1))
-            # response["focus1"] = get_point(hyperbola.Focus1())
-            # response["focus2"] = get_point(hyperbola.Focus2())
-            response["refpoint"] = get_point(position_at(shape, 0.5))
+            pos_section["start"] = get_point(position_at(shape, 0))
+            pos_section["vertex"] = get_point(hyperbola.Location())
+            pos_section["end"] = get_point(position_at(shape, 1))
+            refpoint = get_point(position_at(shape, 0.5))
 
         elif geom_type == "Parabola":
             parabola = get_curve(shape).Parabola()
-            response["Start"] = get_point(position_at(shape, 0))
-            response["Vertex"] = get_point(parabola.Location())
-            response["End"] = get_point(position_at(shape, 1))
-            # response["focus"] = get_point(parabola.Focus())
-            response["refpoint"] = get_point(position_at(shape, 0.5))
+            pos_section["start"] = get_point(position_at(shape, 0))
+            pos_section["vertex"] = get_point(parabola.Location())
+            pos_section["end"] = get_point(position_at(shape, 1))
+            refpoint = get_point(position_at(shape, 0.5))
 
         elif geom_type in ["Bezier", "Bspline"]:
-            response["Start"] = get_point(position_at(shape, 0))
-            response["Middle"] = get_point(position_at(shape, 0.5))
-            response["End"] = get_point(position_at(shape, 1))
-            response["refpoint"] = get_point(position_at(shape, 0.5))
+            pos_section["start"] = get_point(position_at(shape, 0))
+            pos_section["middle"] = get_point(position_at(shape, 0.5))
+            pos_section["end"] = get_point(position_at(shape, 1))
+            refpoint = get_point(position_at(shape, 0.5))
 
         elif geom_type == "OffsetCurve":
             offset = get_curve(shape).OffsetCurve()
-            response["Offset"] = offset.Offset()
-            response["Start"] = get_point(position_at(shape, 0))
+            geom_section["offset"] = offset.Offset()
+            pos_section["start"] = get_point(position_at(shape, 0))
             if is_closed(shape):
-                response["End"] = get_point(position_at(shape, 1))
-            response["refpoint"] = get_point(position_at(shape, 0))
+                pos_section["end"] = get_point(position_at(shape, 1))
+            refpoint = get_point(position_at(shape, 0))
 
         else:
-            response["Start"] = get_point(position_at(shape, 0))
-            response["Middle"] = get_point(position_at(shape, 0.5))
-            response["End"] = get_point(position_at(shape, 1))
-            response["refpoint"] = get_point(position_at(shape, 0.5))
+            pos_section["start"] = get_point(position_at(shape, 0))
+            pos_section["middle"] = get_point(position_at(shape, 0.5))
+            pos_section["end"] = get_point(position_at(shape, 1))
+            refpoint = get_point(position_at(shape, 0.5))
 
-        response["Length"] = length(shape)
+        if geom_section:
+            sections.append(geom_section)
+        if pos_section:
+            sections.append(pos_section)
 
+        meas_section = {"length": length(shape)}
+        xy_normal = gp_Dir(0, 0, 1)
         for i in [0, 1]:
             try:
-                angle = calc_angle(rect(1, 1), tangent_edge_at(shape, i))
-                if angle is not None:
-                    response[f"Angle@{i} to XY"] = angle["angle"]
+                _, tangent_dir = tangent_at(shape, i)
+                angle = abs(90 - tangent_dir.Angle(xy_normal) / pi * 180)
+                meas_section[f"angle@{i} to XY"] = angle
             except Exception:
                 pass
+        sections.append(meas_section)
 
     elif shape_type == "Face":
         shape = downcast(shape)
+        geom_section = {}
+
         if geom_type == "Plane":
             plane = get_surface(shape).Plane()
-            response["Center"] = get_point(plane.Location())
+            geom_section["center"] = get_point(plane.Location())
 
         elif geom_type == "Cylinder":
             cylinder = get_surface(shape).Cylinder()
-            response["Center"] = get_point(cylinder.Location())
-            response["Radius"] = cylinder.Radius()
+            geom_section["center"] = get_point(cylinder.Location())
+            geom_section["radius"] = cylinder.Radius()
 
         elif geom_type == "Cone":
             cone = get_surface(shape).Cone()
-            response["Center"] = get_point(cone.Location())
-            response["Base radius"] = cone.RefRadius()
-            response["Half angle"] = cone.SemiAngle() / pi * 180
+            geom_section["center"] = get_point(cone.Location())
+            geom_section["base radius"] = cone.RefRadius()
+            geom_section["half angle"] = cone.SemiAngle() / pi * 180
 
         elif geom_type == "Sphere":
             sphere = get_surface(shape).Sphere()
-            response["Center"] = get_point(sphere.Location())
-            response["Radius"] = sphere.Radius()
+            geom_section["center"] = get_point(sphere.Location())
+            geom_section["radius"] = sphere.Radius()
 
         elif geom_type == "Torus":
             torus = get_surface(shape).Torus()
-            response["Center"] = get_point(torus.Location())
-            response["Minor radius"] = torus.MinorRadius()
-            response["Major radius"] = torus.MajorRadius()
-            response["refpoint"] = get_point(torus.Location())
+            geom_section["center"] = get_point(torus.Location())
+            geom_section["minor radius"] = torus.MinorRadius()
+            geom_section["major radius"] = torus.MajorRadius()
+
+        elif geom_type == "SurfaceOfRevolution":
+            revolution = get_surface(shape)
+            geom_section["axe loc"] = get_point(
+                revolution.AxeOfRevolution().Location()
+            )
+            geom_section["axe dir"] = get_point(
+                revolution.AxeOfRevolution().Direction()
+            )
+            geom_type = "Revolution"
 
         elif geom_type == "Bezier":
             ...
@@ -196,40 +213,50 @@ def get_properties(shape):
         elif geom_type == "Bspline":
             ...
 
-        elif geom_type == "SurfaceOfRevolution":
-            revolution = get_surface(shape)
-            response["Axe loc"] = get_point(revolution.AxeOfRevolution().Location())
-            response["Axe dir"] = get_point(revolution.AxeOfRevolution().Direction())
-            response["geom_type"] = "Revolution"
+        if geom_section:
+            sections.append(geom_section)
 
-        response["Area"] = area(shape)
-        response["refpoint"] = center_of_geometry(shape)
+        refpoint = center_of_geometry(shape)
 
+        meas_section = {"area": area(shape)}
         try:
-            angle = calc_angle(rect(1, 1), shape)
-            if angle is not None:
-                response["Angle to XY"] = angle["angle"]
+            u0, u1, v0, v1 = BRepTools.UVBounds_s(shape)
+            pnt, normal = gp_Pnt(), gp_Vec()
+            BRepGProp_Face(shape).Normal(
+                (u0 + u1) / 2, (v0 + v1) / 2, pnt, normal
+            )
+            if normal.Magnitude() > 1e-10:
+                a = gp_Dir(normal).Angle(gp_Dir(0, 0, 1)) / pi * 180
+                meas_section["angle to XY"] = a
         except Exception:
             pass
+        sections.append(meas_section)
 
     elif shape_type in ["Solid", "CompSolid", "Compound"]:
         shape = downcast(shape)
-        response["Volume"] = volume(shape)
-        response["refpoint"] = center_of_mass(shape)
+        sections.append({"volume": volume(shape)})
+        refpoint = center_of_mass(shape)
 
     else:
         print(f"unknown shape {type(shape)}")
 
     if shape_type != "Vertex":
         bb = BoundingBox(shape, optimal=True)
-        response["bb"] = {
-            "min": [bb.xmin, bb.ymin, bb.zmin],
-            "center": bb.center,
-            "max": [bb.xmax, bb.ymax, bb.zmax],
-            "size": [bb.xsize, bb.ysize, bb.zsize],
-        }
+        sections.append({
+            "bb": {
+                "min": [bb.xmin, bb.ymin, bb.zmin],
+                "center": bb.center,
+                "max": [bb.xmax, bb.ymax, bb.zmax],
+                "size": [bb.xsize, bb.ysize, bb.zsize],
+            }
+        })
 
-    return response
+    return {
+        "shape_type": shape_type,
+        "geom_type": geom_type,
+        "refpoint": refpoint,
+        "result": sections,
+    }
 
 
 def get_center(shape):
@@ -313,109 +340,178 @@ def calc_distance(shape1, shape2, center=False):
     return {
         "distance": dist,
         "⇒ X | Y | Z": [xdist, ydist, zdist],
-        "Point 1": p1,
-        "Point 2": p2,
+        "point 1": p1,
+        "point 2": p2,
         "info": "center" if center else "min",
         "refpoint1": p1,
         "refpoint2": p2,
     }
 
 
+def _edge_tangent_at(edge, extrema, shape_index):
+    """Get tangent direction on an edge at an extrema solution point."""
+    if shape_index == 1:
+        support_type = extrema.SupportTypeShape1(1)
+    else:
+        support_type = extrema.SupportTypeShape2(1)
+
+    curve = BRepAdaptor_Curve(edge)
+
+    if support_type == BRepExtrema_SupportType.BRepExtrema_IsOnEdge:
+        if shape_index == 1:
+            param = extrema.ParOnEdgeS1(1)[0]
+        else:
+            param = extrema.ParOnEdgeS2(1)[0]
+    elif support_type == BRepExtrema_SupportType.BRepExtrema_IsVertex:
+        # Determine closest endpoint
+        if shape_index == 1:
+            pt = extrema.PointOnShape1(1)
+        else:
+            pt = extrema.PointOnShape2(1)
+        d_first = pt.Distance(curve.Value(curve.FirstParameter()))
+        d_last = pt.Distance(curve.Value(curve.LastParameter()))
+        param = curve.FirstParameter() if d_first <= d_last else curve.LastParameter()
+    else:
+        return None, None
+
+    pnt = gp_Pnt()
+    vec = gp_Vec()
+    curve.D1(param, pnt, vec)
+    if vec.Magnitude() < 1e-10:
+        return None, None
+    if get_geom_type(edge) == "Line":
+        label = "line"
+    else:
+        label = f"tangent at P{shape_index}"
+    return gp_Dir(vec), label
+
+
+def _face_normal_at(face, extrema, shape_index):
+    """Get surface normal on a face at an extrema solution point."""
+    if shape_index == 1:
+        support_type = extrema.SupportTypeShape1(1)
+    else:
+        support_type = extrema.SupportTypeShape2(1)
+
+    if support_type == BRepExtrema_SupportType.BRepExtrema_IsInFace:
+        if shape_index == 1:
+            uv = extrema.ParOnFaceS1(1)
+        else:
+            uv = extrema.ParOnFaceS2(1)
+        u, v = uv[0], uv[1]
+    else:
+        # Project the closest point onto the surface to get UV
+        if shape_index == 1:
+            pt = extrema.PointOnShape1(1)
+        else:
+            pt = extrema.PointOnShape2(1)
+        surface = BRep_Tool.Surface_s(face)
+        proj = GeomAPI_ProjectPointOnSurf(pt, surface)
+        if proj.NbPoints() == 0:
+            return None, None
+        u, v = proj.Parameters(1)
+
+    pnt = gp_Pnt()
+    normal = gp_Vec()
+    BRepGProp_Face(face).Normal(u, v, pnt, normal)
+    if normal.Magnitude() < 1e-10:
+        return None, None
+    if get_geom_type(face) == "Plane":
+        label = "face normal"
+    else:
+        label = f"surface normal at P{shape_index}"
+    return gp_Dir(normal), label
+
+
 def calc_angle(shape1, shape2):
     shape1 = downcast(shape1)
     shape2 = downcast(shape2)
 
-    shape_type1 = get_shape_type(shape1)
-    shape_type2 = get_shape_type(shape2)
-    geom_type1 = get_geom_type(shape1)
-    geom_type2 = get_geom_type(shape2)
+    is_edge1 = is_topods_edge(shape1)
+    is_face1 = is_topods_face(shape1)
+    is_edge2 = is_topods_edge(shape2)
+    is_face2 = is_topods_face(shape2)
 
-    def angle_line_line(line1, line2):
-        if is_topods_edge(line1):
-            l1 = get_curve(line1).Line()
-        else:
-            l1 = line1
-        if is_topods_edge(line2):
-            l2 = get_curve(line2).Line()
-        else:
-            l2 = line2
-        return l1.Angle(l2) / pi * 180
-
-    def angle_line_plane(line, plane):
-        # 90 - angle between line and normal
-        axis = plane.Axis()
-        line2 = axis_to_line(axis)
-        return 90 - angle_line_line(line, line2)
-
-    def angle_plane_plane(plane1, plane2):
-        # angle between the two normals
-        axis1 = plane1.Axis()
-        line1 = axis_to_line(axis1)
-        axis2 = plane2.Axis()
-        line2 = axis_to_line(axis2)
-        return angle_line_line(line1, line2)
-
-    angle = None
-    info1 = ""
-    info2 = ""
-
-    if geom_type1 == "Line" and geom_type2 == "Line":
-        angle = angle_line_line(shape1, shape2)
-        info1 = "Line"
-        info2 = "Line"
-
-    elif geom_type1 == "Line" and shape_type2 in ["Edge", "Face"]:
-        plane2 = get_plane(shape2)
-        if plane2 is not None:
-            angle = angle_line_plane(shape1, plane2)
-            info1 = "Line"
-            if shape_type2 == "Edge":
-                info2 = f"Plane({shape_type2})"
-            else:
-                info2 = f"{shape_type2}"
-
-    elif shape_type1 in ["Edge", "Face"] and geom_type2 == "Line":
-        plane1 = get_plane(shape1)
-        if plane1 is not None:
-            angle = angle_line_plane(shape2, plane1)
-            if shape_type1 == "Edge":
-                info1 = f"Plane({shape_type1})"
-            else:
-                info1 = f"{shape_type1}"
-            info2 = "Line"
-
-    elif shape_type1 in ["Edge", "Face"] and shape_type2 in ["Edge", "Face"]:
-        plane1 = get_plane(shape1)
-        plane2 = get_plane(shape2)
-        if plane1 is not None and plane2 is not None:
-            angle = angle_plane_plane(plane1, plane2)
-            if shape_type1 == "Edge":
-                info1 = f"Plane({shape_type1})"
-            else:
-                info1 = f"{shape_type1}"
-            if shape_type2 == "Edge":
-                info2 = f"Plane({shape_type2})"
-            else:
-                info2 = f"{shape_type2}"
-
-    if angle is None:
+    if not (is_edge1 or is_face1) or not (is_edge2 or is_face2):
         return None
+
+    extrema = BRepExtrema_DistShapeShape(shape1, shape2)
+    if not extrema.IsDone() or extrema.NbSolution() == 0:
+        return None
+
+    if is_edge1:
+        dir1, info1 = _edge_tangent_at(shape1, extrema, 1)
     else:
-        return {
-            "angle": angle,
-            "info1": info1,
-            "info2": info2,
-        }
+        dir1, info1 = _face_normal_at(shape1, extrema, 1)
+
+    if is_edge2:
+        dir2, info2 = _edge_tangent_at(shape2, extrema, 2)
+    else:
+        dir2, info2 = _face_normal_at(shape2, extrema, 2)
+
+    if dir1 is None or dir2 is None:
+        return None
+
+    angle = dir1.Angle(dir2) / pi * 180
+
+    # If exactly one shape is an edge (tangent vs normal), convert to
+    # edge-to-surface angle
+    if is_edge1 != is_edge2:
+        angle = abs(90 - angle)
+
+    def _dir_tuple(d):
+        return (d.X(), d.Y(), d.Z())
+
+    response = {"angle": angle}
+
+    response["reference 1"] = info1
+    if is_edge1:
+        response["direction 1"] = _dir_tuple(dir1)
+    else:
+        response["normal 1"] = _dir_tuple(dir1)
+
+    response["reference 2"] = info2
+    if is_edge2:
+        response["direction 2"] = _dir_tuple(dir2)
+    else:
+        response["normal 2"] = _dir_tuple(dir2)
+
+    return response
 
 
 def get_distance(shape1, shape2, center):
-    response = calc_distance(shape1, shape2, center)
+    dist = calc_distance(shape1, shape2, center)
+
+    result = [
+        {
+            "distance": dist["distance"],
+            "⇒ X | Y | Z": dist["⇒ X | Y | Z"],
+            "info": dist["info"],
+        },
+        {
+            "point 1": dist["point 1"],
+            "point 2": dist["point 2"],
+        },
+    ]
 
     angle = calc_angle(shape1, shape2)
 
     if angle is not None:
-        response["angle"] = angle["angle"]
-        response["info1"] = angle["info1"]
-        response["info2"] = angle["info2"]
+        angle_section = {"angle": angle["angle"]}
+        angle_section["reference 1"] = angle["reference 1"]
+        if "direction 1" in angle:
+            angle_section["direction 1"] = angle["direction 1"]
+        if "normal 1" in angle:
+            angle_section["normal 1"] = angle["normal 1"]
+        angle_section["reference 2"] = angle["reference 2"]
+        if "direction 2" in angle:
+            angle_section["direction 2"] = angle["direction 2"]
+        if "normal 2" in angle:
+            angle_section["normal 2"] = angle["normal 2"]
+        result.append(angle_section)
 
-    return response
+    return {
+        "result": result,
+        "refpoint1": dist["refpoint1"],
+        "refpoint2": dist["refpoint2"],
+    }
