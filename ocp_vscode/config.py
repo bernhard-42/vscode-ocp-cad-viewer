@@ -193,16 +193,6 @@ CONFIG_SET_KEYS = [
     "tools",
     "tree_width",
     "collapse",
-    # "tab",
-    # "clip_slider_0",
-    # "clip_slider_1",
-    # "clip_slider_2",
-    # "clip_normal_0",
-    # "clip_normal_1",
-    # "clip_normal_2",
-    # "clip_intersection",
-    # "clip_planes",
-    # "clip_object_colors",
 ]
 
 DEFAULTS = {
@@ -213,7 +203,7 @@ DEFAULTS = {
     "show_parent": False,
     "show_sketch_local": True,
     "timeit": False,
-    # "collapse": Collapse.ROOT,
+    "collapse": Collapse.ROOT,
     "debug": False,
 }
 
