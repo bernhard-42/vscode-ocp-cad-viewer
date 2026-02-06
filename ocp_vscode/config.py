@@ -500,19 +500,19 @@ def status(port=None, viewer=None, debug=False):
 
     if not is_jupyter_cadquery and port is None:
         port = get_port()
-    try:
-        response = send_command("status", port=port, title=viewer)
-        if debug:
-            return response.get("_debugStarted", False)
-        else:
-            if response.get("collapse") is not None:
-                response["collapse"] = COLLAPSE_REVERSE_MAPPING[response["collapse"]]
-            return dict(sorted(response.items()))
 
-    except Exception as ex:
-        raise RuntimeError(
-            "Cannot access viewer status. Is the viewer running?\n" + str(ex.args)
-        ) from ex
+    response = send_command("status", port=port, title=viewer)
+    if debug:
+        return response.get("_debugStarted", False)
+
+    collapse_val = response.get("collapse")
+    if collapse_val is not None:
+        if collapse_val in COLLAPSE_REVERSE_MAPPING:
+            response["collapse"] = COLLAPSE_REVERSE_MAPPING[collapse_val]
+        else:
+            warnings.warn(f"Unknown collapse value from viewer: {collapse_val}")
+
+    return dict(sorted(response.items()))
 
 
 def workspace_config(port=None, viewer=None):

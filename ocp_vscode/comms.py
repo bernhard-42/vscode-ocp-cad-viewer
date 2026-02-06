@@ -20,11 +20,13 @@ import enum
 import json
 import os
 import socket
+import traceback
 import warnings
 
 import questionary
 
 from websockets.sync.client import connect
+from websockets.exceptions import WebSocketException
 
 import orjson
 from ocp_tessellate.utils import Timer
@@ -190,8 +192,18 @@ def _send(data, message_type, port=None, timeit=False):
                         ):
                             result = {}
 
+            except (ConnectionRefusedError, OSError, WebSocketException) as ex:
+                warn_once(f"Connection error: {ex}\nMessage: {data}")
+                # set some dummy values to avoid errors
+                return {
+                    "collapse": "none",
+                    "_splash": False,
+                    "default_facecolor": (1, 234, 56),
+                    "default_thickedgecolor": (123, 45, 6),
+                    "default_vertexcolor": (123, 45, 6),
+                }
             except Exception as ex:
-                warn_once("The viewer doesn't seem to run: " + str(ex))
+                warn_once(f"Unexpected error: {ex}\n{traceback.format_exc()}")
                 # set some dummy values to avoid errors
                 return {
                     "collapse": "none",
