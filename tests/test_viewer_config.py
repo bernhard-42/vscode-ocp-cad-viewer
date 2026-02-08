@@ -1,9 +1,27 @@
 """Tests for set_viewer_config — validates that viewer configuration changes are applied correctly."""
 
+import os
 import time
 
 import pytest
 import cadquery as cq
+
+
+@pytest.fixture(scope="module", autouse=True)
+def enable_real_viewer():
+    """These tests need real viewer interaction, so disable the pytest stub temporarily."""
+    old_pytest = os.environ.pop("OCP_VSCODE_PYTEST", None)
+    # Set port to avoid interactive prompt when multiple viewers exist
+    old_port = os.environ.get("OCP_PORT")
+    os.environ["OCP_PORT"] = "3939"
+    yield
+    if old_pytest is not None:
+        os.environ["OCP_VSCODE_PYTEST"] = old_pytest
+    if old_port is not None:
+        os.environ["OCP_PORT"] = old_port
+    else:
+        os.environ.pop("OCP_PORT", None)
+
 
 from ocp_vscode import (
     Camera,
@@ -45,7 +63,7 @@ def get_state():
     return s
 
 
-def assert_config(conf, delay=0.15):
+def assert_config(conf, delay=0.1):
     """Assert that all keys in conf match the current viewer state.
 
     A delay is needed because set_viewer_config is asynchronous - the viewer
@@ -73,7 +91,8 @@ def assembly():
     box2.name = "box2"
 
     box3 = (
-        cq.Workplane("XY")
+        cq
+        .Workplane("XY")
         .transformed(offset=(0, 15, 7))
         .box(30, 20, 6)
         .edges(">Z")
@@ -87,7 +106,8 @@ def assembly():
     box1 = box1.cut(box2).cut(box3).cut(box4)
 
     a1 = (
-        cq.Assembly(name="ensemble")
+        cq
+        .Assembly(name="ensemble")
         .add(box1, name="red box", color="#d7191c80")
         .add(box3, name="green box", color="#abdda4")
         .add(box4, name="blue box", color=(43, 131, 186, 0.3))
@@ -123,9 +143,13 @@ class TestAxesAndGrid:
 
     def test_reset_defaults_axes(self, assembly):
         show(assembly, reset_camera=Camera.RESET)
-        set_viewer_config(axes=True, axes0=True, grid=(True, False, False), center_grid=True)
+        set_viewer_config(
+            axes=True, axes0=True, grid=(True, False, False), center_grid=True
+        )
         reset_defaults()
-        assert_config(dict(axes=False, axes0=True, grid=(False, False, False), center_grid=False))
+        assert_config(
+            dict(axes=False, axes0=True, grid=(False, False, False), center_grid=False)
+        )
 
     def test_grid_multiple_planes(self, assembly):
         show(assembly, reset_camera=Camera.RESET)
@@ -235,9 +259,13 @@ class TestEdgeColorTransparency:
 
     def test_reset_edgecolor_opacity(self, assembly):
         show(assembly, reset_camera=Camera.RESET)
-        set_viewer_config(default_edgecolor="#008000", default_opacity=0.1, transparent=True)
+        set_viewer_config(
+            default_edgecolor="#008000", default_opacity=0.1, transparent=True
+        )
         reset_defaults()
-        assert_config(dict(default_edgecolor="#707070", default_opacity=0.5, transparent=False))
+        assert_config(
+            dict(default_edgecolor="#707070", default_opacity=0.5, transparent=False)
+        )
 
 
 # ---------------------------------------------------------------------------
@@ -249,14 +277,20 @@ class TestMaterialSettings:
     def test_material_properties(self, assembly):
         show(assembly, reset_camera=Camera.RESET)
         set_viewer_config(tab="material")
-        c = dict(ambient_intensity=1.85, direct_intensity=1.67, metalness=0.9, roughness=0.6)
+        c = dict(
+            ambient_intensity=1.85, direct_intensity=1.67, metalness=0.9, roughness=0.6
+        )
         set_viewer_config(**c)
         assert_config(c)
 
     def test_material_reset(self, assembly):
         show(assembly, reset_camera=Camera.RESET)
         set_viewer_config(
-            ambient_intensity=1, direct_intensity=1.1, metalness=0.3, roughness=0.65, tab="tree"
+            ambient_intensity=1,
+            direct_intensity=1.1,
+            metalness=0.3,
+            roughness=0.65,
+            tab="tree",
         )
 
 
