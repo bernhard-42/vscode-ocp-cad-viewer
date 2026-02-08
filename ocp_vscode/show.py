@@ -75,7 +75,7 @@ from ocp_vscode.comms import is_pytest
 from ocp_vscode.config import (
     Camera,
     Collapse,
-    Mode,
+    Render,
     check_deprecated,
     combined_config,
     get_changed_config,
@@ -130,10 +130,10 @@ def get_last_paths():
 
 
 _MODE_STATES = {
-    Mode.ALL: (1, 1),
-    Mode.WIRE: (0, 1),
-    Mode.FACE: (1, 0),
-    Mode.NONE: (0, 0),
+    Render.ALL: (1, 1),
+    Render.EDGES: (0, 1),
+    Render.FACES: (1, 0),
+    Render.NONE: (0, 0),
 }
 
 
@@ -562,11 +562,11 @@ def show(
         names:                   List of names for the cad_objs. Needs to have the same length as cad_objs
         colors:                  List of colors for the cad_objs. Needs to have the same length as cad_objs
         alphas:                  List of alpha values for the cad_objs. Needs to have the same length as cad_objs
-        modes:                   A Mode value or list of Mode values for the cad_objs (default=None, i.e. Mode.ALL).
-                                 Mode.ALL: show faces and edges
-                                 Mode.WIRE: show edges only
-                                 Mode.FACE: show faces only
-                                 Mode.NONE: hide object
+        modes:                   A Render value or list of Render values for the cad_objs (default=None, i.e. Render.ALL).
+                                 Render.ALL: show faces and edges
+                                 Render.EDGES: show edges only
+                                 Render.FACES: show faces only
+                                 Render.NONE: hide object
         progress:                Show progress of tessellation with None is no progress indicator. (default="-+*c")
                                  for object: "-": is reference,
                                              "+": gets tessellated with Python code,
@@ -646,7 +646,7 @@ def show(
         metalness:               Metalness property of the default material (default=0.30)
         roughness:               Roughness property of the default material (default=0.65)
 
-        render_edges:            Deprecated, use modes=Mode.FACE or Mode.ALL instead
+        render_edges:            Deprecated, use modes=Render.FACES or Render.ALL instead
         render_normals:          Render normals (default=False)
         render_mates:            Render mates for MAssemblies (default=False)
         render_joints:           Render build123d joints (default=False)
@@ -672,11 +672,9 @@ def _show(*cad_objs, **kwargs):
     names = kwargs.get("names")
     colors = kwargs.get("colors")
     alphas = kwargs.get("alphas")
-    modes = kwargs.pop("modes", None)
     default_edgecolor = kwargs.get("default_edgecolor")
     progress = kwargs.get("progress")
     _force_in_debug = kwargs.get("_force_in_debug")
-    render_edges = kwargs.get("render_edges")
 
     if (
         cad_objs is None
@@ -710,17 +708,8 @@ def _show(*cad_objs, **kwargs):
         ]
     }
 
-    # Handle render_edges backward compat before check_deprecated removes it
-    if render_edges is not None and modes is None:
-        warnings.warn(
-            "render_edges is deprecated, use modes=Mode.FACE or Mode.ALL instead",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        if not render_edges:
-            modes = Mode.FACE
-
     kwargs = check_deprecated(kwargs)
+    modes = kwargs.pop("modes", None)
 
     if kwargs.get("grid") is not None:
         if isinstance(kwargs["grid"], bool):
@@ -731,7 +720,7 @@ def _show(*cad_objs, **kwargs):
     names = align_attrs(names, len(cad_objs), None, "names")
 
     # Normalize modes to a list
-    if isinstance(modes, Mode):
+    if isinstance(modes, Render):
         modes = [modes] * len(cad_objs)
     if modes is not None:
         modes = align_attrs(modes, len(cad_objs), None, "modes")
@@ -896,11 +885,11 @@ def show_object(
         clear:                   In interactive mode, clear the stack of objects to be shown
                                  (typically used for the first object)
         update:                  Update the object (remove old version)
-        mode:                    A Mode value for this object (default=None, i.e. Mode.ALL).
-                                 Mode.ALL: show faces and edges
-                                 Mode.WIRE: show edges only
-                                 Mode.FACE: show faces only
-                                 Mode.NONE: hide object
+        mode:                    A Render value for this object (default=None, i.e. Render.ALL).
+                                 Render.ALL: show faces and edges
+                                 Render.EDGES: show edges only
+                                 Render.FACES: show faces only
+                                 Render.NONE: hide object
         port:                    The port the viewer listens to. Typically use 'set_port(port)' instead
         progress:                Show progress of tessellation with None is no progress indicator. (default="-+*c")
                                  for object: "-": is reference,
@@ -981,7 +970,7 @@ def show_object(
         roughness:               Roughness property of the default material (default=0.65)
 
 
-        render_edges:            Deprecated, use modes=Mode.FACE or Mode.ALL instead
+        render_edges:            Deprecated, use modes=Render.FACES or Render.ALL instead
         render_normals:          Render normals (default=False)
         render_mates:            Render mates for MAssemblies (default=False)
         render_joints:           Render build123d joints (default=False)
@@ -1102,8 +1091,8 @@ def push_object(obj, name=None, color=None, alpha=None, mode=None, clear=False, 
             attempts to use 'color' attribute of obj.
         alpha (float, optional): The alpha (transparency) value for the object. If not provided,
             attempts to use 'alpha' attribute of obj, defaults to 1.0.
-        mode (Mode, optional): The display mode for this object (Mode.ALL, Mode.WIRE, Mode.FACE,
-            Mode.NONE). If not provided, defaults to Mode.ALL.
+        mode (Render, optional): The display mode for this object (Render.ALL, Render.EDGES, Render.FACES,
+            Render.NONE). If not provided, defaults to Render.ALL.
         clear (bool, optional): If True, clears the OBJECTS registry before adding the new object.
         update (bool, optional): If True, updates an existing object with the same name;
             otherwise, appends as a new object.
@@ -1291,7 +1280,7 @@ def show_objects(
         roughness:               Roughness property of the default material (default=0.65)
 
 
-        render_edges:            Deprecated, use modes=Mode.FACE or Mode.ALL instead
+        render_edges:            Deprecated, use modes=Render.FACES or Render.ALL instead
         render_normals:          Render normals (default=False)
         render_mates:            Render mates for MAssemblies (default=False)
         render_joints:           Render build123d joints (default=False)

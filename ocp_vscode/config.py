@@ -47,7 +47,7 @@ __all__ = [
     "status",
     "Camera",
     "Collapse",
-    "Mode",
+    "Render",
     "check_deprecated",
 ]
 
@@ -76,12 +76,12 @@ class Collapse(Enum):
     ROOT = 1
 
 
-class Mode(Enum):
-    """Per-object display modes"""
+class Render(Enum):
+    """Per-object render modes"""
 
     ALL = "all"
-    WIRE = "wire"
-    FACE = "face"
+    EDGES = "edges"
+    FACES = "faces"
     NONE = "none"
 
 
@@ -424,7 +424,7 @@ def set_defaults(
         metalness:          Metalness property of the default material (default=0.30)
         roughness:          Roughness property of the default material (default=0.65)
 
-        render_edges:       Deprecated, use mode=Mode.FACE or Mode.ALL in show() instead
+        render_edges:       Deprecated, use mode=Render.FACES or Render.ALL in show() instead
         render_normals:     Render normals (default=False)
         render_mates:       Render mates for MAssemblies (default=False)
         render_joints:      Render mates for MAssemblies (default=False)
@@ -650,10 +650,12 @@ def check_deprecated(kwargs):
 
     if kwargs.get("render_edges") is not None:
         warnings.warn(
-            "render_edges is deprecated, use modes=Mode.FACE or Mode.ALL in show() instead",
+            "render_edges is deprecated, use modes=Render.FACES or Render.ALL in show() instead",
             DeprecationWarning,
             stacklevel=3,
         )
+        if not kwargs["render_edges"] and kwargs.get("modes") is None:
+            kwargs["modes"] = Render.FACES
         del kwargs["render_edges"]
 
     if kwargs.get("control") is not None:
