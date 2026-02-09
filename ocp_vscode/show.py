@@ -476,7 +476,11 @@ def align_attrs(attr_list, length, default, tag, explode=True):
 def none_filter(d, excludes=None):
     if excludes is None:
         excludes = []
-    return {k: v for k, v in dict(d).items() if v is not None and k not in excludes}
+    return {
+        k: v
+        for k, v in dict(d).items()
+        if v is not None and not callable(v) and k not in excludes
+    }
 
 
 # pylint: disable=unused-argument
