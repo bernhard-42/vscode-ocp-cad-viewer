@@ -3,6 +3,8 @@
 from ocp_vscode import *
 import cadquery as cq
 
+c = combined_config()
+
 
 def state(*attr):
     s = combined_config()
@@ -41,6 +43,10 @@ def check(conf):
         print("OK")
 
 
+def filter_config(config, prefix):
+    return {k: v for k, v in config.items() if k.startswith(prefix)}
+
+
 set_defaults(reset_camera=Camera.KEEP)
 
 # %%
@@ -52,7 +58,8 @@ box2 = cq.Workplane("XY").box(8, 18, 28).edges(">X or <X").chamfer(2)
 box2.name = "box2"
 
 box3 = (
-    cq.Workplane("XY")
+    cq
+    .Workplane("XY")
     .transformed(offset=(0, 15, 7))
     .box(30, 20, 6)
     .edges(">Z")
@@ -65,13 +72,14 @@ box4.name = "box4"
 
 box1 = box1.cut(box2).cut(box3).cut(box4)
 a1 = (
-    cq.Assembly(name="ensemble")
+    cq
+    .Assembly(name="ensemble")
     .add(box1, name="red box", color="#d7191c80")  # transparent alpha = 0x80/0xFF
     .add(box3, name="green box", color="#abdda4")
     .add(box4, name="blue box", color=(43, 131, 186, 0.3))  # transparent, alpha = 0.3
 )
-
-show(a1, debug=True, reset_camera=Camera.RESET)
+# %%
+show(a1, reset_camera=Camera.RESET)
 
 
 # %%
@@ -373,7 +381,7 @@ check(c)
 
 # %%
 
-show(a1, debug=True)
+show(a1)
 
 # %%
 
@@ -410,7 +418,7 @@ check(c)
 
 # %%
 
-show(a1, debug=True)
+show(a1)
 
 # %%
 
@@ -456,7 +464,8 @@ check(c)
 
 # %%
 
-show(a1, debug=True)
+
+show(a1)
 
 # %%
 
@@ -491,7 +500,7 @@ check(c)
 
 # %%
 
-show(a1, debug=True)
+show(a1)
 
 # %%
 

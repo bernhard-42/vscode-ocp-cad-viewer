@@ -37,10 +37,6 @@ show(b, c, glass=True, tools=True)
 
 # %%
 
-show(b, c, glass=False, tools=False)
-
-# %%
-
 show(
     b,
     c,

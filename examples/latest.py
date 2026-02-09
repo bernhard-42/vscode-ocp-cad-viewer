@@ -2,14 +2,12 @@
 from build123d import *
 from ocp_vscode import *
 
-set_defaults(reset_camera=Camera.KEEP, clip_planes=True, clip_object_colors=True)
+# %%
+set_defaults(
+    reset_camera=Camera.KEEP, clip_planes=True, clip_object_colors=True, debug=True
+)
 
 # %%
-
-show(Sphere(0.5), clip_planes=True)
-
-# %%
-
 p2 = Box(1, 1, 1)
 
 show(
