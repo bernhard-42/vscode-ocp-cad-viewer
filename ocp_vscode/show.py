@@ -1081,7 +1081,9 @@ def _show_object(obj, **kwargs):
     )
 
 
-def push_object(obj, name=None, color=None, alpha=None, mode=None, clear=False, update=False):
+def push_object(
+    obj, name=None, color=None, alpha=None, mode=None, clear=False, update=False
+):
     """
     Adds or updates an object in the global OBJECTS registry with optional name, color, alpha
     transparency, and display mode.
