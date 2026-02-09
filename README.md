@@ -411,8 +411,7 @@ NATIVE_TESSELLATOR=1 OCP_VSCODE_PYTEST=1 pytest -v -s tests/
     - Animation now takes paths from actually shown object tree
     - Animation allows to show additional objects beside the animated assembly (but the paths change!)
 - Extension status bar
-    - The `OCP on/off` entry in the status bar now show the currently used port in brackets (`OCP on/off (3939)`)
-    - The `OCP on/off` entry was moved to the right where Python status items live
+    - The `OCP on/off` entry in the status bar now shows the currently used port (`OCP: 3939·DEBUG`/ `OCP: 3939`) and was moved to the right where the Python status items live
 - Terminal
     - A new Workspace config `OcpCadViewer.advanced.shellCommandPrefix` allows to exclude commands from shell history for bash, zsh, ... ([#204](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/204))
     - The extension respects VS Code's automationProfile and defaultProfile terminal settings when creating terminals

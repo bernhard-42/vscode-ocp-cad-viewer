@@ -27,6 +27,14 @@ export function getEditor() {
     return editor;
 }
 
+export function isPythonFile(editor: vscode.TextEditor | undefined): boolean {
+    return (
+        editor !== undefined &&
+        editor.document.fileName !== undefined &&
+        editor.document.fileName.endsWith(".py")
+    );
+}
+
 export function getCurrentFileUri(): vscode.Uri | undefined {
     const editor = getEditor();
     if (editor) {

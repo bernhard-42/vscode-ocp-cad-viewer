@@ -509,7 +509,7 @@
         "OcpCadViewer.advanced.watchByDefault": {
           "type": "boolean",
           "default": true,
-          "description": "Whether to have visual debugging (OCP: on) as the default or not",
+          "description": "Whether to have visual debugging (OCP 3939·DEBUG) as the default or not",
           "order": 51
         },
         "OcpCadViewer.advanced.autostart": {

@@ -35,6 +35,7 @@ import {
     getCurrentFolder,
     jupyterExtensionInstalled,
     isPortInUse,
+    isPythonFile,
     getPythonPath,
     getPythonEnv,
     closeOcpCadViewerTab,
@@ -122,8 +123,11 @@ function shouldAutostart(document: vscode.TextDocument) {
     return false;
 }
 
-function statusBarMessage(port: number, state: string) {
-    return `OCP:${state} (${port})`;
+function statusBarMessage(port: number, isDebug: boolean) {
+    if (port !== 0) {
+        return isDebug ? `OCP: ${port}·DEBUG` : `OCP: ${port}`;
+    }
+    return "";
 }
 
 async function openViewer(document: vscode.TextDocument, column: number = 1) {
@@ -190,16 +194,16 @@ export async function activate(context: vscode.ExtensionContext) {
     )["watchByDefault"];
     if (default_watch) {
         isWatching = true;
-        statusBarItem.text = statusBarMessage(port, "on");
+        statusBarItem.text = statusBarMessage(port, true);
         statusBarItem.tooltip = "OCP CAD Viewer: Visual watch on";
     } else {
         isWatching = false;
-        statusBarItem.text = statusBarMessage(port, "off");
+        statusBarItem.text = statusBarMessage(port, false);
         statusBarItem.tooltip = "OCP CAD Viewer: Visual watch off";
     }
     statusBarItem.command = "ocpCadViewer.toggleWatch";
     context.subscriptions.push(statusBarItem);
-    statusBarItem.show();
+    // Status bar will be shown when viewer starts
 
     await statusManager.refresh("");
     var python = await getPythonPath();
@@ -341,23 +345,28 @@ export async function activate(context: vscode.ExtensionContext) {
         output.debug(
             `extension.onDidChangeActiveTextEditor: ${editor?.document.fileName}`
         );
-        if (
-            editor &&
-            editor.document.fileName &&
-            editor.document.fileName.endsWith(".py")
-        ) {
+        if (isPythonFile(editor)) {
             if (!controller || !controller.isStarted()) {
-                conditionallyOpenViewer(editor.document);
+                conditionallyOpenViewer(editor!.document);
             }
+        }
+        // Show status bar if viewer is running
+        if (controller?.isStarted()) {
             statusBarItem.show();
         }
     });
 
-    vscode.window.onDidChangeTextEditorSelection(() => statusBarItem.show());
+    vscode.window.onDidChangeTextEditorSelection(() => {
+        if (controller?.isStarted()) {
+            statusBarItem.show();
+        }
+    });
 
-    vscode.window.onDidChangeTextEditorVisibleRanges(() =>
-        statusBarItem.show()
-    );
+    vscode.window.onDidChangeTextEditorVisibleRanges(() => {
+        if (controller?.isStarted()) {
+            statusBarItem.show();
+        }
+    });
 
     //	Commands
 
@@ -365,11 +374,11 @@ export async function activate(context: vscode.ExtensionContext) {
         vscode.commands.registerCommand("ocpCadViewer.toggleWatch", () => {
             if (isWatching) {
                 isWatching = false;
-                statusBarItem.text = statusBarMessage(port, "off");
+                statusBarItem.text = statusBarMessage(port, false);
                 statusBarItem.tooltip = "OCP CAD Viewer: Visual debug off";
             } else {
                 isWatching = true;
-                statusBarItem.text = statusBarMessage(port, "on");
+                statusBarItem.text = statusBarMessage(port, true);
                 statusBarItem.tooltip = "OCP CAD Viewer: Visual debug on";
             }
         })
@@ -425,13 +434,6 @@ export async function activate(context: vscode.ExtensionContext) {
                     return;
                 }
 
-                if (isWatching) {
-                    statusBarItem.text = statusBarMessage(port, "on");
-                } else {
-                    statusBarItem.text = statusBarMessage(port, "off");
-                }
-                statusBarItem.show();
-
                 var python = await getPythonPath(true);
                 if (!libraryManager.installed.ocp_vscode) {
                     let reply =
@@ -480,6 +482,15 @@ export async function activate(context: vscode.ExtensionContext) {
                         }
                     }
                 }
+
+                // Update status bar with final port
+                if (isWatching) {
+                    statusBarItem.text = statusBarMessage(port, true);
+                } else {
+                    statusBarItem.text = statusBarMessage(port, false);
+                }
+                statusBarItem.show();
+
                 output.debug(
                     "ocpCadViewer.ocpCadViewer: Starting OCPCADController"
                 );
@@ -732,9 +743,10 @@ export async function activate(context: vscode.ExtensionContext) {
                                 )["terminalDelay"];
                                 setTimeout(async () => {
                                     var python = await getPythonPath(true);
-                                    const shellCommandPrefix = vscode.workspace.getConfiguration(
-                                        "OcpCadViewer.advanced"
-                                    )["shellCommandPrefix"];
+                                    const shellCommandPrefix =
+                                        vscode.workspace.getConfiguration(
+                                            "OcpCadViewer.advanced"
+                                        )["shellCommandPrefix"];
                                     terminal.sendText(
                                         `${shellCommandPrefix}"${python}" -m jupyter console --existing ${connectionFile}`
                                     );
