@@ -64,9 +64,7 @@ export async function removeOldLockfile() {
     } catch (error: any) {
         if (error.code !== "ENOENT") {
             // Ignore "file not found" errors
-            output.error(
-                `Lock migration failed: ${error.message}.\nRemove ${LOCK_PATH} manually!`
-            );
+            output.error(`Lock migration failed: ${error.message}.\nRemove ${LOCK_PATH} manually!`);
         }
     }
 }
@@ -85,9 +83,7 @@ export async function removeOldLockfile() {
  * @returns A promise that resolves to the value returned by the callback function.
  * @throws Any error thrown during file operations or by the callback function.
  */
-async function atomicFileOperation<T>(
-    fn: (data: ServiceConfig) => T
-): Promise<T> {
+async function atomicFileOperation<T>(fn: (data: ServiceConfig) => T): Promise<T> {
     // Ensure config file exists
     try {
         const stats = await fs.promises.stat(CONFIG_FILE);
@@ -115,9 +111,7 @@ async function atomicFileOperation<T>(
     });
     try {
         // File operation logic
-        const data = await fs.promises
-            .readFile(CONFIG_FILE, "utf8")
-            .catch(() => EMPTY_CONFIG);
+        const data = await fs.promises.readFile(CONFIG_FILE, "utf8").catch(() => EMPTY_CONFIG);
 
         let config: ServiceConfig;
         try {
@@ -131,10 +125,7 @@ async function atomicFileOperation<T>(
         }
         const result = await fn(config);
 
-        await fs.promises.writeFile(
-            CONFIG_FILE,
-            JSON.stringify(config, null, 2)
-        );
+        await fs.promises.writeFile(CONFIG_FILE, JSON.stringify(config, null, 2));
         output.debug("~/.ocpconfig = " + JSON.stringify(config));
         return result;
     } finally {

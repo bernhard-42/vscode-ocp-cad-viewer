@@ -32,13 +32,11 @@ export class StatusManagerProvider implements vscode.TreeDataProvider<Status> {
         this.hasJupyterExtension = jupyterExtensionInstalled();
     }
 
-    private _onDidChangeTreeData: vscode.EventEmitter<
-        Status | undefined | null | void
-    > = new vscode.EventEmitter<Status | undefined | null | void>();
+    private _onDidChangeTreeData: vscode.EventEmitter<Status | undefined | null | void> =
+        new vscode.EventEmitter<Status | undefined | null | void>();
 
-    readonly onDidChangeTreeData: vscode.Event<
-        Status | undefined | null | void
-    > = this._onDidChangeTreeData.event;
+    readonly onDidChangeTreeData: vscode.Event<Status | undefined | null | void> =
+        this._onDidChangeTreeData.event;
 
     async refresh(port: string = "") {
         if (port !== "<none>" && port !== "") {
@@ -60,9 +58,7 @@ export class StatusManagerProvider implements vscode.TreeDataProvider<Status> {
         libraries.forEach((library) => {
             if (library !== "ocp_tessellate") {
                 // map ipykernel as library ro jupyter extension
-                this.libraries.push(
-                    library == "ipykernel" ? "jupyter" : library
-                );
+                this.libraries.push(library == "ipykernel" ? "jupyter" : library);
             }
         });
     }
@@ -96,9 +92,7 @@ export class StatusManagerProvider implements vscode.TreeDataProvider<Status> {
                     new Status(
                         "extension",
                         {
-                            extension: this.hasJupyterExtension
-                                ? "installed"
-                                : "not installed",
+                            extension: this.hasJupyterExtension ? "installed" : "not installed",
                             jupyter: this.hasJupyterExtension
                         },
                         vscode.TreeItemCollapsibleState.None
@@ -166,9 +160,7 @@ export class Status extends vscode.TreeItem {
             this.description = options.port;
             this.tooltip = `OCP CAD Viewer is listening on port ${options.port}`;
         } else if (options.extension !== undefined) {
-            this.contextValue = options.jupyter
-                ? "jupyterExtInstalled"
-                : "jupyterExtMissing";
+            this.contextValue = options.jupyter ? "jupyterExtInstalled" : "jupyterExtMissing";
             this.description = options.extension;
             this.tooltip = `Jupyter extension is ${options.extension}`;
         } else if (options.version !== undefined) {

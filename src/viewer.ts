@@ -42,22 +42,16 @@ export class OCPCADViewer {
         if (OCPCADViewer.currentPanel) {
             // If we already have a panel, show it.
 
-            output.debug(
-                "OCPCADViewer.createOrShow: Revealing existing webview panel"
-            );
+            output.debug("OCPCADViewer.createOrShow: Revealing existing webview panel");
 
             OCPCADViewer.currentPanel._panel.reveal(column);
         } else {
             // Otherwise, create a new panel.
 
-            output.debug(
-                "OCPCADViewer.createOrShow: Creating new webview panel"
-            );
+            output.debug("OCPCADViewer.createOrShow: Creating new webview panel");
 
             // get all current tabs
-            const tabs: vscode.Tab[] = vscode.window.tabGroups.all
-                .map((tg) => tg.tabs)
-                .flat();
+            const tabs: vscode.Tab[] = vscode.window.tabGroups.all.map((tg) => tg.tabs).flat();
 
             const panel = vscode.window.createWebviewPanel(
                 OCPCADViewer.viewType,
@@ -112,10 +106,7 @@ export class OCPCADViewer {
                             message.text.data instanceof String
                         ) {
                             data = Buffer.from(
-                                message.text.data.replace(
-                                    "data:image/png;base64,",
-                                    ""
-                                ),
+                                message.text.data.replace("data:image/png;base64,", ""),
                                 "base64"
                             );
                         } else {
@@ -139,9 +130,7 @@ export class OCPCADViewer {
                         return;
                     case "status":
                         if (message.text.selected != null) {
-                            vscode.env.clipboard.writeText(
-                                message.text.selected.join(",")
-                            );
+                            vscode.env.clipboard.writeText(message.text.selected.join(","));
                         }
                 }
             },

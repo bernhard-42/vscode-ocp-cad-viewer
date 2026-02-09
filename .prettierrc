@@ -1,5 +1,5 @@
 {
-    "printWidth": 80,
+    "printWidth": 100,
     "trailingComma": "none",
     "tabWidth": 4,
     "quoteProps": "as-needed"

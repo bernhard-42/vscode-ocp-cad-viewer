@@ -47,25 +47,16 @@ export function getCurrentFilename(): vscode.Uri | undefined {
     return filename;
 }
 
-export function getCurrentFolder(
-    filename: vscode.Uri | undefined = undefined
-): [string, boolean] {
+export function getCurrentFolder(filename: vscode.Uri | undefined = undefined): [string, boolean] {
     let root: string | undefined = undefined;
     let isWorkspace = false;
     if (filename === undefined) {
         filename = getCurrentFilename();
     }
 
-    if (
-        vscode.workspace?.workspaceFolders &&
-        vscode.workspace.workspaceFolders.length > 0
-    ) {
+    if (vscode.workspace?.workspaceFolders && vscode.workspace.workspaceFolders.length > 0) {
         for (let i = 0; i < vscode.workspace.workspaceFolders.length; i++) {
-            if (
-                filename?.fsPath.startsWith(
-                    vscode.workspace.workspaceFolders[i].uri.fsPath
-                )
-            ) {
+            if (filename?.fsPath.startsWith(vscode.workspace.workspaceFolders[i].uri.fsPath)) {
                 root = vscode.workspace.workspaceFolders[i].uri.fsPath;
                 isWorkspace = true;
                 break;
@@ -103,11 +94,8 @@ class PythonPath {
         notify = false
     ): Promise<string> {
         const pythonApi: PythonExtension = await PythonExtension.api();
-        const environmentPath =
-            pythonApi.environments.getActiveEnvironmentPath();
-        const environment = await pythonApi.environments.resolveEnvironment(
-            environmentPath
-        );
+        const environmentPath = pythonApi.environments.getActiveEnvironmentPath();
+        const environment = await pythonApi.environments.resolveEnvironment(environmentPath);
         if (environment != null) {
             if (notify) {
                 output.info(
@@ -129,11 +117,8 @@ class PythonPath {
         notify = false
     ): Promise<string> {
         const pythonApi: PythonExtension = await PythonExtension.api();
-        const environmentPath =
-            pythonApi.environments.getActiveEnvironmentPath();
-        const environment = await pythonApi.environments.resolveEnvironment(
-            environmentPath
-        );
+        const environmentPath = pythonApi.environments.getActiveEnvironmentPath();
+        const environment = await pythonApi.environments.resolveEnvironment(environmentPath);
         if (environment != null) {
             if (notify) {
                 output.info(
@@ -180,11 +165,7 @@ export async function isPortInUse(port: number): Promise<boolean> {
         "::1" // loopback IPv6
     ];
 
-    async function checkPortWindows(
-        port: number,
-        host: string,
-        timeout = 2000
-    ): Promise<boolean> {
+    async function checkPortWindows(port: number, host: string, timeout = 2000): Promise<boolean> {
         return new Promise<boolean>((resolve) => {
             // Connection test first, then bind test fallback
             const connectSocket = new net.Socket();
@@ -203,25 +184,25 @@ export async function isPortInUse(port: number): Promise<boolean> {
 
             connectSocket.setTimeout(timeout);
 
-            connectSocket.on('connect', () => {
+            connectSocket.on("connect", () => {
                 output.debug(`- definitely in use on ${host} (connection successful)`);
                 connectCleanup();
                 resolve(true);
             });
 
-            connectSocket.on('timeout', () => {
+            connectSocket.on("timeout", () => {
                 output.debug(`- connect timeout on ${host}, trying bind test`);
                 connectCleanup();
                 tryBindTest();
             });
 
-            connectSocket.on('error', (err: any) => {
+            connectSocket.on("error", (err: any) => {
                 connectCleanup();
-                
-                if (err.code === 'ECONNREFUSED') {
+
+                if (err.code === "ECONNREFUSED") {
                     output.debug(`- free on ${host} (connection refused)`);
                     resolve(false);
-                } else if (err.code === 'ECONNRESET') {
+                } else if (err.code === "ECONNRESET") {
                     output.debug(`- likely in use on ${host} (connection reset)`);
                     resolve(true);
                 } else {
@@ -275,21 +256,17 @@ export async function isPortInUse(port: number): Promise<boolean> {
                     resolve(false);
                 });
 
-                server.listen({ 
-                    port, 
-                    host, 
+                server.listen({
+                    port,
+                    host,
                     ipv6Only: host === "::",
                     exclusive: true
                 });
-            }            
+            }
         });
     }
 
-    async function checkPortUnix(
-        port: number,
-        host: string,
-        timeout = 2000
-    ): Promise<boolean> {
+    async function checkPortUnix(port: number, host: string, timeout = 2000): Promise<boolean> {
         return new Promise<boolean>((resolve) => {
             const server = net.createServer();
             let resolved = false;
@@ -335,12 +312,12 @@ export async function isPortInUse(port: number): Promise<boolean> {
     output.debug(`Checking port ${port}:`);
     for (const host of hosts) {
         let inUse: boolean;
-        if(os.platform() === 'win32') {
+        if (os.platform() === "win32") {
             inUse = await checkPortWindows(port, host);
         } else {
             inUse = await checkPortUnix(port, host);
         }
-        if (inUse)  return true;
+        if (inUse) return true;
     }
     return false;
 }
@@ -381,9 +358,7 @@ export function editorColumns(): number {
 }
 
 export function getEditorColumn(document: vscode.TextDocument) {
-    const editor = vscode.window.visibleTextEditors.find(
-        (e) => e.document === document
-    );
+    const editor = vscode.window.visibleTextEditors.find((e) => e.document === document);
     return editor?.viewColumn ?? 1;
 }
 

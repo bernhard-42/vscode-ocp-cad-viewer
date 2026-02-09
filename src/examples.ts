@@ -26,14 +26,11 @@ import { https } from "follow-redirects";
 
 export async function download(library: string, destination: string) {
     const timeout = 10000;
-    const exampleDownloads = vscode.workspace.getConfiguration(
-        "OcpCadViewer.advanced"
-    )["exampleDownloads"];
+    const exampleDownloads =
+        vscode.workspace.getConfiguration("OcpCadViewer.advanced")["exampleDownloads"];
 
     const archiveUrl = exampleDownloads[library]["zip"];
-    output.info(
-        `extension.downloadExample: Example download URL: ${archiveUrl}`
-    );
+    output.info(`extension.downloadExample: Example download URL: ${archiveUrl}`);
     const examplePath = exampleDownloads[library]["example_path"];
     const filename = path.basename(archiveUrl);
     const targetPath = path.join(destination, `${library}_examples`);
@@ -44,9 +41,7 @@ export async function download(library: string, destination: string) {
             const tempFolder = path.join(os.tmpdir(), "cadquery-viewer");
             fs.mkdtemp(tempFolder, (err, folder) => {
                 if (err) {
-                    vscode.window.showErrorMessage(
-                        `Cannot create temp folder ${folder}`
-                    );
+                    vscode.window.showErrorMessage(`Cannot create temp folder ${folder}`);
                     return;
                 }
                 const downloadPath = path.join(folder, filename);
@@ -58,45 +53,35 @@ export async function download(library: string, destination: string) {
                     vscode.window.showInformationMessage(
                         `File "${archiveUrl}" downloaded successfully.`
                     );
-                    output.info(
-                        `extension.downloadExample: Archive URL ${archiveUrl} downloaded`
-                    );
+                    output.info(`extension.downloadExample: Archive URL ${archiveUrl} downloaded`);
                     try {
                         const zip = new AdmZip(downloadPath);
                         zip.extractAllTo(folder, true);
-                        output.info(
-                            `extension.downloadExample: Archive unzipped to ${folder}`
-                        );
+                        output.info(`extension.downloadExample: Archive unzipped to ${folder}`);
                     } catch (error) {
-                        vscode.window.showErrorMessage(
-                            `Unzipping "${downloadPath}" failed.`
-                        );
+                        vscode.window.showErrorMessage(`Unzipping "${downloadPath}" failed.`);
                         output.error(
                             `extension.downloadExample: Unzipping "${downloadPath}" failed: ${error}`
                         );
                         return;
                     }
-                    fs.rename(
-                        path.join(folder, examplePath),
-                        targetPath,
-                        (err) => {
-                            if (err) {
-                                vscode.window.showErrorMessage(
-                                    `Moving examples to "${targetPath}" failed.`
-                                );
-                                output.error(
-                                    `extension.downloadExample: Moving examples to "${targetPath}" failed: ${err}`
-                                );
-                            } else {
-                                vscode.window.showInformationMessage(
-                                    `Examples successfully downloaded to "${targetPath}".`
-                                );
-                                output.info(
-                                    `extension.downloadExample: Examples successfully downloaded to "${targetPath}".`
-                                );
-                            }
+                    fs.rename(path.join(folder, examplePath), targetPath, (err) => {
+                        if (err) {
+                            vscode.window.showErrorMessage(
+                                `Moving examples to "${targetPath}" failed.`
+                            );
+                            output.error(
+                                `extension.downloadExample: Moving examples to "${targetPath}" failed: ${err}`
+                            );
+                        } else {
+                            vscode.window.showInformationMessage(
+                                `Examples successfully downloaded to "${targetPath}".`
+                            );
+                            output.info(
+                                `extension.downloadExample: Examples successfully downloaded to "${targetPath}".`
+                            );
                         }
-                    );
+                    });
                 });
             });
         } else {
@@ -113,8 +98,6 @@ export async function download(library: string, destination: string) {
 
     request.on("error", function (e: any) {
         vscode.window.showErrorMessage(`Cannot download ${archiveUrl}`);
-        output.error(
-            `extension.downloadExample: Cannot download ${archiveUrl} ${e}`
-        );
+        output.error(`extension.downloadExample: Cannot download ${archiveUrl} ${e}`);
     });
 }

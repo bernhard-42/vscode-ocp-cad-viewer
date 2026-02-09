@@ -38,9 +38,7 @@ interface Package {
     editable_project_location?: string;
 }
 
-function parsePackageData(
-    jsonString: string
-): Map<string, Omit<Package, "name">> {
+function parsePackageData(jsonString: string): Map<string, Omit<Package, "name">> {
     // Parse JSON and type assert to Package array
     const packages = JSON.parse(jsonString) as Package[];
 
@@ -53,9 +51,7 @@ function parsePackageData(
     );
 }
 
-export async function pipList(
-    python: string
-): Promise<Map<string, Omit<Package, "name">>> {
+export async function pipList(python: string): Promise<Map<string, Omit<Package, "name">>> {
     let result: any = null;
 
     try {
@@ -64,10 +60,7 @@ export async function pipList(
         if (error.message.indexOf("No module named pip") > 0) {
             output.info("pip is not installed, trying uv pip");
             try {
-                result = execute(
-                    `uv pip list -p "${python}" -v --format json`,
-                    false
-                );
+                result = execute(`uv pip list -p "${python}" -v --format json`, false);
             } catch (error: any) {
                 output.error(error.stderr.toString());
                 vscode.window.showErrorMessage(
@@ -99,10 +92,7 @@ export async function installLib(
     requiredPythonVersion: string = "",
     callback: CallableFunction = () => null
 ) {
-    let commands: string[] = await libraryManager.getInstallLibCmds(
-        library,
-        cmds
-    );
+    let commands: string[] = await libraryManager.getInstallLibCmds(library, cmds);
     if (commands.length === 0) {
         return;
     }
@@ -130,9 +120,7 @@ export async function installLib(
             }
         });
         if (!valid) {
-            vscode.window.showErrorMessage(
-                `Python version(s) ${requiredPythonVersion} required!`
-            );
+            vscode.window.showErrorMessage(`Python version(s) ${requiredPythonVersion} required!`);
             return;
         }
     }
@@ -143,9 +131,7 @@ export async function installLib(
         ...shellConfig
     });
     term.show();
-    const delay = vscode.workspace.getConfiguration("OcpCadViewer.advanced")[
-        "terminalDelay"
-    ];
+    const delay = vscode.workspace.getConfiguration("OcpCadViewer.advanced")["terminalDelay"];
     let listener = vscode.window.onDidCloseTerminal((e) => {
         libraryManager.refresh();
 
@@ -161,15 +147,12 @@ export async function installLib(
     await new Promise((resolve) => setTimeout(resolve, delay));
     commands.push("exit");
     const command = commands.join(" && ");
-    const shellCommandPrefix = vscode.workspace.getConfiguration(
-        "OcpCadViewer.advanced"
-    )["shellCommandPrefix"];
+    const shellCommandPrefix =
+        vscode.workspace.getConfiguration("OcpCadViewer.advanced")["shellCommandPrefix"];
     term.sendText(shellCommandPrefix + command, true);
 }
 
-export class LibraryManagerProvider
-    implements vscode.TreeDataProvider<Library>
-{
+export class LibraryManagerProvider implements vscode.TreeDataProvider<Library> {
     statusManager: StatusManagerProvider;
     installCommands: any = {};
     exampleDownloads: any = {};
@@ -183,9 +166,8 @@ export class LibraryManagerProvider
     }
 
     readConfig() {
-        this.installCommands = vscode.workspace.getConfiguration(
-            "OcpCadViewer.advanced"
-        )["installCommands"];
+        this.installCommands =
+            vscode.workspace.getConfiguration("OcpCadViewer.advanced")["installCommands"];
         let outdated = false;
         for (var lib of Object.keys(this.installCommands)) {
             if (!Array.isArray(this.installCommands[lib])) {
@@ -198,21 +180,17 @@ export class LibraryManagerProvider
                 "Your installCommands are outdated.\nPlease update them in your settings.json ('OcpCadViewer.advanced.installCommands')"
             );
         }
-        this.codeSnippets = vscode.workspace.getConfiguration(
-            "OcpCadViewer.advanced"
-        )["codeSnippets"];
-        this.exampleDownloads = vscode.workspace.getConfiguration(
-            "OcpCadViewer.advanced"
-        )["exampleDownloads"];
+        this.codeSnippets =
+            vscode.workspace.getConfiguration("OcpCadViewer.advanced")["codeSnippets"];
+        this.exampleDownloads =
+            vscode.workspace.getConfiguration("OcpCadViewer.advanced")["exampleDownloads"];
     }
 
-    private _onDidChangeTreeData: vscode.EventEmitter<
-        Library | undefined | null | void
-    > = new vscode.EventEmitter<Library | undefined | null | void>();
+    private _onDidChangeTreeData: vscode.EventEmitter<Library | undefined | null | void> =
+        new vscode.EventEmitter<Library | undefined | null | void>();
 
-    readonly onDidChangeTreeData: vscode.Event<
-        Library | undefined | null | void
-    > = this._onDidChangeTreeData.event;
+    readonly onDidChangeTreeData: vscode.Event<Library | undefined | null | void> =
+        this._onDidChangeTreeData.event;
 
     async refresh(pythonPath: string | undefined = undefined) {
         this.readConfig();
@@ -243,10 +221,7 @@ export class LibraryManagerProvider
         let python = await getPythonPath();
         let substCmds: string[] = [];
         commands.forEach((command: string) => {
-            command = command.replace(
-                "{ocp_vscode_version}",
-                ocp_vscode_version
-            );
+            command = command.replace("{ocp_vscode_version}", ocp_vscode_version);
             command = command.replace("{python}", '"' + python + '"');
 
             if (command.indexOf("{unset_conda}") >= 0) {
@@ -311,19 +286,14 @@ export class LibraryManagerProvider
     pasteImport(library: string) {
         const editor = getEditor();
         if (editor !== undefined) {
-            if (
-                library === "ocp_vscode" &&
-                this.statusManager.getPort() === ""
-            ) {
+            if (library === "ocp_vscode" && this.statusManager.getPort() === "") {
                 vscode.window.showErrorMessage("OCP CAD Viewer not running");
             } else {
                 let importCmd = Object.assign([], this.codeSnippets[library]);
                 if (library === "ocp_vscode") {
                     importCmd.push(`set_port(${this.statusManager.getPort()})`);
                 }
-                let snippet = new vscode.SnippetString(
-                    importCmd.join("\n") + "\n"
-                );
+                let snippet = new vscode.SnippetString(importCmd.join("\n") + "\n");
                 editor?.insertSnippet(snippet);
             }
         } else {
@@ -391,9 +361,7 @@ export class LibraryManagerProvider
             this.getInstallLibs().forEach((lib: string) => {
                 let installed = Object.keys(this.installed).includes(lib);
 
-                let version = installed
-                    ? this.installed[sanitize(lib)][0]
-                    : "n/a";
+                let version = installed ? this.installed[sanitize(lib)][0] : "n/a";
 
                 let state = installed
                     ? vscode.TreeItemCollapsibleState.Expanded
@@ -403,9 +371,7 @@ export class LibraryManagerProvider
 
                 if (lib === "ocp_vscode") {
                     this.statusManager.installed = version !== "n/a";
-                    this.statusManager.setLibraries(
-                        Object.keys(this.installed)
-                    );
+                    this.statusManager.setLibraries(Object.keys(this.installed));
                     this.statusManager.refresh(this.statusManager.getPort());
                 }
             });

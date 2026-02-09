@@ -17,11 +17,7 @@
 import * as vscode from "vscode";
 import * as fs from "fs";
 
-export function template(
-    styleSrc: vscode.Uri,
-    scriptSrc: vscode.Uri,
-    htmlSrc: vscode.Uri
-) {
+export function template(styleSrc: vscode.Uri, scriptSrc: vscode.Uri, htmlSrc: vscode.Uri) {
     let options = vscode.workspace.getConfiguration("OcpCadViewer.view");
 
     var theme: string = options.get("theme") || "browser";
@@ -42,10 +38,7 @@ export function template(
 
     html = html.replace("{{ standalone_scripts|safe }}", "");
     html = html.replace("{{ standalone_imports|safe }}", "");
-    html = html.replace(
-        "{{ standalone_comms|safe }}",
-        "const vscode = acquireVsCodeApi();"
-    );
+    html = html.replace("{{ standalone_comms|safe }}", "const vscode = acquireVsCodeApi();");
     html = html.replace("{{ standalone_init|safe }}", "");
     html = html.replace("{{ styleSrc }}", styleSrc.toString());
     html = html.replace("{{ scriptSrc }}", scriptSrc.toString());
