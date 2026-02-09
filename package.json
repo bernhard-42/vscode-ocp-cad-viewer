@@ -419,7 +419,7 @@
             "FRONT",
             "BACK"
           ],
-          "default": "RESET",
+          "default": "KEEP",
           "description": "Reset camera (angle and zoom) between show commands",
           "order": 59
         },
