@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <!--
 
 Copyright 2025 Bernhard Walter
@@ -118,30 +118,11 @@ limitations under the License.
                 var msg = tag + (obj ? " " + JSON.stringify(obj) : "");
                 send("log", msg);
             }
-
+            // prettier-ignore
             const MAP_HEX = {
-                0: 0,
-                1: 1,
-                2: 2,
-                3: 3,
-                4: 4,
-                5: 5,
-                6: 6,
-                7: 7,
-                8: 8,
-                9: 9,
-                a: 10,
-                b: 11,
-                c: 12,
-                d: 13,
-                e: 14,
-                f: 15,
-                A: 10,
-                B: 11,
-                C: 12,
-                D: 13,
-                E: 14,
-                F: 15
+                0:  0, 1:  1, 2:  2, 3:  3, 4:  4, 5:  5, 6:  6, 7:  7, 8:  8, 9:  9,
+                a: 10, b: 11, c: 12, d: 13, e: 14, f: 15,
+                A: 10, B: 11, C: 12, D: 13, E: 14, F: 15
             };
 
             function fromHex(hexString) {
@@ -591,180 +572,58 @@ limitations under the License.
             }
 
             function render() {
-                const renderOptions = {
-                    ambientIntensity: preset(
-                        _config,
-                        "ambient_intensity",
-                        renderDefaultOptions.ambientIntensity
-                    ),
-                    directIntensity: preset(
-                        _config,
-                        "direct_intensity",
-                        renderDefaultOptions.directIntensity
-                    ),
-                    metalness: preset(
-                        _config,
-                        "metalness",
-                        renderDefaultOptions.metalness
-                    ),
-                    roughness: preset(
-                        _config,
-                        "roughness",
-                        renderDefaultOptions.roughness
-                    ),
-                    edgeColor: preset(
-                        _config,
-                        "default_edgecolor",
-                        renderDefaultOptions.defaultEdgecolor
-                    ),
-                    defaultOpacity: preset(
-                        _config,
-                        "default_opacity",
-                        renderDefaultOptions.defaultOpacity
-                    ),
-                    normalLen: preset(
-                        _config,
-                        "normal_len",
-                        renderDefaultOptions.normalLen
-                    )
+                const toCamelCase = (s) =>
+                    s.replace(/_([a-z])/g, (_, c) => c.toUpperCase());
+                const optionKeyOverrides = {
+                    default_edgecolor: "edgeColor",
+                    clip_planes: "clipPlaneHelpers"
                 };
 
-                viewerOptions = {
-                    axes: preset(_config, "axes", viewerDefaultOptions.axes),
-                    axes0: preset(_config, "axes0", viewerDefaultOptions.axes0),
-                    blackEdges: preset(
+                // prettier-ignore
+                const renderOptionKeys = [
+                    "ambient_intensity", "direct_intensity", "metalness", "roughness",
+                    "default_edgecolor", "default_opacity", "normal_len",
+                ];
+
+                const renderOptions = {};
+                for (const configKey of renderOptionKeys) {
+                    const optionKey =
+                        optionKeyOverrides[configKey] || toCamelCase(configKey);
+                    renderOptions[optionKey] = preset(
                         _config,
-                        "black_edges",
-                        viewerDefaultOptions.blackEdges
-                    ),
-                    grid: preset(_config, "grid", viewerDefaultOptions.grid),
-                    collapse: preset(
+                        configKey,
+                        renderDefaultOptions[optionKey]
+                    );
+                }
+
+                // prettier-ignore
+                const viewerOptionKeys = [
+                    "axes", "axes0", "black_edges", "grid", "collapse", "ortho", "ticks",
+                    "center_grid", "grid_font_size", "timeit", "tools", "glass", "up",
+                    "transparent", "control", "pan_speed", "zoom_speed", "rotate_speed",
+                    "clip_slider_0", "clip_slider_1", "clip_slider_2",
+                    "clip_normal_0", "clip_normal_1", "clip_normal_2",
+                    "clip_intersection", "clip_planes", "clip_object_colors",
+                    "zebra_count", "zebra_opacity", "zebra_direction",
+                    "zebra_color_scheme", "zebra_mapping_mode",
+                ];
+
+                viewerOptions = {};
+                for (const configKey of viewerOptionKeys) {
+                    const optionKey =
+                        optionKeyOverrides[configKey] || toCamelCase(configKey);
+                    viewerOptions[optionKey] = preset(
                         _config,
-                        "collapse",
-                        viewerDefaultOptions.collapse
-                    ),
-                    ortho: preset(_config, "ortho", viewerDefaultOptions.ortho),
-                    ticks: preset(_config, "ticks", viewerDefaultOptions.ticks),
-                    centerGrid: preset(
-                        _config,
-                        "center_grid",
-                        viewerDefaultOptions.centerGrid
-                    ),
-                    gridFontSize: preset(
-                        _config,
-                        "grid_font_size",
-                        viewerDefaultOptions.gridFontSize
-                    ),
-                    timeit: preset(
-                        _config,
-                        "timeit",
-                        viewerDefaultOptions.timeit
-                    ),
-                    tools: preset(_config, "tools", viewerDefaultOptions.tools),
-                    glass: preset(_config, "glass", viewerDefaultOptions.glass),
-                    up: preset(_config, "up", viewerDefaultOptions.up),
-                    transparent: preset(
-                        _config,
-                        "transparent",
-                        viewerDefaultOptions.transparent
-                    ),
-                    control: preset(
-                        _config,
-                        "control",
-                        viewerDefaultOptions.control
-                    ),
-                    panSpeed: preset(
-                        _config,
-                        "pan_speed",
-                        viewerDefaultOptions.panSpeed
-                    ),
-                    zoomSpeed: preset(
-                        _config,
-                        "zoom_speed",
-                        viewerDefaultOptions.zoomSpeed
-                    ),
-                    rotateSpeed: preset(
-                        _config,
-                        "rotate_speed",
-                        viewerDefaultOptions.rotateSpeed
-                    ),
-                    clipSlider0: preset(
-                        _config,
-                        "clip_slider_0",
-                        viewerDefaultOptions.clipSlider0
-                    ),
-                    clipSlider1: preset(
-                        _config,
-                        "clip_slider_1",
-                        viewerDefaultOptions.clipSlider1
-                    ),
-                    clipSlider2: preset(
-                        _config,
-                        "clip_slider_2",
-                        viewerDefaultOptions.clipSlider2
-                    ),
-                    clipNormal0: preset(
-                        _config,
-                        "clip_normal_0",
-                        viewerDefaultOptions.clipNormal0
-                    ),
-                    clipNormal1: preset(
-                        _config,
-                        "clip_normal_1",
-                        viewerDefaultOptions.clipNormal1
-                    ),
-                    clipNormal2: preset(
-                        _config,
-                        "clip_normal_2",
-                        viewerDefaultOptions.clipNormal2
-                    ),
-                    clipIntersection: preset(
-                        _config,
-                        "clip_intersection",
-                        viewerDefaultOptions.clipIntersection
-                    ),
-                    clipPlaneHelpers: preset(
-                        _config,
-                        "clip_planes",
-                        viewerDefaultOptions.clipPlaneHelpers
-                    ),
-                    clipObjectColors: preset(
-                        _config,
-                        "clip_object_colors",
-                        viewerDefaultOptions.clipObjectColors
-                    ),
-                    zebraCount: preset(
-                        _config,
-                        "zebra_count",
-                        viewerDefaultOptions.zebraCount
-                    ),
-                    zebraOpacity: preset(
-                        _config,
-                        "zebra_opacity",
-                        viewerDefaultOptions.zebraOpacity
-                    ),
-                    zebraDirection: preset(
-                        _config,
-                        "zebra_direction",
-                        viewerDefaultOptions.zebraDirection
-                    ),
-                    zebraColorScheme: preset(
-                        _config,
-                        "zebra_color_scheme",
-                        viewerDefaultOptions.zebraColorScheme
-                    ),
-                    zebraMappingMode: preset(
-                        _config,
-                        "zebra_mapping_mode",
-                        viewerDefaultOptions.zebraMappingMode
-                    )
-                };
+                        configKey,
+                        viewerDefaultOptions[optionKey]
+                    );
+                }
 
                 if (!_config.theme) {
                     _config.theme = getDisplayOptions().theme;
                 }
 
-                var reset_camera = preset(_config, "reset_camera", "reset");
+                var reset_camera = preset(_config, "reset_camera", "keep");
 
                 if (_config.debug) {
                     debugLog("renderOptions", renderOptions);
@@ -772,7 +631,6 @@ limitations under the License.
                     debugLog("reset_camera", reset_camera);
                 }
 
-                // var shapesAndTree = viewer.renderTessellatedShapes(_shapes, _states, renderOptions)
                 const bbox = _shapes["bb"];
                 const center = [
                     (bbox.xmax + bbox.xmin) / 2,
@@ -789,7 +647,12 @@ limitations under the License.
                     length(center)
                 );
 
-                // if ((reset_camera === "keep") && (last_bb_radius != null) && ((bb_radius < last_bb_radius / 2) || (bb_radius > last_bb_radius * 2))) {
+                // if (
+                //     reset_camera === "keep" &&
+                //     last_bb_radius != null &&
+                //     (bb_radius < last_bb_radius / 2 ||
+                //         bb_radius > last_bb_radius * 2)
+                // ) {
                 //     reset_camera = "center";
                 //     const msg = `Bounding box 2 times smaller/larger than before, changed reset_camera to Camera.CENTER`;
                 //     send("info", msg);
@@ -799,9 +662,12 @@ limitations under the License.
                 // }
                 last_bb_radius = bb_radius;
                 // debugLog("bb_radius", bb_radius)
-                if (reset_camera !== "keep" && reset_camera !== "center") {
-                    // even if reset is requested, respect the position settings from the object
 
+                const useStoredState =
+                    reset_camera === "keep" || reset_camera === "center";
+
+                if (!useStoredState) {
+                    // Reset mode: respect position settings from the object if provided
                     if (_config.zoom !== undefined) {
                         viewerOptions.zoom = _config.zoom;
                     }
@@ -813,50 +679,6 @@ limitations under the License.
                     }
                     if (_config.target !== undefined) {
                         viewerOptions.target = _config.target;
-                    }
-                    if (_config.clip_slider_0 != undefined) {
-                        viewerOptions.clipSlider0 = _config.clip_slider_0;
-                    }
-                    if (_config.clip_slider_1 != undefined) {
-                        viewerOptions.clipSlider1 = _config.clip_slider_1;
-                    }
-                    if (_config.clip_slider_2 != undefined) {
-                        viewerOptions.clipSlider2 = _config.clip_slider_2;
-                    }
-                    if (_config.clip_normal_0 != undefined) {
-                        viewerOptions.clipNormal0 = _config.clip_normal_0;
-                    }
-                    if (_config.clip_normal_1 != undefined) {
-                        viewerOptions.clipNormal1 = _config.clip_normal_1;
-                    }
-                    if (_config.clip_normal_2 != undefined) {
-                        viewerOptions.clipNormal2 = _config.clip_normal_2;
-                    }
-                    if (_config.clip_intersection != undefined) {
-                        viewerOptions.clipIntersection =
-                            _config.clip_intersection;
-                    }
-                    if (_config.clip_planes != undefined) {
-                        viewerOptions.clipPlaneHelpers = _config.clip_planes;
-                    }
-                    if (_config.clip_object_colors != undefined) {
-                        viewerOptions.clipObjectColors =
-                            _config.clip_object_colors;
-                    }
-                    if (_config.zebra_count != undefined) {
-                        viewerOptions.zebraCount = _config.zebra_count;
-                    }
-                    if (_config.zebra_opacity != undefined) {
-                        viewerOptions.zebraOpacity = _config.zebra_opacity;
-                    }
-                    if (_config.zebra_direction != undefined) {
-                        viewerOptions.zebraDirection = _config.zebra_direction;
-                    }
-                    if (_config.zebra_color_scheme != undefined) {
-                        viewerOptions.zebraColorScheme = _config.zebra_color_scheme;
-                    }
-                    if (_config.zebra_mapping_mode != undefined) {
-                        viewerOptions.zebraMappingMode = _config.zebra_mapping_mode;
                     }
                     _camera_distance = null;
                 } else {
@@ -884,9 +706,9 @@ limitations under the License.
                             }
                             _target = center;
                         }
+                        viewerOptions.position = p;
                         // do nothing when reset_camera is a preset view
                     }
-                    viewerOptions.position = p;
                     _position = viewerOptions.position;
 
                     if (_config.quaternion) {
@@ -894,90 +716,58 @@ limitations under the License.
                     } else if (_quaternion) {
                         viewerOptions.quaternion = _quaternion;
                     }
+                    _quaternion = viewerOptions.quaternion;
 
                     if (_config.target) {
                         viewerOptions.target = _config.target;
                     } else if (_target) {
                         viewerOptions.target = _target;
                     }
+                    _target = viewerOptions.target;
 
                     if (_config.zoom) {
                         viewerOptions.zoom = _config.zoom;
                     } else if (_zoom) {
                         viewerOptions.zoom = _zoom;
                     }
+                    _zoom = viewerOptions.zoom;
+                }
 
-                    if (_config.clip_slider_0 != undefined) {
-                        viewerOptions.clipSlider0 = _config.clip_slider_0;
+                if (_config.debug) {
+                    debugLog("reset_camera", reset_camera);
+                    debugLog("_position", _position);
+                    debugLog("_quaternion", _quaternion);
+                    debugLog("_target", _target);
+                    debugLog("_zoom", _zoom);
+                }
+
+                // Apply clip and zebra settings (use last value if not in config)
+                // prettier-ignore
+                const clipAndZebraMappings = [
+                    ["clip_slider_0", "clipSlider0", _clipping.sliders[0]],
+                    ["clip_slider_1", "clipSlider1", _clipping.sliders[1]],
+                    ["clip_slider_2", "clipSlider2", _clipping.sliders[2]],
+                    ["clip_normal_0", "clipNormal0", _clipping.normals[0]],
+                    ["clip_normal_1", "clipNormal1", _clipping.normals[1]],
+                    ["clip_normal_2", "clipNormal2", _clipping.normals[2]],
+                    ["clip_intersection", "clipIntersection", _clipping.intersection],
+                    ["clip_planes", "clipPlaneHelpers", _clipping.planeHelpers],
+                    ["clip_object_colors", "clipObjectColors", _clipping.objectColors],
+                    ["zebra_count", "zebraCount", _zebra.count],
+                    ["zebra_opacity", "zebraOpacity", _zebra.opacity],
+                    ["zebra_direction", "zebraDirection", _zebra.direction],
+                    ["zebra_color_scheme", "zebraColorScheme", _zebra.colorScheme],
+                    ["zebra_mapping_mode", "zebraMappingMode", _zebra.mappingMode]
+                ];
+                for (const [
+                    configKey,
+                    optionKey,
+                    lastValue
+                ] of clipAndZebraMappings) {
+                    if (_config[configKey] != undefined) {
+                        viewerOptions[optionKey] = _config[configKey];
                     } else {
-                        viewerOptions.clipSlider0 = _clipping.sliders[0];
-                    }
-                    if (_config.clip_slider_1 != undefined) {
-                        viewerOptions.clipSlider1 = _config.clip_slider_1;
-                    } else {
-                        viewerOptions.clipSlider1 = _clipping.sliders[1];
-                    }
-                    if (_config.clip_slider_2 != undefined) {
-                        viewerOptions.clipSlider2 = _config.clip_slider_2;
-                    } else {
-                        viewerOptions.clipSlider2 = _clipping.sliders[2];
-                    }
-                    if (_config.clip_normal_0 != undefined) {
-                        viewerOptions.clipNormal0 = _config.clip_normal_0;
-                    } else {
-                        viewerOptions.clipNormal0 = _clipping.normals[0];
-                    }
-                    if (_config.clip_normal_1 != undefined) {
-                        viewerOptions.clipNormal1 = _config.clip_normal_1;
-                    } else {
-                        viewerOptions.clipNormal1 = _clipping.normals[1];
-                    }
-                    if (_config.clip_normal_2 != undefined) {
-                        viewerOptions.clipNormal2 = _config.clip_normal_2;
-                    } else {
-                        viewerOptions.clipNormal2 = _clipping.normals[2];
-                    }
-                    if (_config.clip_intersection != undefined) {
-                        viewerOptions.clipIntersection =
-                            _config.clip_intersection;
-                    } else {
-                        viewerOptions.clipIntersection = _clipping.intersection;
-                    }
-                    if (_config.clip_planes != undefined) {
-                        viewerOptions.clipPlaneHelpers = _config.clip_planes;
-                    } else {
-                        viewerOptions.clipPlaneHelpers = _clipping.planeHelpers;
-                    }
-                    if (_config.clip_object_colors != undefined) {
-                        viewerOptions.clipObjectColors =
-                            _config.clip_object_colors;
-                    } else {
-                        viewerOptions.clipObjectColors = _clipping.objectColors;
-                    }
-                    if (_config.zebra_count != undefined) {
-                        viewerOptions.zebraCount = _config.zebra_count;
-                    } else {
-                        viewerOptions.zebraCount = _zebra.count;
-                    }
-                    if (_config.zebra_opacity != undefined) {
-                        viewerOptions.zebraOpacity = _config.zebra_opacity;
-                    } else {
-                        viewerOptions.zebraOpacity = _zebra.opacity;
-                    }
-                    if (_config.zebra_direction != undefined) {
-                        viewerOptions.zebraDirection = _config.zebra_direction;
-                    } else {
-                        viewerOptions.zebraDirection = _zebra.direction;
-                    }
-                    if (_config.zebra_color_scheme != undefined) {
-                        viewerOptions.zebraColorScheme = _config.zebra_color_scheme;
-                    } else {
-                        viewerOptions.zebraColorScheme = _zebra.colorScheme;
-                    }
-                    if (_config.zebra_mapping_mode != undefined) {
-                        viewerOptions.zebraMappingMode = _config.zebra_mapping_mode;
-                    } else {
-                        viewerOptions.zebraMappingMode = _zebra.mappingMode;
+                        viewerOptions[optionKey] = lastValue;
                     }
                 }
 
@@ -999,7 +789,8 @@ limitations under the License.
                 }
 
                 if (reset_camera === "keep" && _camera_distance != null) {
-                    // debugLog("camera_distance", _camera_distance, viewer.camera.camera_distance, viewer.camera.camera_distance/_camera_distance);
+                    // debugLog("camera_distance", _camera_distance, viewer.camera.camera_distance,
+                    //          viewer.camera.camera_distance/_camera_distance);
                     viewer.setCameraZoom(
                         ((_zoom == null ? 1.0 : _zoom) *
                             viewer.camera.camera_distance) /
@@ -1007,17 +798,9 @@ limitations under the License.
                     );
                 }
 
-                if (
-                    [
-                        "iso",
-                        "left",
-                        "right",
-                        "top",
-                        "bottom",
-                        "rear",
-                        "front"
-                    ].includes(reset_camera)
-                ) {
+                // prettier-ignore
+                const views = ["iso", "left", "right", "top", "bottom", "rear", "front"];
+                if (views.includes(reset_camera)) {
                     viewer.setView(reset_camera);
                 }
 
@@ -1120,8 +903,8 @@ limitations under the License.
                         viewer == null
                             ? {}
                             : viewer.treeview == null
-                            ? {}
-                            : viewer.treeview.getStates();
+                              ? {}
+                              : viewer.treeview.getStates();
 
                     let meshData = data.data;
                     let config = data.config;
@@ -1266,7 +1049,8 @@ limitations under the License.
                             );
                         } else if (key === "reset_camera") {
                             if (data.config[key] === "reset") {
-                                viewer.reset();
+                                viewer.setView("iso");
+                                viewer.resize();
                             } else if (
                                 [
                                     "iso",
