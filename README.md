@@ -387,7 +387,7 @@ NATIVE_TESSELLATOR=1 OCP_VSCODE_PYTEST=1 pytest -v -s tests/
 
 - Viewer UI:
     - New Zebra tool with normal and reflective stripes
-    - Added per-object display mode control via `modes` parameter (`Mode.ALL`, `Mode.WIRE`, `Mode.FACE`, `Mode.NONE`). Deprecate `render_edges` in favor of `modes` ([#114](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/114))
+    - Added per-object render mode via `modes` parameter (`Render.ALL`, `Render.EDGES`, `Render.FACES`, `Render.NONE`). Deprecate `render_edges` in favor of `modes` ([#114](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/114))
     - Based on a completely refactored [tcv-cad-viewer v4](https://github.com/bernhard-42/three-cad-viewer)
         - Adapted to change API of tcv-cad-viewer v4
         - Adapted to the new consistent notification system of three-cad-viewer v4
