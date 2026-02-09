@@ -60,7 +60,7 @@ DEFAULTS = {
     "transparent": False,
     "black_edges": False,
     "collapse": "R",
-    "reset_camera": "RESET",
+    "reset_camera": "KEEP",
     "up": "Z",
     "ticks": 5,
     "center_grid": False,

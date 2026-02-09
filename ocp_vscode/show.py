@@ -177,7 +177,7 @@ def _tessellate(
         else:
             reset_camera = conf.get("reset_camera")
     else:
-        reset_camera = conf.get("reset_camera", Camera.RESET)
+        reset_camera = conf.get("reset_camera", Camera.KEEP)
 
     conf["reset_camera"] = reset_camera.value
 

@@ -181,6 +181,7 @@ CONFIG_SET_KEYS = [
     "quaternion",
     "target",
     "default_edgecolor",
+    "reset_camera",
     "default_opacity",
     "ambient_intensity",
     "direct_intensity",
@@ -533,7 +534,7 @@ def workspace_config(port=None, viewer=None):
         if isinstance(conf.get("collapse"), str):
             conf["collapse"] = mapping[conf.get("collapse", "R")]
         if isinstance(conf.get("reset_camera"), str):
-            conf["reset_camera"] = Camera[conf.get("reset_camera", "RESET").upper()]
+            conf["reset_camera"] = Camera[conf.get("reset_camera", "KEEP").upper()]
         return dict(conf)
 
     except Exception as ex:
@@ -586,7 +587,7 @@ def reset_defaults(port=None):
         for key, value in workspace_config(port=port).items()
         if key in CONFIG_SET_KEYS
     }
-    config["reset_camera"] = Camera.RESET
+    config["reset_camera"] = Camera.KEEP
 
     set_viewer_config(**config)
 
