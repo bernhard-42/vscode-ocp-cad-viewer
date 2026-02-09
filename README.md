@@ -118,7 +118,7 @@ Note: The extension is in pypi only [pypi](https://pypi.org/project/ocp-vscode/)
 After each step, the debugger checks all variables in `locals()` for being CAD objects and displays them with their variable name.
 Note:
 
-- Check that `OCP:on` is visible in the status bar
+- Check that `OCP: <port>·DEBUG` is visible in the status bar
 - It also shows planes, locations and axis, so name your contexts
 - It remembers camera position and unselected variables in the tree
 - during debugging, `show` and `show_object` are disabled. They interfere with the visual debugging
@@ -395,7 +395,8 @@ NATIVE_TESSELLATOR=1 OCP_VSCODE_PYTEST=1 pytest -v -s tests/
         - Fixed trackball panning speed to be more responsive
         - Added keyboard shortcuts for toolbar buttons, camera presets, tab navigation, and animation control. Default bindings:
             - Toggle: `a`/`A` axes, `g`/`G` grid, `p` perspective, `t` transparent, `b` blackedges, `x` explode, `L` zscale, `D` distance, `P` properties, `S` select
-            - Views: `0` iso, `1`–`6` front/rear/top/bottom/left/right, `r` resize, `R` reset
+            - Views: (keypad cross): top: `8`, left: `4`, iso: `5`, right: `6`, bottom: `2`, front: `1`, rear: `3`
+            - Reset: `r` resize, `R` reset
             - Tabs: `T` tree, `C` clip, `M` material, `Z` zebra
             - Other: `h` help, `Space` play/pause, `Escape` stop/close-help
     - Measure tool
@@ -411,15 +412,16 @@ NATIVE_TESSELLATOR=1 OCP_VSCODE_PYTEST=1 pytest -v -s tests/
     - Animation now takes paths from actually shown object tree
     - Animation allows to show additional objects beside the animated assembly (but the paths change!)
 - Extension status bar
-    - The `OCP on/off` entry in the status bar now shows the currently used port (`OCP: 3939·DEBUG`/ `OCP: 3939`) and was moved to the right where the Python status items live
+    - The status bar entry now shows the currently used port (`OCP: 3939·DEBUG` / `OCP: 3939`), is only visible when the viewer is running, and was moved to the right where the Python status items live
 - Terminal
     - A new Workspace config `OcpCadViewer.advanced.shellCommandPrefix` allows to exclude commands from shell history for bash, zsh, ... ([#204](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/204))
     - The extension respects VS Code's automationProfile and defaultProfile terminal settings when creating terminals
       Order: `automationProfile` (if set), then `defaultProfile` → resolved via profiles (if set) then OS login shell ([#198](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/198))
 - Python
     - No support for Python 3.9 any more
-    - Upgrade to websockets 16.0 for Python 3.14 and proxy autodetection support ([#210](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/210))
+    - The new default for the `reset_camera` parameter is `Camera.KEEP`. **Note that this can be changed in the VS Code settings for "OCP CAD Viewer"**
     - Change application order of defaults and UI status: the defaults set by `set_defaults` now take precedence over the viewer's current UI status
+    - Upgrade to websockets 16.0 for Python 3.14 and proxy autodetection support ([#210](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/210))
 
 **Fixes**
 
