@@ -24,7 +24,8 @@ import numpy as np
 
 from ocp_tessellate.utils import numpy_to_json
 from .comms import send_data, send_command
-from .show import save_screenshot, get_last_paths
+from .show import save_screenshot
+from .utils import get_last_paths
 
 
 class Animation:

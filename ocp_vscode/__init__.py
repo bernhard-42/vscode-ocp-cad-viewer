@@ -23,6 +23,7 @@ import os
 from .show import *
 from .config import *
 from .comms import *
+from .utils import *
 
 from .colors import *
 from .animation import Animation

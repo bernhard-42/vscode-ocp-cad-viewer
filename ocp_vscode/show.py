@@ -22,7 +22,6 @@ import re
 import time
 import traceback
 import types
-import warnings
 from enum import Enum
 from logging import Logger
 
@@ -72,6 +71,12 @@ else:
     is_jupyter_cadquery = False
 
 from ocp_vscode.comms import is_pytest
+from ocp_vscode.utils import (
+    check_camera_warnings,
+    camera_keep_warning,
+    set_last_bbox_size,
+    set_last_paths,
+)
 from ocp_vscode.config import (
     Camera,
     Collapse,
@@ -101,33 +106,6 @@ __all__ = [
 OBJECTS = {"objs": [], "names": [], "colors": [], "alphas": [], "modes": []}
 
 LAST_CALL = "other"
-
-LAST_PATHS = []
-
-
-def set_last_paths(node):
-    """Extract all paths from nested OcpGroup/OcpObject structure."""
-    global LAST_PATHS
-
-    def collect_paths(node, path):
-        results = []
-        current_path = f"{path}/{node.name}"
-
-        if isinstance(node, OcpGroup):
-            results.append(current_path)
-            for obj in node.objects:
-                results.extend(collect_paths(obj, current_path))
-        else:  # OcpObject
-            results.append(current_path)
-
-        return results
-
-    LAST_PATHS = collect_paths(node, "")
-
-
-def get_last_paths():
-    return LAST_PATHS
-
 
 _MODE_STATES = {
     Render.ALL: (1, 1),
@@ -391,6 +369,14 @@ def _tessellate(
 
     # add global bounding box
     shapes["bb"] = bb
+
+    if reset_camera == Camera.KEEP:
+        camera_keep_warning(
+            "reset_camera is set to KEEP. If shown objects are not visible use "
+            "the 'resize' and a 'view' button"
+        )
+        check_camera_warnings(bb)
+    set_last_bbox_size(bb)
 
     return instances, shapes, params, part_group.count_shapes(), mapping
 

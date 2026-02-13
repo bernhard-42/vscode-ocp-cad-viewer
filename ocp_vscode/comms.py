@@ -21,8 +21,6 @@ import json
 import os
 import socket
 import traceback
-import warnings
-
 import questionary
 
 from websockets.sync.client import connect
@@ -37,6 +35,7 @@ from ocp_tessellate.ocp_utils import (
     loc_to_tq,
 )
 from .state import get_ports, update_state, get_config_file
+from .utils import comms_warning
 
 from IPython import get_ipython
 
@@ -52,17 +51,6 @@ CMD_URL = "ws://127.0.0.1"
 CMD_PORT = 3939
 
 INIT_DONE = False
-
-
-warnings.simplefilter("once", UserWarning)
-
-
-def warn_once(message):
-    def warning_on_one_line(message, category, filename, lineno, file=None, line=None):
-        return "%s: %s\n" % (category.__name__, message)
-
-    warnings.formatwarning = warning_on_one_line
-    warnings.warn(message, UserWarning)
 
 
 #
@@ -193,7 +181,7 @@ def _send(data, message_type, port=None, timeit=False):
                             result = {}
 
             except (ConnectionRefusedError, OSError, WebSocketException) as ex:
-                warn_once(f"Connection error: {ex}\nMessage: {data}")
+                comms_warning(f"Connection error: {ex}\nMessage: {data}")
                 # set some dummy values to avoid errors
                 return {
                     "collapse": "none",
@@ -203,7 +191,7 @@ def _send(data, message_type, port=None, timeit=False):
                     "default_vertexcolor": (123, 45, 6),
                 }
             except Exception as ex:
-                warn_once(f"Unexpected error: {ex}\n{traceback.format_exc()}")
+                comms_warning(f"Unexpected error: {ex}\n{traceback.format_exc()}")
                 # set some dummy values to avoid errors
                 return {
                     "collapse": "none",
