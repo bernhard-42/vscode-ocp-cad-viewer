@@ -7,6 +7,8 @@ from build123d import *
 from ocp_vscode.animation import Animation
 from ocp_vscode import *
 
+set_defaults(reset_camera=Camera.RESET)
+
 thickness = 2
 height = 40
 width = 65

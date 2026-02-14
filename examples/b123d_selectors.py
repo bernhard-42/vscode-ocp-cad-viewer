@@ -14,6 +14,7 @@ select_vertices(s, [1, 2, 6, 5])
 show(
     s.fillet(0.25).reset().rarray(0.6, 1, 5, 1).slot(1.5, 0.4, mode="s", angle=90),
     debug=True,
+    reset_camera=Camera.RESET,
 )
 
 # %%

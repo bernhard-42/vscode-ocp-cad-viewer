@@ -5,7 +5,7 @@ import cadquery as cq
 from build123d import *
 
 
-set_defaults(show_parent=False)
+set_defaults(show_parent=False, reset_camera=Camera.RESET)
 
 # %%
 

@@ -21,6 +21,7 @@ show(
     clip_slider_2=0.2,
     clip_normal_1=(0.12, -0.36, -0.92),
     clip_normal_2=(-0.58, 0.58, -0.58),
+    reset_camera=Camera.RESET,
 )
 set_viewer_config(tab="clip")
 

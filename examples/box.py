@@ -8,7 +8,7 @@ set_defaults(
     transparent=False,
     collapse=Collapse.LEAVES,
     grid=(True, True, True),
-    debug=True,
+    debug=False,
 )
 
 custom_location = {

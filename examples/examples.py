@@ -6,6 +6,7 @@ import cadquery as cq
 
 from ocp_tessellate.utils import Color
 
+set_defaults(reset_camera=Camera.RESET)
 
 # %% Example "box1"
 
@@ -75,7 +76,8 @@ box2 = cq.Workplane("XY").box(8, 18, 28).edges(">X or <X").chamfer(2)
 box2.name = "box2"
 
 box3 = (
-    cq.Workplane("XY")
+    cq
+    .Workplane("XY")
     .transformed(offset=(0, 15, 7))
     .box(30, 20, 6)
     .edges(">Z")
@@ -89,7 +91,8 @@ box4.name = "box4"
 box1 = box1.cut(box2).cut(box3).cut(box4)
 
 a1 = (
-    cq.Assembly(name="ensemble")
+    cq
+    .Assembly(name="ensemble")
     .add(box1, name="red box", color=Color("#d7191c", 0.5))
     .add(box3, name="green box", color=Color("#abdda4"))
     .add(box4, name="blue box", color=Color((43, 131, 186)))

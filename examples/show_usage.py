@@ -12,7 +12,7 @@ c = Pos(2, 2, 0) * Cylinder(0.5, 2)
 
 # %%
 # Use default settings
-show(b, c)
+show(b, c, debug=True)
 
 # %%
 # Unset glass mode
@@ -98,9 +98,12 @@ show(b, c, grid=(True, False, True), ticks=20)
 show(b, c, ortho=False)
 
 # %%
+show(b, c, ortho=True)
+
+# %%
 # Use Y axis as up direction
 
-show(b, c, up="Y")
+show(b, c, up="Y", debug=True, reset_camera=Camera.RESET)
 
 # %%
 # Show all objects with transparency and default opacity level
@@ -110,7 +113,7 @@ show(b, c, transparent=True)
 # %%
 # Show all objects with transparency and set the opacity level
 
-show(b, c, transparent=True, default_opacity=0.1)
+show(b, c, up="Z", transparent=True, default_opacity=0.1, reset_camera=Camera.RESET)
 
 # %%
 show(b, c, black_edges=True)
@@ -217,27 +220,25 @@ show(b, c, timeit=3)
 # Dynamically set values
 #
 
-show(b, c)
+show(b, c, debug=True)
 
 # %%
 reset_defaults()
+
+# %%
 
 set_viewer_config(
     axes=True,
     axes0=True,
     grid=(True, True, False),
-    ortho=False,
     transparent=True,
     black_edges=True,
-    zoom=0.5,
-    position=[2, -12, 6],
-    quaternion=[0.46738, -0.02236, 0.16935, 0.86740],
-    target=[0.28, -0.66, -1.90],
+    position=[2.544, -6.595, 1.123],
+    quaternion=[0.495874, 0.092593, 0.222356, 0.834321],
+    target=[-0.042, -1.163, -2.267],
+    zoom=1.8,
     default_edgecolor="red",
     default_opacity=0.2,
-    zoom_speed=0.1,
-    pan_speed=0.1,
-    rotate_speed=0.1,
 )
 
 # %%
@@ -333,6 +334,7 @@ show(
     zebra_color_scheme="blackwhite",
     zebra_mapping_mode="reflection",
 )
+set_viewer_config(tab="zebra")
 
 # %%
 # Show zebra stripes with colorful color scheme and normal mapping
@@ -346,6 +348,7 @@ show(
     zebra_color_scheme="colorful",
     zebra_mapping_mode="normal",
 )
+set_viewer_config(tab="zebra")
 
 # %%
 # Show zebra stripes with grayscale color scheme
@@ -359,6 +362,7 @@ show(
     zebra_color_scheme="grayscale",
     zebra_mapping_mode="reflection",
 )
+set_viewer_config(tab="zebra")
 
 # %%
 # Set zebra defaults
@@ -372,7 +376,7 @@ set_defaults(
     zebra_color_scheme="blackwhite",
     zebra_mapping_mode="reflection",
 )
-
+set_viewer_config(tab="zebra")
 # %%
 
 show(b, c)
