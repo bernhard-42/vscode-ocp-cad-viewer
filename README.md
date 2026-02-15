@@ -134,11 +134,11 @@ You can also use "Library Manager" in the _OCP CAD _ sidebar to manage the Pytho
 #### Default pip config for Settings
 
 ```json
-  "OcpCad.advanced.quickstartCommands": {
+  "OcpCadViewer.advanced.quickstartCommands": {
     "cadquery": ["{unset_conda} {python} -m pip install ocp_vscode=={ocp_vscode_version} cadquery"],
     "build123d": ["{python} -m pip install ocp_vscode=={ocp_vscode_version} build123d"]
   },
-  "OcpCad.advanced.installCommands": {
+  "OcpCadViewer.advanced.installCommands": {
     "cadquery": ["{unset_conda} {python} -m pip install --upgrade cadquery"],
     "build123d": ["{python} -m pip install --upgrade build123d"],
     "ocp_vscode": ["{python} -m pip install --upgrade ocp_vscode=={ocp_vscode_version}"],
@@ -151,11 +151,11 @@ You can also use "Library Manager" in the _OCP CAD _ sidebar to manage the Pytho
 #### uv config for Settings
 
 ```json
-  "OcpCad.advanced.quickstartCommands": {
+  "OcpCadViewer.advanced.quickstartCommands": {
     "cadquery": ["uv add -p {python} ocp_vscode=={ocp_vscode_version} cadquery"],
     "build123d": ["uv add -p {python} ocp_vscode=={ocp_vscode_version} build123d"]
   },
-  "OcpCad.advanced.installCommands": {
+  "OcpCadViewer.advanced.installCommands": {
     "cadquery": ["uv add -p {python} --upgrade cadquery"],
     "build123d": ["uv add -p {python} --upgrade build123d"],
     "ocp_vscode": ["uv add -p {python} --upgrade ocp_vscode=={ocp_vscode_version}"],
