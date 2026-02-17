@@ -157,6 +157,10 @@ export async function activate(context: vscode.ExtensionContext) {
     let isWatching = false;
     let port = 0;
     let lastPythonPath = "";
+    let resolveActivation: () => void;
+    const activationReady = new Promise<void>((resolve) => {
+        resolveActivation = resolve;
+    });
 
     // For migrations
     removeOldLockfile();
@@ -285,7 +289,7 @@ export async function activate(context: vscode.ExtensionContext) {
             output.debug(`extension.onDidChangeConfiguration: Python = ${pythonPath}`);
             if (lastPythonPath !== pythonPath) {
                 lastPythonPath = pythonPath;
-                libraryManager.refresh(pythonPath);
+                await libraryManager.refresh(pythonPath);
                 controller.dispose();
                 OCPCADViewer.currentPanel?.dispose();
             }
@@ -340,6 +344,7 @@ export async function activate(context: vscode.ExtensionContext) {
                 document: vscode.TextDocument | undefined,
                 column: number = vscode.ViewColumn.One
             ) => {
+                await activationReady;
                 output.debug(
                     `ocpCadViewer.ocpCadViewer: file=${document?.fileName}, column=${column}`
                 );
@@ -745,14 +750,16 @@ export async function activate(context: vscode.ExtensionContext) {
 
     const extension = vscode.extensions.getExtension("ms-python.python")!;
     await extension.activate();
-    extension?.exports.settings.onDidChangeExecutionDetails((event: any) => {
+    extension?.exports.settings.onDidChangeExecutionDetails(async (event: any) => {
         let pythonPath = extension.exports.settings.getExecutionDetails().execCommand[0];
         lastPythonPath = pythonPath;
-        libraryManager.refresh(pythonPath);
+        await libraryManager.refresh(pythonPath);
         controller?.dispose();
         OCPCADViewer.currentPanel?.dispose();
         statusBarItem.hide();
     });
+
+    resolveActivation!();
 }
 
 export async function deactivate() {
