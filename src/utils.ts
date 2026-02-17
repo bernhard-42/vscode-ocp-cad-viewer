@@ -99,12 +99,12 @@ class PythonPath {
         if (environment != null) {
             if (notify) {
                 output.info(
-                    `PythonPath: '${environment.path}', environment: ${environment.environment?.type}, ${environment.environment?.name}`
+                    `utils.PythonPath: '${environment.path}', environment: ${environment.environment?.type}, ${environment.environment?.name}`
                 );
             }
             return environment.path;
         } else {
-            output.debug(`PythonPath: 'python', environment: DEFAULT`);
+            output.debug(`utils.PythonPath: 'python', environment: DEFAULT`);
             vscode.window.showErrorMessage(
                 "No Python environment seems to be selected, falling back to default - might not work!"
             );
@@ -122,7 +122,7 @@ class PythonPath {
         if (environment != null) {
             if (notify) {
                 output.info(
-                    `PythonEnv: ${environment.environment?.type}, '${environment.environment?.name}'`
+                    `utils.getPythonEnv: PythonEnv: ${environment.environment?.type}, '${environment.environment?.name}'`
                 );
             }
             return environment.environment?.name || "unknown";
@@ -330,7 +330,7 @@ export async function isPortInUse(port: number): Promise<boolean> {
         });
     }
 
-    output.debug(`Checking port ${port}:`);
+    output.debug(`utils.isPortInUse: Checking port ${port}:`);
     for (const host of hosts) {
         let inUse: boolean;
         if (os.platform() === "win32") {
@@ -374,7 +374,7 @@ export function editorColumns(): number {
             result = Math.max(result, editor.viewColumn);
         }
     }
-    output.debug(`Number of visible columns: ${result}`);
+    output.debug(`utils.editorColumns: Number of visible columns: ${result}`);
     return result;
 }
 

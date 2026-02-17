@@ -178,7 +178,9 @@ export function createStatusManager() {
         treeDataProvider: statusManager
     });
 
-    output.info("Successfully registered CadqueryViewer Status Manager");
+    output.info(
+        "statusManager.createStatusManager: Successfully registered CadqueryViewer Status Manager"
+    );
 
     return statusManager;
 }

@@ -420,7 +420,9 @@ export function createLibraryManager(statusManager: StatusManagerProvider) {
         treeDataProvider: libraryManager
     });
 
-    output.info("Successfully registered CadqueryViewer Library Manager");
+    output.info(
+        "libraryManager.createLibraryManager: Successfully registered CadqueryViewer Library Manager"
+    );
 
     return libraryManager;
 }

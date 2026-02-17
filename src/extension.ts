@@ -192,7 +192,7 @@ export async function activate(context: vscode.ExtensionContext) {
     await statusManager.refresh("");
     var python = await getPythonPath();
     var pythonEnv = await getPythonEnv();
-    output.info(`Using python environment ${pythonEnv} and Python ${python}`);
+    output.info(`extension.activate: Using python environment ${pythonEnv} and Python ${python}`);
 
     await libraryManager.refresh(python);
 

@@ -74,7 +74,7 @@ export class OCPCADViewer {
     }
 
     public static revive(panel: vscode.WebviewPanel, extensionUri: vscode.Uri) {
-        output.debug("Reviving webview panel");
+        output.debug("ocpCadViewer.ocpCadViewer: Reviving webview panel");
 
         vscode.commands.executeCommand("ocpCadViewer.ocpCadViewer");
     }

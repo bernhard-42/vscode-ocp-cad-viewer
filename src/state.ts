@@ -126,7 +126,7 @@ async function atomicFileOperation<T>(fn: (data: ServiceConfig) => T): Promise<T
         const result = await fn(config);
 
         await fs.promises.writeFile(CONFIG_FILE, JSON.stringify(config, null, 2));
-        output.debug("~/.ocpconfig = " + JSON.stringify(config));
+        output.debug("state.atomicFileOperation: ~/.ocpconfig = " + JSON.stringify(config));
         return result;
     } finally {
         await unlock();
