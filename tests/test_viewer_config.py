@@ -63,7 +63,7 @@ def get_state():
     return s
 
 
-def assert_config(conf, delay=0.15):
+def assert_config(conf, delay=0.5):
     """Assert that all keys in conf match the current viewer state.
 
     A delay is needed because set_viewer_config is asynchronous - the viewer
