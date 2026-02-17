@@ -9,7 +9,7 @@ All notable changes to the "OCP CAD Viewer" extension will be documented in this
 - Viewer UI:
     - New Zebra tool with normal and reflective stripes
     - Added per-object render mode via `modes` parameter (`Render.ALL`, `Render.EDGES`, `Render.FACES`, `Render.NONE`). Deprecate `render_edges` in favor of `modes` ([#114](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/114))
-    - Based on a completely refactored [tcv-cad-viewer v4](https://github.com/bernhard-42/three-cad-viewer)
+    - Based on a completely refactored [tcv-cad-viewer v4.1.0](https://github.com/bernhard-42/three-cad-viewer)
         - Adapted to change API of tcv-cad-viewer v4
         - Adapted to the new consistent notification system of three-cad-viewer v4
         - Normalized control speed settings (pan, rotate, zoom) for consistent behavior across orbit and trackball modes.
@@ -50,6 +50,11 @@ All notable changes to the "OCP CAD Viewer" extension will be documented in this
 - Setting timeit does not turn debug mode on any more ([#206](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/206))
 - Tessellator does not strip parent compound any more (when it only has a single child) ([#207](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/207))
 - Fixed animation for Quaternion based tracks ([#208](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/208))
+- Fix race condition between extension activate and webview revive
+- Automatically detect uv environments and use uv pip install/list ([#214](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/214))
+- Ensure that ~/.ocpvscode has services attribute ([#214](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/214))
+- Ensure all output messages have a proper class/file.function prefix
+- Ensure workspace folder is found even when no python file is open to save quickstart demo file
 
 ## 3.0.1
 

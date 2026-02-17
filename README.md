@@ -388,7 +388,7 @@ NATIVE_TESSELLATOR=1 OCP_VSCODE_PYTEST=1 pytest -v -s tests/
 - Viewer UI:
     - New Zebra tool with normal and reflective stripes
     - Added per-object render mode via `modes` parameter (`Render.ALL`, `Render.EDGES`, `Render.FACES`, `Render.NONE`). Deprecate `render_edges` in favor of `modes` ([#114](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/114))
-    - Based on a completely refactored [tcv-cad-viewer v4](https://github.com/bernhard-42/three-cad-viewer)
+    - Based on a completely refactored [tcv-cad-viewer v4.1.0](https://github.com/bernhard-42/three-cad-viewer)
         - Adapted to change API of tcv-cad-viewer v4
         - Adapted to the new consistent notification system of three-cad-viewer v4
         - Normalized control speed settings (pan, rotate, zoom) for consistent behavior across orbit and trackball modes.
@@ -419,9 +419,7 @@ NATIVE_TESSELLATOR=1 OCP_VSCODE_PYTEST=1 pytest -v -s tests/
       Order: `automationProfile` (if set), then `defaultProfile` → resolved via profiles (if set) then OS login shell ([#198](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/198))
 - Python
     - No support for Python 3.9 any more
-    - The new default for the `reset_camera` parameter is `Camera.KEEP`. Note:
-        - This can be changed in the VS Code settings for "OCP CAD Viewer".
-        - It overwrites the "up" setting of the camera
+    - The new default for the `reset_camera` parameter is `Camera.KEEP`. **Note that this can be changed in the VS Code settings for "OCP CAD Viewer"**
     - Change application order of defaults and UI status: the defaults set by `set_defaults` now take precedence over the viewer's current UI status
     - Upgrade to websockets 16.0 for Python 3.14 and proxy autodetection support ([#210](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/210))
 
@@ -431,3 +429,8 @@ NATIVE_TESSELLATOR=1 OCP_VSCODE_PYTEST=1 pytest -v -s tests/
 - Setting timeit does not turn debug mode on any more ([#206](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/206))
 - Tessellator does not strip parent compound any more (when it only has a single child) ([#207](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/207))
 - Fixed animation for Quaternion based tracks ([#208](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/208))
+- Fix race condition between extension activate and webview revive
+- Automatically detect uv environments and use uv pip install/list ([#214](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/214))
+- Ensure that ~/.ocpvscode has services attribute ([#214](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/214))
+- Ensure all output messages have a proper class/file.function prefix
+- Ensure workspace folder is found even when no python file is open to save quickstart demo file
