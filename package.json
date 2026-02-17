@@ -789,8 +789,12 @@
     "follow-redirects": "^1.15.11",
     "proper-lockfile": "./proper-lockfile-4.1.2-esm.tgz",
     "semver": "^7.5.1",
+    "signal-exit": "3",
     "three-cad-viewer": "4.1.0",
     "ws": "^8.13.0"
+  },
+  "resolutions": {
+    "signal-exit": "^3.0.7"
   },
   "packageManager": "yarn@1.22.22"
 }
