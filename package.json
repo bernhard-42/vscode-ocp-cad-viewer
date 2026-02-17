@@ -553,38 +553,38 @@
           "description": "Shell commands to install the quickstart recipes. The values for placeholders {python}, {conda_env}, {ocp_vscode_version} will be replaced accordingly during execution",
           "default": {
             "cadquery": [
-              "{unset_conda} {python} -m pip install ocp_vscode~={ocp_vscode_version} cadquery"
+              "{unset_conda} {pip-install}  ocp_vscode~={ocp_vscode_version} cadquery"
             ],
             "build123d": [
-              "{python} -m pip install ocp_vscode~={ocp_vscode_version} build123d"
+              "{pip-install}  ocp_vscode~={ocp_vscode_version} build123d"
             ]
           },
           "order": 57
         },
         "OcpCadViewer.advanced.installCommands": {
           "type": "object",
-          "description": "Shell commands to install Python libraries. The values for placeholders {python}, {ocp_vscode_version}, and {unset_conda} will be replaced accordingly during execution",
+          "description": "Shell commands to install Python libraries. The values for placeholders {python}, {pip-install}, {ocp_vscode_version}, and {unset_conda} will be replaced accordingly during execution",
           "default": {
             "cadquery": [
-              "{unset_conda} {python} -m pip install --upgrade cadquery"
+              "{unset_conda} {pip-install} --upgrade cadquery"
             ],
             "build123d": [
-              "{python} -m pip install --upgrade build123d"
+              "{pip-install}  --upgrade build123d"
             ],
             "cadquery_ocp": [
-              "{python} -m pip install --upgrade cadquery_ocp"
+              "{pip-install}  --upgrade cadquery_ocp"
             ],
             "ocp_vscode": [
-              "{python} -m pip install --upgrade ocp_vscode~={ocp_vscode_version}"
+              "{pip-install}  --upgrade ocp_vscode~={ocp_vscode_version}"
             ],
             "ocp_tessellate": [
-              "{python} -m pip install --upgrade ocp_tessellate"
+              "{pip-install}  --upgrade ocp_tessellate"
             ],
             "ipykernel": [
-              "{python} -m pip install --upgrade ipykernel"
+              "{pip-install}  --upgrade ipykernel"
             ],
             "jupyter_console": [
-              "{python} -m pip install --upgrade jupyter_console"
+              "{pip-install}  --upgrade jupyter_console"
             ]
           },
           "order": 58

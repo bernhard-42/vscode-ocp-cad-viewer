@@ -43,6 +43,7 @@ All notable changes to the "OCP CAD Viewer" extension will be documented in this
     - The new default for the `reset_camera` parameter is `Camera.KEEP`. **Note that this can be changed in the VS Code settings for "OCP CAD Viewer"**
     - Change application order of defaults and UI status: the defaults set by `set_defaults` now take precedence over the viewer's current UI status
     - Upgrade to websockets 16.0 for Python 3.14 and proxy autodetection support ([#210](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/210))
+    - The library installation and quickstart commands have a new placeholder `{pip-install}` which will automatically be replaced by `uv pip` when a uv env is selected, else `pip`
 
 **Fixes**
 
