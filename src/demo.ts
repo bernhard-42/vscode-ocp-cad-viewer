@@ -47,7 +47,14 @@ show(bp)
 b2 = Box(1,2,3)
 b2 = fillet(b2.edges(), 0.1)
 
-show(b2, axes=True, axes0=True, grid=(True, True, True), transparent=True)
+show(
+    b2, 
+    axes=True, 
+    axes0=True, 
+    grid=(True, True, True), 
+    transparent=True, 
+    reset_camera=Camera.RESET
+)
 
 # %%
 
