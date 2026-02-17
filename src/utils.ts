@@ -142,6 +142,27 @@ class PythonPath {
     }
 }
 
+export async function isUvVenv(python: string) {
+    return new Promise<boolean>((resolve) => {
+        const venvRoot = path.resolve(python, "..", "..");
+        const pyenvCfg = path.join(venvRoot, "pyvenv.cfg");
+        fs.readFile(pyenvCfg, "utf8", (err, content) => {
+            if (err) {
+                return resolve(false);
+            }
+
+            const re = /^uv\s*=\s*([0-9]+(?:\.[0-9]+)*)\s*$/m;
+            const isUv = re.test(content);
+            if (isUv) {
+                output.info("utils.isUvVenv: Using uv for pip list and pip install");
+            } else {
+                output.info("utils.isUvVenv: Using pip list and pip install");
+            }
+            resolve(isUv);
+        });
+    });
+}
+
 export function getPythonPath(notify = false) {
     let editor = getEditor();
     return PythonPath.getPythonPath(editor?.document, notify);

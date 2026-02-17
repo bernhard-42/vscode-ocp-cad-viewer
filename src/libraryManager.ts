@@ -21,7 +21,7 @@ import * as path from "path";
 import * as vscode from "vscode";
 import { version as ocp_vscode_version } from "./version";
 import * as output from "./output";
-import { getPythonPath, getEditor } from "./utils";
+import { getPythonPath, getEditor, isUvVenv } from "./utils";
 import { execute, getAutomationShellConfig } from "./system/shell";
 import { StatusManagerProvider } from "./statusManager";
 import { TerminalExecute } from "./system/terminal";
@@ -55,19 +55,14 @@ export async function pipList(python: string): Promise<Map<string, Omit<Package,
     let result: any = null;
 
     try {
-        result = execute(`"${python}" -m pip list -v --format json`, false);
-    } catch (error: any) {
-        if (error.message.indexOf("No module named pip") > 0) {
-            output.info("pip is not installed, trying uv pip");
-            try {
-                result = execute(`uv pip list -p "${python}" -v --format json`, false);
-            } catch (error: any) {
-                output.error(error.stderr.toString());
-                vscode.window.showErrorMessage(
-                    "Neither pip nor uv pip found, cannot list libraries"
-                );
-            }
+        if (await isUvVenv(python)) {
+            result = execute(`uv pip list -p "${python}" -v --format json`, false);
+        } else {
+            result = execute(`"${python}" -m pip list -v --format json`, false);
         }
+    } catch (error: any) {
+        output.error("ocpCadViewer.libraryManager: " + error.stderr.toString());
+        vscode.window.showErrorMessage("Neither pip nor uv pip can list libraries");
     }
     if (result != null) {
         return parsePackageData(result);
@@ -220,10 +215,15 @@ export class LibraryManagerProvider implements vscode.TreeDataProvider<Library> 
         }
         let python = await getPythonPath();
         let substCmds: string[] = [];
-        commands.forEach((command: string) => {
+        for (var i in commands) {
+            var command = commands[i];
             command = command.replace("{ocp_vscode_version}", ocp_vscode_version);
             command = command.replace("{python}", '"' + python + '"');
-
+            if (await isUvVenv(python)) {
+                command = command.replace("{pip-install}", 'uv pip install -p "' + python + '" ');
+            } else {
+                command = command.replace("{pip-install}", '"' + python + '" -m pip install');
+            }
             if (command.indexOf("{unset_conda}") >= 0) {
                 command = command.replace("{unset_conda}", "");
 
@@ -242,7 +242,7 @@ export class LibraryManagerProvider implements vscode.TreeDataProvider<Library> 
             } else {
                 substCmds.push(command);
             }
-        });
+        }
         return substCmds;
     }
 
