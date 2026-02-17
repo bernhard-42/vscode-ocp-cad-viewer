@@ -370,7 +370,7 @@ def _tessellate(
     # add global bounding box
     shapes["bb"] = bb
 
-    if reset_camera == Camera.KEEP:
+    if params["reset_camera"] == "keep":
         camera_keep_warning(
             "reset_camera is set to KEEP. If shown objects are not visible use "
             "the 'resize' and a 'view' button"
