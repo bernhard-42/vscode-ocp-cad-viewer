@@ -85,6 +85,9 @@ def update_state(port, connectionFile):
     """Update the config file with the given key/value pair"""
 
     def callback(config):
+        if config.get("services") is None:
+            config["services"] = {}
+
         config["services"][port] = connectionFile
         with open(CONFIG_FILE, "w") as f:
             json.dump(config, f, indent=2)
@@ -96,6 +99,9 @@ def add_port(port):
     """Add standalone port to config file"""
 
     def callback(config):
+        if config.get("services") is None:
+            config["services"] = {}
+
         config["services"][str(port)] = ""
         with open(CONFIG_FILE, "w") as f:
             json.dump(config, f, indent=2)
@@ -107,6 +113,9 @@ def del_port(port):
     """Add standalone port to config file"""
 
     def callback(config):
+        if config.get("services") is None:
+            return
+
         try:
             config["services"] = {
                 k: v for k, v in config["services"].items() if k != str(port)
