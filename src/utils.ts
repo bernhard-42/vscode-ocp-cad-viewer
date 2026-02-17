@@ -56,10 +56,18 @@ export function getCurrentFolder(filename: vscode.Uri | undefined = undefined): 
 
     if (vscode.workspace?.workspaceFolders && vscode.workspace.workspaceFolders.length > 0) {
         for (let i = 0; i < vscode.workspace.workspaceFolders.length; i++) {
-            if (filename?.fsPath.startsWith(vscode.workspace.workspaceFolders[i].uri.fsPath)) {
+            if (filename == undefined) {
+                // simply use the workspace folder if it exists
                 root = vscode.workspace.workspaceFolders[i].uri.fsPath;
                 isWorkspace = true;
                 break;
+            } else {
+                // check if open file is in workspace folder
+                if (filename?.fsPath.startsWith(vscode.workspace.workspaceFolders[i].uri.fsPath)) {
+                    root = vscode.workspace.workspaceFolders[i].uri.fsPath;
+                    isWorkspace = true;
+                    break;
+                }
             }
         }
     }
