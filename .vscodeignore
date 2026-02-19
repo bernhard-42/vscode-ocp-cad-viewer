@@ -55,11 +55,11 @@ node_modules/three-cad-viewer/dist/three-cad-viewer.min.js
 ocp-vscode-icons.afdesign
 Makefile
 
-media/ocp-logo.afdesign
-media/ocp-icon.pxm
+media/svg-logo.py
 media/ocp-icon.pxm
 media/ocp-logo.afdesign
 media/ocp-icon.afdesign
+media/ocp-vscode-icons.afdesign
 media/ocp-icon.png
 media/ocp-logo.png
 
