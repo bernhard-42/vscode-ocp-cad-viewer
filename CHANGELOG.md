@@ -2,13 +2,20 @@
 
 All notable changes to the "OCP CAD Viewer" extension will be documented in this file.
 
-## 3.1.1
+## v3.1.2
+
+- Convert Montserrat to svg path for the side bar logo
+- Increase logo png to 512x512
+- Make default zoom faster again (regression from 4.1.1)
+- Fix boundary color of colorful zebra for odd stripe count
+
+## v3.1.1
 
 **Fixes**
 
 - Fix the zoom state residual issue beacuse of TrackballControls using dynamic damping (three-cad-viewer)
 
-## 3.1.0
+## v3.1.0
 
 **Features**
 
@@ -63,7 +70,7 @@ All notable changes to the "OCP CAD Viewer" extension will be documented in this
 - Changed trackball panning speed to be more responsive
 - Normalized control speed settings (pan, rotate, zoom) for consistent behavior across orbit and trackball modes.
 
-## 3.0.1
+## v3.0.1
 
 **Fixes**
 
@@ -75,7 +82,7 @@ All notable changes to the "OCP CAD Viewer" extension will be documented in this
 - Streamlined standalone debugging output
 - VS Code only supports esm modules now, so replace proper-lockfile with own esm version of it
 
-## 3.0.0
+## v3.0.0
 
 **Features**
 
