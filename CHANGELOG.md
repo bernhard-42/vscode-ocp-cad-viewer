@@ -2,6 +2,12 @@
 
 All notable changes to the "OCP CAD Viewer" extension will be documented in this file.
 
+## 3.1.1
+
+**Fixes**
+
+- Fix the zoom state residual issue beacuse of TrackballControls using dynamic damping (three-cad-viewer)
+
 ## 3.1.0
 
 **Features**

@@ -2,7 +2,7 @@
   "name": "ocp-cad-viewer",
   "displayName": "OCP CAD Viewer",
   "description": "An integrated OCP CAD viewer for CadQuery and build123d",
-  "version": "3.1.0",
+  "version": "3.1.1",
   "publisher": "bernhard-42",
   "icon": "resources/ocp-logo.png",
   "license": "Apache-2.0",
@@ -790,7 +790,7 @@
     "proper-lockfile": "./proper-lockfile-4.1.2-esm.tgz",
     "semver": "^7.5.1",
     "signal-exit": "3",
-    "three-cad-viewer": "4.1.0",
+    "three-cad-viewer": "4.1.1",
     "ws": "^8.13.0"
   },
   "resolutions": {

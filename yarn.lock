@@ -2924,10 +2924,10 @@ textextensions@^6.11.0:
   dependencies:
     editions "^6.21.0"
 
-three-cad-viewer@4.1.0:
-  version "4.1.0"
-  resolved "https://registry.yarnpkg.com/three-cad-viewer/-/three-cad-viewer-4.1.0.tgz#79afce98c8c32965db3432a53bdccb9e07ece714"
-  integrity sha512-iXrgP5aWksXEO8GtQdHcNI04pVz0GzH1MANlU7k1d1YHI3Syj95Y179Bsz8v1MJuv1Hu7gYODOvT6SOVRVhiHw==
+three-cad-viewer@4.1.1:
+  version "4.1.1"
+  resolved "https://registry.yarnpkg.com/three-cad-viewer/-/three-cad-viewer-4.1.1.tgz#35cefa60d29b3400f1664887bc26c85b979137fc"
+  integrity sha512-pV6RFAsYGeJULjxKJKqgf23nORyZ2I84qqkso/HW1IPj8D2x5yUX72qXJbc44rBGo/hIKhzQ/y479jU9nkguSg==
   dependencies:
     three "0.180.0"
 
