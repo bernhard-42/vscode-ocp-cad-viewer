@@ -417,6 +417,7 @@ NATIVE_TESSELLATOR=1 OCP_VSCODE_PYTEST=1 pytest -v -s tests/
     - Change the order how defaults (via set_defaults) and UI status (actual UI settings) are applied: the defaults set by `set_defaults` now take precedence over the viewer's current UI status
     - The library installation and quickstart commands have a new placeholder `{pip-install}` which will automatically be replaced by `uv pip` when a uv env is selected, else `pip`
     - Upgrade to websockets 16.0 for Python 3.14 and proxy autodetection support ([#210](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/210))
+    - Quickstart commands now per fdefault install build123d via pip install git+https://github.com/gumyr/build123d (with ot without uv)
     - No support for Python 3.9 any more
 
 **Fixes**

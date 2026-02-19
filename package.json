@@ -556,7 +556,7 @@
               "{unset_conda} {pip-install}  ocp_vscode~={ocp_vscode_version} cadquery"
             ],
             "build123d": [
-              "{pip-install}  ocp_vscode~={ocp_vscode_version} build123d"
+              "{pip-install}  ocp_vscode~={ocp_vscode_version} git+https://github.com/gumyr/build123d"
             ]
           },
           "order": 57
@@ -569,7 +569,7 @@
               "{unset_conda} {pip-install} --upgrade cadquery"
             ],
             "build123d": [
-              "{pip-install}  --upgrade build123d"
+              "{pip-install}  --upgrade git+https://github.com/gumyr/build123d"
             ],
             "cadquery_ocp": [
               "{pip-install}  --upgrade cadquery_ocp"
