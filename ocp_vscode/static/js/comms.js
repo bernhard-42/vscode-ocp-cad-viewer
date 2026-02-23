@@ -5,7 +5,13 @@ function handleMessage(message) {
 
 class Comms {
     constructor(host, port) {
-        this.socket = new WebSocket(`ws://${host}:${port}`);
+        this.host = host;
+        this.port = port;
+        this.createWebsocket();
+    }
+
+    createWebsocket() {
+        this.socket = new WebSocket(`ws://${this.host}:${this.port}`);
         this.ready = false;
 
         this.socket.onopen = (event) => {
@@ -15,10 +21,7 @@ class Comms {
         };
 
         this.socket.onmessage = (event) => {
-            console.log(
-                "Message received from server:",
-                event.data.substring(0, 200) + "..."
-            );
+            console.log("Message received from server:", event.data.substring(0, 200) + "...");
             handleMessage(event.data);
         };
 
@@ -28,6 +31,11 @@ class Comms {
 
         this.socket.onclose = (event) => {
             console.log("WebSocket connection closed");
+            // TODO: maybe some way of notifying the GUI that the connection is dead
+            console.log("Attempting to reconnect in 1s");
+            setTimeout(() => {
+                this.createWebsocket();
+            }, 1000);
         };
     }
 
