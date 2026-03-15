@@ -31,6 +31,7 @@ limitations under the License.
             var viewer = null;
             var display = null;
             var _shapes = null;
+            var _meshData = null;
             var _states = null;
             var _config = null;
             var _zoom = null;
@@ -521,7 +522,7 @@ limitations under the License.
                 };
             }
 
-            function showViewer(shapes, config) {
+            function showViewer(meshData, config) {
                 debugLog("showViewer called");
                 if (viewer != null) {
                     viewer.hasAnimationLoop = false;
@@ -530,7 +531,8 @@ limitations under the License.
                     viewer = null;
                 }
 
-                _shapes = shapes;
+                _meshData = meshData;
+                _shapes = meshData.shapes || meshData;
                 _config = config;
 
                 const displayOptions = getDisplayOptions(config.theme);
@@ -776,7 +778,7 @@ limitations under the License.
                 }
 
                 debugLog("Rendering objects with three-cad-viewer");
-                viewer.render(_shapes, renderOptions, viewerOptions);
+                viewer.render(_meshData, renderOptions, viewerOptions);
                 debugLog("Rendering done");
 
                 if (_config.tree_width) {
@@ -896,7 +898,7 @@ limitations under the License.
                 ) {
                     const timer = new Timer("webView", data.config.timeit);
 
-                    decode(data);
+                    // decode(data);
                     timer.split("data decoded");
 
                     var old_states =
@@ -918,7 +920,7 @@ limitations under the License.
                         // debugLog("logo zoom =", config.zoom);
                     }
 
-                    showViewer(meshData.shapes, config);
+                    showViewer(meshData, config);
                     var new_states = getStates(meshData.shapes);
 
                     const new_keys = Object.keys(new_states);
