@@ -133,6 +133,16 @@ export const logo = () => {
             ],
             shapes: {
                 version: 3,
+                materials: {
+                    "blue-acrylic": {
+                        "preset": "acrylic-clear",
+                        "baseColor": "#55a0e3"
+                    },
+                    "black-acrylic": {
+                        "preset": "acrylic-clear",
+                        "baseColor": "#333333"
+                    }
+                },
                 parts: [
                     {
                         id: "/Group/OCP",
@@ -143,6 +153,7 @@ export const logo = () => {
                         state: [1, 1],
                         color: "#55a0e3",
                         alpha: 1.0,
+                        material: "blue-acrylic",
                         texture: null,
                         loc: [
                             [0.0, 0.0, 15.0],
@@ -161,6 +172,7 @@ export const logo = () => {
                         state: [1, 1],
                         color: "#333333",
                         alpha: 1.0,
+                        material: "black-acrylic",
                         texture: null,
                         loc: [
                             [0.0, 0.0, 15.0],
