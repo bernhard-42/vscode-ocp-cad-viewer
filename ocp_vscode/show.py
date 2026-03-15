@@ -103,7 +103,7 @@ __all__ = [
     "none_filter",
 ]
 
-OBJECTS = {"objs": [], "names": [], "colors": [], "alphas": [], "modes": []}
+OBJECTS = {"objs": [], "names": [], "colors": [], "alphas": [], "modes": [], "materials": []}
 
 LAST_CALL = "other"
 
@@ -135,7 +135,7 @@ def _apply_mode(part_group, mode_list):
 
 
 def _tessellate(
-    *cad_objs, names=None, colors=None, alphas=None, modes=None, progress=None, **kwargs
+    *cad_objs, names=None, colors=None, alphas=None, modes=None, materials=None, progress=None, **kwargs
 ):
     viewer = kwargs.get("viewer")
     port = kwargs.get("port")
@@ -270,6 +270,7 @@ def _tessellate(
             names=names,
             colors=colors,
             alphas=alphas,
+            materials=materials,
             render_mates=kwargs.get("render_mates", changed_config.get("render_mates")),
             render_joints=kwargs.get(
                 "render_joints", changed_config.get("render_joints")
@@ -387,6 +388,8 @@ def _convert(
     colors=None,
     alphas=None,
     modes=None,
+    materials=None,
+    material_definitions=None,
     progress=None,
     **kwargs,
 ):
@@ -401,9 +404,16 @@ def _convert(
         colors=colors,
         alphas=alphas,
         modes=modes,
+        materials=materials,
         progress=progress,
         **kwargs,
     )
+
+    if material_definitions is not None:
+        shapes["materials"] = {
+            k: v.to_dict() if hasattr(v, "to_dict") else v
+            for k, v in material_definitions.items()
+        }
 
     if config.get("dark") is not None:
         config["theme"] = "dark"
@@ -476,6 +486,8 @@ def show(
     colors=None,
     alphas=None,
     modes=None,
+    materials=None,
+    material_definitions=None,
     port=None,
     progress="-+*c",
     glass=None,
@@ -557,6 +569,8 @@ def show(
                                  Render.EDGES: show edges only
                                  Render.FACES: show faces only
                                  Render.NONE: hide object
+        materials:               List of material name strings for the cad_objs. Needs to have the same length as cad_objs (default=None)
+        material_definitions:    Dict mapping material names to PBR material JSON definitions (default=None)
         progress:                Show progress of tessellation with None is no progress indicator. (default="-+*c")
                                  for object: "-": is reference,
                                              "+": gets tessellated with Python code,
@@ -662,6 +676,8 @@ def _show(*cad_objs, **kwargs):
     names = kwargs.get("names")
     colors = kwargs.get("colors")
     alphas = kwargs.get("alphas")
+    materials = kwargs.get("materials")
+    material_definitions = kwargs.get("material_definitions")
     default_edgecolor = kwargs.get("default_edgecolor")
     progress = kwargs.get("progress")
     _force_in_debug = kwargs.get("_force_in_debug")
@@ -693,6 +709,8 @@ def _show(*cad_objs, **kwargs):
             "names",
             "colors",
             "alphas",
+            "materials",
+            "material_definitions",
             "progress",
             "LAST_CALL",
         ]
@@ -714,6 +732,8 @@ def _show(*cad_objs, **kwargs):
         modes = [modes] * len(cad_objs)
     if modes is not None:
         modes = align_attrs(modes, len(cad_objs), None, "modes")
+
+    materials = align_attrs(materials, len(cad_objs), None, "materials")
 
     # Handle colormaps
 
@@ -757,6 +777,8 @@ def _show(*cad_objs, **kwargs):
             colors=colors,
             alphas=alphas,
             modes=modes,
+            materials=materials,
+            material_definitions=material_definitions,
             progress=progress,
             **kwargs,
         )
@@ -786,7 +808,7 @@ def reset_show():
     """Reset the stack of objects to be shown"""
     global OBJECTS  # pylint: disable=global-statement
 
-    OBJECTS = {"objs": [], "names": [], "colors": [], "alphas": [], "modes": []}
+    OBJECTS = {"objs": [], "names": [], "colors": [], "alphas": [], "modes": [], "materials": []}
 
 
 # pylint: disable=too-many-locals,too-many-arguments
@@ -798,6 +820,8 @@ def show_object(
     clear=False,
     update=False,
     mode=None,
+    material=None,
+    material_definitions=None,
     port=None,
     progress="-+*c",
     glass=None,
@@ -880,6 +904,8 @@ def show_object(
                                  Render.EDGES: show edges only
                                  Render.FACES: show faces only
                                  Render.NONE: hide object
+        material:                Material name string for this object (default=None)
+        material_definitions:    Dict mapping material names to PBR material JSON definitions (default=None)
         port:                    The port the viewer listens to. Typically use 'set_port(port)' instead
         progress:                Show progress of tessellation with None is no progress indicator. (default="-+*c")
                                  for object: "-": is reference,
@@ -980,7 +1006,7 @@ def remove_object(name, call_show=False, port=None, progress="-+*c"):
     """Remove object from the stack of objects by name"""
     try:
         index = OBJECTS["names"].index(name)
-        for key in ["objs", "names", "colors", "alphas", "modes"]:
+        for key in ["objs", "names", "colors", "alphas", "modes", "materials"]:
             del OBJECTS[key][index]
     except ValueError:
         pass  # Name not found; silently do nothing
@@ -992,6 +1018,7 @@ def remove_object(name, call_show=False, port=None, progress="-+*c"):
             colors=OBJECTS["colors"],
             alphas=OBJECTS["alphas"],
             modes=OBJECTS["modes"],
+            materials=OBJECTS["materials"],
             port=port,
             progress=progress,
         )
@@ -1006,6 +1033,8 @@ def _show_object(obj, **kwargs):
     options = kwargs.get("options")
     progress = kwargs.get("progress")
     mode = kwargs.get("mode")
+    material = kwargs.get("material")
+    material_definitions = kwargs.get("material_definitions")
 
     kwargs = {
         k: v
@@ -1022,6 +1051,8 @@ def _show_object(obj, **kwargs):
             "progress",
             "update",
             "mode",
+            "material",
+            "material_definitions",
         ]
     }
 
@@ -1037,6 +1068,7 @@ def _show_object(obj, **kwargs):
         OBJECTS["colors"].append(None)
         OBJECTS["alphas"].append(None)
         OBJECTS["modes"].append(None)
+        OBJECTS["materials"].append(None)
 
     color = None
     alpha = None
@@ -1048,12 +1080,15 @@ def _show_object(obj, **kwargs):
     else:
         color = options.get("color")
         alpha = options.get("alpha", 1.0)
+        if options.get("material") is not None:
+            material = options.get("material")
 
     OBJECTS["objs"].append(obj)
     OBJECTS["names"].append(name)
     OBJECTS["colors"].append(color)
     OBJECTS["alphas"].append(alpha)
     OBJECTS["modes"].append(mode)
+    OBJECTS["materials"].append(material)
 
     return show(
         *OBJECTS["objs"],
@@ -1061,6 +1096,8 @@ def _show_object(obj, **kwargs):
         colors=OBJECTS["colors"],
         alphas=OBJECTS["alphas"],
         modes=OBJECTS["modes"],
+        materials=OBJECTS["materials"],
+        material_definitions=material_definitions,
         port=port,
         progress=progress,
         **kwargs,
@@ -1068,7 +1105,7 @@ def _show_object(obj, **kwargs):
 
 
 def push_object(
-    obj, name=None, color=None, alpha=None, mode=None, clear=False, update=False
+    obj, name=None, color=None, alpha=None, mode=None, material=None, clear=False, update=False
 ):
     """
     Adds or updates an object in the global OBJECTS registry with optional name, color, alpha
@@ -1085,6 +1122,7 @@ def push_object(
             attempts to use 'alpha' attribute of obj, defaults to 1.0.
         mode (Render, optional): The display mode for this object (Render.ALL, Render.EDGES, Render.FACES,
             Render.NONE). If not provided, defaults to Render.ALL.
+        material (str, optional): Material name string for this object (default=None).
         clear (bool, optional): If True, clears the OBJECTS registry before adding the new object.
         update (bool, optional): If True, updates an existing object with the same name;
             otherwise, appends as a new object.
@@ -1116,16 +1154,19 @@ def push_object(
         OBJECTS["colors"][index] = color
         OBJECTS["alphas"][index] = alpha
         OBJECTS["modes"][index] = mode
+        OBJECTS["materials"][index] = material
     else:
         OBJECTS["objs"].append(obj)
         OBJECTS["names"].append(name)
         OBJECTS["colors"].append(color)
         OBJECTS["alphas"].append(alpha)
         OBJECTS["modes"].append(mode)
+        OBJECTS["materials"].append(material)
 
 
 def show_objects(
     modes=None,
+    material_definitions=None,
     port=None,
     progress="-+*c",
     glass=None,
@@ -1295,6 +1336,7 @@ def show_objects(
         names=OBJECTS["names"],
         colors=OBJECTS["colors"],
         alphas=OBJECTS["alphas"],
+        materials=OBJECTS["materials"],
         **kwargs,
     )
 
