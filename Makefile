@@ -60,11 +60,13 @@ release:
 create-release:
 	@git push
 	@git push --tags
-	@github-release release -u bernhard-42 -r vscode-ocp-cad-viewer -t v$(CURRENT_VERSION) -n ocp-cad-viewer-$(CURRENT_VERSION)
-	@sleep 2
-	@github-release upload  -u bernhard-42 -r vscode-ocp-cad-viewer -t v$(CURRENT_VERSION) -n ocp-cad-viewer-$(CURRENT_VERSION).vsix -f ocp-cad-viewer-$(CURRENT_VERSION).vsix
-	@github-release upload  -u bernhard-42 -r vscode-ocp-cad-viewer -t v$(CURRENT_VERSION) -n ocp_vscode-$(CURRENT_VERSION)-py3-none-any.whl -f dist/ocp_vscode-$(CURRENT_VERSION)-py3-none-any.whl 
-	@github-release upload  -u bernhard-42 -r vscode-ocp-cad-viewer -t v$(CURRENT_VERSION) -n ocp_vscode-$(CURRENT_VERSION).tar.gz -f dist/ocp_vscode-$(CURRENT_VERSION).tar.gz 
+	@gh release create v$(CURRENT_VERSION) \
+		ocp-cad-viewer-$(CURRENT_VERSION).vsix \
+		dist/ocp_vscode-$(CURRENT_VERSION)-py3-none-any.whl \
+		dist/ocp_vscode-$(CURRENT_VERSION).tar.gz \
+		--title "ocp_vscode-$(CURRENT_VERSION)" \
+		--notes "v$(CURRENT_VERSION)" \
+		--target main
 
 reload-tcv:
 	yarn remove three-cad-viewer
