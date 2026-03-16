@@ -22,12 +22,20 @@ Keywords for show_object:
     clear:                   In interactive mode, clear the stack of objects to be shown
                                 (typically used for the first object)
     update:                  Update the object (remove old version)
+    mode:                    A Render value for this object (default=None, i.e. Render.ALL).
+                                Render.ALL: show faces and edges
+                                Render.EDGES: show edges only
+                                Render.FACES: show faces only
+                                Render.NONE: hide object
+    material:                Material name string for this object (default=None)
+    material_definitions:    Dict mapping material names to PBR material JSON definitions (default=None)
     port:                    The port the viewer listens to. Typically use 'set_port(port)' instead
     progress:                Show progress of tessellation with None is no progress indicator. (default="-+*c")
                                 for object: "-": is reference,
                                             "+": gets tessellated with Python code,
                                             "*": gets tessellated with native code,
                                             "c": from cache
+
 
 Valid keywords to configure the viewer (**kwargs):
 - UI
@@ -48,7 +56,7 @@ Valid keywords to configure the viewer (**kwargs):
                                 Collapse.ROOT: expand root only,
                                 Collapse.ALL: collapse all nodes,
                                 Collapse.NONE: expand all nodes
-                                (default=Collapse.LEAVES)
+                                (default=Collapse.ROOT)
     ticks:                   Hint for the number of ticks in both directions (default=5)
     center_grid:             Center the grid at the origin or center of mass (default=False)
     grid_font_size:          Size for the font used for grid axis labels (default=12)
@@ -59,9 +67,11 @@ Valid keywords to configure the viewer (**kwargs):
     quaternion:              Camera orientation as quaternion
     target:                  Camera look at target
     reset_camera:            Camera.RESET: Reset camera position, rotation, zoom and target
-                             Camera.CENTER: Keep camera position, rotation, zoom, but look at center
-                             Camera.KEEP: Keep camera position, rotation, zoom, and target
-                             (default=Camera.RESET)
+                                Camera.CENTER: Keep camera position, rotation, zoom, but look at center
+                                Camera.KEEP: Keep camera position, rotation, zoom, and target
+                                Or, choose one of the presets Camera.ISO, Camera.LEFT, Camera.RIGHT,
+                                Camera.TOP, Camera.BOTTOM, Camera.FRONT, Camera.BACK
+                                (default=Camera.RESET)
 
     clip_slider_0:           Setting of clipping slider 0 (default=None)
     clip_slider_1:           Setting of clipping slider 1 (default=None)
@@ -72,6 +82,27 @@ Valid keywords to configure the viewer (**kwargs):
     clip_intersection:       Use clipping intersection mode (default=[False])
     clip_planes:             Show clipping plane helpers (default=False)
     clip_object_colors:      Use object color for clipping caps (default=False)
+
+    zebra_count:             Setting of zebra stripe count (default=9, range: 2-50)
+    zebra_opacity:           Setting of zebra opacity (default=1, range: 0-1)
+    zebra_direction:         Setting of zebra direction angle (default=0, range: 0-90)
+    zebra_color_scheme:      Zebra color scheme: "blackwhite", "grayscale", or "colorful" (default="blackwhite")
+    zebra_mapping_mode:      Zebra mapping mode: "reflection" or "normal" (default="reflection")
+
+    studio_environment:      Environment HDR map, use StudioEnvironment enum or a custom HDR URL
+                                (default=StudioEnvironment.PROCEDURAL_STUDIO)
+    studio_env_intensity:    Intensity of environment lighting, 0-3.0 (default=1.0)
+    studio_env_rotation:     Rotation of environment map in degrees, 0-360 (default=0)
+    studio_background:       StudioBackground.ENVIRONMENT, .TRANSPARENT, .GRADIENT, .GRADIENT_DARK,
+                                .WHITE, .GREY, .DARKGREY (default=StudioBackground.ENVIRONMENT)
+    studio_tone_mapping:     StudioToneMapping.NEUTRAL, .ACES, .NONE (default=StudioToneMapping.NEUTRAL)
+    studio_exposure:         Tone mapping exposure, 0-3.0 (default=1.0)
+    studio_shadow_intensity: Shadow intensity, 0-1.0 (default=0.5)
+    studio_shadow_softness:  Shadow softness, 0-1.0 (default=0.2)
+    studio_ao_intensity:     Ambient occlusion intensity, 0-3.0 (default=0.5)
+    studio_texture_mapping:  StudioTextureMapping.TRIPLANAR or .PARAMETRIC
+                                (default=StudioTextureMapping.TRIPLANAR)
+    studio_4k_env_maps:      Use 4K resolution environment maps (default=False)
 
     pan_speed:               Speed of mouse panning (default=1)
     rotate_speed:            Speed of mouse rotate (default=1)
@@ -93,14 +124,15 @@ Valid keywords to configure the viewer (**kwargs):
     roughness:               Roughness property of the default material (default=0.65)
 
 
-    render_edges:            Render edges  (default=True)
+    render_edges:            Deprecated, use modes=Render.FACES or Render.ALL instead
     render_normals:          Render normals (default=False)
     render_mates:            Render mates for MAssemblies (default=False)
     render_joints:           Render build123d joints (default=False)
     show_parent:             Render parent of faces, edges or vertices as wireframe (default=False)
     show_sketch_local:       In build123d show local sketch in addition to relocate sketch (default=True)
     helper_scale:            Scale of rendered helpers (locations, axis, mates for MAssemblies) (default=1)
-
+                                If it is a float < 1, used the max distance to nested bounding box times
+                                helper_scale to determine the absolut value of it
 - Debug
     debug:                   Show debug statements to the VS Code browser console (default=False)
     timeit:                  Show timing information from level 0-3 (default=False)
@@ -108,11 +140,11 @@ Valid keywords to configure the viewer (**kwargs):
 
 ### Typically useful parameters
 
--   Reset the object stack:
+- Reset the object stack:
 
     `reset_show()`
 
--   Restart a new objects stack
+- Restart a new objects stack
 
     `show_object(obj, clear=True)`
 
