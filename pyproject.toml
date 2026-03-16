@@ -39,6 +39,7 @@ dependencies = [
     "pyperclip==1.9.0",
     "questionary==2.1.1",
     "pillow>=12.1.0, <13.0",
+    "threejs-materials>=0.3.0,<0.4.0"
 ]
 
 [project.urls]
