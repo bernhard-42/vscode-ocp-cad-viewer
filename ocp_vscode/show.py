@@ -81,6 +81,10 @@ from ocp_vscode.config import (
     Camera,
     Collapse,
     Render,
+    StudioBackground,
+    StudioEnvironment,
+    StudioTextureMapping,
+    StudioToneMapping,
     check_deprecated,
     combined_config,
     get_changed_config,
@@ -103,7 +107,14 @@ __all__ = [
     "none_filter",
 ]
 
-OBJECTS = {"objs": [], "names": [], "colors": [], "alphas": [], "modes": [], "materials": []}
+OBJECTS = {
+    "objs": [],
+    "names": [],
+    "colors": [],
+    "alphas": [],
+    "modes": [],
+    "materials": [],
+}
 
 LAST_CALL = "other"
 
@@ -135,7 +146,14 @@ def _apply_mode(part_group, mode_list):
 
 
 def _tessellate(
-    *cad_objs, names=None, colors=None, alphas=None, modes=None, materials=None, progress=None, **kwargs
+    *cad_objs,
+    names=None,
+    colors=None,
+    alphas=None,
+    modes=None,
+    materials=None,
+    progress=None,
+    **kwargs,
 ):
     viewer = kwargs.get("viewer")
     port = kwargs.get("port")
@@ -336,6 +354,15 @@ def _tessellate(
         kwargs["reset_camera"], Enum
     ):
         params["reset_camera"] = kwargs["reset_camera"].value
+
+    for key in (
+        "studio_environment",
+        "studio_background",
+        "studio_tone_mapping",
+        "studio_texture_mapping",
+    ):
+        if isinstance(params.get(key), Enum):
+            params[key] = params[key].value
 
     # Always compute edges so per-object mode and UI toggling work
     params["render_edges"] = True
@@ -551,6 +578,17 @@ def show(
     show_sketch_local=None,
     helper_scale=None,
     mate_scale=None,  # DEPRECATED
+    studio_environment=None,
+    studio_env_intensity=None,
+    studio_env_rotation=None,
+    studio_background=None,
+    studio_tone_mapping=None,
+    studio_exposure=None,
+    studio_shadow_intensity=None,
+    studio_shadow_softness=None,
+    studio_ao_intensity=None,
+    studio_texture_mapping=None,
+    studio_4k_env_maps=None,
     debug=None,
     timeit=None,
     _force_in_debug=False,
@@ -631,6 +669,21 @@ def show(
         zebra_color_scheme:      Zebra color scheme: "blackwhite", "grayscale", or "colorful" (default="blackwhite")
         zebra_mapping_mode:      Zebra mapping mode: "reflection" or "normal" (default="reflection")
 
+        studio_environment:      Environment HDR map, use StudioEnvironment enum or a custom HDR URL
+                                 (default=StudioEnvironment.PROCEDURAL_STUDIO)
+        studio_env_intensity:    Intensity of environment lighting, 0-3.0 (default=1.0)
+        studio_env_rotation:     Rotation of environment map in degrees, 0-360 (default=0)
+        studio_background:       StudioBackground.ENVIRONMENT, .TRANSPARENT, .GRADIENT, .GRADIENT_DARK,
+                                 .WHITE, .GREY, .DARKGREY (default=StudioBackground.ENVIRONMENT)
+        studio_tone_mapping:     StudioToneMapping.NEUTRAL, .ACES, .NONE (default=StudioToneMapping.NEUTRAL)
+        studio_exposure:         Tone mapping exposure, 0-3.0 (default=1.0)
+        studio_shadow_intensity: Shadow intensity, 0-1.0 (default=0.5)
+        studio_shadow_softness:  Shadow softness, 0-1.0 (default=0.2)
+        studio_ao_intensity:     Ambient occlusion intensity, 0-3.0 (default=0.5)
+        studio_texture_mapping:  StudioTextureMapping.TRIPLANAR or .PARAMETRIC
+                                 (default=StudioTextureMapping.TRIPLANAR)
+        studio_4k_env_maps:      Use 4K resolution environment maps (default=False)
+
         pan_speed:               Speed of mouse panning (default=1)
         rotate_speed:            Speed of mouse rotate (default=1)
         zoom_speed:              Speed of mouse zoom (default=1)
@@ -659,7 +712,6 @@ def show(
         helper_scale:            Scale of rendered helpers (locations, axis, mates for MAssemblies) (default=1)
                                  If it is a float < 1, used the max distance to nested bounding box times
                                  helper_scale to determine the absolut value of it
-
     - Debug
         debug:                   Show debug statements to the VS Code browser console (default=False)
         timeit:                  Show timing information from level 0-3 (default=False)
@@ -808,7 +860,14 @@ def reset_show():
     """Reset the stack of objects to be shown"""
     global OBJECTS  # pylint: disable=global-statement
 
-    OBJECTS = {"objs": [], "names": [], "colors": [], "alphas": [], "modes": [], "materials": []}
+    OBJECTS = {
+        "objs": [],
+        "names": [],
+        "colors": [],
+        "alphas": [],
+        "modes": [],
+        "materials": [],
+    }
 
 
 # pylint: disable=too-many-locals,too-many-arguments
@@ -882,6 +941,17 @@ def show_object(
     show_sketch_local=None,
     helper_scale=None,
     mate_scale=None,  # DEPRECATED
+    studio_environment=None,
+    studio_env_intensity=None,
+    studio_env_rotation=None,
+    studio_background=None,
+    studio_tone_mapping=None,
+    studio_exposure=None,
+    studio_shadow_intensity=None,
+    studio_shadow_softness=None,
+    studio_ao_intensity=None,
+    studio_texture_mapping=None,
+    studio_4k_env_maps=None,
     debug=None,
     timeit=None,
 ):
@@ -965,6 +1035,21 @@ def show_object(
         zebra_direction:         Setting of zebra direction angle (default=0, range: 0-90)
         zebra_color_scheme:      Zebra color scheme: "blackwhite", "grayscale", or "colorful" (default="blackwhite")
         zebra_mapping_mode:      Zebra mapping mode: "reflection" or "normal" (default="reflection")
+
+        studio_environment:      Environment HDR map, use StudioEnvironment enum or a custom HDR URL
+                                 (default=StudioEnvironment.PROCEDURAL_STUDIO)
+        studio_env_intensity:    Intensity of environment lighting, 0-3.0 (default=1.0)
+        studio_env_rotation:     Rotation of environment map in degrees, 0-360 (default=0)
+        studio_background:       StudioBackground.ENVIRONMENT, .TRANSPARENT, .GRADIENT, .GRADIENT_DARK,
+                                 .WHITE, .GREY, .DARKGREY (default=StudioBackground.ENVIRONMENT)
+        studio_tone_mapping:     StudioToneMapping.NEUTRAL, .ACES, .NONE (default=StudioToneMapping.NEUTRAL)
+        studio_exposure:         Tone mapping exposure, 0-3.0 (default=1.0)
+        studio_shadow_intensity: Shadow intensity, 0-1.0 (default=0.5)
+        studio_shadow_softness:  Shadow softness, 0-1.0 (default=0.2)
+        studio_ao_intensity:     Ambient occlusion intensity, 0-3.0 (default=0.5)
+        studio_texture_mapping:  StudioTextureMapping.TRIPLANAR or .PARAMETRIC
+                                 (default=StudioTextureMapping.TRIPLANAR)
+        studio_4k_env_maps:      Use 4K resolution environment maps (default=False)
 
         pan_speed:               Speed of mouse panning (default=1)
         rotate_speed:            Speed of mouse rotate (default=1)
@@ -1105,7 +1190,14 @@ def _show_object(obj, **kwargs):
 
 
 def push_object(
-    obj, name=None, color=None, alpha=None, mode=None, material=None, clear=False, update=False
+    obj,
+    name=None,
+    color=None,
+    alpha=None,
+    mode=None,
+    material=None,
+    clear=False,
+    update=False,
 ):
     """
     Adds or updates an object in the global OBJECTS registry with optional name, color, alpha

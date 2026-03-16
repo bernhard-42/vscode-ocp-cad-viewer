@@ -48,6 +48,10 @@ __all__ = [
     "Camera",
     "Collapse",
     "Render",
+    "StudioEnvironment",
+    "StudioBackground",
+    "StudioToneMapping",
+    "StudioTextureMapping",
     "check_deprecated",
 ]
 
@@ -85,6 +89,50 @@ class Render(Enum):
     NONE = "none"
 
 
+class StudioEnvironment(Enum):
+    """Studio mode environment/HDR map presets"""
+
+    PROCEDURAL_STUDIO = "studio"
+    SOFT_LIGHT = "studio_small_08"
+    HIGH_CONTRAST_STUDIO = "studio_small_03"
+    BRIGHT_NEUTRAL = "white_studio_05"
+    CLEAN_SOFTBOX = "white_studio_03"
+    SPOTLIT_SETUP = "photo_studio_01"
+    CONTROLLED_LIGHT = "studio_small_09"
+    HARD_CONTRAST_LIGHT = "cyclorama_hard_light"
+    URBAN_OVERCAST = "canary_wharf"
+    OUTDOOR_WARM = "kiara_1_dawn"
+    NEUTRAL_INDUSTRIAL = "empty_warehouse_01"
+    SAN_GIUSEPPE_BRIDGE = "san_giuseppe_bridge"
+
+
+class StudioBackground(Enum):
+    """Studio mode background options"""
+
+    ENVIRONMENT = "environment"
+    TRANSPARENT = "transparent"
+    GRADIENT = "gradient"
+    GRADIENT_DARK = "gradient-dark"
+    WHITE = "white"
+    GREY = "grey"
+    DARKGREY = "darkgrey"
+
+
+class StudioToneMapping(Enum):
+    """Studio mode tone mapping options"""
+
+    NEUTRAL = "neutral"
+    ACES = "ACES"
+    NONE = "none"
+
+
+class StudioTextureMapping(Enum):
+    """Studio mode texture mapping options"""
+
+    TRIPLANAR = "triplanar"
+    PARAMETRIC = "parametric"
+
+
 COLLAPSE_REVERSE_MAPPING = {
     2: Collapse.NONE,
     -1: Collapse.LEAVES,
@@ -112,6 +160,17 @@ CONFIG_UI_KEYS = [
     "metalness",
     "ortho",
     "roughness",
+    "studio_4k_env_maps",
+    "studio_ao_intensity",
+    "studio_background",
+    "studio_env_intensity",
+    "studio_env_rotation",
+    "studio_environment",
+    "studio_exposure",
+    "studio_shadow_intensity",
+    "studio_shadow_softness",
+    "studio_texture_mapping",
+    "studio_tone_mapping",
     "transparent",
     "zebra_color_scheme",
     "zebra_count",
@@ -188,6 +247,17 @@ CONFIG_SET_KEYS = [
     "reset_camera",
     "rotate_speed",
     "roughness",
+    "studio_4k_env_maps",
+    "studio_ao_intensity",
+    "studio_background",
+    "studio_env_intensity",
+    "studio_env_rotation",
+    "studio_environment",
+    "studio_exposure",
+    "studio_shadow_intensity",
+    "studio_shadow_softness",
+    "studio_texture_mapping",
+    "studio_tone_mapping",
     "target",
     "tools",
     "transparent",
@@ -253,6 +323,17 @@ def set_viewer_config(
     zebra_direction=None,
     zebra_color_scheme=None,
     zebra_mapping_mode=None,
+    studio_environment=None,
+    studio_env_intensity=None,
+    studio_env_rotation=None,
+    studio_background=None,
+    studio_tone_mapping=None,
+    studio_exposure=None,
+    studio_shadow_intensity=None,
+    studio_shadow_softness=None,
+    studio_ao_intensity=None,
+    studio_texture_mapping=None,
+    studio_4k_env_maps=None,
     port=None,
     viewer=None,
 ):
@@ -266,6 +347,14 @@ def set_viewer_config(
         config["collapse"] = config["collapse"].value
     if config.get("default_edgecolor") is not None:
         config["default_edgecolor"] = Color(config["default_edgecolor"]).web_color
+    for key in (
+        "studio_environment",
+        "studio_background",
+        "studio_tone_mapping",
+        "studio_texture_mapping",
+    ):
+        if isinstance(config.get(key), Enum):
+            config[key] = config[key].value
 
     data = {
         "type": "ui",
@@ -347,6 +436,17 @@ def set_defaults(
     show_sketch_local=None,
     helper_scale=None,
     mate_scale=None,  # DEPRECATED
+    studio_environment=None,
+    studio_env_intensity=None,
+    studio_env_rotation=None,
+    studio_background=None,
+    studio_tone_mapping=None,
+    studio_exposure=None,
+    studio_shadow_intensity=None,
+    studio_shadow_softness=None,
+    studio_ao_intensity=None,
+    studio_texture_mapping=None,
+    studio_4k_env_maps=None,
     debug=None,
     timeit=None,
     port=None,
@@ -409,6 +509,21 @@ def set_defaults(
         zebra_color_scheme: Zebra color scheme: "blackwhite", "grayscale", or "colorful" (default="blackwhite")
         zebra_mapping_mode: Zebra mapping mode: "reflection" or "normal" (default="reflection")
 
+        studio_environment:      Environment HDR map, use StudioEnvironment enum or a custom HDR URL
+                                 (default=StudioEnvironment.PROCEDURAL_STUDIO)
+        studio_env_intensity:    Intensity of environment lighting, 0-3.0 (default=1.0)
+        studio_env_rotation:     Rotation of environment map in degrees, 0-360 (default=0)
+        studio_background:       StudioBackground.ENVIRONMENT, .TRANSPARENT, .GRADIENT, .GRADIENT_DARK,
+                                 .WHITE, .GREY, .DARKGREY (default=StudioBackground.ENVIRONMENT)
+        studio_tone_mapping:     StudioToneMapping.NEUTRAL, .ACES, .NONE (default=StudioToneMapping.NEUTRAL)
+        studio_exposure:         Tone mapping exposure, 0-3.0 (default=1.0)
+        studio_shadow_intensity: Shadow intensity, 0-1.0 (default=0.5)
+        studio_shadow_softness:  Shadow softness, 0-1.0 (default=0.2)
+        studio_ao_intensity:     Ambient occlusion intensity, 0-3.0 (default=0.5)
+        studio_texture_mapping:  StudioTextureMapping.TRIPLANAR or .PARAMETRIC
+                                 (default=StudioTextureMapping.TRIPLANAR)
+        studio_4k_env_maps:      Use 4K resolution environment maps (default=False)
+
         pan_speed:          Speed of mouse panning (default=1)
         rotate_speed:       Speed of mouse rotate (default=1)
         zoom_speed:         Speed of mouse zoom (default=1)
@@ -434,6 +549,7 @@ def set_defaults(
         helper_scale:       Scale of rendered helpers (locations, axis, mates for MAssemblies) (default=1)
                             If it is a float < 1, used the max distance to nested bounding box times
                             helper_scale to determine the absolut value of it
+
     - Debug
         debug:              Show debug statements to the VS Code browser console (default=False)
         timeit:             Show timing information from level 0-3 (default=False)

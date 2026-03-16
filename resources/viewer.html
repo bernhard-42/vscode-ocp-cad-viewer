@@ -98,7 +98,18 @@ limitations under the License.
                 control: "{{ control }}",
                 centerGrid: false,
                 gridFontSize: 12,
-                newTreeBehavior: true
+                newTreeBehavior: true,
+                studioEnvironment: "studio",
+                studioEnvIntensity: 1.0,
+                studioEnvRotation: 0,
+                studioBackground: "environment",
+                studioToneMapping: "neutral",
+                studioExposure: 1.0,
+                studioShadowIntensity: 0.5,
+                studioShadowSoftness: 0.2,
+                studioAOIntensity: 0.5,
+                studioTextureMapping: "triplanar",
+                studio4kEnvMaps: false
             };
 
             const renderDefaultOptions = {
@@ -578,7 +589,8 @@ limitations under the License.
                     s.replace(/_([a-z])/g, (_, c) => c.toUpperCase());
                 const optionKeyOverrides = {
                     default_edgecolor: "edgeColor",
-                    clip_planes: "clipPlaneHelpers"
+                    clip_planes: "clipPlaneHelpers",
+                    studio_4k_env_maps: "studio4kEnvMaps"
                 };
 
                 // prettier-ignore
@@ -608,6 +620,10 @@ limitations under the License.
                     "clip_intersection", "clip_planes", "clip_object_colors",
                     "zebra_count", "zebra_opacity", "zebra_direction",
                     "zebra_color_scheme", "zebra_mapping_mode",
+                    "studio_environment", "studio_env_intensity", "studio_env_rotation",
+                    "studio_background", "studio_tone_mapping", "studio_exposure",
+                    "studio_shadow_intensity", "studio_shadow_softness", "studio_ao_intensity",
+                    "studio_texture_mapping", "studio_4k_env_maps",
                 ];
 
                 viewerOptions = {};
