@@ -47,8 +47,12 @@ screenshots/ocp_vscode_installed.png
 screenshots/properties-tool.png
 screenshots/topo-filter.png
 screenshots/vertices-parent.png
+screenshots/studio-view-material-editor.png
+screenshots/studio-view-no-tools.png
+screenshots/studio-view.png
+screenshots/cad-view.png
 
-
+node_modules/three-cad-viewer/dist/three-cad-viewer.esm.js.map
 node_modules/three-cad-viewer/dist/three-cad-viewer.esm.min.js
 node_modules/three-cad-viewer/dist/three-cad-viewer.js
 node_modules/three-cad-viewer/dist/three-cad-viewer.min.js
