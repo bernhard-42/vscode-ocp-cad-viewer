@@ -2,6 +2,32 @@
 
 All notable changes to the "OCP CAD Viewer" extension will be documented in this file.
 
+## v3.2.0
+
+**Features**
+
+- New PBR (physically based rendering) **Studio mode** using MaterialX materials from 3 public sources
+    - Per-object PBR materials: Assign materials to shapes via a `material` string tag on CAD objects and a `materials` dictionary
+        - Supports two formats: `"builtin:preset-name"` strings (31 built-in presets) and `MaterialXMaterial` objects (via the [threejs-materials](https://github.com/bernhard-42/threejs-materials))
+        - Material presets: 31 built-in presets (polished/matte metals, plastics, glass, rubber, painted, natural) — usable as `"builtin:preset-name"` in the materials dictionary
+        - Material Editor: Interactive PBR parameter tweaker for selected objects in Studio mode
+    - Environment maps: Image-based lighting (IBL) via Poly Haven HDR presets (CC0 license)
+        - 11 curated presets (studio, workshop, outdoor, architectural), loaded on demand from Poly Haven CDN (2K default resolution, 4k optional)
+        - Procedural `RoomEnvironment` bundled as zero-network fallback
+        - Custom HDR URL support via API
+        - Environment rotation slider with synchronized shadow light positioning
+    - Texture mapping: Triplanar shader injection for UV-less CAD geometry (default), with parametric fallback toggle
+    - Background modes: gradient grey, gradient dark grey (default), white, environment, or transparent
+    - Shadows: Two-pass blurred shadow system with depth masking with automatic shadow light placement from HDR environment analysis (light detection) and intensity and softness sliders
+    - Ambient Occlusion: N8AO screen-space AO with depth-aware upsampling and user-controlled intensity
+    - Tone mapping: PBR Neutral (default), ACES Filmic, or none — with exposure control
+    - Anti-aliasing: SMAA via postprocessing library EffectComposer
+
+- UI Improvements
+    - Reordered tabs: Tree | Clip | Zebra | Material | Studio
+    - Added reset buttons for Clip and Zebra tabs
+    - Collapsible Tools and Info panels in glass mode with arrow toggle indicators (tools panel toggle also hides/shows orientation marker and animation/explode slider)
+
 ## v3.1.2
 
 - Convert Montserrat to svg path for the side bar logo

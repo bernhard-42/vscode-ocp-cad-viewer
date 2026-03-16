@@ -382,68 +382,28 @@ NATIVE_TESSELLATOR=1 OCP_VSCODE_PYTEST=1 pytest -v -s tests/
 
 ## Changes
 
-## v3.1.2
+## v3.2.0
 
-- Convert Montserrat to svg path for the side bar logo
-- Increase logo png to 512x512
-- Make default zoom faster again (regression from 4.1.1)
-- Fix boundary color of colorful zebra for odd stripe count
+**Features**
 
-## v3.1.1
+- New PBR (physically based rendering) **Studio mode** using MaterialX materials from 3 public sources
+    - Per-object PBR materials: Assign materials to shapes via a `material` string tag on CAD objects and a `materials` dictionary
+        - Supports two formats: `"builtin:preset-name"` strings (31 built-in presets) and `MaterialXMaterial` objects (via the [threejs-materials](https://github.com/bernhard-42/threejs-materials))
+        - Material presets: 31 built-in presets (polished/matte metals, plastics, glass, rubber, painted, natural) — usable as `"builtin:preset-name"` in the materials dictionary
+        - Material Editor: Interactive PBR parameter tweaker for selected objects in Studio mode
+    - Environment maps: Image-based lighting (IBL) via Poly Haven HDR presets (CC0 license)
+        - 11 curated presets (studio, workshop, outdoor, architectural), loaded on demand from Poly Haven CDN (2K default resolution, 4k optional)
+        - Procedural `RoomEnvironment` bundled as zero-network fallback
+        - Custom HDR URL support via API
+        - Environment rotation slider with synchronized shadow light positioning
+    - Texture mapping: Triplanar shader injection for UV-less CAD geometry (default), with parametric fallback toggle
+    - Background modes: gradient grey, gradient dark grey (default), white, environment, or transparent
+    - Shadows: Two-pass blurred shadow system with depth masking with automatic shadow light placement from HDR environment analysis (light detection) and intensity and softness sliders
+    - Ambient Occlusion: N8AO screen-space AO with depth-aware upsampling and user-controlled intensity
+    - Tone mapping: PBR Neutral (default), ACES Filmic, or none — with exposure control
+    - Anti-aliasing: SMAA via postprocessing library EffectComposer
 
-**Fixes**
-
-- Fix the zoom state residual issue beacuse of TrackballControls using dynamic damping (three-cad-viewer)
-
-## v3.1.0
-
-- Viewer UI:
-    - Based on a completely refactored [tcv-cad-viewer v4.1.0](https://github.com/bernhard-42/three-cad-viewer) and adapted to changes in API of tcv-cad-viewer v4.0.1
-    - New Zebra tool with normal and reflective stripes
-    - Measure tool
-        - Unified angle computation at closest points via `BRepExtrema`, supporting all edge/face combinations (circles, splines, cylinders, spheres, …) ([#211](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/211))
-        - Backend returns direction/normal vectors and context-aware labels (`line`, `face normal`, `tangent at P1`, `surface normal at P2`)
-        - Measurement arrows adapt to point proximity: cones flip outward when points are close, and are hidden when coincident — preventing visual overlap
-        - Backend returns grouped response format for distance and properties: metadata at top level, grouped data in `result` array. Measurement panels now render grouped backend responses with horizontal separators between groups (backend is info master)
-    - Added keyboard shortcuts for toolbar buttons, camera presets, tab navigation, and animation control. Default bindings (only _key_ and _shift-key_ are supported. Modifier keys can only be mapped to mouse events):
-        - Toggle: `a` axes, `A` axes0, `g` all grids, `G` xy-grid only, `p` perspective, `t` transparent, `b` blackedges, `x` explode, `L` zscale, `D` distance, `P` properties, `S` select
-        - Views: (keypad cross): top: `8`, left: `4`, iso: `5`, right: `6`, bottom: `2`, front: `1`, rear: `3`
-        - Reset: `r` resize, `R` reset
-        - Tabs: `T` tree, `C` clip, `M` material, `Z` zebra
-        - Other: `h` help, `Space` play/pause, `Escape` stop/close-help
-    - Adapted to the new consistent notification system of three-cad-viewer v4
-    - Refreshed logo to use font Montserrat instead of Futura
-- Animation
-    - Exposed `animation.set_relative_time` in 1/1000 steps to contol animation from within Python
-    - New feature to save animation as animated gif with fps and loop settings
-    - Animation now takes paths from actually shown object tree
-    - Animation allows to show additional objects beside the animated assembly (but the paths change!)
-- Extension status bar
-    - The status bar entry for OCP CAD Viewer has been moved to the right where the Python status items live
-    - The status bar entry now shows the currently used port (`OCP: 3939·DEBUG` / `OCP: 3939`), is only visible when the viewer is running
-- Terminal
-    - A new Workspace config `OcpCadViewer.advanced.shellCommandPrefix` allows to exclude commands from shell history for bash, zsh, ... ([#204](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/204))
-    - The extension respects VS Code's automationProfile and defaultProfile terminal settings when creating terminals
-      Order: `automationProfile` (if set), then `defaultProfile` → resolved via profiles (if set) then OS login shell ([#198](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/198))
-- Python
-    - The new default for the `reset_camera` parameter is `Camera.KEEP`. **Note that this can be changed in the VS Code settings for "OCP CAD Viewer"**
-    - Added per-object render mode via `modes` parameter (`Render.ALL`, `Render.EDGES`, `Render.FACES`, `Render.NONE`). Deprecate `render_edges` in favor of `modes` ([#114](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/114))
-    - Change the order how defaults (via set_defaults) and UI status (actual UI settings) are applied: the defaults set by `set_defaults` now take precedence over the viewer's current UI status
-    - The library installation and quickstart commands have a new placeholder `{pip-install}` which will automatically be replaced by `uv pip` when a uv env is selected, else `pip`
-    - Upgrade to websockets 16.0 for Python 3.14 and proxy autodetection support ([#210](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/210))
-    - Quickstart commands now per fdefault install build123d via pip install git+https://github.com/gumyr/build123d (with ot without uv)
-    - No support for Python 3.9 any more
-
-**Fixes**
-
-- Tessellator does not strip parent compound any more (when it only has a single child) ([#207](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/207))
-- Removed 'text' wrapper from standalone status command result ([205](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/205))
-- Setting timeit does not turn debug mode on any more ([#206](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/206))
-- Fixed animation for Quaternion based tracks ([#208](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/208))
-- Automatically detect uv environments and use uv pip install/list ([#214](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/214))
-- Ensure that ~/.ocpvscode has services attribute ([#214](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/214))
-- Fix race condition between extension activate and webview revive
-- Ensure all output messages have a proper class/file.function prefix
-- Ensure workspace folder is found even when no python file is open to save quickstart demo file
-- Changed trackball panning speed to be more responsive
-- Normalized control speed settings (pan, rotate, zoom) for consistent behavior across orbit and trackball modes.
+- UI Improvements
+    - Reordered tabs: Tree | Clip | Zebra | Material | Studio
+    - Added reset buttons for Clip and Zebra tabs
+    - Collapsible Tools and Info panels in glass mode with arrow toggle indicators (tools panel toggle also hides/shows orientation marker and animation/explode slider)
