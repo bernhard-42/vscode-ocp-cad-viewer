@@ -135,12 +135,12 @@ export const logo = () => {
                 version: 3,
                 materials: {
                     "blue-acrylic": {
-                        "preset": "acrylic-clear",
-                        "baseColor": "#55a0e3"
+                        "builtin": "acrylic-clear",
+                        "color": "#55a0e3"
                     },
                     "black-acrylic": {
-                        "preset": "acrylic-clear",
-                        "baseColor": "#333333"
+                        "builtin": "acrylic-clear",
+                        "color": "#333333"
                     }
                 },
                 parts: [
