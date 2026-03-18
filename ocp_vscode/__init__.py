@@ -27,7 +27,7 @@ from .utils import *
 
 from .colors import *
 from .animation import Animation
-from .selectors import *
+from .ocp_selectors import *
 from ocp_tessellate.cad_objects import ImageFace
 
 
