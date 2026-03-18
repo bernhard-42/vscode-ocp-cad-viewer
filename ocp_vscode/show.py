@@ -275,7 +275,7 @@ def _tessellate(
                     "Warning: Very small objects detected with helper_scale < 1.0: Setting helper_scale to 1"
                 )
             else:
-                helper_scale = bb.max_dist_from_center() * kwargs.get("helper_scale")
+                helper_scale = bb.max_dist_from_center() * conf.get("helper_scale")
                 if kwargs.get("debug"):
                     print(f"Helper scale set to {helper_scale}")
         else:
