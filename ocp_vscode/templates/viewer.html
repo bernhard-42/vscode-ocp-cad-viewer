@@ -24,6 +24,67 @@ limitations under the License.
         <title>OCP CAD Viewer</title>
         <link rel="stylesheet" href="{{ styleSrc }}" />
         {{ standalone_scripts|safe }}
+        <style>
+            #ws-disconnect-warning {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                background-color: #f8d7da;
+                border-bottom: 2px solid #f5c6cb;
+                color: #721c24;
+                padding: 12px 20px;
+                display: none;
+                z-index: 10000;
+                font-size: 14px;
+                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            }
+
+            #ws-disconnect-warning.show {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 10px;
+            }
+
+            #ws-disconnect-warning .message {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                flex: 1;
+            }
+
+            #ws-disconnect-warning .spinner {
+                display: inline-block;
+                width: 14px;
+                height: 14px;
+                border: 2px solid #721c24;
+                border-right-color: transparent;
+                border-radius: 50%;
+                animation: spin 0.6s linear infinite;
+            }
+
+            @keyframes spin {
+                to { transform: rotate(360deg); }
+            }
+
+            #ws-disconnect-warning button {
+                background-color: transparent;
+                border: none;
+                color: #721c24;
+                cursor: pointer;
+                font-size: 18px;
+                padding: 0;
+                line-height: 1;
+                opacity: 0.7;
+                transition: opacity 0.2s;
+            }
+
+            #ws-disconnect-warning button:hover {
+                opacity: 1;
+            }
+        </style>
         <script type="module">
             import { Viewer, Display, Timer } from "{{ scriptSrc }}";
             {{ standalone_imports|safe }} // prettier-ignore
@@ -1008,6 +1069,13 @@ limitations under the License.
     </head>
 
     <body style="padding: 0px; width: fit-content" {{ standalone_init|safe }}>
+        <div id="ws-disconnect-warning">
+            <div class="message">
+                <div class="spinner"></div>
+                <span>WebSocket connection lost. Reconnecting...</span>
+            </div>
+            <button type="button" title="Dismiss" onclick="this.parentElement.classList.remove('show')">&times;</button>
+        </div>
         <div id="cad_viewer"></div>
     </body>
 </html>

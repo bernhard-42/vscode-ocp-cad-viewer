@@ -17,6 +17,11 @@ class Comms {
         this.socket.onopen = (event) => {
             console.log("WebSocket connection established");
             this.ready = true;
+            // Hide the disconnect warning when connection is re-established
+            const warningElement = document.getElementById("ws-disconnect-warning");
+            if (warningElement) {
+                warningElement.classList.remove("show");
+            }
             this.register();
         };
 
@@ -31,7 +36,11 @@ class Comms {
 
         this.socket.onclose = (event) => {
             console.log("WebSocket connection closed");
-            // TODO: maybe some way of notifying the GUI that the connection is dead
+            // Show on-screen warning that the connection is dead
+            const warningElement = document.getElementById("ws-disconnect-warning");
+            if (warningElement) {
+                warningElement.classList.add("show");
+            }
             console.log("Attempting to reconnect in 1s");
             setTimeout(() => {
                 this.createWebsocket();
