@@ -47,14 +47,21 @@ class Comms {
                 document.body.appendChild(warning);
             }
             console.log(`Attempt #${this.retry} to reconnect in 1s`);
-            if (this.retry < this.maxRetries) {
-                document.getElementById("connection-warning").textContent = `=== Connection closed, trying ${this.maxRetries - this.retry} times to reconnect ... ===`;
+            if (this.maxRetries >= 0) {
+                if (this.retry < this.maxRetries) {
+                    document.getElementById("connection-warning").textContent = `=== Connection closed, trying ${this.maxRetries - this.retry} times to reconnect ... ===`;
+                    setTimeout(() => {
+                        this.createWebsocket();
+                    }, 1000);
+                } else {
+                    console.log(`Max reconnection attempts reached, giving up.`);
+                    document.getElementById("connection-warning").textContent = `=== Connection closed, manually refresh browser to reconnect ===`;
+                }
+            } else {
+                document.getElementById("connection-warning").textContent = `=== Connection closed, trying to reconnect ... ===`;
                 setTimeout(() => {
                     this.createWebsocket();
                 }, 1000);
-            } else {
-                console.log(`Max reconnection attempts reached, giving up.`);
-                document.getElementById("connection-warning").textContent = `=== Connection closed, manually refresh browser to reconnect ===`;
             }
         };
     }
