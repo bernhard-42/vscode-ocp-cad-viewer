@@ -311,6 +311,12 @@ def track_param(ctx, param, value):
     help="Roughness property of material (default: 0.65)",
     callback=track_param,
 )
+@click.option(
+    "--max_reconnect_attempts",
+    default=300,
+    help="Maximum number of attempts to reconnect to the viewer server in standalone mode (default: 300)",
+    callback=track_param,
+)
 @click.pass_context
 def main(ctx, **kwargs):
     """
