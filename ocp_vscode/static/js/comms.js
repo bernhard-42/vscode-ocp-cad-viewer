@@ -4,19 +4,25 @@ function handleMessage(message) {
 }
 
 class Comms {
-    constructor(host, port) {
+    constructor(host, port, maxRetries = 300) {
         this.host = host;
         this.port = port;
+        this.maxRetries = maxRetries;
+        this.retry = 0;
         this.createWebsocket();
     }
 
     createWebsocket() {
         this.socket = new WebSocket(`ws://${this.host}:${this.port}`);
         this.ready = false;
+        this.retry++;
 
         this.socket.onopen = (event) => {
             console.log("WebSocket connection established");
             this.ready = true;
+            this.retry = 0;
+            const warning = document.getElementById("connection-warning");
+            if (warning) warning.remove();
             this.register();
         };
 
@@ -31,11 +37,25 @@ class Comms {
 
         this.socket.onclose = (event) => {
             console.log("WebSocket connection closed");
-            // TODO: maybe some way of notifying the GUI that the connection is dead
-            console.log("Attempting to reconnect in 1s");
-            setTimeout(() => {
-                this.createWebsocket();
-            }, 1000);
+            this.ready = false;
+            if (!document.getElementById("connection-warning")) {
+                const warning = document.createElement("div");
+                warning.id = "connection-warning";
+                warning.textContent = `=== Connection closed ===`;
+                warning.style.cssText =
+                    "position:fixed;bottom:0;left:0;width:100%;text-align:center;padding:10px;color:#c00;font-weight:bold;font-family:monospace;z-index:10000;";
+                document.body.appendChild(warning);
+            }
+            console.log(`Attempt #${this.retry} to reconnect in 1s`);
+            if (this.retry < this.maxRetries) {
+                document.getElementById("connection-warning").textContent = `=== Connection closed, trying ${this.maxRetries - this.retry} times to reconnect ... ===`;
+                setTimeout(() => {
+                    this.createWebsocket();
+                }, 1000);
+            } else {
+                console.log(`Max reconnection attempts reached, giving up.`);
+                document.getElementById("connection-warning").textContent = `=== Connection closed, manually refresh browser to reconnect ===`;
+            }
         };
     }
 
