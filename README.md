@@ -18,7 +18,7 @@ _OCP CAD Viewer_ for VS Code is an extension to show [CadQuery](https://github.c
 
 ### Installation
 
-1. Open the VS Code Marketplace, and search and install _OCP CAD Viewer 3.2.1_.
+1. Open the VS Code Marketplace, and search and install _OCP CAD Viewer 3.3.0_.
 
     Afterwards the OCP viewer is available in the VS Code sidebar:
 
@@ -381,6 +381,21 @@ NATIVE_TESSELLATOR=1 OCP_VSCODE_PYTEST=1 pytest -v -s tests/
     **Solution:** [Delete the VS Code browser cache on Linux](https://bobbyhadz.com/blog/vscode-clear-cache) (go to the section for your operating system)
 
 ## Changes
+
+## v3.3.0
+
+**Features**
+
+- Material assignment simplified:
+    - Material objects from [threejs-materials](https://github.com/bernhard-42/threejs-materials) can now be assigned directly to `.material` on CAD objects or passed in the `materials` list — material definitions are auto-extracted
+    - `material_definitions` parameter removed from `show()`, `show_object()`, and `show_objects()`
+    - New approach `body.material = metal; show(body)`
+- Browser auto-reconnect to server: the viewer automatically reconnects when the server restarts, with a disconnection warning displayed at the bottom. Uses negative `max_reconnect_attempts` values for infinite retries, with limited retries by default (PR #215)
+
+**Bug Fixes**
+
+- Fix `helper_scale` not working with `set_defaults`
+- Rename `selectors.py` to `ocp_selectors.py` to avoid conflict with Python's `subprocess` module
 
 ## v3.2.0
 

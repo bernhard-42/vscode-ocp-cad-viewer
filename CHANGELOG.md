@@ -2,6 +2,21 @@
 
 All notable changes to the "OCP CAD Viewer" extension will be documented in this file.
 
+## v3.3.0
+
+**Features**
+
+- Material assignment simplified:
+    - Material objects from [threejs-materials](https://github.com/bernhard-42/threejs-materials) can now be assigned directly to `.material` on CAD objects or passed in the `materials` list — material definitions are auto-extracted
+    - `material_definitions` parameter removed from `show()`, `show_object()`, and `show_objects()`
+    - New approach `body.material = metal; show(body)`
+- Browser auto-reconnect to server: the viewer automatically reconnects when the server restarts, with a disconnection warning displayed at the bottom. Uses negative `max_reconnect_attempts` values for infinite retries, with limited retries by default (PR #215)
+
+**Bug Fixes**
+
+- Fix `helper_scale` not working with `set_defaults`
+- Rename `selectors.py` to `ocp_selectors.py` to avoid conflict with Python's `subprocess` module
+
 ## v3.2.0
 
 **Features**
