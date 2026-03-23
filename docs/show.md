@@ -23,8 +23,7 @@ Keywords for show:
                                 Render.EDGES: show edges only
                                 Render.FACES: show faces only
                                 Render.NONE: hide object
-    materials:               List of material name strings for the cad_objs. Needs to have the same length as cad_objs (default=None)
-    material_definitions:    Dict mapping material names to PBR material JSON definitions (default=None)
+    materials:               List of Material objects or material name strings for the cad_objs. Needs to have the same length as cad_objs (default=None)
     progress:                Show progress of tessellation with None is no progress indicator. (default="-+*c")
                                 for object: "-": is reference,
                                             "+": gets tessellated with Python code,

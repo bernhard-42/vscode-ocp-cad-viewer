@@ -53,6 +53,7 @@ from ocp_tessellate.ocp_utils import (
     nested_bounding_box,
 )
 from ocp_tessellate.utils import Color, Timer, numpy_to_buffer_json
+from threejs_materials import Material
 
 from ocp_vscode.colors import BaseColorMap, get_colormap
 
@@ -143,6 +144,40 @@ def _apply_mode(part_group, mode_list):
             continue
         state_faces, state_edges = _MODE_STATES[mode]
         _apply_mode_to_node(part_group.objects[i], state_faces, state_edges)
+
+
+def _extract_materials_from_node(node, extracted, id_to_key, name_counts):
+    """Recursively replace Material objects on OcpObject.material with string keys."""
+    if isinstance(node, OcpGroup):
+        for child in node.objects:
+            _extract_materials_from_node(child, extracted, id_to_key, name_counts)
+    else:
+        mat = node.material
+        if isinstance(mat, Material):
+            mat_id = id(mat)
+            if mat_id in id_to_key:
+                node.material = id_to_key[mat_id]
+            else:
+                base_name = mat.name
+                if base_name not in name_counts:
+                    key = base_name
+                    name_counts[base_name] = 2
+                else:
+                    key = f"{base_name}_{name_counts[base_name]}"
+                    name_counts[base_name] += 1
+                extracted[key] = mat
+                id_to_key[mat_id] = key
+                node.material = key
+
+
+def _extract_material_objects(part_group):
+    """Extract Material objects from OcpGroup tree, replacing them with string keys.
+
+    Returns dict mapping string keys to Material objects, or None if none found.
+    """
+    extracted = {}
+    _extract_materials_from_node(part_group, extracted, {}, {})
+    return extracted if extracted else None
 
 
 def _tessellate(
@@ -310,6 +345,8 @@ def _tessellate(
     if modes is not None:
         _apply_mode(part_group, modes)
 
+    extracted_materials = _extract_material_objects(part_group)
+
     params = {
         k: v
         for k, v in conf.items()
@@ -406,7 +443,7 @@ def _tessellate(
         check_camera_warnings(bb)
     set_last_bbox_size(bb)
 
-    return instances, shapes, params, part_group.count_shapes(), mapping
+    return instances, shapes, params, part_group.count_shapes(), mapping, extracted_materials
 
 
 def _convert(
@@ -416,7 +453,6 @@ def _convert(
     alphas=None,
     modes=None,
     materials=None,
-    material_definitions=None,
     progress=None,
     **kwargs,
 ):
@@ -425,7 +461,7 @@ def _convert(
     if progress is None:
         progress = Progress([c for c in "-+c"])
 
-    instances, shapes, config, count_shapes, mapping = _tessellate(
+    instances, shapes, config, count_shapes, mapping, extracted_materials = _tessellate(
         *cad_objs,
         names=names,
         colors=colors,
@@ -436,10 +472,9 @@ def _convert(
         **kwargs,
     )
 
-    if material_definitions is not None:
+    if extracted_materials:
         shapes["materials"] = {
-            k: v.to_dict() if hasattr(v, "to_dict") else v
-            for k, v in material_definitions.items()
+            k: v.to_dict() for k, v in extracted_materials.items()
         }
 
     if config.get("dark") is not None:
@@ -514,7 +549,6 @@ def show(
     alphas=None,
     modes=None,
     materials=None,
-    material_definitions=None,
     port=None,
     progress="-+*c",
     glass=None,
@@ -607,8 +641,7 @@ def show(
                                  Render.EDGES: show edges only
                                  Render.FACES: show faces only
                                  Render.NONE: hide object
-        materials:               List of material name strings for the cad_objs. Needs to have the same length as cad_objs (default=None)
-        material_definitions:    Dict mapping material names to PBR material JSON definitions (default=None)
+        materials:               List of Material objects or material name strings for the cad_objs. Needs to have the same length as cad_objs (default=None)
         progress:                Show progress of tessellation with None is no progress indicator. (default="-+*c")
                                  for object: "-": is reference,
                                              "+": gets tessellated with Python code,
@@ -729,7 +762,6 @@ def _show(*cad_objs, **kwargs):
     colors = kwargs.get("colors")
     alphas = kwargs.get("alphas")
     materials = kwargs.get("materials")
-    material_definitions = kwargs.get("material_definitions")
     default_edgecolor = kwargs.get("default_edgecolor")
     progress = kwargs.get("progress")
     _force_in_debug = kwargs.get("_force_in_debug")
@@ -762,7 +794,6 @@ def _show(*cad_objs, **kwargs):
             "colors",
             "alphas",
             "materials",
-            "material_definitions",
             "progress",
             "LAST_CALL",
         ]
@@ -830,7 +861,6 @@ def _show(*cad_objs, **kwargs):
             alphas=alphas,
             modes=modes,
             materials=materials,
-            material_definitions=material_definitions,
             progress=progress,
             **kwargs,
         )
@@ -880,7 +910,6 @@ def show_object(
     update=False,
     mode=None,
     material=None,
-    material_definitions=None,
     port=None,
     progress="-+*c",
     glass=None,
@@ -974,8 +1003,7 @@ def show_object(
                                  Render.EDGES: show edges only
                                  Render.FACES: show faces only
                                  Render.NONE: hide object
-        material:                Material name string for this object (default=None)
-        material_definitions:    Dict mapping material names to PBR material JSON definitions (default=None)
+        material:                Material object or material name string for this object (default=None)
         port:                    The port the viewer listens to. Typically use 'set_port(port)' instead
         progress:                Show progress of tessellation with None is no progress indicator. (default="-+*c")
                                  for object: "-": is reference,
@@ -1119,7 +1147,6 @@ def _show_object(obj, **kwargs):
     progress = kwargs.get("progress")
     mode = kwargs.get("mode")
     material = kwargs.get("material")
-    material_definitions = kwargs.get("material_definitions")
 
     kwargs = {
         k: v
@@ -1137,7 +1164,6 @@ def _show_object(obj, **kwargs):
             "update",
             "mode",
             "material",
-            "material_definitions",
         ]
     }
 
@@ -1182,7 +1208,6 @@ def _show_object(obj, **kwargs):
         alphas=OBJECTS["alphas"],
         modes=OBJECTS["modes"],
         materials=OBJECTS["materials"],
-        material_definitions=material_definitions,
         port=port,
         progress=progress,
         **kwargs,
@@ -1214,7 +1239,7 @@ def push_object(
             attempts to use 'alpha' attribute of obj, defaults to 1.0.
         mode (Render, optional): The display mode for this object (Render.ALL, Render.EDGES, Render.FACES,
             Render.NONE). If not provided, defaults to Render.ALL.
-        material (str, optional): Material name string for this object (default=None).
+        material (Material or str, optional): Material object or name string for this object (default=None).
         clear (bool, optional): If True, clears the OBJECTS registry before adding the new object.
         update (bool, optional): If True, updates an existing object with the same name;
             otherwise, appends as a new object.
@@ -1258,7 +1283,6 @@ def push_object(
 
 def show_objects(
     modes=None,
-    material_definitions=None,
     port=None,
     progress="-+*c",
     glass=None,

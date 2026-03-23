@@ -26,15 +26,6 @@ light = Material.physicallybased.load("Plastic (Acrylic)")
 red_light = light.override(color=(1, 0, 0))
 yellow_light = light.override(color="yellow")
 
-# The material definition for the viewer
-material_def = {
-    "metal": metal,
-    "alu_hex": alu_hex,
-    "glass": glass,
-    "red_light": red_light,
-    "yellow_light": yellow_light,
-}
-
 #
 # The object
 #
@@ -64,24 +55,26 @@ body.label = "body"
 inner.label = "inner"
 window.label = "window"
 for i, l in enumerate(lights):
-    l.label = f"light\_{i}"
+    l.label = f"light_{i}"
 
 # Setting material and interpolate colors for CAD view
-body.material = "metal"
+body.material = metal
 body.color = "grey"
 
-inner.material = "alu_hex"
-inner.color = metal.interpolate_color()
+inner.material = alu_hex
+inner.color = alu_hex.interpolate_color()
 
-window.material = "glass"
+window.material = glass
 window.color = glass.interpolate_color()
 
 for i, l in enumerate(lights):
-    l.material = "red_light" if i % 2 == 0 else "yellow_light"
-    l.color = material_def[l.material].interpolate_color()
+    l.material = red_light if i % 2 == 0 else yellow_light
+    l.color = l.material.interpolate_color()
 #
 # Visualisation
 #
+# %%
+
 
 # show and use a custom env map, rotated by 180°
 show(
@@ -89,7 +82,6 @@ show(
     inner,
     window,
     lights,
-    material_definitions=material_def,
     studio_environment="https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/4k/suburban_garden_4k.hdr",
     studio_env_rotation=275,
     position=[53.93, -36.89, 24.07],
@@ -98,4 +90,3 @@ show(
 )
 
 time.sleep(1)
-set_viewer_config(tab="studio")

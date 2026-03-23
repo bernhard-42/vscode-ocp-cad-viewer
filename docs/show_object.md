@@ -27,8 +27,7 @@ Keywords for show_object:
                                 Render.EDGES: show edges only
                                 Render.FACES: show faces only
                                 Render.NONE: hide object
-    material:                Material name string for this object (default=None)
-    material_definitions:    Dict mapping material names to PBR material JSON definitions (default=None)
+    material:                Material object or material name string for this object (default=None)
     port:                    The port the viewer listens to. Typically use 'set_port(port)' instead
     progress:                Show progress of tessellation with None is no progress indicator. (default="-+*c")
                                 for object: "-": is reference,
