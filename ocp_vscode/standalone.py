@@ -105,9 +105,11 @@ def cleanup():
 atexit.register(cleanup)
 
 
-def COMMS(host, port):
+def COMMS(host, port, max_retries=None):
+    if max_retries is None:
+        max_retries = ""
     return f"""
-        const comms = new Comms("{host}", {port});
+        const comms = new Comms("{host}", {port}, {max_retries});
         const vscode = {{postMessage: (msg) => {{
                 comms.sendStatus(msg);
             }}
@@ -249,6 +251,7 @@ class Viewer:
         self.params = params
         self.host = params.get("host", "127.0.0.1")
         self.port = params.get("port", 3939)
+        self.max_reconnect_attempts = params.get("max_reconnect_attempts", None)
 
         self.last_changes = {}
         self.last_config = {}
@@ -384,7 +387,7 @@ class Viewer:
             "viewer.html",
             standalone_scripts=SCRIPTS,
             standalone_imports=STATIC,
-            standalone_comms=COMMS(address, port),
+            standalone_comms=COMMS(address, port, max_retries=self.max_reconnect_attempts),
             standalone_init=INIT,
             styleSrc=CSS,
             scriptSrc=JS,
