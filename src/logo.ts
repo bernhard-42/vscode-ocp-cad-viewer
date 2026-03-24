@@ -135,12 +135,12 @@ export const logo = () => {
                 version: 3,
                 materials: {
                     "blue-acrylic": {
-                        "builtin": "acrylic-clear",
-                        "color": "#55a0e3"
+                        builtin: "acrylic-clear",
+                        color: "#55a0e3"
                     },
                     "black-acrylic": {
-                        "builtin": "acrylic-clear",
-                        "color": "#333333"
+                        builtin: "acrylic-clear",
+                        color: "#333333"
                     }
                 },
                 parts: [
@@ -249,7 +249,7 @@ export const logo = () => {
             transparent: false,
             tree_width: 240,
             up: "Z",
-            zoom_speed: 0.25,
+            zoom_speed: 1,
             zoom: 0.8,
             position: [97.6, -89.83, 30.85],
             quaternion: [0.6, 0.27, 0.31, 0.69],

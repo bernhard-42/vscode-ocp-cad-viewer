@@ -396,6 +396,7 @@ NATIVE_TESSELLATOR=1 OCP_VSCODE_PYTEST=1 pytest -v -s tests/
 
 - Fix `helper_scale` not working with `set_defaults`
 - Rename `selectors.py` to `ocp_selectors.py` to avoid conflict with Python's `subprocess` module
+- Logo accidentially set zoom_speed to 0.25. Changed back tpo 1.0
 
 ## v3.2.0
 

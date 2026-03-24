@@ -16,6 +16,7 @@ All notable changes to the "OCP CAD Viewer" extension will be documented in this
 
 - Fix `helper_scale` not working with `set_defaults`
 - Rename `selectors.py` to `ocp_selectors.py` to avoid conflict with Python's `subprocess` module
+- Logo accidentially set zoom_speed to 0.25. Changed back tpo 1.0
 
 ## v3.2.0
 
