@@ -153,6 +153,9 @@ def _extract_materials_from_node(node, extracted, id_to_key, name_counts):
             _extract_materials_from_node(child, extracted, id_to_key, name_counts)
     else:
         mat = node.material
+        if not isinstance(mat, Material) and hasattr(mat, "pbr"):
+            mat = node.material.pbr
+
         if isinstance(mat, Material):
             mat_id = id(mat)
             if mat_id in id_to_key:
@@ -443,7 +446,14 @@ def _tessellate(
         check_camera_warnings(bb)
     set_last_bbox_size(bb)
 
-    return instances, shapes, params, part_group.count_shapes(), mapping, extracted_materials
+    return (
+        instances,
+        shapes,
+        params,
+        part_group.count_shapes(),
+        mapping,
+        extracted_materials,
+    )
 
 
 def _convert(
@@ -473,9 +483,7 @@ def _convert(
     )
 
     if extracted_materials:
-        shapes["materials"] = {
-            k: v.to_dict() for k, v in extracted_materials.items()
-        }
+        shapes["materials"] = {k: v.to_dict() for k, v in extracted_materials.items()}
 
     if config.get("dark") is not None:
         config["theme"] = "dark"
