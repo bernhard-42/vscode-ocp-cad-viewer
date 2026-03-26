@@ -18,7 +18,7 @@ _OCP CAD Viewer_ for VS Code is an extension to show [CadQuery](https://github.c
 
 ### Installation
 
-1. Open the VS Code Marketplace, and search and install _OCP CAD Viewer 3.3.0_.
+1. Open the VS Code Marketplace, and search and install _OCP CAD Viewer 3.3.1_.
 
     Afterwards the OCP viewer is available in the VS Code sidebar:
 
@@ -381,6 +381,11 @@ NATIVE_TESSELLATOR=1 OCP_VSCODE_PYTEST=1 pytest -v -s tests/
     **Solution:** [Delete the VS Code browser cache on Linux](https://bobbyhadz.com/blog/vscode-clear-cache) (go to the section for your operating system)
 
 ## Changes
+
+## v3.3.1
+
+- PBR information now is searched at material.pbr
+- Update to three-cad-viewer 4.3.0 ([changes](https://github.com/bernhard-42/three-cad-viewer/blob/master/Changes.md#v430))
 
 ## v3.3.0
 

@@ -2,6 +2,11 @@
 
 All notable changes to the "OCP CAD Viewer" extension will be documented in this file.
 
+## v3.3.1
+
+- PBR information now is searched at material.pbr
+- Update to three-cad-viewer 4.3.0 ([changes](https://github.com/bernhard-42/three-cad-viewer/blob/master/Changes.md#v430))
+
 ## v3.3.0
 
 **Features**
