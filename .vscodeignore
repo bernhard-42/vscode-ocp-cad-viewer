@@ -24,6 +24,9 @@ pyproject.toml
 tests
 vsc-extension-quickstart.md
 test.sh
+*.glb
+*.gltf
+*.bin
 
 out/logo_alt.js
 tsconfig.json
@@ -69,6 +72,8 @@ media/ocp-logo.png
 
 ocp_vscode/__pycache__
 examples/*
+examples/*/*
+
 TODO
 node_modules/@aashutoshrathi
 node_modules/@eslint
@@ -318,5 +323,28 @@ node_modules/yargs-unparser
 node_modules/yauzl
 node_modules/yazl
 node_modules/yocto-queue
+
+.claude/
+.github/
+out/test/
+out/logo_alt.js.map
+warnings.txt
+shai-hulud-report.csv
+
+node_modules/*/test/
+node_modules/*/tests/
+node_modules/*/.travis.yml
+node_modules/*/.npmignore
+node_modules/*/Makefile
+node_modules/*/example/
+node_modules/*/README.md
+node_modules/*/SECURITY.md
+node_modules/*/*.gif
+node_modules/n8ao/src/
+node_modules/n8ao/dev-server.js
+node_modules/n8ao/dist/*.map
+node_modules/postprocessing/build/postprocessing.js
+node_modules/postprocessing/build/postprocessing.min.js
+node_modules/postprocessing/build/types/*.d.cts
 
 three-cad-viewer-v*.tgz
