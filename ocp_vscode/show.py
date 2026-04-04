@@ -53,9 +53,11 @@ from ocp_tessellate.ocp_utils import (
     nested_bounding_box,
 )
 from ocp_tessellate.utils import Color, Timer, numpy_to_buffer_json
-from threejs_materials import Material
+from threejs_materials import PbrProperties
 
 from ocp_vscode.colors import BaseColorMap, get_colormap
+from ocp_vscode.utils import is_pymat
+from pygltflib import GLTF2
 
 if os.environ.get("JUPYTER_CADQUERY") == "1":
     from jupyter_cadquery.comms import (  # pyright: ignore[reportMissingImports]
@@ -147,30 +149,72 @@ def _apply_mode(part_group, mode_list):
 
 
 def _extract_materials_from_node(node, extracted, id_to_key, name_counts):
-    """Recursively replace Material objects on OcpObject.material with string keys."""
+    """Recursively replace Material objects on OcpObject.material with string keys.
+    Supported materials:
+    - threejs-materials PbrProperties
+    - py-materials Material
+    - build123d Material
+    """
     if isinstance(node, OcpGroup):
         for child in node.objects:
             _extract_materials_from_node(child, extracted, id_to_key, name_counts)
     else:
-        mat = node.material
-        if not isinstance(mat, Material) and hasattr(mat, "pbr"):
+        if not hasattr(node, "material"):
+            return
+
+        if node.material is None or isinstance(node.material, str):
+            return
+
+        # threejs-material.PbrProperties
+        if isinstance(node.material, PbrProperties):
+            mat = node.material
+
+        # pymat.Material
+        elif is_pymat(node.material):
+            pbr = node.material.properties.pbr
+            mat = PbrProperties.create(
+                node.material.name,
+                color=pbr.base_color,
+                metalness=pbr.metallic,
+                roughness=pbr.roughness,
+                emissive=pbr.emissive,
+                ior=pbr.ior,
+                transmission=pbr.transmission,
+                clearcoat=pbr.clearcoat,
+                normal_map=pbr.normal_map,
+                roughness_map=pbr.roughness_map,
+                metalness_map=pbr.metallic_map,
+                ao_map=pbr.ambient_occlusion_map,
+            )
+
+        # build123d.Material
+        elif (
+            hasattr(node.material, "_material")
+            and is_pymat(node.material._material)
+            and hasattr(node.material, "pbr")
+        ):
             mat = node.material.pbr
 
-        if isinstance(mat, Material):
-            mat_id = id(mat)
-            if mat_id in id_to_key:
-                node.material = id_to_key[mat_id]
+        else:
+            raise TypeError(f"{type(node.material)} not supported as material")
+
+        node.normalize_uvs = mat.normalize_uvs
+
+        mat_dict = mat.to_dict()
+        mat_content_key = mat.to_json(sort_keys=True)
+        if mat_content_key in id_to_key:
+            node.material = id_to_key[mat_content_key]
+        else:
+            base_name = mat.name
+            if base_name not in name_counts:
+                key = base_name
+                name_counts[base_name] = 2
             else:
-                base_name = mat.name
-                if base_name not in name_counts:
-                    key = base_name
-                    name_counts[base_name] = 2
-                else:
-                    key = f"{base_name}_{name_counts[base_name]}"
-                    name_counts[base_name] += 1
-                extracted[key] = mat
-                id_to_key[mat_id] = key
-                node.material = key
+                key = f"{base_name}_{name_counts[base_name]}"
+                name_counts[base_name] += 1
+            extracted[key] = mat_dict
+            id_to_key[mat_content_key] = key
+            node.material = key
 
 
 def _extract_material_objects(part_group):
@@ -483,7 +527,7 @@ def _convert(
     )
 
     if extracted_materials:
-        shapes["materials"] = {k: v.to_dict() for k, v in extracted_materials.items()}
+        shapes["materials"] = extracted_materials
 
     if config.get("dark") is not None:
         config["theme"] = "dark"
