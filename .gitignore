@@ -21,3 +21,6 @@ main.py
 ocp_vscode/static/js/three-cad-viewer.esm.js
 ocp_vscode/static/css/three-cad-viewer.css
 .claude
+/*.glb
+/*.gltf
+/*.bin
