@@ -2,7 +2,7 @@ import time
 
 from build123d import *
 from ocp_vscode import *
-from threejs_materials import Material
+from threejs_materials import PbrProperties
 
 mcc = (Align.MIN, Align.CENTER, Align.CENTER)
 ccm = (Align.CENTER, Align.CENTER, Align.MIN)
@@ -13,16 +13,16 @@ ccM = (Align.CENTER, Align.CENTER, Align.MAX)
 #
 
 # Use a GPUOpen material
-alu_hex = Material.gpuopen.load("Aluminum Hexagon")
+alu_hex = PbrProperties.from_gpuopen("Aluminum Hexagon")
 
 # Use a GPUOpen material and override the glass behavior
-glass = Material.gpuopen.load("Glass").override(transmission=0.98, thickness=0.8)
+glass = PbrProperties.from_gpuopen("Glass").override(transmission=0.98, thickness=0.8)
 
 # Use an AmbientCG material, and scale the texture to 2 in u and v direction
-metal = Material.ambientcg.load("Metal 049 C").scale(2, 2)
+metal = PbrProperties.from_ambientcg("Metal 049 C").scale(2, 2)
 
 # Use a PhysicallyBased material and override color for two material instances
-light = Material.physicallybased.load("Plastic (Acrylic)")
+light = PbrProperties.from_physicallybased("Plastic (Acrylic)")
 red_light = light.override(color=(1, 0, 0))
 yellow_light = light.override(color="yellow")
 
@@ -57,12 +57,15 @@ window.label = "window"
 for i, l in enumerate(lights):
     l.label = f"light_{i}"
 
-# Setting material and interpolate colors for CAD view
+#
+# The object
+#
+
 body.material = metal
 body.color = "grey"
 
 inner.material = alu_hex
-inner.color = alu_hex.interpolate_color()
+inner.color = metal.interpolate_color()
 
 window.material = glass
 window.color = glass.interpolate_color()
@@ -70,10 +73,12 @@ window.color = glass.interpolate_color()
 for i, l in enumerate(lights):
     l.material = red_light if i % 2 == 0 else yellow_light
     l.color = l.material.interpolate_color()
+
+# %%
+
 #
 # Visualisation
 #
-# %%
 
 
 # show and use a custom env map, rotated by 180°

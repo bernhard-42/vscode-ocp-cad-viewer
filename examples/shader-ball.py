@@ -37,5 +37,6 @@ show(
     shader_ball_3,
     materials=[brass_tm, brass_pymat, brass_gltf],
     studio_texture_mapping=StudioTextureMapping.PARAMETRIC,
+    studio_environment=StudioEnvironment.SPOTLIT_SETUP,
 )
 set_viewer_config(tab="studio")
