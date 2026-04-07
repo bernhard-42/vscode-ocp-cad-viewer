@@ -2,6 +2,35 @@
 
 All notable changes to the "OCP CAD Viewer" extension will be documented in this file.
 
+## v3.3.4
+
+- Fix material wrapping in examples: use `Material.create("custom", pbr=...)` instead of assigning `PbrProperties` directly
+- Update to three-cad-viewer 4.3.7 (fix a texture repeat bug for triplanare texture mapping)
+
+## v3.3.3
+
+**Features**
+
+- Refactor material extraction to support multiple material types: `threejs-materials` `PbrProperties`, `pymat` `Material`, and `build123d` `Material`
+- Add `create_shader_ball` utility for material previews
+- Add `materialx` optional dependency group (`materialx>=1.39.4`, `openexr>=3.3`)
+- Add `pygltflib` dependency for GLTF2 material loading
+
+**Bug Fixes**
+
+- Fix PBR examples and documentation
+- Exclude unnecessary files from vsix package (~2.7MB size reduction)
+
+**Dependencies**
+
+- Update three-cad-viewer to 4.3.6
+- Update ocp-tessellate to >=3.2.2
+- Update threejs-materials to >=1.0.1
+
+## v3.3.2
+
+- Skipped
+
 ## v3.3.1
 
 - PBR information now is searched at material.pbr

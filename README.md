@@ -18,7 +18,7 @@ _OCP CAD Viewer_ for VS Code is an extension to show [CadQuery](https://github.c
 
 ### Installation
 
-1. Open the VS Code Marketplace, and search and install _OCP CAD Viewer 3.3.3_.
+1. Open the VS Code Marketplace, and search and install _OCP CAD Viewer 3.3.4_.
 
     Afterwards the OCP viewer is available in the VS Code sidebar:
 
@@ -381,6 +381,35 @@ NATIVE_TESSELLATOR=1 OCP_VSCODE_PYTEST=1 pytest -v -s tests/
     **Solution:** [Delete the VS Code browser cache on Linux](https://bobbyhadz.com/blog/vscode-clear-cache) (go to the section for your operating system)
 
 ## Changes
+
+## v3.3.4
+
+- Fix material wrapping in examples: use `Material.create("custom", pbr=...)` instead of assigning `PbrProperties` directly
+- Update to three-cad-viewer 4.3.7 (fix a texture repeat bug for triplanare texture mapping)
+
+## v3.3.3
+
+**Features**
+
+- Refactor material extraction to support multiple material types: `threejs-materials` `PbrProperties`, `pymat` `Material`, and `build123d` `Material`
+- Add `create_shader_ball` utility for material previews
+- Add `materialx` optional dependency group (`materialx>=1.39.4`, `openexr>=3.3`)
+- Add `pygltflib` dependency for GLTF2 material loading
+
+**Bug Fixes**
+
+- Fix PBR examples and documentation
+- Exclude unnecessary files from vsix package (~2.7MB size reduction)
+
+**Dependencies**
+
+- Update three-cad-viewer to 4.3.6
+- Update ocp-tessellate to >=3.2.2
+- Update threejs-materials to >=1.0.1
+
+## v3.3.2
+
+- Skipped
 
 ## v3.3.1
 
