@@ -77,6 +77,15 @@ Since this is a python extension, it is recommended to install/activate a virtua
 
 Note: The extension is in pypi only [pypi](https://pypi.org/project/ocp-vscode/), so for conda, mamba or micromamba environments `pip` or `uv pip` needs to be used.
 
+### Install in code-server
+
+This extensions is *NOT* available on the [OpenVSX marketplace](https://open-vsx.org/) used by code-server. If you want to use is in [code-server](https://github.com/coder/code-server), you need to install it manually on the server running code-server:
+
+1. Go to the [releases page](https://github.com/bernhard-42/vscode-ocp-cad-viewer/releases)
+2. Download the latest `ocp-cad-viewer-<version>.vsix` file, e.g. using `wget <url of vsix file>`
+3. Run `code-server --install-extension ocp-cad-viewer-<version>.vsix` to install the extension
+
+
 ## Migration from v2.9.0 to v3.X.Y
 
 - Change `show` parameter `ticks` to `ticks/2`
