@@ -171,21 +171,37 @@ def _extract_materials_from_node(node, extracted, id_to_key, name_counts):
 
         # pymat.Material
         elif is_pymat(node.material):
-            pbr = node.material.properties.pbr
-            mat = PbrProperties.create(
-                node.material.name,
-                color=pbr.base_color,
-                metalness=pbr.metallic,
-                roughness=pbr.roughness,
-                emissive=pbr.emissive,
-                ior=pbr.ior,
-                transmission=pbr.transmission,
-                clearcoat=pbr.clearcoat,
-                normal_map=pbr.normal_map,
-                roughness_map=pbr.roughness_map,
-                metalness_map=pbr.metallic_map,
-                ao_map=pbr.ambient_occlusion_map,
-            )
+            # Prefer the rich `pbr_source` when the caller assigned
+            # one — it's already a `PbrProperties` with the full set
+            # of texture maps (color/albedo, normal, roughness,
+            # metalness, ao, etc.) plus every Three.js
+            # MeshPhysicalMaterial scalar that py-materials' lite
+            # dataclass doesn't model (sheen, anisotropy, iridescence,
+            # dispersion, clearcoat maps, specular, thickness, etc.).
+            # Bypassing the field-by-field copy below avoids lossy
+            # projection through py-materials' lite PBRProperties
+            # dataclass, which has no `base_color_map` field and
+            # therefore silently drops the color/albedo texture —
+            # rendering e.g. gpuopen's "Ivory Walnut Solid Wood" as
+            # a flat white mesh. See MorePET/mat#3 and ADR-0002.
+            if getattr(node.material, "pbr_source", None) is not None:
+                mat = node.material.pbr_source
+            else:
+                pbr = node.material.properties.pbr
+                mat = PbrProperties.create(
+                    node.material.name,
+                    color=pbr.base_color,
+                    metalness=pbr.metallic,
+                    roughness=pbr.roughness,
+                    emissive=pbr.emissive,
+                    ior=pbr.ior,
+                    transmission=pbr.transmission,
+                    clearcoat=pbr.clearcoat,
+                    normal_map=pbr.normal_map,
+                    roughness_map=pbr.roughness_map,
+                    metalness_map=pbr.metallic_map,
+                    ao_map=pbr.ambient_occlusion_map,
+                )
 
         # build123d.Material
         elif (
