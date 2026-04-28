@@ -56,8 +56,7 @@ from ocp_tessellate.utils import Color, Timer, numpy_to_buffer_json
 from threejs_materials import PbrProperties
 
 from ocp_vscode.colors import BaseColorMap, get_colormap
-from ocp_vscode.utils import is_pymat
-from pygltflib import GLTF2
+from ocp_vscode.utils import is_pymat_material, is_build123d_material
 
 if os.environ.get("JUPYTER_CADQUERY") == "1":
     from jupyter_cadquery.comms import (  # pyright: ignore[reportMissingImports]
@@ -168,37 +167,21 @@ def _extract_materials_from_node(node, extracted, id_to_key, name_counts):
         # threejs-material.PbrProperties
         if isinstance(node.material, PbrProperties):
             mat = node.material
+            node.normalize_uvs = mat.normalize_uvs
 
-        # pymat.Material
-        elif is_pymat(node.material):
-            pbr = node.material.properties.pbr
-            mat = PbrProperties.create(
-                node.material.name,
-                color=pbr.base_color,
-                metalness=pbr.metallic,
-                roughness=pbr.roughness,
-                emissive=pbr.emissive,
-                ior=pbr.ior,
-                transmission=pbr.transmission,
-                clearcoat=pbr.clearcoat,
-                normal_map=pbr.normal_map,
-                roughness_map=pbr.roughness_map,
-                metalness_map=pbr.metallic_map,
-                ao_map=pbr.ambient_occlusion_map,
-            )
-
-        # build123d.Material
-        elif (
-            hasattr(node.material, "_material")
-            and is_pymat(node.material._material)
-            and hasattr(node.material, "pbr")
-        ):
+        elif is_build123d_material(node.material):
             mat = node.material.pbr
+            node.normalize_uvs = mat.normalize_uvs
 
-        else:
-            raise TypeError(f"{type(node.material)} not supported as material")
-
-        node.normalize_uvs = mat.normalize_uvs
+        elif is_pymat_material(node.material):
+            mat = PbrProperties.from_pymat(
+                node.material.vis.to_threejs(),
+                name=node.material.name,
+                id=node.material.vis.material_id,
+                source=node.material.vis.source,
+                normalize_uvs=True,
+                texture_scale=(1, 1),
+            )
 
         mat_dict = mat.to_dict()
         mat_content_key = mat.to_json(sort_keys=True)
