@@ -1,7 +1,18 @@
 from pathlib import Path
+import warnings
+
 from build123d import *
 from ocp_vscode import *
 from threejs_materials import PbrProperties
+
+(
+    warnings.warn(
+        "\n= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = \n"
+        "The required type of build123d's shape.material will change"
+        "\n= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = \n",
+        category=FutureWarning,
+    )
+)
 
 try:
     model = import_step(Path.home() / "Downloads" / "Toy Rider S2022 ASM stp.STEP")

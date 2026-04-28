@@ -1,8 +1,18 @@
 import time
+import warnings
 
 from build123d import *
 from ocp_vscode import *
 from threejs_materials import PbrProperties
+
+(
+    warnings.warn(
+        "\n= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = \n"
+        "The required type of build123d's shape.material will change"
+        "\n= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = \n",
+        category=FutureWarning,
+    )
+)
 
 mcc = (Align.MIN, Align.CENTER, Align.CENTER)
 ccm = (Align.CENTER, Align.CENTER, Align.MIN)
