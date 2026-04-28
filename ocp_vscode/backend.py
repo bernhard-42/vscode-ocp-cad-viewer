@@ -97,9 +97,9 @@ class ViewerBackend:
         """
         Start the backend
         """
-        print("Viewer backend started")
+        print("Viewer backend started", flush=True)
         self.load_model(logo)
-        print("Logo model loaded")
+        print("Logo model loaded", flush=True)
         listener(self.handle_event)()
 
     @error_handler
