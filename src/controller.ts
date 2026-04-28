@@ -46,6 +46,7 @@ export class OCPCADController {
     port: number;
     viewer_message = "{}";
     splash: boolean = true;
+    private backendHasRegistered = false;
 
     constructor(
         private context: vscode.ExtensionContext,
@@ -173,6 +174,8 @@ export class OCPCADController {
                         if (this.pythonListener !== undefined) {
                             output.debug("Sending message to python: " + message);
                             this.pythonListener.send(JSON.stringify(message));
+                        } else {
+                            this.notifyBackendMissing(msg);
                         }
                     });
                 }
@@ -227,12 +230,21 @@ export class OCPCADController {
                             output.debug("OCPCADController.messages: Posted config to view");
                         } else if (messageType === "L") {
                             this.pythonListener = socket;
+                            this.backendHasRegistered = true;
                             output.debug(`OCPCADController.messages: ${data} registered`);
                         } else if (messageType === "B") {
-                            this.pythonListener?.send(data);
-                            output.debug(
-                                "OCPCADController.messages: Model data sent to the backend"
-                            );
+                            if (this.pythonListener !== undefined) {
+                                this.pythonListener.send(data);
+                                socket.send(JSON.stringify({ ok: true }));
+                                output.debug(
+                                    "OCPCADController.messages: Model data sent to the backend"
+                                );
+                            } else {
+                                socket.send(JSON.stringify({ ok: false, reason: "no_backend" }));
+                                output.debug(
+                                    "OCPCADController.messages: B-message dropped — no backend listener"
+                                );
+                            }
                         } else if (messageType === "R") {
                             this.view?.postMessage(data);
                             output.debug("OCPCADController.messages: Backend response received.");
@@ -313,16 +325,40 @@ export class OCPCADController {
         this.pythonBackendTerminal = pythonBackendTerminal;
     }
 
-    /**
-     * Stops the python backend server
-     */
-    public stopBackend() {
-        this.pythonListener?.send('{"command": "stop"}');
-    }
+    private notifyBackendMissing(message: any) {
+        const command = message?.command;
 
-    public disposeBackend() {
-        this.pythonBackendTerminal?.dispose();
-        this.pythonBackendTerminal = undefined;
+        // log/started are viewer-internal events; never relevant.
+        if (command === "log" || command === "started") {
+            return;
+        }
+
+        // Suppress until the backend has connected at least once: avoids the
+        // false alarm during the startup window where the viewer is up but
+        // the python backend hasn't yet sent its "L" registration.
+        if (!this.backendHasRegistered) {
+            return;
+        }
+
+        // `status` is dual-purpose: it carries camera updates (every frame
+        // while the user pans/orbits) AND click/tool events (activeTool,
+        // selectedShapeIDs). Only the latter is a backend request. Without
+        // this discrimination we'd dialog-spam on every camera frame.
+        if (command === "status") {
+            const text = message?.text;
+            const isClickIntent =
+                text !== null &&
+                typeof text === "object" &&
+                ("activeTool" in text || "selectedShapeIDs" in text);
+            if (!isClickIntent) {
+                return;
+            }
+        }
+
+        vscode.window.showErrorMessage(
+            `OCP CAD Viewer: backend on port ${this.port} is not connected. ` +
+                `Restart it in the OCP backend terminal, or reopen the viewer.`
+        );
     }
 
     public async stopCommandServer() {

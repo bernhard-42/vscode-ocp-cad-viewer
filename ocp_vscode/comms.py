@@ -179,6 +179,14 @@ def _send(data, message_type, port=None, timeit=False):
                             and data.get("type") in no_response_commands
                         ):
                             result = {}
+                        elif message_type == MessageType.BACKEND:
+                            ack = json.loads(ws.recv())
+                            if not ack.get("ok"):
+                                print(
+                                    "Warning: OCP CAD Viewer backend is not connected "
+                                    "— measurements/properties unavailable",
+                                    flush=True,
+                                )
 
             except (ConnectionRefusedError, OSError, WebSocketException) as ex:
                 comms_warning(f"Connection error: {ex}\nMessage: {data}")
