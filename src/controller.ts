@@ -38,6 +38,7 @@ interface Message {
 
 export class OCPCADController {
     server: Server | undefined;
+    wss: WebSocketServer | undefined;
     pythonListener: WebSocket | undefined;
     pythonBackendTerminal: vscode.Terminal | undefined;
     statusController: StatusManagerProvider;
@@ -193,6 +194,7 @@ export class OCPCADController {
                 server: httpServer,
                 maxPayload: 256 * 1024 * 1024
             });
+            this.wss = wss;
 
             wss.on("connection", (socket) => {
                 // output.info("OCPCADController.connection: Client connected");
@@ -302,6 +304,10 @@ export class OCPCADController {
         let pythonBackendTerminal = vscode.window.createTerminal({
             name: "OCP backend",
             cwd: cwd,
+            // Prevent VS Code from restoring this terminal across window
+            // reloads. Without this, the panel reappears with replayed
+            // scrollback and a fresh shell, looking like a leftover backend.
+            isTransient: true,
             ...shellConfig
         });
         pythonBackendTerminal.show();
@@ -361,23 +367,37 @@ export class OCPCADController {
         );
     }
 
-    public async stopCommandServer() {
-        if (this.server !== undefined) {
-            return new Promise<boolean>((resolve) => {
-                this.server!.close((error) => {
-                    if (error) {
-                        output.error(
-                            `OCPCADController.stopCommandServer: Server error ${error.message}`
-                        );
-                        resolve(false);
-                    } else {
-                        resolve(true);
-                    }
-                });
-            });
-        } else {
+    public async stopCommandServer(): Promise<boolean> {
+        // Force-terminate live WS clients first; otherwise httpServer.close()
+        // waits forever for long-lived connections to drain.
+        if (this.wss !== undefined) {
+            for (const client of this.wss.clients) {
+                try {
+                    client.terminate();
+                } catch {
+                    /* ignore */
+                }
+            }
+            await new Promise<void>((resolve) => this.wss!.close(() => resolve()));
+            this.wss = undefined;
+        }
+
+        if (this.server === undefined) {
             return false;
         }
+        return new Promise<boolean>((resolve) => {
+            this.server!.close((error) => {
+                if (error) {
+                    output.error(
+                        `OCPCADController.stopCommandServer: Server error ${error.message}`
+                    );
+                    resolve(false);
+                } else {
+                    resolve(true);
+                }
+            });
+            this.server = undefined;
+        });
     }
 
     public async dispose() {
@@ -387,14 +407,21 @@ export class OCPCADController {
         serverStarted = false;
         output.debug("OCPCADController.dispose");
 
-        this.stopBackend();
+        // Polite stop is best-effort; closing the WS below is what actually
+        // unblocks Python's recv() and lets it exit cleanly via its
+        // `except Exception: break` path in comms.py.
+        try {
+            this.pythonListener?.send('{"command": "stop"}');
+        } catch {
+            /* ignore */
+        }
+
         await this.stopCommandServer();
+
+        this.pythonBackendTerminal?.dispose();
+        this.pythonBackendTerminal = undefined;
+
         await removeState(this.port);
-
-        // wait before cleaning up the rest
-        await new Promise((resolve) => setTimeout(resolve, 200));
-
-        this.disposeBackend();
         this.statusController.refresh("<none>");
         this.statusBarItem.hide();
         output.info("OCPCADController.dispose: Server is shut down");

@@ -437,6 +437,7 @@ export async function activate(context: vscode.ExtensionContext) {
                 var newColumn = editorColumns();
 
                 controller = new OCPCADController(context, port, statusManager, statusBarItem);
+                context.subscriptions.push({ dispose: () => controller?.dispose() });
 
                 await controller.start(newColumn < 9 ? newColumn + 1 : newColumn);
 
