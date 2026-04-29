@@ -1289,8 +1289,8 @@ def push_object(
     name=None,
     color=None,
     alpha=None,
-    mode=None,
     material=None,
+    mode=None,
     clear=False,
     update=False,
 ):
