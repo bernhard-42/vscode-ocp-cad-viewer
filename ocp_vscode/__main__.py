@@ -341,7 +341,14 @@ def main(ctx, **kwargs):
         backend = ViewerBackend(port)
         try:
             backend.start()
-        except Exception as ex:  # pylint: disable=broad-except
+        except ConnectionRefusedError:
+            print(
+                f"Cannot connect to OCP CAD Viewer on port {port}. "
+                f"The --backend flag is for the measurement backend that connects "
+                f"to a running VS Code viewer.\nIf you wanted to run the standalone "
+                f"viewer instead, drop --backend from the command line.\n"
+            )
+        except Exception as ex:
             print(ex)
 
     else:
