@@ -97,7 +97,9 @@ def get_properties(shape):
         elif geom_type == "Circle":
             circle = get_curve(shape).Circle()
             geom_section["center"] = get_point(circle.Location())
-            geom_section["radius"] = circle.Radius()
+            geom_section["radius / diam"] = (
+                f"{circle.Radius():.3f} /  {2 * circle.Radius():.3f}"
+            )
             pos_section["start"] = get_point(position_at(shape, 0))
             if not is_closed(shape):
                 pos_section["end"] = get_point(position_at(shape, 1))
@@ -108,8 +110,12 @@ def get_properties(shape):
         elif geom_type == "Ellipse":
             ellipse = get_curve(shape).Ellipse()
             geom_section["center"] = get_point(ellipse.Location())
-            geom_section["major radius"] = ellipse.MajorRadius()
-            geom_section["minor radius"] = ellipse.MinorRadius()
+            geom_section["major radius / diam"] = (
+                f"{ellipse.MajorRadius():.3f} /  {2 * ellipse.MajorRadius():.3f}"
+            )
+            geom_section["minor radius / diam"] = (
+                f"{ellipse.MinorRadius():.3f} /  {2 * ellipse.MinorRadius():.3f}"
+            )
             pos_section["start"] = get_point(position_at(shape, 0))
             if not is_closed(shape):
                 pos_section["end"] = get_point(position_at(shape, 1))
