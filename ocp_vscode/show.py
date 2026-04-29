@@ -92,6 +92,7 @@ from ocp_vscode.config import (
     get_changed_config,
     get_defaults,
     preset,
+    validate_tool_args,
 )
 
 __all__ = [
@@ -427,6 +428,8 @@ def _tessellate(
         "studio_background",
         "studio_tone_mapping",
         "studio_texture_mapping",
+        "analysis_tool",
+        "tab",
     ):
         if isinstance(params.get(key), Enum):
             params[key] = params[key].value
@@ -522,6 +525,9 @@ def _convert(
 
     if kwargs.get("explode") is not None:
         config["explode"] = kwargs["explode"]
+    if kwargs.get("analysis_tool") is not None:
+        val = kwargs["analysis_tool"]
+        config["analysis_tool"] = val.value if isinstance(val, Enum) else val
 
     with Timer(timeit, "", "create data obj", 1):
         if is_pytest():
@@ -600,11 +606,12 @@ def show(
     control=None,
     collapse=None,
     explode=None,
+    analysis_tool=None,
+    tab=None,
     ticks=None,
     center_grid=None,
     grid_font_size=None,
     up=None,
-    tab=None,
     zoom=None,
     position=None,
     quaternion=None,
@@ -709,6 +716,17 @@ def show(
         grid_font_size:          Size for the font used for grid axis labels (default=12)
         up:                      Use z-axis ('Z') or y-axis ('Y') as up direction for the camera (default="Z")
         explode:                 Turn on explode mode (default=False)
+        analysis_tool:           Activate one of the analysis tools (mutually exclusive
+                                 with explode=True):
+                                 AnalysisTool.PROPERTIES, AnalysisTool.DISTANCE,
+                                 AnalysisTool.SELECT, AnalysisTool.OFF.
+                                 String values also accepted ("properties", "distance",
+                                 "select", "off"). Default=None (no change).
+        tab:                     Switch the side panel tab:
+                                 UiTab.TREE, UiTab.CLIP, UiTab.ZEBRA, UiTab.MATERIAL,
+                                 UiTab.STUDIO. String values also accepted
+                                 ("tree", "clip", "zebra", "material", "studio").
+                                 Default=None (no change).
 
         zoom:                    Zoom factor of view (default=1.0)
         position:                Camera position
@@ -785,6 +803,7 @@ def show(
         timeit:                  Show timing information from level 0-3 (default=False)
     """
 
+    validate_tool_args(explode, analysis_tool)
     return _show(*cad_objs, **none_filter(locals(), ["cad_objs"]))
 
 
@@ -959,6 +978,9 @@ def show_object(
     black_edges=None,
     orbit_control=None,
     collapse=None,
+    explode=None,
+    analysis_tool=None,
+    tab=None,
     ticks=None,
     center_grid=None,
     grid_font_size=None,
@@ -1071,6 +1093,18 @@ def show_object(
         center_grid:             Center the grid at the origin or center of mass (default=False)
         grid_font_size:          Size for the font used for grid axis labels (default=12)
         up:                      Use z-axis ('Z') or y-axis ('Y') as up direction for the camera (default="Z")
+        explode:                 Turn on explode mode (default=False)
+        analysis_tool:           Activate one of the analysis tools (mutually exclusive
+                                 with explode=True):
+                                 AnalysisTool.PROPERTIES, AnalysisTool.DISTANCE,
+                                 AnalysisTool.SELECT, AnalysisTool.OFF.
+                                 String values also accepted ("properties", "distance",
+                                 "select", "off"). Default=None (no change).
+        tab:                     Switch the side panel tab:
+                                 UiTab.TREE, UiTab.CLIP, UiTab.ZEBRA, UiTab.MATERIAL,
+                                 UiTab.STUDIO. String values also accepted
+                                 ("tree", "clip", "zebra", "material", "studio").
+                                 Default=None (no change).
 
         zoom:                    Zoom factor of view (default=1.0)
         position:                Camera position
@@ -1147,6 +1181,7 @@ def show_object(
         debug:                   Show debug statements to the VS Code browser console (default=False)
         timeit:                  Show timing information from level 0-3 (default=False)
     """
+    validate_tool_args(explode, analysis_tool)
     return _show_object(obj, **none_filter(locals(), ["obj"]))
 
 
@@ -1332,6 +1367,9 @@ def show_objects(
     black_edges=None,
     orbit_control=None,
     collapse=None,
+    explode=None,
+    analysis_tool=None,
+    tab=None,
     ticks=None,
     center_grid=None,
     grid_font_size=None,
@@ -1416,6 +1454,18 @@ def show_objects(
         center_grid:             Center the grid at the origin or center of mass (default=False)
         grid_font_size:          Size for the font used for grid axis labels (default=12)
         up:                      Use z-axis ('Z') or y-axis ('Y') as up direction for the camera (default="Z")
+        explode:                 Turn on explode mode (default=False)
+        analysis_tool:           Activate one of the analysis tools (mutually exclusive
+                                 with explode=True):
+                                 AnalysisTool.PROPERTIES, AnalysisTool.DISTANCE,
+                                 AnalysisTool.SELECT, AnalysisTool.OFF.
+                                 String values also accepted ("properties", "distance",
+                                 "select", "off"). Default=None (no change).
+        tab:                     Switch the side panel tab:
+                                 UiTab.TREE, UiTab.CLIP, UiTab.ZEBRA, UiTab.MATERIAL,
+                                 UiTab.STUDIO. String values also accepted
+                                 ("tree", "clip", "zebra", "material", "studio").
+                                 Default=None (no change).
 
         zoom:                    Zoom factor of view (default=1.0)
         position:                Camera position
@@ -1477,6 +1527,7 @@ def show_objects(
         debug:                   Show debug statements to the VS Code browser console (default=False)
         timeit:                  Show timing information from level 0-3 (default=False)
     """
+    validate_tool_args(explode, analysis_tool)
     kwargs = none_filter(locals())
     # Use per-object modes stored in OBJECTS
     stored_modes = OBJECTS["modes"]

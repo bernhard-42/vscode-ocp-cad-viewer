@@ -702,6 +702,22 @@ limitations under the License.
                     viewer.setExplode(true);
                 }
 
+                // analysis_tool is applied by show() the same way explode is.
+                // The viewer instance is fresh (showViewer disposes the old one
+                // and creates a new one), so no prior tool needs deactivating —
+                // "off" / undefined just leaves things deactivated.
+                if (
+                    _config.analysis_tool === "distance" ||
+                    _config.analysis_tool === "properties" ||
+                    _config.analysis_tool === "select"
+                ) {
+                    viewer.display.setTool(_config.analysis_tool, true);
+                }
+
+                if (_config.tab) {
+                    viewer.setActiveTab(_config.tab);
+                }
+
                 if (_config.debug) {
                     console.log("viewer", viewer);
                 }
@@ -923,6 +939,26 @@ limitations under the License.
                             }
                         } else if (key === "explode") {
                             viewer.setExplode(data.config[key]);
+                        } else if (key === "analysis_tool") {
+                            const newTool = data.config[key];
+                            // Deactivate whichever measurement tool is active.
+                            // setTool(name, false) is a no-op if name wasn't on,
+                            // so this is safe.
+                            const active = viewer.state.get("activeTool");
+                            if (
+                                typeof active === "string" &&
+                                ["distance", "properties", "select"].includes(active)
+                            ) {
+                                viewer.display.setTool(active, false);
+                            }
+                            // Activate the new one ("off" leaves everything off).
+                            if (
+                                newTool === "distance" ||
+                                newTool === "properties" ||
+                                newTool === "select"
+                            ) {
+                                viewer.display.setTool(newTool, true);
+                            }
                         } else if (key === "states") {
                             const states = Object.keys(
                                 viewer.treeview.getStates()

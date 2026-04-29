@@ -45,6 +45,7 @@ __all__ = [
     "get_default",
     "get_defaults",
     "status",
+    "AnalysisTool",
     "Camera",
     "Collapse",
     "Render",
@@ -52,6 +53,7 @@ __all__ = [
     "StudioBackground",
     "StudioToneMapping",
     "StudioTextureMapping",
+    "UiTab",
     "check_deprecated",
 ]
 
@@ -131,6 +133,25 @@ class StudioTextureMapping(Enum):
 
     TRIPLANAR = "triplanar"
     PARAMETRIC = "parametric"
+
+
+class AnalysisTool(Enum):
+    """Analysis tools for the CAD viewer (mutually exclusive with explode)."""
+
+    PROPERTIES = "properties"
+    DISTANCE = "distance"
+    SELECT = "select"
+    OFF = "off"
+
+
+class UiTab(Enum):
+    """UI tabs in the CAD viewer side panel."""
+
+    TREE = "tree"
+    CLIP = "clip"
+    ZEBRA = "zebra"
+    MATERIAL = "material"
+    STUDIO = "studio"
 
 
 COLLAPSE_REVERSE_MAPPING = {
@@ -279,6 +300,31 @@ DEFAULTS = {
 }
 
 
+def validate_tool_args(explode, analysis_tool):
+    """Shared validation for ``explode`` / ``analysis_tool`` — used by both
+    ``set_viewer_config`` and ``show``. Accepts either ``AnalysisTool`` enum
+    members or their string values. Raises ``ValueError`` on invalid input
+    or on the mutually-exclusive combination."""
+    if isinstance(analysis_tool, AnalysisTool):
+        analysis_tool = analysis_tool.value
+    if analysis_tool is not None and analysis_tool not in (
+        "properties",
+        "distance",
+        "select",
+        "off",
+    ):
+        raise ValueError(
+            f'analysis_tool must be an AnalysisTool member or one of '
+            f'"properties", "distance", "select", "off"; got {analysis_tool!r}'
+        )
+    if explode is True and analysis_tool in ("properties", "distance", "select"):
+        raise ValueError(
+            "explode=True and analysis_tool=... are mutually exclusive — "
+            "the viewer disables one when the other activates. "
+            "Pass at most one of them in a single call."
+        )
+
+
 # pylint: disable=too-many-arguments,unused-argument,too-many-locals
 def set_viewer_config(
     axes=None,
@@ -334,10 +380,13 @@ def set_viewer_config(
     studio_ao_intensity=None,
     studio_texture_mapping=None,
     studio_4k_env_maps=None,
+    analysis_tool=None,
     port=None,
     viewer=None,
 ):
     """Set viewer config"""
+    validate_tool_args(explode, analysis_tool)
+
     if not is_jupyter_cadquery and port is None:
         port = get_port()
 
@@ -352,6 +401,8 @@ def set_viewer_config(
         "studio_background",
         "studio_tone_mapping",
         "studio_texture_mapping",
+        "analysis_tool",
+        "tab",
     ):
         if isinstance(config.get(key), Enum):
             config[key] = config[key].value
