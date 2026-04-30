@@ -355,6 +355,7 @@ def _tessellate(
             colors=colors,
             alphas=alphas,
             materials=materials,
+            modes=modes,
             render_mates=kwargs.get("render_mates", changed_config.get("render_mates")),
             render_joints=kwargs.get(
                 "render_joints", changed_config.get("render_joints")
@@ -372,9 +373,6 @@ def _tessellate(
         )
 
     set_last_paths(part_group)
-
-    if modes is not None:
-        _apply_mode(part_group, modes)
 
     extracted_materials = _extract_material_objects(part_group)
 
@@ -816,6 +814,7 @@ def _show(*cad_objs, **kwargs):
     colors = kwargs.get("colors")
     alphas = kwargs.get("alphas")
     materials = kwargs.get("materials")
+    modes = kwargs.get("modes")
     default_edgecolor = kwargs.get("default_edgecolor")
     progress = kwargs.get("progress")
     _force_in_debug = kwargs.get("_force_in_debug")
@@ -848,13 +847,14 @@ def _show(*cad_objs, **kwargs):
             "colors",
             "alphas",
             "materials",
+            "modes",
             "progress",
             "LAST_CALL",
         ]
     }
 
     kwargs = check_deprecated(kwargs)
-    modes = kwargs.pop("modes", None)
+    # modes = kwargs.pop("modes", None)
 
     if kwargs.get("grid") is not None:
         if isinstance(kwargs["grid"], bool):
@@ -864,11 +864,8 @@ def _show(*cad_objs, **kwargs):
 
     names = align_attrs(names, len(cad_objs), None, "names")
 
-    # Normalize modes to a list
-    if isinstance(modes, Render):
-        modes = [modes] * len(cad_objs)
-    if modes is not None:
-        modes = align_attrs(modes, len(cad_objs), None, "modes")
+    modes = align_attrs(modes, len(cad_objs), None, "modes")
+    modes = [mode if mode is None else _MODE_STATES[mode] for mode in modes]
 
     materials = align_attrs(materials, len(cad_objs), None, "materials")
 
