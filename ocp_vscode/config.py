@@ -163,6 +163,7 @@ COLLAPSE_REVERSE_MAPPING = {
 
 CONFIG_UI_KEYS = [
     "ambient_intensity",
+    "analysis_tool",
     "axes",
     "axes0",
     "black_edges",
@@ -192,6 +193,7 @@ CONFIG_UI_KEYS = [
     "studio_shadow_softness",
     "studio_texture_mapping",
     "studio_tone_mapping",
+    "tab",
     "transparent",
     "zebra_color_scheme",
     "zebra_count",
@@ -249,6 +251,7 @@ CONFIG_KEYS = CONFIG_WORKSPACE_KEYS + CONFIG_CONTROL_KEYS + ["zoom"]
 
 CONFIG_SET_KEYS = [
     "ambient_intensity",
+    "analysis_tool",
     "axes",
     "axes0",
     "black_edges",
@@ -279,6 +282,7 @@ CONFIG_SET_KEYS = [
     "studio_shadow_softness",
     "studio_texture_mapping",
     "studio_tone_mapping",
+    "tab",
     "target",
     "tools",
     "transparent",
@@ -451,6 +455,8 @@ def set_defaults(
     grid_font_size=None,
     up=None,
     explode=None,
+    analysis_tool=None,
+    tab=None,
     zoom=None,
     reset_camera=None,
     clip_slider_0=None,
@@ -533,6 +539,17 @@ def set_defaults(
         grid_font_size:     Size for the font used for grid axis labels (default=12)
         up:                 Use z-axis ('Z') or y-axis ('Y') as up direction for the camera (default="Z")
         explode:            Turn on explode mode (default=False)
+        analysis_tool:      Activate one of the analysis tools (mutually exclusive
+                            with explode=True):
+                            AnalysisTool.PROPERTIES, AnalysisTool.DISTANCE,
+                            AnalysisTool.SELECT, AnalysisTool.OFF.
+                            String values also accepted ("properties", "distance",
+                            "select", "off"). Default=None (no change).
+        tab:                Switch the side panel tab:
+                            UiTab.TREE, UiTab.CLIP, UiTab.ZEBRA, UiTab.MATERIAL,
+                            UiTab.STUDIO. String values also accepted
+                            ("tree", "clip", "zebra", "material", "studio").
+                            Default=None (no change).
 
         zoom:               Zoom factor of view (default=1.0)
         position:           Camera position
@@ -613,6 +630,8 @@ def set_defaults(
         cad_width:          The viewer width in  Jupyter CadQuery
         height:             The viewer height in  Jupyter CadQuery
     """
+
+    validate_tool_args(explode, analysis_tool)
 
     kwargs = {k: v for k, v in locals().items() if v is not None}
 
