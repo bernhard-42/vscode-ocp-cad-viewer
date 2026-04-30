@@ -20,6 +20,7 @@ import * as path from "path";
 import * as fs from "fs";
 import * as os from "os";
 import * as net from "net";
+import { PythonExtension } from "@vscode/python-extension";
 
 import { OCPCADController } from "./controller";
 import { OCPCADViewer } from "./viewer";
@@ -189,12 +190,18 @@ export async function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(statusBarItem);
     // Status bar will be shown when viewer starts
 
+    const extension = vscode.extensions.getExtension("ms-python.python")!;
+    await extension.activate();
+    const pythonApi: PythonExtension = await PythonExtension.api();
+    await pythonApi.environments.refreshEnvironments();
+
     await statusManager.refresh("");
     var python = await getPythonPath();
     var pythonEnv = await getPythonEnv();
     output.info(`extension.activate: Using python environment ${pythonEnv} and Python ${python}`);
 
     await libraryManager.refresh(python);
+    lastPythonPath = python;
 
     if (vscode.window.visibleTextEditors.length > 0) {
         for (var editor of vscode.window.visibleTextEditors) {
@@ -393,11 +400,14 @@ export async function activate(context: vscode.ExtensionContext) {
                     } else {
                         await vscode.commands.executeCommand("python.setInterpreter");
                         python = await getPythonPath();
+                        // Interpreter changed — refresh against the new one.
+                        // (Outside this branch we trust the activate-time refresh.)
+                        lastPythonPath = python;
+                        await libraryManager.refresh(python);
                     }
                 }
 
                 await statusManager.refresh("");
-                await libraryManager.refresh(python);
                 check_upgrade(libraryManager);
 
                 if (preset_port) {
@@ -749,10 +759,13 @@ export async function activate(context: vscode.ExtensionContext) {
         }
     });
 
-    const extension = vscode.extensions.getExtension("ms-python.python")!;
-    await extension.activate();
-    extension?.exports.settings.onDidChangeExecutionDetails(async (event: any) => {
+    extension.exports.settings.onDidChangeExecutionDetails(async (event: any) => {
         let pythonPath = extension.exports.settings.getExecutionDetails().execCommand[0];
+        // Guard against spurious change-events that report the same interpreter
+        // we already refreshed for at activation time.
+        if (pythonPath === lastPythonPath) {
+            return;
+        }
         lastPythonPath = pythonPath;
         await libraryManager.refresh(pythonPath);
         controller?.dispose();
