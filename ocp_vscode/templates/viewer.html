@@ -40,8 +40,6 @@ limitations under the License.
             var _quaternion = null;
             var _target = null;
             var _clipping = {
-                sliders: [],
-                normals: [],
                 planeHelpers: null,
                 objectColors: null,
                 intersection: null
@@ -216,24 +214,6 @@ limitations under the License.
                 }
                 if (change.clip_object_colors !== undefined) {
                     _clipping.objectColors = change.clip_object_colors.new;
-                }
-                if (change.clip_slider_0 !== undefined) {
-                    _clipping.sliders[0] = change.clip_slider_0.new;
-                }
-                if (change.clip_slider_1 !== undefined) {
-                    _clipping.sliders[1] = change.clip_slider_1.new;
-                }
-                if (change.clip_slider_2 !== undefined) {
-                    _clipping.sliders[2] = change.clip_slider_2.new;
-                }
-                if (change.clip_normal_0 !== undefined) {
-                    _clipping.normals[0] = change.clip_normal_0.new;
-                }
-                if (change.clip_normal_1 !== undefined) {
-                    _clipping.normals[1] = change.clip_normal_1.new;
-                }
-                if (change.clip_normal_2 !== undefined) {
-                    _clipping.normals[2] = change.clip_normal_2.new;
                 }
                 if (change.zebra_count !== undefined) {
                     _zebra.count = change.zebra_count.new;
@@ -546,15 +526,14 @@ limitations under the License.
                     debugLog("_zoom", _zoom);
                 }
 
-                // Apply clip and zebra settings (use last value if not in config)
+                // Apply clip and zebra settings (use last value if not in config).
+                // clip_slider_* and clip_normal_* are intentionally NOT in this list
+                // — three-cad-viewer now decides itself whether to keep previous
+                // values or reset (based on whether the bbox changed). We only
+                // forward an explicit value when the caller actually set one,
+                // which the viewerOptionKeys loop above already handles.
                 // prettier-ignore
                 const clipAndZebraMappings = [
-                    ["clip_slider_0", "clipSlider0", _clipping.sliders[0]],
-                    ["clip_slider_1", "clipSlider1", _clipping.sliders[1]],
-                    ["clip_slider_2", "clipSlider2", _clipping.sliders[2]],
-                    ["clip_normal_0", "clipNormal0", _clipping.normals[0]],
-                    ["clip_normal_1", "clipNormal1", _clipping.normals[1]],
-                    ["clip_normal_2", "clipNormal2", _clipping.normals[2]],
                     ["clip_intersection", "clipIntersection", _clipping.intersection],
                     ["clip_planes", "clipPlaneHelpers", _clipping.planeHelpers],
                     ["clip_object_colors", "clipObjectColors", _clipping.objectColors],
@@ -571,6 +550,10 @@ limitations under the License.
                         viewerOptions[optionKey] = lastValue;
                     }
                 }
+                // clip_slider_0/1/2 are already handled by the viewerOptionKeys
+                // loop above: when _config has no value, viewerOptions.clipSliderN
+                // ends up undefined, so three-cad-viewer applies its bbox-aware
+                // default/keep policy.
 
                 if (_config.tab) {
                     // Pass tab into render() so three-cad-viewer can build the
@@ -619,17 +602,9 @@ limitations under the License.
                 _zoom = message["zoom"] = viewer.getCameraZoom();
                 _camera_distance = viewer.camera.camera_distance;
 
+                // Sliders and normals are no longer captured — three-cad-viewer
+                // owns persistence policy (keep on same bbox, reset on different).
                 _clipping = {
-                    sliders: [
-                        viewer.getClipSlider(0),
-                        viewer.getClipSlider(1),
-                        viewer.getClipSlider(2)
-                    ],
-                    normals: [
-                        viewer.getClipNormal(0),
-                        viewer.getClipNormal(1),
-                        viewer.getClipNormal(2)
-                    ],
                     planeHelpers: viewer.getClipPlaneHelpers(),
                     objectColors: viewer.getObjectColorCaps(),
                     intersection: viewer.getClipIntersection()
