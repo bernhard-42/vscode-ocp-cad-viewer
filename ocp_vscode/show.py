@@ -443,9 +443,17 @@ def _tessellate(
             part_group, instances, params, progress, params.get("timeit")
         )
 
-    # After tessellate_group, IDs are assigned. Send explicit states so
-    # the viewer applies them after restoring old UI states.
-    if modes is not None:
+    # `params["states"]` is normally populated from `conf["states"]` (the
+    # user's current tree selections, pulled from status() via combined_config
+    # — see CONFIG_WORKSPACE_KEYS). This preserves interactive deselections
+    # across show() calls.
+    #
+    # If the user passed `modes=`, override with mode-derived states so the
+    # tree visibility actually reflects the requested render modes.
+    #
+    # `modes` becomes a list-of-Nones via align_attrs() even when the user
+    # didn't pass `modes=`, so gate on "any actual mode" not "is not None".
+    if modes is not None and any(m is not None for m in modes):
         params["states"] = part_group.to_state()
 
     params["normal_len"] = get_normal_len(

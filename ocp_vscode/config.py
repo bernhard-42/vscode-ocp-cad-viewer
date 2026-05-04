@@ -210,6 +210,7 @@ CONFIG_WORKSPACE_KEYS = CONFIG_UI_KEYS + [
     "glass",
     "grid_font_size",
     "orbit_control",
+    "states",
     "ticks",
     "tools",
     "tree_width",
