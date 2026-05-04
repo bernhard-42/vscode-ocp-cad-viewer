@@ -639,11 +639,12 @@ limitations under the License.
                 debugLog("Rendering done");
 
                 if (_config.tree_width) {
+                    const displayOptions = getDisplayOptions(_config.theme);
                     viewer.resizeCadView(
-                        viewer.cadWidth,
-                        viewer.treeWidth,
-                        viewer.height,
-                        viewer.glass
+                        displayOptions.cadWidth,
+                        displayOptions.treeWidth,
+                        displayOptions.height,
+                        displayOptions.glass
                     );
                 }
 
