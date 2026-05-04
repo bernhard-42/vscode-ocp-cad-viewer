@@ -139,28 +139,13 @@ limitations under the License.
                         viewer.addPositionTrack(selector, times, values);
                         break;
                     case "tx":
-                        viewer.addTranslationTrack(
-                            selector,
-                            "x",
-                            times,
-                            values
-                        );
+                        viewer.addTranslationTrack(selector, "x", times, values);
                         break;
                     case "ty":
-                        viewer.addTranslationTrack(
-                            selector,
-                            "y",
-                            times,
-                            values
-                        );
+                        viewer.addTranslationTrack(selector, "y", times, values);
                         break;
                     case "tz":
-                        viewer.addTranslationTrack(
-                            selector,
-                            "z",
-                            times,
-                            values
-                        );
+                        viewer.addTranslationTrack(selector, "z", times, values);
                         break;
                     case "q":
                         viewer.addQuaternionTrack(selector, times, values);
@@ -281,14 +266,9 @@ limitations under the License.
                 });
                 if (viewer != null && viewer.treeview != null) {
                     // ensure to clone the object
-                    const states_json = JSON.stringify(
-                        viewer.treeview.getStates()
-                    );
+                    const states_json = JSON.stringify(viewer.treeview.getStates());
                     const states = JSON.parse(states_json);
-                    if (
-                        oldStates == null ||
-                        JSON.stringify(oldStates) != states_json
-                    ) {
+                    if (oldStates == null || JSON.stringify(oldStates) != states_json) {
                         message["states"] = states;
                         oldStates = states;
                         changed = true;
@@ -303,11 +283,7 @@ limitations under the License.
                 const treeWidth =
                     glass || !tools
                         ? 0
-                        : preset(
-                              _config,
-                              "tree_width",
-                              displayDefaultOptions.treeWidth
-                          );
+                        : preset(_config, "tree_width", displayDefaultOptions.treeWidth);
                 return Math.max(minWidth - treeWidth, width - treeWidth - 20);
             }
 
@@ -323,34 +299,16 @@ limitations under the License.
             }
 
             function preset(config, key, val) {
-                return config == null || config[key] == null
-                    ? val
-                    : config[key];
+                return config == null || config[key] == null ? val : config[key];
             }
 
             function getDisplayOptions(theme) {
                 const size = getSize();
-                const glass = preset(
-                    _config,
-                    "glass",
-                    displayDefaultOptions.glass
-                );
+                const glass = preset(_config, "glass", displayDefaultOptions.glass);
                 theme = theme ? theme : displayDefaultOptions.theme;
-                const tools = preset(
-                    _config,
-                    "tools",
-                    displayDefaultOptions.tools
-                );
-                const treeWidth = preset(
-                    _config,
-                    "tree_width",
-                    displayDefaultOptions.treeWidth
-                );
-                const keymap = preset(
-                    _config,
-                    "modifier_keys",
-                    displayDefaultOptions.keymap
-                );
+                const tools = preset(_config, "tools", displayDefaultOptions.tools);
+                const treeWidth = preset(_config, "tree_width", displayDefaultOptions.treeWidth);
+                const keymap = preset(_config, "modifier_keys", displayDefaultOptions.keymap);
                 const newTreeBehavior = preset(
                     _config,
                     "new_tree_behavior",
@@ -418,8 +376,7 @@ limitations under the License.
             }
 
             function render() {
-                const toCamelCase = (s) =>
-                    s.replace(/_([a-z])/g, (_, c) => c.toUpperCase());
+                const toCamelCase = (s) => s.replace(/_([a-z])/g, (_, c) => c.toUpperCase());
                 const optionKeyOverrides = {
                     default_edgecolor: "edgeColor",
                     clip_planes: "clipPlaneHelpers",
@@ -434,8 +391,7 @@ limitations under the License.
 
                 const renderOptions = {};
                 for (const configKey of renderOptionKeys) {
-                    const optionKey =
-                        optionKeyOverrides[configKey] || toCamelCase(configKey);
+                    const optionKey = optionKeyOverrides[configKey] || toCamelCase(configKey);
                     renderOptions[optionKey] = preset(
                         _config,
                         configKey,
@@ -461,8 +417,7 @@ limitations under the License.
 
                 viewerOptions = {};
                 for (const configKey of viewerOptionKeys) {
-                    const optionKey =
-                        optionKeyOverrides[configKey] || toCamelCase(configKey);
+                    const optionKey = optionKeyOverrides[configKey] || toCamelCase(configKey);
                     viewerOptions[optionKey] = preset(
                         _config,
                         configKey,
@@ -544,8 +499,7 @@ limitations under the License.
                                 p[i] = _position[i] - _target[i];
                             }
                             p = normalize(p);
-                            var offset =
-                                reset_camera === "keep" ? _target : [0, 0, 0];
+                            var offset = reset_camera === "keep" ? _target : [0, 0, 0];
                             for (var i = 0; i < 3; i++) {
                                 p[i] = p[i] * camera_distance + offset[i];
                             }
@@ -610,11 +564,7 @@ limitations under the License.
                     ["zebra_color_scheme", "zebraColorScheme", _zebra.colorScheme],
                     ["zebra_mapping_mode", "zebraMappingMode", _zebra.mappingMode]
                 ];
-                for (const [
-                    configKey,
-                    optionKey,
-                    lastValue
-                ] of clipAndZebraMappings) {
+                for (const [configKey, optionKey, lastValue] of clipAndZebraMappings) {
                     if (_config[configKey] != undefined) {
                         viewerOptions[optionKey] = _config[configKey];
                     } else {
@@ -652,8 +602,7 @@ limitations under the License.
                     // debugLog("camera_distance", _camera_distance, viewer.camera.camera_distance,
                     //          viewer.camera.camera_distance/_camera_distance);
                     viewer.setCameraZoom(
-                        ((_zoom == null ? 1.0 : _zoom) *
-                            viewer.camera.camera_distance) /
+                        ((_zoom == null ? 1.0 : _zoom) * viewer.camera.camera_distance) /
                             _camera_distance
                     );
                 }
@@ -665,11 +614,8 @@ limitations under the License.
                 }
 
                 _position = message["position"] = viewer.getCameraPosition();
-                _quaternion = message["quaternion"] =
-                    viewer.getCameraQuaternion();
-                _target = message["target"] = viewer.controls
-                    .getTarget()
-                    .toArray();
+                _quaternion = message["quaternion"] = viewer.getCameraQuaternion();
+                _target = message["target"] = viewer.controls.getTarget().toArray();
                 _zoom = message["zoom"] = viewer.getCameraZoom();
                 _camera_distance = viewer.camera.camera_distance;
 
@@ -714,6 +660,10 @@ limitations under the License.
                     viewer.display.setTool(_config.analysis_tool, true);
                 }
 
+                // _config.tab is applied via viewerOptions.tab above so the
+                // scene builds directly in the target tab. No setActiveTab
+                // call here — it would re-trigger a switch and flicker.
+
                 if (_config.debug) {
                     console.log("viewer", viewer);
                 }
@@ -757,17 +707,13 @@ limitations under the License.
                 }
 
                 var data =
-                    typeof event.data === "string" ||
-                    event.data instanceof String
+                    typeof event.data === "string" || event.data instanceof String
                         ? JSON.parse(event.data)
                         : event.data;
 
-                if (
-                    data.type === "data" &&
-                    data?.data?.shapes?.parts?.length > 0
-                ) {
+                if (data.type === "data" && data?.data?.shapes?.parts?.length > 0) {
                     const timer = new Timer("webView", data.config.timeit);
-                    
+
                     var old_states =
                         viewer == null
                             ? {}
@@ -903,9 +849,7 @@ limitations under the License.
                         } else if (key === "collapse") {
                             viewer.collapseNodes(data.config[key]);
                         } else if (key === "tree_width") {
-                            const displayOptions = getDisplayOptions(
-                                data.config.theme
-                            );
+                            const displayOptions = getDisplayOptions(data.config.theme);
                             const glass =
                                 data.config.glass !== undefined
                                     ? data.config.glass
@@ -921,15 +865,9 @@ limitations under the License.
                                 viewer.setView("iso");
                                 viewer.resize();
                             } else if (
-                                [
-                                    "iso",
-                                    "left",
-                                    "right",
-                                    "top",
-                                    "bottom",
-                                    "rear",
-                                    "front"
-                                ].includes(data.config[key])
+                                ["iso", "left", "right", "top", "bottom", "rear", "front"].includes(
+                                    data.config[key]
+                                )
                             ) {
                                 viewer.setView(data.config[key]);
                             }
@@ -956,15 +894,10 @@ limitations under the License.
                                 viewer.display.setTool(newTool, true);
                             }
                         } else if (key === "states") {
-                            const states = Object.keys(
-                                viewer.treeview.getStates()
-                            );
+                            const states = Object.keys(viewer.treeview.getStates());
                             Object.keys(data.config[key]).forEach((key2) => {
                                 if (states.includes(key2)) {
-                                    viewer.setState(
-                                        key2,
-                                        data.config[key][key2]
-                                    );
+                                    viewer.setState(key2, data.config[key][key2]);
                                 }
                             });
                         } else if (key === "tab") {
@@ -1004,9 +937,7 @@ limitations under the License.
                     for (var track of tracks) {
                         addAnimationTrack(viewer, track);
                     }
-                    const duration = Math.max(
-                        ...tracks.map((track) => Math.max(...track[2]))
-                    );
+                    const duration = Math.max(...tracks.map((track) => Math.max(...track[2])));
                     if (data.config.speed > 0) {
                         viewer.initAnimation(duration, data.config.speed);
                     }
@@ -1017,11 +948,7 @@ limitations under the License.
             const observer = new MutationObserver(() => {
                 // handle theme change inside webview
                 if (displayDefaultOptions.theme === "browser") {
-                    viewer.setTheme(
-                        document.body.className === "vscode-light"
-                            ? "light"
-                            : "dark"
-                    );
+                    viewer.setTheme(document.body.className === "vscode-light" ? "light" : "dark");
                 } else {
                     viewer.setTheme(displayDefaultOptions.theme);
                 }
