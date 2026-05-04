@@ -377,42 +377,33 @@ limitations under the License.
 
             function showViewer(meshData, config) {
                 debugLog("showViewer called");
-                if (viewer != null) {
-                    viewer.hasAnimationLoop = false;
-                    viewer.continueAnimation = false;
-                    viewer.dispose();
-                    viewer = null;
-                }
-
                 _meshData = meshData;
                 _shapes = meshData.shapes || meshData;
                 _config = config;
-
                 const displayOptions = getDisplayOptions(config.theme);
-
                 if (display == null) {
                     const container = document.getElementById("cad_viewer");
                     container.innerHTML = "";
                     display = new Display(container, displayOptions);
                 }
-
                 if (_config == null) {
                     debugLog("OCP CAD Viewer: config is null");
                     _config = {};
                 }
-
                 if (_config.debug) {
                     debugLog("_config", _config);
                     debugLog("displayOptions", displayOptions);
                 }
-
-                // Turn of animation loop of last viewer
+                // Reuse the viewer across shows: clear() tears down the scene and
+                // resets activeTab to "tree" (which triggers leaveStudioMode if the
+                // previous show was in Studio mode), but keeps the WebGL context,
+                // ViewerState (preferences), and StudioManager (incl. PMREM env
+                // cache) alive — saving a context teardown and HDR re-fetch per show.
                 if (viewer != null) {
-                    viewer.hasAnimationLoop = false;
-                    viewer.continueAnimation = false;
+                    viewer.clear();
+                } else {
+                    viewer = new Viewer(display, displayOptions, nc, null);
                 }
-
-                viewer = new Viewer(display, displayOptions, nc, null);
 
                 if (_shapes) render();
 
