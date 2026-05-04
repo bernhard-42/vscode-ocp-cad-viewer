@@ -622,6 +622,14 @@ limitations under the License.
                     }
                 }
 
+                if (_config.tab) {
+                    // Pass tab into render() so three-cad-viewer can build the
+                    // scene directly in the target tab, skipping the CAD-mode
+                    // paint that would otherwise flicker before a post-render
+                    // setActiveTab call.
+                    viewerOptions.tab = _config.tab;
+                }
+
                 if (_config.debug) {
                     debugLog("viewerOptions (modified)", viewerOptions);
                 }
@@ -703,10 +711,6 @@ limitations under the License.
                     _config.analysis_tool === "select"
                 ) {
                     viewer.display.setTool(_config.analysis_tool, true);
-                }
-
-                if (_config.tab) {
-                    viewer.setActiveTab(_config.tab);
                 }
 
                 if (_config.debug) {
