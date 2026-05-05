@@ -2,6 +2,28 @@
 
 All notable changes to the "OCP CAD Viewer" extension will be documented in this file.
 
+## v3.3.5
+
+**Features**
+
+- Detect in `show` and in the extension when backend is not running and show a Pythen warning and a VS Code error message
+- Keep the last active tab active, so iterating over a feature in clipping or studio is easier
+- Reuse the viewer component across show commands (clear instead of restart), allowing to keep active tab smoothly
+- Properties tool now also shows diameter of circle and ellipse [three-cad-viewer #39](https://github.com/bernhard-42/three-cad-viewer/issues/39)
+- The `analysis_tool` parameter allows to activate a specific analysis tool (`AnalysisTool.PROPERTIES`, `AnalysisTool.DISTANCE`, `AnalysisTool.SELECT`). It is consistently available with all `show` commands and `set_viewer_config`. [#219](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/219)
+- The `tab` parameter allows to activate a specific UI tab (`UiTab.TREE`, `UiTab.CLIP`, `UiTab.ZEBRA`, `UiTab.Material`, `UiTab.STUDIO`). It is consistently available with all `show` commands and `set_viewer_config`.
+- `ShapeList`s are now expanded like normal lists to not hide the internal structure [#220](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/220)
+- Adapt material support to latest changes in build123d
+
+**Fixes**
+
+- Clean up backend shutdown on closing VS Code window or on quitting VS Code (cmd-Q/ctrl-Q) [three-cad-viewer #40](https://github.com/bernhard-42/three-cad-viewer/issues/40)
+- Edge, vertices and faces show color indicator in the navigation tree again [three-cad-viewer #41](https://github.com/bernhard-42/three-cad-viewer/issues/41)
+- Error message explains to drop --backend as a parameter when added accidentially to the standalone startup command [#221](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/221)
+- Lists and dicts of assemblies do not omit the label of the assembly when it has only one child [#224](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/224)
+- The parameter `modes` of `show*` is now properly threaded through ocp-tessellate so that skipping non-CAD objects is properly handled [#226](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/226)
+- Fixed race condition that could lead to a wrong dialog about missing ocp_vscode package in the current Python environment
+
 ## v3.3.4
 
 - Fix material wrapping in examples: use `Material.create("custom", pbr=...)` instead of assigning `PbrProperties` directly

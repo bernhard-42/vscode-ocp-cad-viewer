@@ -18,7 +18,7 @@ _OCP CAD Viewer_ for VS Code is an extension to show [CadQuery](https://github.c
 
 ### Installation
 
-1. Open the VS Code Marketplace, and search and install _OCP CAD Viewer 3.3.4_.
+1. Open the VS Code Marketplace, and search and install _OCP CAD Viewer 3.4.0_.
 
     Afterwards the OCP viewer is available in the VS Code sidebar:
 
@@ -79,12 +79,11 @@ Note: The extension is in pypi only [pypi](https://pypi.org/project/ocp-vscode/)
 
 ### Install in code-server
 
-This extensions is *NOT* available on the [OpenVSX marketplace](https://open-vsx.org/) used by code-server. If you want to use is in [code-server](https://github.com/coder/code-server), you need to install it manually on the server running code-server:
+This extensions is _NOT_ available on the [OpenVSX marketplace](https://open-vsx.org/) used by code-server. If you want to use is in [code-server](https://github.com/coder/code-server), you need to install it manually on the server running code-server:
 
 1. Go to the [releases page](https://github.com/bernhard-42/vscode-ocp-cad-viewer/releases)
 2. Download the latest `ocp-cad-viewer-<version>.vsix` file, e.g. using `wget <url of vsix file>`
 3. Run `code-server --install-extension ocp-cad-viewer-<version>.vsix` to install the extension
-
 
 ## Migration from v2.9.0 to v3.X.Y
 
@@ -391,78 +390,26 @@ NATIVE_TESSELLATOR=1 OCP_VSCODE_PYTEST=1 pytest -v -s tests/
 
 ## Changes
 
-## v3.3.4
-
-- Fix material wrapping in examples: use `Material.create("custom", pbr=...)` instead of assigning `PbrProperties` directly
-- Update to three-cad-viewer 4.3.7 (fix a texture repeat bug for triplanare texture mapping)
-
-## v3.3.3
+## v3.3.5
 
 **Features**
 
-- Refactor material extraction to support multiple material types: `threejs-materials` `PbrProperties`, `pymat` `Material`, and `build123d` `Material`
-- Add `create_shader_ball` utility for material previews
-- Add `materialx` optional dependency group (`materialx>=1.39.4`, `openexr>=3.3`)
-- Add `pygltflib` dependency for GLTF2 material loading
+- Detect in `show` and in the extension when backend is not running and show a Pythen warning and a VS Code error message
+- Keep the last active tab active, so iterating over a feature in clipping or studio is easier
+- Reuse the viewer component across show commands (clear instead of restart), allowing to keep active tab smoothly
+- Properties tool now also shows diameter of circle and ellipse [three-cad-viewer #39](https://github.com/bernhard-42/three-cad-viewer/issues/39)
+- The `analysis_tool` parameter allows to activate a specific analysis tool (`AnalysisTool.PROPERTIES`, `AnalysisTool.DISTANCE`, `AnalysisTool.SELECT`). It is consistently available with all `show` commands and `set_viewer_config`. [#219](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/219)
+- The `tab` parameter allows to activate a specific UI tab (`UiTab.TREE`, `UiTab.CLIP`, `UiTab.ZEBRA`, `UiTab.Material`, `UiTab.STUDIO`). It is consistently available with all `show` commands and `set_viewer_config`.
+- `ShapeList`s are now expanded like normal lists to not hide the internal structure [#220](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/220)
+- Adapt material support to latest changes in build123d
 
-**Bug Fixes**
+**Fixes**
 
-- Fix PBR examples and documentation
-- Exclude unnecessary files from vsix package (~2.7MB size reduction)
+- Clean up backend shutdown on closing VS Code window or on quitting VS Code (cmd-Q/ctrl-Q) [three-cad-viewer #40](https://github.com/bernhard-42/three-cad-viewer/issues/40)
+- Edge, vertices and faces show color indicator in the navigation tree again [three-cad-viewer #41](https://github.com/bernhard-42/three-cad-viewer/issues/41)
+- Error message explains to drop --backend as a parameter when added accidentially to the standalone startup command [#221](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/221)
+- Lists and dicts of assemblies do not omit the label of the assembly when it has only one child [#224](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/224)
+- The parameter `modes` of `show*` is now properly threaded through ocp-tessellate so that skipping non-CAD objects is properly handled [#226](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/226)
+- Fixed race condition that could lead to a wrong dialog about missing ocp_vscode package in the current Python environment
 
-**Dependencies**
-
-- Update three-cad-viewer to 4.3.6
-- Update ocp-tessellate to >=3.2.2
-- Update threejs-materials to >=1.0.1
-
-## v3.3.2
-
-- Skipped
-
-## v3.3.1
-
-- PBR information now is searched at material.pbr
-- Update to three-cad-viewer 4.3.0 ([changes](https://github.com/bernhard-42/three-cad-viewer/blob/master/Changes.md#v430))
-
-## v3.3.0
-
-**Features**
-
-- Material assignment simplified:
-    - Material objects from [threejs-materials](https://github.com/bernhard-42/threejs-materials) can now be assigned directly to `.material` on CAD objects or passed in the `materials` list — material definitions are auto-extracted
-    - `material_definitions` parameter removed from `show()`, `show_object()`, and `show_objects()`
-    - New approach `body.material = metal; show(body)`
-- Browser auto-reconnect to server: the viewer automatically reconnects when the server restarts, with a disconnection warning displayed at the bottom. Uses negative `max_reconnect_attempts` values for infinite retries, with limited retries by default (PR #215)
-
-**Bug Fixes**
-
-- Fix `helper_scale` not working with `set_defaults`
-- Rename `selectors.py` to `ocp_selectors.py` to avoid conflict with Python's `subprocess` module
-- Logo accidentially set zoom_speed to 0.25. Changed back tpo 1.0
-
-## v3.2.0
-
-**Features**
-
-- New PBR (physically based rendering) **Studio mode** using MaterialX materials from 3 public sources
-    - Per-object PBR materials: Assign materials to shapes via a `material` string tag on CAD objects and a `materials` dictionary
-        - Supports two formats: `"builtin:preset-name"` strings (31 built-in presets) and `MaterialXMaterial` objects (via the [threejs-materials](https://github.com/bernhard-42/threejs-materials))
-        - Material presets: 31 built-in presets (polished/matte metals, plastics, glass, rubber, painted, natural) — usable as `"builtin:preset-name"` in the materials dictionary
-        - Material Editor: Interactive PBR parameter tweaker for selected objects in Studio mode
-    - Environment maps: Image-based lighting (IBL) via Poly Haven HDR presets (CC0 license)
-        - 11 curated presets (studio, workshop, outdoor, architectural), loaded on demand from Poly Haven CDN (2K default resolution, 4k optional)
-        - Procedural `RoomEnvironment` bundled as zero-network fallback
-        - Custom HDR URL support via API
-        - Environment rotation slider with synchronized shadow light positioning
-    - Texture mapping: Triplanar shader injection for UV-less CAD geometry (default), with parametric fallback toggle
-    - Background modes: gradient grey, gradient dark grey (default), white, environment, or transparent
-    - Shadows: Two-pass blurred shadow system with depth masking with automatic shadow light placement from HDR environment analysis (light detection) and intensity and softness sliders
-    - Ambient Occlusion: N8AO screen-space AO with depth-aware upsampling and user-controlled intensity
-    - Tone mapping: PBR Neutral (default), ACES Filmic, or none — with exposure control
-    - Anti-aliasing: SMAA via postprocessing library EffectComposer
-
-- UI Improvements
-    - Reordered tabs: Tree | Clip | Zebra | Material | Studio
-    - Added reset buttons for Clip and Zebra tabs
-    - Collapsible Tools and Info panels in glass mode with arrow toggle indicators (tools panel toggle also hides/shows orientation marker and animation/explode slider)
+For the change history see [CHANGELOG](./CHANGELOG.md)
