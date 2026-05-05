@@ -2406,10 +2406,10 @@ pluralize@^8.0.0:
   resolved "https://registry.yarnpkg.com/pluralize/-/pluralize-8.0.0.tgz#1a6fa16a38d12a1901e0320fa017051c539ce3b1"
   integrity sha512-Nc3IT5yHzflTfbjgqWcCPpo7DaKy4FnpB0l/zCAW0Tc7jxAiuqSxHasntB3D7887LSrA93kDJ9IXovxJYxyLCA==
 
-postprocessing@6.38.3:
-  version "6.38.3"
-  resolved "https://registry.yarnpkg.com/postprocessing/-/postprocessing-6.38.3.tgz#f3273c0fedb318fab088fc10a34737c0155715b0"
-  integrity sha512-5qCFp8j62nWL6sSVv/RKuHscQUIV+VMMgWeHLYZQEBpAk7G+r3jA3bSKON7gZjiuxdZ/F4PXj2Jc1oPh/7Eg+g==
+postprocessing@6.39.0:
+  version "6.39.0"
+  resolved "https://registry.yarnpkg.com/postprocessing/-/postprocessing-6.39.0.tgz#168841ed60eb4228332e42303cb61ea192a1dd52"
+  integrity sha512-/G6JY8hs426lcto/pBZlnFSkyEo1fHsh4gy7FPJtq1SaSUOzJgDW6f6f1K/+aMOYzK/eQEefyOb3++jPPIUeDA==
 
 prebuild-install@^7.0.1:
   version "7.1.3"
@@ -2934,19 +2934,19 @@ textextensions@^6.11.0:
   dependencies:
     editions "^6.21.0"
 
-three-cad-viewer@4.3.7:
-  version "4.3.7"
-  resolved "https://registry.yarnpkg.com/three-cad-viewer/-/three-cad-viewer-4.3.7.tgz#e32e65f67276b6516da068cfc279d3b84129afc0"
-  integrity sha512-fFEZEST2uyoQQZqK/z1UKTy3RROpl69D6VhD27f9TbUsONr9DKkMYfNuYcSJNkf92NryymjBOLph+XKlI/qOcA==
+three-cad-viewer@4.3.8:
+  version "4.3.8"
+  resolved "https://registry.yarnpkg.com/three-cad-viewer/-/three-cad-viewer-4.3.8.tgz#ae6634767da37aaeca38a3934022b6e286b4e626"
+  integrity sha512-yFmmOQDb+KTF7V6rBGxZ820tDsjGnFlTiHvU4HE4G2PfmPal4pAz1OgHlJQOvr6GIcc2DQ0rJNhxPVkSBFkebQ==
   dependencies:
     n8ao "1.10.1"
-    postprocessing "6.38.3"
-    three "0.183.0"
+    postprocessing "6.39.0"
+    three "0.184.0"
 
-three@0.183.0:
-  version "0.183.0"
-  resolved "https://registry.yarnpkg.com/three/-/three-0.183.0.tgz#dea9c721a53250e28e99114bb7b46dc2bb01dc91"
-  integrity sha512-G6SH2jfefIVa2YI4JL2VbgQhrrbp1A8dRc7lr3PW827kdVyaX2RgH6M5FmjmdVFLgSHppyg3OYOZdTfWElle+g==
+three@0.184.0:
+  version "0.184.0"
+  resolved "https://registry.yarnpkg.com/three/-/three-0.184.0.tgz#5bca0a3851eea5345e4c205567b40dfa49b791b5"
+  integrity sha512-wtTRjG92pM5eUg/KuUnHsqSAlPM296brTOcLgMRqEeylYTh/CdtvKUvCyyCQTzFuStieWxvZb8mVTMvdPyUpxg==
 
 tmp@^0.2.3:
   version "0.2.5"

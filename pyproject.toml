@@ -27,7 +27,7 @@ classifiers = [
 ]
 
 dependencies = [
-    "ocp-tessellate>=3.2.2,<3.3.0",
+    "ocp-tessellate>=3.3.0,<3.4.0",
     "requests",
     "ipykernel",
     "orjson",
@@ -39,7 +39,7 @@ dependencies = [
     "pyperclip==1.9.0",
     "questionary==2.1.1",
     "pillow>=12.1.0, <13.0",
-    "threejs-materials>=1.0.1,<1.1.0",
+    "threejs-materials>=1.1.0,<1.2.0",
     "pygltflib>=1.16.5, < 1.17.0",
 ]
 
