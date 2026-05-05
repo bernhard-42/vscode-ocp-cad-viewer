@@ -767,7 +767,7 @@ class TestGetPropertiesBasic:
     def test_circle_properties(self, circle_xy):
         props = get_properties(_w(circle_xy))
         assert props["geom_type"] == "Circle"
-        _approx_dist(_find(props, "radius"), 5.0)
+        _approx_dist(_find(props, "radius / diam"), "5.000 /  10.000")
         _approx_point(_find(props, "center"), (0, 0, 0))
 
     def test_face_area(self):
