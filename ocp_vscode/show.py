@@ -1609,6 +1609,7 @@ def show_all(
             or re.search("^_\\d+", name) is not None
             # pylint: disable=protected-access
             or (hasattr(obj, "_obj") and obj._obj is None)
+            or (hasattr(obj, "_wrapped") and obj._wrapped is None)
             or callable(obj)
             or isinstance(obj, (int, float, str, bool, types.ModuleType))
             or obj is None
@@ -1623,12 +1624,6 @@ def show_all(
             continue
 
         if classes is None or isinstance(obj, tuple(classes)):
-            if hasattr(obj, "locations") and hasattr(obj, "local_locations"):
-                obj = obj.locations
-
-            if hasattr(obj, "local_coord_system"):
-                obj = obj.location
-
             if (
                 (
                     hasattr(obj, "wrapped")
@@ -1638,6 +1633,11 @@ def show_all(
                         or is_toploc_location(obj.wrapped)
                     )
                 )
+                or is_build123d_plane(obj)
+                or is_build123d_location(obj)
+                or is_build123d_plane(obj)
+                or is_build123d_axis(obj)
+                or is_build123d_locationlist(obj)
                 or is_vector(obj)  # Vector
                 or is_cadquery(obj)
                 or is_build123d(obj)
