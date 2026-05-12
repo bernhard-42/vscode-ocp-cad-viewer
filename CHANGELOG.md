@@ -2,7 +2,7 @@
 
 All notable changes to the "OCP CAD Viewer" extension will be documented in this file.
 
-## v3.3.5
+## v3.4.0
 
 **Features**
 

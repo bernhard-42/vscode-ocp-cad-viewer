@@ -1,11 +1,11 @@
 ## show_all
 
-Incrementally show CAD objects in Visual Studio Code. The command support the CQ-Editor parameters `obj`, `name` and `options` plus additional viewer specific args.
+Show every CAD object in the current scope (`locals()`) of the Python interpreter.
 
 ### Command
 
 ```python
-show_all(name=None, options=None, port=None, <keyword arguments>)
+show_all(variables=None, exclude=None, classes=None, include=None, <keyword arguments>)
 ```
 
 ### Arguments
@@ -14,11 +14,13 @@ show_all(name=None, options=None, port=None, <keyword arguments>)
     Show all variables in the current scope
 
     Parameters:
-        variables:     Only show objects with names in this list of variable names, 
+        variables:     Only show objects with names in this list of variable names,
                        i.e. do not use all from locals()
         exclude:       List of variable names to exclude from "show_all"
         classes:       Only show objects which are instances of the classes in this list
-        _visual_debug: private variable, do not use!
+        include:       List of variable names that should be shown even though they
+                       would be filtered out by `classes`. Only takes effect when
+                       `classes` is set.
 
     Keywords for show_all:
         Valid keywords for "show_all" are the same as for "show"

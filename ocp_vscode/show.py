@@ -787,9 +787,9 @@ def show(
 
         default_color:           Default mesh color (default=(232, 176, 36))
         default_edgecolor:       Default color of the edges of a mesh (default=#707070)
-        default_facecolor:       Default color of the edges of a mesh (default=#ee82ee)
-        default_thickedgecolor:  Default color of the edges of a mesh (default=#ba55d3)
-        default_vertexcolor:     Default color of the edges of a mesh (default=#ba55d3)
+        default_facecolor:       Default color of faces (default=#ee82ee)
+        default_thickedgecolor:  Default color of thick edges (default=#ba55d3)
+        default_vertexcolor:     Default color of vertices (default=#ba55d3)
         ambient_intensity:       Intensity of ambient light (default=1.00)
         direct_intensity:        Intensity of direct light (default=1.10)
         metalness:               Metalness property of the default material (default=0.30)
@@ -1165,9 +1165,9 @@ def show_object(
 
         default_color:           Default mesh color (default=(232, 176, 36))
         default_edgecolor:       Default color of the edges of a mesh (default=(128, 128, 128))
-        default_facecolor:       Default color of the edges of a mesh (default=#ee82ee / Violet)
-        default_thickedgecolor:  Default color of the edges of a mesh (default=#ba55d3 / MediumOrchid)
-        default_vertexcolor:     Default color of the edges of a mesh (default=#ba55d3 / MediumOrchid)
+        default_facecolor:       Default color of faces (default=#ee82ee / Violet)
+        default_thickedgecolor:  Default color of thick edges (default=#ba55d3 / MediumOrchid)
+        default_vertexcolor:     Default color of vertices (default=#ba55d3 / MediumOrchid)
         ambient_intensity:       Intensity of ambient light (default=1.00)
         direct_intensity:        Intensity of direct light (default=1.10)
         metalness:               Metalness property of the default material (default=0.30)
@@ -1422,6 +1422,17 @@ def show_objects(
     show_sketch_local=None,
     helper_scale=None,
     mate_scale=None,  # DEPRECATED
+    studio_environment=None,
+    studio_env_intensity=None,
+    studio_env_rotation=None,
+    studio_background=None,
+    studio_tone_mapping=None,
+    studio_exposure=None,
+    studio_shadow_intensity=None,
+    studio_shadow_softness=None,
+    studio_ao_intensity=None,
+    studio_texture_mapping=None,
+    studio_4k_env_maps=None,
     debug=None,
     timeit=None,
 ):
@@ -1500,6 +1511,21 @@ def show_objects(
         zebra_color_scheme:      Zebra color scheme: "blackwhite", "grayscale", or "colorful" (default="blackwhite")
         zebra_mapping_mode:      Zebra mapping mode: "reflection" or "normal" (default="reflection")
 
+        studio_environment:      Environment HDR map, use StudioEnvironment enum or a custom HDR URL
+                                 (default=StudioEnvironment.PROCEDURAL_STUDIO)
+        studio_env_intensity:    Intensity of environment lighting, 0-3.0 (default=1.0)
+        studio_env_rotation:     Rotation of environment map in degrees, 0-360 (default=0)
+        studio_background:       StudioBackground.ENVIRONMENT, .TRANSPARENT, .GRADIENT, .GRADIENT_DARK,
+                                 .WHITE, .GREY, .DARKGREY (default=StudioBackground.ENVIRONMENT)
+        studio_tone_mapping:     StudioToneMapping.NEUTRAL, .ACES, .NONE (default=StudioToneMapping.NEUTRAL)
+        studio_exposure:         Tone mapping exposure, 0-3.0 (default=1.0)
+        studio_shadow_intensity: Shadow intensity, 0-1.0 (default=0.5)
+        studio_shadow_softness:  Shadow softness, 0-1.0 (default=0.2)
+        studio_ao_intensity:     Ambient occlusion intensity, 0-3.0 (default=0.5)
+        studio_texture_mapping:  StudioTextureMapping.TRIPLANAR or .PARAMETRIC
+                                 (default=StudioTextureMapping.TRIPLANAR)
+        studio_4k_env_maps:      Use 4K resolution environment maps (default=False)
+
         pan_speed:               Speed of mouse panning (default=1)
         rotate_speed:            Speed of mouse rotate (default=1)
         zoom_speed:              Speed of mouse zoom (default=1)
@@ -1511,9 +1537,9 @@ def show_objects(
 
         default_color:           Default mesh color (default=(232, 176, 36))
         default_edgecolor:       Default color of the edges of a mesh (default=(128, 128, 128))
-        default_facecolor:       Default color of the edges of a mesh (default=#ee82ee / Violet)
-        default_thickedgecolor:  Default color of the edges of a mesh (default=#ba55d3 / MediumOrchid)
-        default_vertexcolor:     Default color of the edges of a mesh (default=#ba55d3 / MediumOrchid)
+        default_facecolor:       Default color of faces (default=#ee82ee / Violet)
+        default_thickedgecolor:  Default color of thick edges (default=#ba55d3 / MediumOrchid)
+        default_vertexcolor:     Default color of vertices (default=#ba55d3 / MediumOrchid)
         ambient_intensity:       Intensity of ambient light (default=1.00)
         direct_intensity:        Intensity of direct light (default=1.10)
         metalness:               Metalness property of the default material (default=0.30)

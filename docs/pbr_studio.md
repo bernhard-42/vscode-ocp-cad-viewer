@@ -4,13 +4,15 @@ PBR (Physically Based Rendering) materials can be defined using the class `PbrPr
 
 There are two sources of materials:
 
-1. MaterialX providers. Supported web pages:
+1. **MaterialX providers.** Supported web pages:
     - https://ambientcg.com/list?type=material
     - https://matlib.gpuopen.com/main/materials/all
     - https://polyhaven.com/textures
     - https://physicallybased.info/
 
-    PbrProprties allow to converted loaded mAterialX material into locally cached baked materials suitable for threejs and glTF. One can override PBR parameters, and scale textures if the material comes with a texture:
+    **Installation:** `pip install ocp-vscode[materialx]`
+
+    **Usage:** The class `PbrProperties` allows to convert (typically called "bake") downloaded MaterialX material into a local cache in a format suitable for three-cad-viewer (threejs) and glTF. If the material comes with a texture, one can override PBR parameters, and scale and rotate textures:
 
     ```python
     from threejs_materials import PbrProperties
@@ -31,7 +33,20 @@ There are two sources of materials:
 
     ```
 
-2. GLTF2 containing materials (e.g. exported from Blender)
+    **Note** Python support of `materialx`:
+
+    | Operating system                                                      | Python < 3.14                     | Python 3.14                                                       |
+    | --------------------------------------------------------------------- | --------------------------------- | ----------------------------------------------------------------- |
+    | Linux, MacOS, Windows (with Microsoft Visual C++ toolchain installed) | `pip` installs binaries from pypi | pip installs sources from pypi and compiles the packages directly |
+    | Windows (no compiler)                                                 | `pip` installs binaries from pypi | not directly supported\*                                          |
+
+    \* Use e.g. Python 3.13 and only run `PbrProperties.from_gpuopen("Aluminum Hexagon")` which will cache the material locally. Afterwards the same command under Python 3.14 directly reads from cache and does not need `materialx` and `openexr`.
+
+2. **GLTF2 containing materials** (e.g. exported from Blender)
+
+    **Installation:** `pip install ocp_vscode`
+
+    **Usage:**
 
     ```python
     from threejs_materials import PbrProperties
@@ -47,8 +62,8 @@ There are two sources of materials:
 Let's create a little object to apply the materials later (here with [build123d](https://github.com/gumyr/build123d) algebra mode)
 
 ```python
-from build123d import _
-from ocp_vscode import _
+from build123d import *
+from ocp_vscode import *
 
 mcc = (Align.MIN, Align.CENTER, Align.CENTER)
 ccm = (Align.CENTER, Align.CENTER, Align.MIN)
@@ -84,7 +99,7 @@ for i, l in enumerate(lights):
 
 ## Assigning materials and interpolating colors for CAD view
 
-PbrProperties objects are assigned directly to the `.material` attribute of CAD objects. Use `.interpolate_color()` to derive a representative `color` for the CAD view.
+`PbrProperties` objects are assigned directly to the `.material` attribute of CAD objects. Use `.interpolate_color()` to derive a representative `color` for the CAD view.
 
 Note: This will change when build123d gets an own `Material` class: `shape.material: build123d.Material`
 
@@ -132,17 +147,17 @@ set_viewer_config(tab="studio")
 
 ### No tools mode
 
-Tools can now be hidden by clicing on the **> Tools** button above the tools
+Tools can now be hidden by clicking on the **> Tools** button above the tools
 
 ![cad-view](../screenshots/studio-view-no-tools.png)
 
 ### Material Editor
 
-Doble click an object to select it and press the little "E" button.
+Double click an object to select it and press the little "E" button.
 
 ![cad-view](../screenshots/studio-view-material-editor.png)
 
-Changes are marked red, you can apply the as `overrides` in your Python code
+Changes are marked red, you can apply them as `overrides` in your Python code
 
 ## Full code
 

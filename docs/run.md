@@ -1,6 +1,6 @@
 # Run code using Jupyter
 
-- Ensure your first line is `# %%. This will initiate the Jupyter environment
+- Ensure your first line is `# %%`. This will initiate the Jupyter environment
 
     ![Jupyter cell header](../screenshots/jupyter-header.png)
 

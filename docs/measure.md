@@ -2,17 +2,31 @@
 
 ![Measurement mode](../screenshots/measure.gif)
 
-Note: The parameter measure_tools is not needed any more
-
 ## Tools
 
 There are three tools:
 
-![properties-tool](../screenshots/properties-tool.png) **Properties**: Get the properties of the object selected.
+![properties-tool](../screenshots/properties-tool.png) **Properties**: Get the properties of the object selected. For circles and ellipses the diameter is also reported.
 
 ![measure-tool](../screenshots/measure-tool.png) **Measurement**: Get the distance of the two objects selected.
 
 ![angle-tool](../screenshots/angle-tool.png) **Angle**: Get the angle between the two objects selected.
+
+## Programmatic activation
+
+The active tool can be selected from Python with `analysis_tool=`, which is accepted by every `show*` command and by `set_viewer_config`:
+
+```python
+from ocp_vscode import show, set_viewer_config, AnalysisTool
+
+show(part, analysis_tool=AnalysisTool.PROPERTIES)
+# or, on an already-running viewer:
+set_viewer_config(analysis_tool=AnalysisTool.DISTANCE)
+```
+
+Allowed values: `AnalysisTool.PROPERTIES`, `AnalysisTool.DISTANCE`, `AnalysisTool.SELECT`, `AnalysisTool.OFF`. The string equivalents `"properties"`, `"distance"`, `"select"`, `"off"` also work.
+
+`analysis_tool` is mutually exclusive with `explode=True`.
 
 ## Topology Filter
 

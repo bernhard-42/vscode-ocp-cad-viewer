@@ -110,9 +110,9 @@ Valid keywords to configure the viewer (**kwargs):
 
     default_color:           Default mesh color (default=(232, 176, 36))
     default_edgecolor:       Default color of the edges of a mesh (default=#707070)
-    default_facecolor:       Default color of the edges of a mesh (default=#ee82ee)
-    default_thickedgecolor:  Default color of the edges of a mesh (default=#ba55d3)
-    default_vertexcolor:     Default color of the edges of a mesh (default=#ba55d3)
+    default_facecolor:       Default color of faces (default=#ee82ee)
+    default_thickedgecolor:  Default color of thick edges (default=#ba55d3)
+    default_vertexcolor:     Default color of vertices (default=#ba55d3)
     ambient_intensity:       Intensity of ambient light (default=1.00)
     direct_intensity:        Intensity of direct light (default=1.10)
     metalness:               Metalness property of the default material (default=0.30)

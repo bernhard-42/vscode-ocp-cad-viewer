@@ -5,27 +5,28 @@ Incrementally show CAD objects in Visual Studio Code. The command support the CQ
 ### Command
 
 ```python
-push_object(obj, name=None, color=None, alpha=None, clear=False, update=False)
+push_object(obj, name=None, color=None, alpha=None, material=None, mode=None, clear=False, update=False)
 ```
 
 ### Arguments
 
     Parameters:
         obj: The object to be added or updated. Must have 'name', 'label', 'color', or 'alpha'
-            ttributes if corresponding arguments are not provided.
+            attributes if corresponding arguments are not provided.
         name (str, optional): The name to associate with the object. If not provided,
             attempts to use 'name' or 'label' attribute of obj.
         color (any, optional): The color to associate with the object. If not provided,
             attempts to use 'color' attribute of obj.
         alpha (float, optional): The alpha (transparency) value for the object. If not provided,
             attempts to use 'alpha' attribute of obj, defaults to 1.0.
+        material (PbrProperties or str, optional): Material object or material name string for the object.
+        mode (Render, optional): A Render value for this object (Render.ALL, Render.EDGES, Render.FACES, Render.NONE).
         clear (bool, optional): If True, clears the OBJECTS registry before adding the new object.
         update (bool, optional): If True, updates an existing object with the same name;
             otherwise, appends as a new object.
 
     Raises:
         ValueError: If no name is provided and the object does not have a 'name' or 'label' attribute.
-    """
 
 ### Command
 
@@ -64,6 +65,10 @@ show_objects(<keyword arguments>)
                                  Collapse.ALL: collapse all nodes,
                                  Collapse.NONE: expand all nodes
                                  (default=Collapse.ROOT)
+        analysis_tool:           Activate an analysis tool: AnalysisTool.PROPERTIES,
+                                 AnalysisTool.DISTANCE, AnalysisTool.SELECT (default=AnalysisTool.OFF)
+        tab:                     Select a UI tab: UiTab.TREE, UiTab.CLIP, UiTab.ZEBRA,
+                                 UiTab.MATERIAL, UiTab.STUDIO (default=UiTab.TREE)
         ticks:                   Hint for the number of ticks in both directions (default=5)
         center_grid:             Center the grid at the origin or center of mass (default=False)
         grid_font_size:          Size for the font used for grid axis labels (default=12)
@@ -81,12 +86,33 @@ show_objects(<keyword arguments>)
         clip_slider_0:           Setting of clipping slider 0 (default=None)
         clip_slider_1:           Setting of clipping slider 1 (default=None)
         clip_slider_2:           Setting of clipping slider 2 (default=None)
-        clip_normal_0:           Setting of clipping normal 0 (default=[-1,0,0])
-        clip_normal_1:           Setting of clipping normal 1 (default=[0,-1,0])
-        clip_normal_2:           Setting of clipping normal 2 (default=[0,0,-1])
-        clip_intersection:       Use clipping intersection mode (default=[False])
+        clip_normal_0:           Setting of clipping normal 0 (default=None)
+        clip_normal_1:           Setting of clipping normal 1 (default=None)
+        clip_normal_2:           Setting of clipping normal 2 (default=None)
+        clip_intersection:       Use clipping intersection mode (default=None)
         clip_planes:             Show clipping plane helpers (default=False)
         clip_object_colors:      Use object color for clipping caps (default=False)
+
+        zebra_count:             Setting of zebra stripe count (default=9, range: 2-50)
+        zebra_opacity:           Setting of zebra opacity (default=1, range: 0-1)
+        zebra_direction:         Setting of zebra direction angle (default=0, range: 0-90)
+        zebra_color_scheme:      Zebra color scheme: "blackwhite", "grayscale", or "colorful" (default="blackwhite")
+        zebra_mapping_mode:      Zebra mapping mode: "reflection" or "normal" (default="reflection")
+
+        studio_environment:      Environment HDR map, use StudioEnvironment enum or a custom HDR URL
+                                 (default=StudioEnvironment.PROCEDURAL_STUDIO)
+        studio_env_intensity:    Intensity of environment lighting, 0-3.0 (default=1.0)
+        studio_env_rotation:     Rotation of environment map in degrees, 0-360 (default=0)
+        studio_background:       StudioBackground.ENVIRONMENT, .TRANSPARENT, .GRADIENT, .GRADIENT_DARK,
+                                 .WHITE, .GREY, .DARKGREY (default=StudioBackground.ENVIRONMENT)
+        studio_tone_mapping:     StudioToneMapping.NEUTRAL, .ACES, .NONE (default=StudioToneMapping.NEUTRAL)
+        studio_exposure:         Tone mapping exposure, 0-3.0 (default=1.0)
+        studio_shadow_intensity: Shadow intensity, 0-1.0 (default=0.5)
+        studio_shadow_softness:  Shadow softness, 0-1.0 (default=0.2)
+        studio_ao_intensity:     Ambient occlusion intensity, 0-3.0 (default=0.5)
+        studio_texture_mapping:  StudioTextureMapping.TRIPLANAR or .PARAMETRIC
+                                 (default=StudioTextureMapping.TRIPLANAR)
+        studio_4k_env_maps:      Use 4K resolution environment maps (default=False)
 
         pan_speed:               Speed of mouse panning (default=1)
         rotate_speed:            Speed of mouse rotate (default=1)

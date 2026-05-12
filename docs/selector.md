@@ -1,4 +1,4 @@
-# Measure mode
+# Object selection mode
 
 ![Object selection mode](../screenshots/selector.gif)
 

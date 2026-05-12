@@ -68,7 +68,7 @@ def track_param(ctx, param, value):
 @click.option(
     "--create_configfile",
     is_flag=True,
-    help="Create the configlie .ocpvscode_standalone in the home directory",
+    help="Create the config file .ocpvscode_standalone in the home directory",
     callback=track_param,
 )
 @click.option(
@@ -200,7 +200,7 @@ def track_param(ctx, param, value):
 @click.option(
     "--center_grid",
     is_flag=True,
-    help="Show grid planes crossing at center of object or global origin(default: False)",
+    help="Show grid planes crossing at center of object or global origin (default: False)",
     callback=track_param,
 )
 @click.option(
@@ -254,7 +254,7 @@ def track_param(ctx, param, value):
 @click.option(
     "--deviation",
     default=0.1,
-    help="Deviation of for tessellation algorithm (default: 0.1)",
+    help="Deviation for tessellation algorithm (default: 0.1)",
     callback=track_param,
 )
 @click.option(
