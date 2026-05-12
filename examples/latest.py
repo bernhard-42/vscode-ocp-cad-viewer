@@ -28,16 +28,14 @@ set_viewer_config(tab="clip")
 # %%
 
 show(Sphere(0.5))
-set_viewer_config(tab="clip")
 
 # %%
 
 show(Sphere(0.5))
-set_viewer_config(tab="clip", clip_object_colors=False)
+set_viewer_config(clip_object_colors=False)
 
 # %%
 show(Sphere(0.5), reset_camera=True)
-set_viewer_config(tab="clip")
 
 # %%
 
@@ -46,7 +44,10 @@ show(
     center_grid=True,
     grid_font_size=16,
     grid=(True, False, False),
+    clip_planes=False,
+    reset_camera=True,
 )
+set_viewer_config(tab="tree")
 # %%
 set_defaults(show_parent=True, reset_camera=Camera.RESET)
 show(Box(1, 2, 3).faces().edges().vertices())

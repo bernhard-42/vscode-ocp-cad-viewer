@@ -2,6 +2,8 @@
 from build123d import *
 from ocp_vscode import *
 
+set_defaults(reset_camera=Camera.RESET)
+
 b = Box(1, 2, 3)
 b = fillet(b.edges(), 0.2)
 c = Pos(2, 2, 0) * Cylinder(0.5, 2)
@@ -132,14 +134,14 @@ show(b, c, default_color="red")
 # %%
 # Set the default edge color
 
-show(b, c, default_edgecolor="red")
+show(b, c, default_edgecolor="red", black_edges=False, transparent=False)
 
 # %%
 # Change position and orientation of camera. Use "status()" to get actual values
 show(
     b,
     c,
-    zoom=0.3,
+    zoom=0.24,
     position=[15.4, -7.4, 4.3],
     quaternion=[0.3301, 0.2803, 0.7015, 0.5658],
     target=[4.7, -7.7, -4.3],
@@ -154,6 +156,12 @@ show(b, c, reset_camera=Camera.KEEP, colors=["red", "green"], alphas=[0.3, 0.7])
 show(b, c, reset_camera=Camera.CENTER, colors=["blue", "yellow"], alphas=[0.3, 0.7])
 
 # %%
+show(b, c, reset_camera=Camera.TOP, colors=["blue", "yellow"], alphas=[0.3, 0.7])
+
+# %%
+show(b, c, reset_camera=Camera.RESET, colors=["blue", "yellow"], alphas=[0.3, 0.7])
+
+# %%
 # Suppress rendering edges
 
 show(b, c, render_edges=False)
@@ -161,7 +169,7 @@ show(b, c, render_edges=False)
 # %%
 # Render vertes normals
 
-show(b, c, render_normals=True)
+show(b, c, render_normals=True, render_edges=True)
 
 # %%
 # Increase tessellation accuracy (a factor, defaulting to 0.1)
@@ -236,7 +244,7 @@ set_viewer_config(
     position=[2.544, -6.595, 1.123],
     quaternion=[0.495874, 0.092593, 0.222356, 0.834321],
     target=[-0.042, -1.163, -2.267],
-    zoom=1.8,
+    zoom=0.6,
     default_edgecolor="red",
     default_opacity=0.2,
 )
@@ -244,6 +252,7 @@ set_viewer_config(
 # %%
 
 reset_defaults()
+set_defaults(reset_camera=Camera.RESET)
 
 # %%
 show(b, c)

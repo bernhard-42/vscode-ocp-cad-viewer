@@ -30,7 +30,6 @@ show(b, c, Box(0.1, 0.1, 4), progress="*+c")
 
 show(b, c, glass=False, tools=True, debug=True)
 
-
 # %%
 
 show(b, c, glass=True, tools=True)
@@ -67,6 +66,7 @@ show(
     default_opacity=0.9,
     black_edges=False,
     ticks=5,
+    reset_camera=Camera.RESET,
 )
 
 # %%
@@ -205,6 +205,7 @@ show(
     zebra_direction=45,
     zebra_color_scheme="blackwhite",
     zebra_mapping_mode="reflection",
+    reset_camera=Camera.RESET,
 )
 set_viewer_config(tab="zebra")
 
@@ -238,6 +239,7 @@ set_viewer_config(tab="zebra")
 # %%
 
 show(b, c, pan_speed=0.1, rotate_speed=0.1, zoom_speed=0.1)
+set_viewer_config(tab="tree")
 
 # %%
 

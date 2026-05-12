@@ -9,7 +9,7 @@ from threejs_materials import PbrProperties
 from pymat import brass
 
 # threejs-material
-brass_tm = PbrProperties.from_gpuopen("Brass").scale(4, 4)
+brass_tm = PbrProperties.from_gpuopen("Brass Satin").scale(1,1)
 
 # pymat.Material
 brass_pymat = brass
@@ -17,11 +17,11 @@ brass_pymat = brass
 # Import threejs-material from GLTF2 (blender export)
 here = Path.cwd()
 if not here.parts[-1] == "examples":
-    here = here / "examples"
+    here = here / ""
 brass_gltf = PbrProperties.load_gltf(here / "brass-deco" / "brass_cube.gltf")[
     "Ornamental Design Embossed Brass"
 ]
-
+# %%
 show_clear()
 
 shader_ball_1 = Pos(0, 0, 0) * create_shader_ball("shader_ball")
