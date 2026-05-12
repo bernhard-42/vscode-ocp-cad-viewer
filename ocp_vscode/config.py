@@ -319,7 +319,7 @@ def validate_tool_args(explode, analysis_tool):
         "off",
     ):
         raise ValueError(
-            f'analysis_tool must be an AnalysisTool member or one of '
+            f"analysis_tool must be an AnalysisTool member or one of "
             f'"properties", "distance", "select", "off"; got {analysis_tool!r}'
         )
     if explode is True and analysis_tool in ("properties", "distance", "select"):
