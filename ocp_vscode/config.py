@@ -795,7 +795,7 @@ def reset_defaults(port=None):
     }
 
 
-def check_deprecated(kwargs):
+def check_deprecated(kwargs, _length=1):
     """Check for deprecated arguments"""
     if kwargs.get("mate_scale") is not None:
         print("\nmate_scale is deprecated, use helper_scale instead\n")
@@ -842,8 +842,12 @@ def check_deprecated(kwargs):
             DeprecationWarning,
             stacklevel=3,
         )
-        if not kwargs["render_edges"] and kwargs.get("modes") is None:
-            kwargs["modes"] = Render.FACES
+        if kwargs.get("modes") is None:
+            if kwargs["render_edges"] is True:
+                kwargs["modes"] = [Render.ALL] * _length
+            else:
+                kwargs["modes"] = [Render.FACES] * _length
+
         del kwargs["render_edges"]
 
     if kwargs.get("control") is not None:

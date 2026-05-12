@@ -861,8 +861,9 @@ def _show(*cad_objs, **kwargs):
         ]
     }
 
-    kwargs = check_deprecated(kwargs)
-    # modes = kwargs.pop("modes", None)
+    kwargs = check_deprecated(kwargs, _length=len(cad_objs))
+    if modes is None:
+        modes = kwargs.pop("modes", None)
 
     if kwargs.get("grid") is not None:
         if isinstance(kwargs["grid"], bool):
