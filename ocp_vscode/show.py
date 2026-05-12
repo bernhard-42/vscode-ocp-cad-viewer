@@ -280,11 +280,11 @@ def _tessellate(
         if conf.get("clip_slider_2") is not None:
             del conf["clip_slider_2"]
         if conf.get("clip_normal_0") is not None:
-            conf["clip_normal_0"] = [-1, 0, 0]
+            conf["clip_normal_0"] = None
         if conf.get("clip_normal_1") is not None:
-            conf["clip_normal_1"] = [0, -1, 0]
+            conf["clip_normal_1"] = None
         if conf.get("clip_normal_2") is not None:
-            conf["clip_normal_2"] = [0, 0, -1]
+            conf["clip_normal_2"] = None
         if conf.get("clip_intersection") is not None:
             conf["clip_intersection"] = False
         if conf.get("clip_planes") is not None:

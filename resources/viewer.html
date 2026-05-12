@@ -356,7 +356,7 @@ limitations under the License.
             }
 
             function render() {
-                const toCamelCase = (s) => s.replace(/_([a-z])/g, (_, c) => c.toUpperCase());
+                const toCamelCase = (s) => s.replace(/_([a-z0-9])/g, (_, c) => c.toUpperCase());
                 const optionKeyOverrides = {
                     default_edgecolor: "edgeColor",
                     clip_planes: "clipPlaneHelpers",
