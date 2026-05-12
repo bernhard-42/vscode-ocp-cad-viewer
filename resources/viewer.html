@@ -456,6 +456,8 @@ limitations under the License.
                     // Reset mode: respect position settings from the object if provided
                     if (_config.zoom !== undefined) {
                         viewerOptions.zoom = _config.zoom;
+                    } else {
+                        viewerOptions.zoom = 1.0;
                     }
                     if (_config.position !== undefined) {
                         viewerOptions.position = _config.position;
