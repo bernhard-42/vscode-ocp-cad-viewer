@@ -455,6 +455,7 @@ class Viewer:
             elif message_type == "B":
                 model = orjson.loads(data)["model"]
                 self.backend.handle_event(model, MessageType.DATA)
+                ws.send(orjson.dumps({"ok": True}))
                 self.debug_print(f"[{message_type}] Model data sent to the backend")
 
             elif message_type == "R":
