@@ -104,8 +104,9 @@ def track_param(ctx, param, value):
 )
 @click.option(
     "--tree_width",
-    default=240,
-    help="OCP CAD Viewer navigation tree width (default: 240)",
+    type=click.INT,
+    default=None,
+    help=f"OCP CAD Viewer navigation tree width (default: {DEFAULTS['tree_width']})",
     callback=track_param,
 )
 @click.option(
@@ -116,8 +117,9 @@ def track_param(ctx, param, value):
 )
 @click.option(
     "--theme",
-    default="browser",
-    help="Use theme 'light', 'dark', or 'browser' (default: 'browser')",
+    type=click.STRING,
+    default=None,
+    help=f"Use theme 'light', 'dark', or 'browser' (default: {DEFAULTS['theme']!r})",
     callback=track_param,
 )
 @click.option(
@@ -128,38 +130,44 @@ def track_param(ctx, param, value):
 )
 @click.option(
     "--control",
-    default="trackball",
-    help="Use control mode 'orbit' or 'trackball'",
+    type=click.STRING,
+    default=None,
+    help=f"Use control mode 'orbit' or 'trackball' (default: {DEFAULTS['control']!r})",
     callback=track_param,
 )
 @click.option(
     "--reset_camera",
-    default="reset",
-    help="Set camera behavior to 'reset', 'keep' or 'center'",
+    type=click.STRING,
+    default=None,
+    help=f"Set camera behavior to 'reset', 'keep' or 'center' (default: {DEFAULTS['reset_camera']!r})",
     callback=track_param,
 )
 @click.option(
     "--up",
-    default="Z",
-    help="Provides up direction, 'Z', 'Y' or 'L' (legacy) (default: Z)",
+    type=click.STRING,
+    default=None,
+    help=f"Provides up direction, 'Z', 'Y' or 'L' (legacy) (default: {DEFAULTS['up']!r})",
     callback=track_param,
 )
 @click.option(
     "--rotate_speed",
-    default=1,
-    help="Rotation speed (default: 1)",
+    type=click.FLOAT,
+    default=None,
+    help=f"Rotation speed (default: {DEFAULTS['rotate_speed']})",
     callback=track_param,
 )
 @click.option(
     "--zoom_speed",
-    default=1,
-    help="Zoom speed (default: 1)",
+    type=click.FLOAT,
+    default=None,
+    help=f"Zoom speed (default: {DEFAULTS['zoom_speed']})",
     callback=track_param,
 )
 @click.option(
     "--pan_speed",
-    default=1,
-    help="Pan speed (default: 1)",
+    type=click.FLOAT,
+    default=None,
+    help=f"Pan speed (default: {DEFAULTS['pan_speed']})",
     callback=track_param,
 )
 @click.option(
@@ -206,14 +214,20 @@ def track_param(ctx, param, value):
 )
 @click.option(
     "--grid_font_size",
-    default=12,
-    help="Size of grid's axis label font (default: 12)",
+    type=click.INT,
+    default=None,
+    help=f"Size of grid's axis label font (default: {DEFAULTS['grid_font_size']})",
     callback=track_param,
 )
 @click.option(
     "--collapse",
-    default=1,
-    help="leaves: collapse all leaf nodes, all: collapse all nodes, none: expand all nodes, root: expand root only (default: leaves)",
+    type=click.STRING,
+    default=None,
+    help=(
+        "leaves: collapse all single-leaf nodes, all: collapse all nodes, "
+        "none: expand all nodes, root: expand root only "
+        f"(default: {DEFAULTS['collapse']!r})"
+    ),
     callback=track_param,
 )
 @click.option(
@@ -224,8 +238,9 @@ def track_param(ctx, param, value):
 )
 @click.option(
     "--ticks",
-    default=5,
-    help="Default number of ticks (default: 5)",
+    type=click.INT,
+    default=None,
+    help=f"Default number of ticks (default: {DEFAULTS['ticks']})",
     callback=track_param,
 )
 @click.option(
@@ -236,8 +251,9 @@ def track_param(ctx, param, value):
 )
 @click.option(
     "--default_opacity",
-    default=0.5,
-    help="Default opacity for transparent objects (default: 0.5)",
+    type=click.FLOAT,
+    default=None,
+    help=f"Default opacity for transparent objects (default: {DEFAULTS['default_opacity']})",
     callback=track_param,
 )
 @click.option(
@@ -248,68 +264,79 @@ def track_param(ctx, param, value):
 )
 @click.option(
     "--angular_tolerance",
-    default=0.2,
-    help="Angular tolerance for tessellation algorithm (default: 0.2)",
+    type=click.FLOAT,
+    default=None,
+    help=f"Angular tolerance for tessellation algorithm (default: {DEFAULTS['angular_tolerance']})",
     callback=track_param,
 )
 @click.option(
     "--deviation",
-    default=0.1,
-    help="Deviation for tessellation algorithm (default: 0.1)",
+    type=click.FLOAT,
+    default=None,
+    help=f"Deviation for tessellation algorithm (default: {DEFAULTS['deviation']})",
     callback=track_param,
 )
 @click.option(
     "--default_color",
-    default="#e8b024",
-    help="Default shape color, CSS3 color names are allowed (default: #e8b024)",
+    type=click.STRING,
+    default=None,
+    help=f"Default shape color, CSS3 color names are allowed (default: {DEFAULTS['default_color']})",
     callback=track_param,
 )
 @click.option(
     "--default_edgecolor",
-    default="#707070",
-    help="Default color of the edges of shapes, CSS3 color names are allowed (default: #707070)",
+    type=click.STRING,
+    default=None,
+    help=f"Default color of the edges of shapes, CSS3 color names are allowed (default: {DEFAULTS['default_edgecolor']})",
     callback=track_param,
 )
 @click.option(
     "--default_thickedgecolor",
-    default="MediumOrchid",
-    help="Default color of lines, CSS3 color names are allowed (default: MediumOrchid)",
+    type=click.STRING,
+    default=None,
+    help=f"Default color of thick edges, CSS3 color names are allowed (default: {DEFAULTS['default_thickedgecolor']})",
     callback=track_param,
 )
 @click.option(
     "--default_facecolor",
-    default="Violet",
-    help="Default color of faces, CSS3 color names are allowed (default: Violet)",
+    type=click.STRING,
+    default=None,
+    help=f"Default color of faces, CSS3 color names are allowed (default: {DEFAULTS['default_facecolor']})",
     callback=track_param,
 )
 @click.option(
     "--default_vertexcolor",
-    default="MediumOrchid",
-    help="Default color of vertices, CSS3 color names are allowed (default: MediumOrchid)",
+    type=click.STRING,
+    default=None,
+    help=f"Default color of vertices, CSS3 color names are allowed (default: {DEFAULTS['default_vertexcolor']})",
     callback=track_param,
 )
 @click.option(
     "--ambient_intensity",
-    default=1,
-    help="Intensity of ambient light (default: 1.00)",
+    type=click.FLOAT,
+    default=None,
+    help=f"Intensity of ambient light (default: {DEFAULTS['ambient_intensity']})",
     callback=track_param,
 )
 @click.option(
     "--direct_intensity",
-    default=1.1,
-    help="Intensity of direct light (default: 1.10)",
+    type=click.FLOAT,
+    default=None,
+    help=f"Intensity of direct light (default: {DEFAULTS['direct_intensity']})",
     callback=track_param,
 )
 @click.option(
     "--metalness",
-    default=0.3,
-    help="Metalness property of material (default: 0.30)",
+    type=click.FLOAT,
+    default=None,
+    help=f"Metalness property of material (default: {DEFAULTS['metalness']})",
     callback=track_param,
 )
 @click.option(
     "--roughness",
-    default=0.65,
-    help="Roughness property of material (default: 0.65)",
+    type=click.FLOAT,
+    default=None,
+    help=f"Roughness property of material (default: {DEFAULTS['roughness']})",
     callback=track_param,
 )
 @click.option(

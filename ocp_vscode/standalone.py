@@ -30,55 +30,10 @@ from ocp_vscode.comms import MessageType
 from ocp_vscode.backend import ViewerBackend
 from ocp_vscode.backend_logo import logo
 from ocp_vscode.state import add_port, del_port
+from ocp_vscode.standalone_defaults import DEFAULTS
 import pyperclip
 
 CONFIG_FILE = Path.home() / ".ocpvscode_standalone"
-
-DEFAULTS = {
-    "debug": False,
-    "no_glass": False,
-    "no_tools": False,
-    "tree_width": 240,
-    "theme": "browser",
-    "control": "trackball",
-    "modifier_keys": {
-        "shift": "shiftKey",
-        "ctrl": "ctrlKey",
-        "meta": "metaKey",
-        "alt": "altKey",
-    },
-    "new_tree_behavior": True,
-    "pan_speed": 0.5,
-    "rotate_speed": 1.0,
-    "zoom_speed": 0.5,
-    "axes": False,
-    "axes0": False,
-    "grid_xy": False,
-    "grid_xz": False,
-    "grid_yz": False,
-    "perspective": False,
-    "transparent": False,
-    "black_edges": False,
-    "collapse": "R",
-    "reset_camera": "KEEP",
-    "up": "Z",
-    "ticks": 5,
-    "center_grid": False,
-    "grid_font_size": 12,
-    "default_opacity": 0.5,
-    "explode": False,
-    "default_edgecolor": "#808080",
-    "default_color": "#e8b024",
-    "default_thickedgecolor": "MediumOrchid",
-    "default_facecolor": "Violet",
-    "default_vertexcolor": "MediumOrchid",
-    "angular_tolerance": 0.2,
-    "deviation": 0.1,
-    "ambient_intensity": 1.0,
-    "direct_intensity": 1.1,
-    "metalness": 0.3,
-    "roughness": 0.65,
-}
 
 SCRIPTS = """
     <script type="module" src="static/js/three-cad-viewer.esm.js"></script>
