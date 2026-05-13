@@ -121,7 +121,7 @@ Note, it is a good idea to place a face with original mm sizes onto th image to 
 
 A few things worth noting:
 
-- The reference face lives in the XY plane by default. Use `location=Plane.XZ.location` (or `Plane.YZ.location`) to stand it up against the model.
+- The reference face lives in the XY plane by default. Use e.g. `location=Plane.XZ.location` to put the image on the "front" plane (or other `plane.location`)
 - Pair it with `transparent=True` in `show` so the image isn't hidden by opaque geometry.
 - If you want the image to sit slightly behind the model along the normal, multiply the location by a small offset: `Plane.XZ.location * Location((0, 0, -0.1))`.
 
