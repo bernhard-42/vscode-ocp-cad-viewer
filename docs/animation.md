@@ -19,11 +19,11 @@ Animation paths are only valid for the most recent `show` call. Don't change the
 
 Adds a three.js keyframe track for one CAD object.
 
-| Parameter | Description |
-| --- | --- |
-| `path`           | Path of the CAD object, usually `/top-level/level2/...` — must match one of the paths printed when `Animation` was constructed |
+| Parameter        | Description                                                                                                                                                                         |
+| ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `path`           | Path of the CAD object, usually `/top-level/level2/...` — must match one of the paths printed when `Animation` was constructed                                                      |
 | `action`         | One of `"tx"`, `"ty"`, `"tz"` (translation along an axis), `"t"` (translation vector), `"rx"`, `"ry"`, `"rz"` (rotation around an axis, degrees), `"q"` (quaternion `(x, y, z, w)`) |
-| `times`          | List of floats — points in time (seconds) where the object should be at the given location |
+| `times`          | List of floats — points in time (seconds) where the object should be at the given location                                                                                          |
 | `values`         | Same length as `times`. Floats for `"tx" / "ty" / "tz" / "rx" / "ry" / "rz"`; 3-tuples for `"t"`; 4-tuples for `"q"`                                                                |
 | `animate_joints` | If `True`, also adds a parallel track on `<path>.joints` so attached build123d joints animate with the object                                                                       |
 
@@ -61,23 +61,29 @@ animation.add_track(
 
 See also: [three.js NumberKeyframeTrack](https://threejs.org/docs/index.html?q=track#api/en/animation/tracks/NumberKeyframeTrack), [three.js QuaternionKeyframeTrack](https://threejs.org/docs/index.html?q=track#api/en/animation/tracks/QuaternionKeyframeTrack).
 
-## `animate(speed)`
+## Animate
+
+`animate(speed)`
 
 Plays the registered tracks in the viewer. `speed` is the playback multiplier (`1.0` = real-time). Raises `RuntimeError` if no tracks have been added.
 
-## `set_relative_time(fraction, port=None)`
+## Set relative time
+
+`set_relative_time(fraction, port=None)`
 
 Jump the animation timeline to a fractional position between `0` (start) and `1` (end). Useful for scrubbing or for rendering specific frames.
 
-## `save_as_gif(output, fps=25, loops=0, endpoint=False, bg_color="white", pause=0.02)`
+## Save as gif
+
+`save_as_gif(output, fps=25, loops=0, endpoint=False, bg_color="white", pause=0.02)`
 
 Renders the animation to a GIF by stepping `set_relative_time` and capturing screenshots.
 
-| Parameter   | Default     | Description                                                                                                            |
-| ----------- | ----------- | ---------------------------------------------------------------------------------------------------------------------- |
-| `output`    | _required_  | Output file path                                                                                                       |
-| `fps`       | `25`        | Frames per second. GIF stores delays in centiseconds, so only `10`, `20`, `25`, `50`, `100` yield exact timing         |
-| `loops`     | `0`         | `0` = infinite, `N` = play `N` times                                                                                   |
-| `endpoint`  | `False`     | Include the final frame at `t=1.0`                                                                                     |
-| `bg_color`  | `"white"`   | Background color for transparent areas                                                                                 |
-| `pause`     | `0.02`      | Seconds to wait between frame captures (gives the renderer time to settle)                                             |
+| Parameter  | Default    | Description                                                                                                    |
+| ---------- | ---------- | -------------------------------------------------------------------------------------------------------------- |
+| `output`   | _required_ | Output file path                                                                                               |
+| `fps`      | `25`       | Frames per second. GIF stores delays in centiseconds, so only `10`, `20`, `25`, `50`, `100` yield exact timing |
+| `loops`    | `0`        | `0` = infinite, `N` = play `N` times                                                                           |
+| `endpoint` | `False`    | Include the final frame at `t=1.0`                                                                             |
+| `bg_color` | `"white"`  | Background color for transparent areas                                                                         |
+| `pause`    | `0.02`     | Seconds to wait between frame captures (gives the renderer time to settle)                                     |

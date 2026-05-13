@@ -12,9 +12,8 @@ Notes:
 
     Clicking on it toggles between `OCP: <port>·DEBUG` (visual debugging enabled) and `OCP: <port>` (visual debugging disabled).
 
-- Planes, locations and axes are also shown — name your contexts so they appear with meaningful labels.
+- Planes, locations and axes are also shown — name your contexts in build123d so they appear with meaningful labels.
 - The viewer remembers camera position and which variables were unselected in the tree across steps (e.g. to hide temp variables that are out of scope).
-- During debugging, `show` and `show_object` are disabled — they would interfere with the visual debugging.
 - Set breakpoints and step over the code as usual.
 
 ## Python pdb

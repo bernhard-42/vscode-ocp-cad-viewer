@@ -77,6 +77,16 @@ Options:
   --help                          Show this message and exit.
 ```
 
+## Persistent defaults
+
+To avoid passing the same flags every time, write a config file with the built-in defaults:
+
+```bash
+python -m ocp_vscode --create_configfile
+```
+
+This writes `~/.ocpvscode_standalone` (YAML). Edit it to set your preferences (theme, tree width, axes, grids, mouse speeds, …); the standalone server merges it on top of the built-in defaults at startup, and CLI flags still override the file. See [config_files.md](config_files.md) for the full precedence rules and the list of honored keys.
+
 ## Standalone mode with Docker
 
 If you are not using VS Code and prefer to keep the standalone web server running in a container, see [docker-vscode-ocp-cad-viewer](https://github.com/nilcons/docker-vscode-ocp-cad-viewer).

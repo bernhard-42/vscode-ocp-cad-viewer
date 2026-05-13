@@ -35,7 +35,7 @@ show(cq.Workplane().box(1, 2, 3))
 - To use OCP CAD Viewer, start VS Code from the commandline in the Python environment you want to use or select the right Python interpreter in VS Code first. **OCP CAD Viewer depends on VS Code using the right Python interpreter** (i.e. mamba / conda / pyenv / poetry / ... environment).
 - For VSCodium, the extension is not available in the VS code market place. You need to download the the vsix file from the [release folder](https://github.com/bernhard-42/vscode-ocp-cad-viewer/releases) and install it manually.
 
-### Installation
+### Installation within VS Code
 
 1. Open the VS Code Marketplace, and search and install _OCP CAD Viewer 3.4.0_.
 
@@ -73,7 +73,7 @@ show(cq.Workplane().box(1, 2, 3))
 
 - If you run into issues, see [Troubleshooting](docs/troubleshooting.md)
 
-### Install via CLI
+### Installation via CLI
 
 If you aren't using VS Code, you can install/use this extension via command line
 
@@ -99,9 +99,9 @@ Notes:
 - The extension is in pypi only [pypi](https://pypi.org/project/ocp-vscode/), so for conda, mamba or micromamba environments `pip` or `uv pip` needs to be used.
 - If you want to use the Studio mode with MaterialX support, see [PBR Studio](docs/pbr_studio.md#material-setup)
 
-### Install in code-server
+### Installation in code-server
 
-This extension is _NOT_ available on the [OpenVSX marketplace](https://open-vsx.org/) used by code-server. If you want to use it in [code-server](https://github.com/coder/code-server), you need to install it manually on the server running code-server:
+This extension is _not_ available on the [OpenVSX marketplace](https://open-vsx.org/) used by code-server. If you want to use it in [code-server](https://github.com/coder/code-server), you need to install it manually on the server running code-server:
 
 1. Go to the [releases page](https://github.com/bernhard-42/vscode-ocp-cad-viewer/releases)
 2. Download the latest `ocp-cad-viewer-<version>.vsix` file, e.g. using `wget <url of vsix file>`
@@ -109,7 +109,7 @@ This extension is _NOT_ available on the [OpenVSX marketplace](https://open-vsx.
 
 ## Usage
 
-### Running with VS Code's "Run" menu
+### Running code with VS Code's "Run" menu
 
 The simplest way to run a Python script with OCP CAD Viewer is via VS Code's built-in **Run** menu:
 
@@ -148,11 +148,14 @@ The "Library Manager" in the _OCP CAD Viewer_ sidebar lets you install or upgrad
 #### Working with the viewer
 
 - [Ports and connecting to a viewer](docs/ports.md)
+- [Config files (`~/.ocpvscode`, `~/.ocpvscode_standalone`)](docs/config_files.md)
 - [Use Jupyter to execute code](docs/run.md)
+- [Standalone mode (use without VS Code)](docs/standalone.md)
 - [Debug code with visual debugging](docs/debug.md)
-- [Measure mode](docs/measure.md)
-- [Object selection mode](docs/selector.md)
-- [PBR Studio](docs/pbr_studio.md)
+- [Measurement tools](docs/measure.md)
+- [Object selection tool](docs/selector.md)
+- [Physical based rendering Studio](docs/pbr_studio.md)
+- [ImageFace — use a 2-D image as a reference plane](docs/image_face.md)
 
 #### Python `show*` commands
 
@@ -205,6 +208,7 @@ make tests
 - The `tab` parameter allows to activate a specific UI tab (`UiTab.TREE`, `UiTab.CLIP`, `UiTab.ZEBRA`, `UiTab.Material`, `UiTab.STUDIO`). It is consistently available with all `show` commands and `set_viewer_config`.
 - `ShapeList`s are now expanded like normal lists to not hide the internal structure [#220](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/220)
 - Adapt material support to latest changes in build123d
+- Rework and significant enhancement of the docs
 
 **Fixes**
 

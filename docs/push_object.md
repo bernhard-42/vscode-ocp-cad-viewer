@@ -1,6 +1,6 @@
 ## push_object and show_objects
 
-Incrementally show CAD objects in Visual Studio Code. The command support the CQ-Editor parameters `obj`, `name` and `options` plus additional viewer specific args.
+Incrementally show CAD objects in Visual Studio Code. The commands support the CQ-Editor parameters `obj`, `name` and `options` plus additional viewer-specific args. Compared to `show_object`, this pair is the lazy variant: `push_object` collects objects without rendering, and `show_objects` then renders them in a single batch — much faster than calling `show_object` repeatedly.
 
 ### Command
 

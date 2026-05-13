@@ -4,23 +4,9 @@ The Python side (`show`, `show_object`, `set_viewer_config`, …) talks to the v
 
 ## The state file `~/.ocpvscode`
 
-Each running viewer registers itself in the JSON file `~/.ocpvscode`:
+Each running viewer (the VS Code extension and the standalone CLI) registers its port in `~/.ocpvscode`. The Python side reads this file to discover which viewers exist.
 
-```json
-{
-  "version": 2,
-  "services": {
-    "3939": "<connection file>",
-    "3940": ""
-  }
-}
-```
-
-- The **VS Code extension** writes its port there when it starts a viewer, together with the Jupyter kernel connection file if Jupyter is in use.
-- The **standalone CLI** (`python -m ocp_vscode`) registers its port there too (empty connection file).
-- When a viewer shuts down cleanly, its entry is removed.
-
-`get_config_file()` returns the absolute path to this file.
+See [config_files.md](config_files.md) for the file format and how it interacts with the standalone config file.
 
 ## Discovery algorithm
 

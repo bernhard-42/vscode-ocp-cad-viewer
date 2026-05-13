@@ -14,6 +14,7 @@ All notable changes to the "OCP CAD Viewer" extension will be documented in this
 - The `tab` parameter allows to activate a specific UI tab (`UiTab.TREE`, `UiTab.CLIP`, `UiTab.ZEBRA`, `UiTab.Material`, `UiTab.STUDIO`). It is consistently available with all `show` commands and `set_viewer_config`.
 - `ShapeList`s are now expanded like normal lists to not hide the internal structure [#220](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/220)
 - Adapt material support to latest changes in build123d
+- Rework and significant enhancement of the docs
 
 **Fixes**
 

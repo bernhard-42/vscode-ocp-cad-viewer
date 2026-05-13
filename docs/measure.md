@@ -4,13 +4,11 @@
 
 ## Tools
 
-There are three tools:
+There are two tools:
 
 ![properties-tool](../screenshots/properties-tool.png) **Properties**: Get the properties of the object selected. For circles and ellipses the diameter is also reported.
 
-![measure-tool](../screenshots/measure-tool.png) **Measurement**: Get the distance of the two objects selected.
-
-![angle-tool](../screenshots/angle-tool.png) **Angle**: Get the angle between the two objects selected.
+![measure-tool](../screenshots/measure-tool.png) **Measurement**: Get the distance of the two objects selected and the angle between them or their normals.
 
 ## Programmatic activation
 

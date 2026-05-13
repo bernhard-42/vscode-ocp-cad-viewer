@@ -1,6 +1,6 @@
 ## set_viewer_config
 
-Change configuration of the OCP CAD Viewer from Python
+Change configuration of the OCP CAD Viewer from Python. The changes will be applied immediately.
 
 ### Command
 
@@ -88,5 +88,5 @@ Keywords
     metalness:               Metalness property of the default material
     roughness:               Roughness property of the default material
 
-    port:                    Port of OCP CAD Viewer 
+    port:                    Port of OCP CAD Viewer
 ```
