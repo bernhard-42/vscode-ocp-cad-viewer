@@ -32,6 +32,20 @@ def disable_pytest_stub():
         os.environ["OCP_VSCODE_PYTEST"] = old
 
 
+@pytest.fixture(autouse=True)
+def isolate_comms_port_state():
+    """`set_port()` mutates module-level globals in `ocp_vscode.comms`
+    (`CMD_PORT`, `CMD_URL`, `INIT_DONE`). Save and restore them around each
+    test so our standalone port (39777) doesn't leak into sibling test
+    modules — e.g. `tests/test_viewer_config.py` expects `OCP_PORT=3939`
+    discovery, which only fires when `INIT_DONE` is False."""
+    import ocp_vscode.comms as comms
+
+    saved = (comms.INIT_DONE, comms.CMD_PORT, comms.CMD_URL)
+    yield
+    comms.INIT_DONE, comms.CMD_PORT, comms.CMD_URL = saved
+
+
 def _wait_for_config(port, proc, timeout=STARTUP_TIMEOUT):
     """Poll `workspace_config` until it returns (handles WS-startup race).
 
