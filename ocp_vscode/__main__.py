@@ -18,8 +18,9 @@ from pathlib import Path
 import click
 import yaml
 
-from ocp_vscode.backend import ViewerBackend
-from ocp_vscode.standalone import CONFIG_FILE, DEFAULTS, Viewer
+# Heavy modules (Flask, ViewerBackend) are imported lazily inside `main()` so
+# `python -m ocp_vscode --help` stays fast.
+from ocp_vscode.standalone_defaults import DEFAULTS
 
 
 def represent_list(dumper, data):
@@ -328,6 +329,10 @@ def main(ctx, **kwargs):
     Returns:
         None
     """
+
+    # Lazy-import the heavy modules so `--help` doesn't pull in Flask.
+    from ocp_vscode.backend import ViewerBackend
+    from ocp_vscode.standalone import CONFIG_FILE, Viewer
 
     if kwargs.get("create_configfile"):
         config_file = Path(CONFIG_FILE)
