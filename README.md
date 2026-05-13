@@ -218,5 +218,6 @@ make tests
 - Lists and dicts of assemblies do not omit the label of the assembly when it has only one child [#224](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/224)
 - The parameter `modes` of `show*` is now properly threaded through ocp-tessellate so that skipping non-CAD objects is properly handled [#226](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/226)
 - Fixed race condition that could lead to a wrong dialog about missing ocp_vscode package in the current Python environment
+- Document `ImageFace` handling [#223](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/223)
 
 For the change history see [CHANGELOG](./CHANGELOG.md)
