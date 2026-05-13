@@ -191,8 +191,10 @@ def _send(data, message_type, port=None, timeit=False):
             except (ConnectionRefusedError, OSError, WebSocketException) as ex:
                 comms_warning(f"Connection error: {ex}\nMessage: {data}")
                 # set some dummy values to avoid errors
+                from ocp_vscode.config import Collapse  # late import to break cycle
+
                 return {
-                    "collapse": "none",
+                    "collapse": Collapse.ROOT,
                     "_splash": False,
                     "default_facecolor": (1, 234, 56),
                     "default_thickedgecolor": (123, 45, 6),
@@ -201,8 +203,10 @@ def _send(data, message_type, port=None, timeit=False):
             except Exception as ex:
                 comms_warning(f"Unexpected error: {ex}\n{traceback.format_exc()}")
                 # set some dummy values to avoid errors
+                from ocp_vscode.config import Collapse  # late import to break cycle
+
                 return {
-                    "collapse": "none",
+                    "collapse": Collapse.ROOT,
                     "_splash": False,
                     "default_facecolor": (1, 234, 56),
                     "default_thickedgecolor": (123, 45, 6),
