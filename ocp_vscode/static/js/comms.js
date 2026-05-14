@@ -13,7 +13,15 @@ class Comms {
     }
 
     createWebsocket() {
-        this.socket = new WebSocket(`ws://${this.host}:${this.port}`);
+        const isSecure = window.location.protocol === "https:";
+        const scheme = isSecure ? "wss" : "ws";
+        const portStr = String(this.port ?? "");
+        const isDefaultPort =
+        (isSecure && (portStr === "443" || portStr === "")) ||
+        (!isSecure && (portStr === "80" || portStr === ""));
+        const hostPort = isDefaultPort ? this.host : `${this.host}:${this.port}`;
+
+        this.socket = new WebSocket(`${scheme}://${hostPort}`);
         this.ready = false;
         this.retry++;
 
