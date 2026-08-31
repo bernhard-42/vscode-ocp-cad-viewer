@@ -1,5 +1,6 @@
 """Utility functions for ocp_vscode"""
 
+# ruff: noqa: F401
 #
 # Copyright 2025 Bernhard Walter
 #
@@ -17,11 +18,23 @@
 
 import warnings
 
-# The shader ball lives in `ocp_viewer_core.utils` now, importable from any
-# host's environment: its geometry needs build123d, and importing that module
-# is where the requirement surfaces - deliberately not here, so importing
-# this package never asks for build123d.
-__all__ = []
+from ocp_viewer_core.utils import (
+    CameraKeepWarning,
+    CameraWarning,
+    camera_keep_warning,
+    camera_warning,
+    create_shader_ball,
+    ignore_camera_warnings,
+)
+
+# The released 4.0.x surface of this module: the two camera-warning names in
+# __all__, the rest importable. All of it lives in `ocp_viewer_core.utils` now
+# - including the shader ball, whose build123d import happens at the call, so
+# importing this package still never asks for build123d.
+__all__ = [
+    "camera_keep_warning",
+    "ignore_camera_warnings",
+]
 
 # Warnings
 
