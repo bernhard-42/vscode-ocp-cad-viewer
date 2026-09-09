@@ -26,7 +26,7 @@ classifiers = [
     "Programming Language :: Python :: 3",
 ]
 
-dependencies = ["ocp-viewer-core>=1.0.6,<1.1.0"]
+dependencies = ["ocp-viewer-core>=1.0.7,<1.1.0"]
 
 [project.urls]
 "Homepage" = "https://github.com/bernhard-42/vscode-ocp-cad-viewer"
