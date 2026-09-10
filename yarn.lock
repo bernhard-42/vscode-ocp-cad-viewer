@@ -2225,10 +2225,10 @@ object-inspect@^1.13.3:
   resolved "https://registry.yarnpkg.com/object-inspect/-/object-inspect-1.13.4.tgz#8375265e21bc20d0fa582c22e1b13485d6e00213"
   integrity sha512-W67iLl4J2EXEGTbfeHCffrjDfitvLANg0UlX3wFUUSTx92KXRFegMHUVgSqE+wvhAbi4WqjGg9czysTV2Epbew==
 
-ocp-viewer-core@1.0.3:
-  version "1.0.3"
-  resolved "https://registry.yarnpkg.com/ocp-viewer-core/-/ocp-viewer-core-1.0.3.tgz#455fd51f8a294f533ea2448c22d8e98f5c7ddf4a"
-  integrity sha512-zaMg0vr1Yz6gtcXgOuwH3BcFebd3drRJn3NLt2K8n33gKYeC/Qmi/qF69IlBuAWwUKumzpUuFif/xxuWxSBZsw==
+ocp-viewer-core@1.0.4:
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/ocp-viewer-core/-/ocp-viewer-core-1.0.4.tgz#8ff4270285328c8f7bb9bd341a180e09de81801b"
+  integrity sha512-JmpRetzkqNujj8MFLOTpIZADYB58o8ilQGFfaobVrbLNnvV663y3fW/ubWfu6QfOtLpx4LSGNhmP62o6bFN4cg==
 
 once@^1.3.0, once@^1.3.1, once@^1.4.0:
   version "1.4.0"
@@ -2939,10 +2939,10 @@ textextensions@^6.11.0:
   dependencies:
     editions "^6.21.0"
 
-three-cad-viewer@5.0.5:
-  version "5.0.5"
-  resolved "https://registry.yarnpkg.com/three-cad-viewer/-/three-cad-viewer-5.0.5.tgz#751eb0f0d6fadf928fbc42646b2b31cffc49d946"
-  integrity sha512-jyoaagVxIJnNytZPDcKuHe+dapR1zCwIAnlwfcSksl+U9LlssTpUpSXrLDkBcSbZJNqj4hUWvfvRcvvptInhLw==
+three-cad-viewer@5.0.6:
+  version "5.0.6"
+  resolved "https://registry.yarnpkg.com/three-cad-viewer/-/three-cad-viewer-5.0.6.tgz#4b684b5e74bcda2575deb73ddec6e657dd05f8c5"
+  integrity sha512-57SaH0r2Wa1Dd2+L0dgWiDTdd2bVequ5ac0Zgk3+KcVegmjbsPUjHs0T8LGe8Ul4vyRe5YIQU12zWyuVE1k04Q==
   dependencies:
     n8ao "1.10.1"
     postprocessing "6.39.0"
