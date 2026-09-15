@@ -2,10 +2,45 @@
 
 All notable changes to the "OCP CAD Viewer" extension will be documented in this file.
 
-## 4.0.2
+## 4.1.0
+
+OCP CAD Viewer is now a host of [ocp-viewer-core](https://github.com/bernhard-42/ocp-viewer-core): the show pipeline, config semantics, camera policy, viewer page logic, colour catalogue, selectors, animation and the measurement backend are the core's, shared with OCP Viewer (standalone), Jupyter CadQuery and build123d Studio, so all four viewers behave the same. The extension and `ocp_vscode` keep only what is theirs - the VS Code transport, the settings, the managers. Documentation lives on the joint site: https://bernhard-42.github.io/ocp_viewer_docs/
+
+- **Features**
+    - **ocp-viewer-core adoption**
+        - `ocp_vscode` depends on `ocp-viewer-core[cli]>=1.0.11,<1.1.0` and nothing else; `ocp_tessellate`, `websockets`, `questionary`, `pillow` and `threejs-materials` come with the core. `flask`, `flask_sock`, `click`, `pyperclip`, `pyaml`, `requests` and `pygltflib` are gone.
+        - Every public name is unchanged: `show`, `show_object`, `show_all`, `show_clear`, `set_defaults`, `get_defaults`, `reset_defaults`, `set_viewer_config`, `status`, `workspace_config`, `save_screenshot`, `Animation`, the colormaps, the selectors and the enums are bound from the core and keep their signatures, hover and completion. The historic deep imports (`from ocp_vscode.animation import Animation`, `ocp_vscode.colors`, `ocp_vscode.ocp_selectors`, `ocp_vscode.utils`) keep working through compat modules. `from ocp_vscode import *` is declared via `__all__` rather than accidental.
+        - The extension and `ocp_vscode` must agree on major.minor; a patch-level difference is accepted (the version check used to demand an exact match). The viewer page checks the core's JavaScript against the core's Python on every show and reports a major.minor mismatch to the console.
+        - `ImageFace`, `enable_native_tessellator()`, `disable_native_tessellator()`, `is_native_tessellator_enabled()` and `init_native_tessellator()` come from `ocp_viewer_core.tessellator` and always exist; the toggles are in `__all__` for the first time.
+        - The standalone viewer (`python -m ocp_vscode` without `--backend`) moved to its own package, [ocp_viewer](https://pypi.org/project/ocp_viewer/); running the module without arguments says so.
+        - `set_viewer_config()` applies the eleven `studio_*` keys, which the webview used to drop; `modifier_keys` can be set at runtime.
+        - The values of `reset_camera`, `collapse`, `theme`, `up`, `orbit_control` and the other enumerated keys are validated when `show()`, `set_defaults()` or `set_viewer_config()` is called - a typo raises instead of vanishing. Keywords that belong to another viewer (`viewer`, `anchor`, `pinning`, `cad_width`, `height`) are refused with a message instead of being dropped in silence.
+        - `show()` accepts a `cadquery.Material` on an assembly instead of failing with `Unknown material`: a material carrying a visualisation material (`wrapped_vis`, or one made with `ocp_viewer_core.materials.pbr_to_vis_material`) is rendered, one without is reported and ignored (addresses [#240](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/240); cadquery itself does not populate `wrapped_vis` yet).
+        - Materials keep working with cadquery-ocp 8 (OCCT 8 dropped `gp_Vec3f`; the emissive term is skipped there).
+    - **Extension**
+        - `OcpCadViewer.view.modifier_keys` holds one map per platform, `macOS` and `default` (Windows, Linux), so a synced `settings.json` serves every machine: on Windows and Linux the Win/Super key belongs to the desktop, so `meta` is `altKey` there and `alt` is `metaKey`. A flat map, the setting's previous shape, is still taken as it is.
+        - `OcpCadViewer.view.grid_font_size` is declared (default 12); the extension always read it but never offered it, so nobody could set it.
+        - The Library Manager lists `ocp_viewer_core`, so the core can be upgraded from the sidebar; `ocp_tessellate` and `ocp_viewer_core` are not listed in the Viewer Manager.
+        - The paste-import snippets work without a running viewer and paste only the configured snippet (no `set_port` line); `ocp_vscode`'s snippet is `from ocp_vscode import *`, `cadquery_ocp`'s is `import OCP`.
+        - `README.md` is reduced to install and first steps and `docs/` is gone; everything is on the joint documentation site.
+    - **three-cad-viewer 5.0.6** (was 5.0.1)
+        - Measure and select tools are available in Clip mode.
 
 - **Fixes**
-    - Widen the `ocp-tessellate` requirement to `>=3.4.0,<3.6.0`. The previous ceiling of `<3.5.0` meant ocp_vscode could not be installed alongside anything requiring ocp-tessellate 3.5.0, and 3.5.0 is additive - it adds `default_facecolor`, `default_thickedgecolor` and `default_vertexcolor` while leaving the module constants ocp_vscode assigns to in place. No behaviour changes here.
+    - Removed deprecated keyword `OcpCadViewer.view.dark`; it had been converted to `OcpCadViewer.view.theme`. A settings file still carrying `dark` gets the theme default (`browser`).
+    - Removed deprecated keywords `control` and `mate_scale` (use `orbit_control` and `helper_scale`)
+    - Removed legacy option `up="L"`.
+    - Standalone edges and vertices (shapes without faces) are hidden in Studio mode and come back in CAD mode; they used to stay hidden (three-cad-viewer 5.0.5, [#237](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/237)).
+    - No startup popup "Cannot read properties of undefined (reading 'toString')" when the interpreter's `pip list` fails; the failure is logged to the output channel ([#233](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/233)).
+    - The precedence of settings is fixed: VS Code settings < viewer state (toolbar) < `set_defaults()` < the call's keywords, with the built-in defaults only underneath. A stored setting that shares a key with the built-in table could never take effect before.
+    - `reset_defaults(port=...)` resets the viewer it names; `show(orbit_control=..., up=...)` apply to that call only.
+    - `Animation.add_track` validates action, times and values, and `Animation` built from the raw core class instead of `ocp_vscode` says which import to use.
+    - A partial keymap (e.g. `modifier_keys`) no longer wipes the action shortcuts (three-cad-viewer 5.0.4).
+    - Grid labels follow a resize of the CAD view (three-cad-viewer 5.0.3); leaving glass mode keeps the canvas inside the panel (5.0.6).
+    - Installed packages whose names carry two dashes (`ocp-viewer-core`) are recognised as installed by the Library Manager; only the first dash was mapped before.
+    - `uv pip list` runs without `-v`; the flag added nothing to the JSON and printed uv's DEBUG lines into the developer console on every start.
+    - The `.vsix` no longer packages a stale core tarball, the `proper-lockfile` source tarball, `.clean_ttf/` and `.ruff_cache/`.
+    - 4.0.1's `ocp-tessellate<3.5.0` ceiling made `ocp_vscode` uninstallable beside anything requiring ocp-tessellate 3.5.0; the requirement is the core's now (`>=3.5.0,<3.6.0`), and `ocp_vscode` declares none of its own.
 
 ## 4.0.1
 

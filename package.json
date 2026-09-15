@@ -2,7 +2,7 @@
   "name": "ocp-cad-viewer",
   "displayName": "OCP CAD Viewer",
   "description": "An integrated OCP CAD viewer for CadQuery and build123d",
-  "version": "4.0.2",
+  "version": "4.1.0",
   "publisher": "bernhard-42",
   "icon": "resources/ocp-logo.png",
   "license": "Apache-2.0",
@@ -425,12 +425,20 @@
         "OcpCadViewer.view.modifier_keys": {
           "type": "object",
           "default": {
-            "shift": "shiftKey",
-            "ctrl": "ctrlKey",
-            "meta": "metaKey",
-            "alt": "altKey"
+            "macOS": {
+              "shift": "shiftKey",
+              "ctrl": "ctrlKey",
+              "meta": "metaKey",
+              "alt": "altKey"
+            },
+            "default": {
+              "shift": "shiftKey",
+              "ctrl": "ctrlKey",
+              "meta": "altKey",
+              "alt": "metaKey"
+            }
           },
-          "description": "Mapping of modifier keys shift, ctrl and meta (cmd on Mac, Windows on Windows)",
+          "description": "Mapping of the viewer's modifier keys shift, ctrl, meta and alt to the keyboard's (shiftKey, ctrlKey, metaKey, altKey), one map per platform: 'macOS', and 'default' for Windows and Linux, where the Windows/Super key (metaKey) belongs to the desktop and meta is Alt instead. The extension applies the map for the platform it runs on, so a synced settings.json serves every machine.",
           "order": 33
         },
         "OcpCadViewer.render.angular_tolerance": {
@@ -524,7 +532,9 @@
           },
           "default": [
             "from ocp_vscode import",
-            "import ocp_vscode"
+            "import ocp_vscode",
+            "from ocp_viewer_core.viewer import",
+            "import ocp_viewer_core.viewer"
           ],
           "description": "Trigger statements to start the viewer when opening Python files",
           "order": 53
@@ -575,6 +585,9 @@
             ],
             "ocp_vscode": [
               "{pip-install}  --upgrade ocp_vscode~={ocp_vscode_version}"
+            ],
+            "ocp_viewer_core": [
+              "{pip-install}  --upgrade ocp_viewer_core"
             ],
             "ocp_tessellate": [
               "{pip-install}  --upgrade ocp_tessellate"

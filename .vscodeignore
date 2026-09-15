@@ -348,3 +348,7 @@ node_modules/postprocessing/build/postprocessing.min.js
 node_modules/postprocessing/build/types/*.d.cts
 
 three-cad-viewer-v*.tgz
+ocp-viewer-core-v*.tgz
+proper-lockfile-*.tgz
+.clean_ttf/
+.ruff_cache/

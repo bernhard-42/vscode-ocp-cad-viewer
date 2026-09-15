@@ -27,6 +27,29 @@ import { getPythonPath, getTempFolder } from "./utils";
 import { removeState, getConfig } from "./state";
 import { getAutomationShellConfig } from "./system/shell";
 
+/**
+ * The modifier keys for the platform VS Code runs on - where the keys are
+ * pressed, which with a remote kernel is not where Python runs.
+ *
+ * The setting holds one map per platform, "macOS" and "default", so that one
+ * settings.json serves every machine Settings Sync copies it to, and so that
+ * whoever reads it sees which platform gets what. `meta` rotates, hides and
+ * isolates, and `metaKey` is the Win/Super key on Windows and Linux, which
+ * the desktop takes for itself, so there `meta` and `alt` swap physical keys.
+ * A flat map - the setting's shape before this - is taken as it is, on every
+ * platform, as it always was.
+ */
+function modifierKeys(options: vscode.WorkspaceConfiguration): Record<string, string> {
+    const configured = options.get<Record<string, any>>("modifier_keys") ?? {};
+    if (configured["default"] == null && configured["macOS"] == null) {
+        return configured;
+    }
+    if (process.platform === "darwin" && configured["macOS"] != null) {
+        return configured["macOS"];
+    }
+    return configured["default"] ?? configured["macOS"];
+}
+
 var serverStarted = false;
 
 interface Message {
@@ -136,7 +159,7 @@ export class OCPCADController {
             reset_camera: options.get("reset_camera"),
             transparent: options.get("transparent"),
             explode: options.get("explode"),
-            modifier_keys: options.get("modifier_keys")
+            modifier_keys: modifierKeys(options)
         };
         options = vscode.workspace.getConfiguration("OcpCadViewer.render");
         c["angular_tolerance"] = options.get("angular_tolerance");

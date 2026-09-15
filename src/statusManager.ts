@@ -56,7 +56,7 @@ export class StatusManagerProvider implements vscode.TreeDataProvider<Status> {
     setLibraries(libraries: string[]) {
         this.libraries = [];
         libraries.forEach((library) => {
-            if (library !== "ocp_tessellate") {
+            if (library !== "ocp_tessellate" && library !== "ocp_viewer_core") {
                 // map ipykernel as library ro jupyter extension
                 this.libraries.push(library == "ipykernel" ? "jupyter" : library);
             }

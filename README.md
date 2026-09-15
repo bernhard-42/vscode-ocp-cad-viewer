@@ -37,7 +37,7 @@ show(cq.Workplane().box(1, 2, 3))
 
 ### Installation within VS Code
 
-1. Open the VS Code Marketplace, and search and install _OCP CAD Viewer 4.0.2_.
+1. Open the VS Code Marketplace, and search and install _OCP CAD Viewer 4.1.0_.
 
     Afterwards the OCP viewer is available in the VS Code sidebar:
 
@@ -135,7 +135,7 @@ After each step, the debugger checks all variables in `locals()` for being CAD o
 
 ### Library Manager
 
-The "Library Manager" in the _OCP CAD Viewer_ sidebar lets you install or upgrade _build123d_, _cadquery_, _ipykernel_ and _ocp_tessellate_ from VS Code. See [Viewer and Library Manager](https://bernhard-42.github.io/ocp_viewer_docs/viewers/ocp_vscode/managers/) for the default install commands, placeholder substitution, and `uv add` override.
+The "Library Manager" in the _OCP CAD Viewer_ sidebar lets you install or upgrade _build123d_, _cadquery_, _ipykernel_, _ocp_viewer_core_ and _ocp_tessellate_ from VS Code. See [Viewer and Library Manager](https://bernhard-42.github.io/ocp_viewer_docs/viewers/ocp_vscode/managers/) for the default install commands, placeholder substitution, and `uv add` override.
 
 ### Extra topics
 

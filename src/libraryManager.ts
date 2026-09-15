@@ -26,8 +26,10 @@ import { execute, getAutomationShellConfig } from "./system/shell";
 import { StatusManagerProvider } from "./statusManager";
 import { TerminalExecute } from "./system/terminal";
 
+// pip and uv report distribution names with dashes; the install list is keyed
+// by import name. Every dash, not the first: `ocp-viewer-core` has two.
 function sanitize(lib: string) {
-    return lib.replace("-", "_");
+    return lib.replace(/-/g, "_");
 }
 
 interface Package {
@@ -56,7 +58,7 @@ export async function pipList(python: string): Promise<Map<string, Omit<Package,
 
     try {
         if (await isUvVenv(python)) {
-            result = execute(`uv pip list -p "${python}" -v --format json`, false);
+            result = execute(`uv pip list -p "${python}" -q --format json`, false);
         } else {
             result = execute(`"${python}" -m pip list -v --format json`, false);
         }
