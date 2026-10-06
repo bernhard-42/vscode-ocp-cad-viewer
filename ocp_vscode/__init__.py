@@ -25,20 +25,11 @@ from .utils import *
 
 from .colors import *
 from .ocp_selectors import *
-from ocp_viewer_core.tessellator import (
-    ImageFace,
-    disable_native_tessellator,
-    enable_native_tessellator,
-    init_native_tessellator,
-    is_native_tessellator_enabled,
-)
+from ocp_viewer_core.tessellator import ImageFace
 
 # The union of the submodules' __all__ plus what is imported by name above, so
 # the star surface is chosen rather than accidental - the submodule names stay
-# out. The tessellator toggles are part of it now: they come from the core and
-# are always defined, where the conditional import they replace left names that
-# may not exist, and a name in __all__ that does not exist breaks every star
-# import.
+# out.
 __all__ = [
     "AnalysisTool",
     "Animation",
@@ -51,8 +42,6 @@ __all__ = [
     "combined_config",
     "comms_warning",
     "default",
-    "disable_native_tessellator",
-    "enable_native_tessellator",
     "find_and_set_port",
     "get_colormap",
     "get_default",
@@ -64,8 +53,6 @@ __all__ = [
     "hsv_mapper",
     "ignore_camera_warnings",
     "ImageFace",
-    "init_native_tessellator",
-    "is_native_tessellator_enabled",
     "is_pytest",
     "ListedColorMap",
     "listener",
@@ -113,6 +100,3 @@ __all__ = [
     "workspace_config",
 ]
 
-
-if init_native_tessellator():
-    print("Found and enabled native tessellator.")

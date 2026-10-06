@@ -1,6 +1,6 @@
 .PHONY: clean_notebooks wheel install tests check_version dist check_dist upload_test upload \
 		bump release create-release docker docker_upload dist tests reload reload-tcv \
-		reload-core prepare native_tests
+		reload-core prepare
 
 PYCACHE := $(shell find . -name '__pycache__')
 EGGS := $(wildcard *.egg-info)
@@ -91,10 +91,7 @@ reload: reload-tcv install-vsix
 # 	@twine check dist/*
 
 tests:
-	NATIVE_TESSELLATOR=0 OCP_VSCODE_PYTEST=1 OCP_VIEWER_PYTEST=1 pytest -s -W ignore tests/ 
-
-native_tests:
-	NATIVE_TESSELLATOR=1 OCP_VSCODE_PYTEST=1 OCP_VIEWER_PYTEST=1 pytest -s -W ignore tests/ 
+	OCP_VSCODE_PYTEST=1 OCP_VIEWER_PYTEST=1 pytest -s -W ignore tests/ 
 
 upload:
 	@twine upload dist/*

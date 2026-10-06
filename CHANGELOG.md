@@ -2,6 +2,11 @@
 
 All notable changes to the "OCP CAD Viewer" extension will be documented in this file.
 
+## Unreleased
+
+- **Changes**
+    - The native-tessellator toggles are gone: `enable_native_tessellator()`, `disable_native_tessellator()`, `is_native_tessellator_enabled()` and `init_native_tessellator()` are no longer exported, and importing `ocp_vscode` no longer prints "Found and enabled native tessellator.". ocp-tessellate dropped its native tessellator and `ocp_addons`, and ocp-viewer-core the toggles with it. The `native_tests` make target and `NATIVE_TESSELLATOR=0` in `make tests` are removed.
+
 ## 4.1.0
 
 OCP CAD Viewer is now a host of [ocp-viewer-core](https://github.com/bernhard-42/ocp-viewer-core): the show pipeline, config semantics, camera policy, viewer page logic, colour catalogue, selectors, animation and the measurement backend are the core's, shared with OCP Viewer (standalone), Jupyter CadQuery and build123d Studio, so all four viewers behave the same. The extension and `ocp_vscode` keep only what is theirs - the VS Code transport, the settings, the managers. Documentation lives on the joint site: https://bernhard-42.github.io/ocp_viewer_docs/
