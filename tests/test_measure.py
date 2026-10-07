@@ -174,6 +174,20 @@ class TestShapeTypeDetection:
     def test_solid(self):
         assert get_shape_type(_w(bd.Box(1, 1, 1).solid())) == "Solid"
 
+    def test_wire(self):
+        wire = bd.Wire.make_rect(2, 2)
+        assert get_shape_type(_w(wire)) == "Wire"
+        assert get_geom_type(_w(wire)) == "Other"
+
+    def test_shell(self):
+        shell = bd.Shell(bd.Box(1, 1, 1).faces())
+        assert get_shape_type(_w(shell)) == "Shell"
+        assert get_geom_type(_w(shell)) == "Other"
+
+    def test_compound(self):
+        # a build123d Part is a compound
+        assert get_shape_type(_w(bd.Box(1, 1, 1))) == "Compound"
+
 
 # ===========================================================================
 # calc_angle — Line vs Line, intersecting
@@ -593,6 +607,22 @@ class TestCalcDistance:
         _approx_dist(result["distance"], 10.0)
         assert result["info"] == "center"
 
+    def test_center_distance_of_parts(self):
+        """Parts are compounds: centers of mass of two boxes 10 apart."""
+        result = calc_distance(_w(bd.Box(1, 2, 3)), _w(bd.Pos(10, 0, 0) * bd.Box(2, 2, 2)), center=True)
+        _approx_dist(result["distance"], 10.0)
+        _approx_point(result["point 1"], (0, 0, 0))
+        _approx_point(result["point 2"], (10, 0, 0))
+
+    def test_center_distance_of_wires_and_shells(self):
+        """Wires and shells: centers of mass by length and by area."""
+        wire = bd.Pos(0, 5, 0) * bd.Wire.make_rect(2, 2)
+        shell = bd.Shell((bd.Pos(10, 0, 0) * bd.Box(2, 2, 2)).faces())
+        result = calc_distance(_w(wire), _w(shell), center=True)
+        _approx_point(result["point 1"], (0, 5, 0))
+        _approx_point(result["point 2"], (10, 0, 0))
+        _approx_dist(result["distance"], sqrt(125))
+
 
 # ===========================================================================
 # get_distance — combined distance + angle
@@ -774,6 +804,25 @@ class TestGetPropertiesBasic:
         props = get_properties(_w(bd.Rectangle(5, 8).face()))
         assert props["shape_type"] == "Face"
         _approx_dist(_find(props, "area"), 40.0)
+
+    def test_wire_length(self):
+        """An L of 3 + 4: length 7, refpoint the length-weighted center."""
+        wire = bd.Wire([bd.Edge.make_line((0, 0, 0), (3, 0, 0)), bd.Edge.make_line((3, 0, 0), (3, 4, 0))])
+        props = get_properties(_w(wire))
+        assert props["shape_type"] == "Wire"
+        _approx_dist(_find(props, "length"), 7.0)
+        _approx_point(props["refpoint"], (16.5 / 7, 8 / 7, 0), tol=1e-9)
+        assert _has(props, "bb")
+
+    def test_shell_area(self):
+        """Three faces of a 2 x 3 x 4 box: area 6 + 12 + 8, refpoint the area-weighted center."""
+        faces = bd.Box(2, 3, 4, align=bd.Align.MIN).faces()
+        shell = bd.Shell([faces.sort_by(bd.Axis.Z)[0], faces.sort_by(bd.Axis.X)[0], faces.sort_by(bd.Axis.Y)[0]])
+        props = get_properties(_w(shell))
+        assert props["shape_type"] == "Shell"
+        _approx_dist(_find(props, "area"), 26.0)
+        _approx_point(props["refpoint"], (14 / 26, 27 / 26, 40 / 26), tol=1e-9)
+        assert _has(props, "bb")
 
     def test_solid_volume(self):
         props = get_properties(_w(bd.Box(2, 3, 4).solid()))
