@@ -507,6 +507,12 @@
           "description": "Roughness property of material (default: 0.65)",
           "order": 44
         },
+        "OcpCadViewer.render.python_enumeration": {
+          "type": "boolean",
+          "default": false,
+          "description": "Number repeated object names from 0 like Python indices - Solid(0), Solid(1), ... instead of Solid, Solid(2), ... The names are the tree paths that animations, states and selections use (default: false)",
+          "order": 45
+        },
         "OcpCadViewer.advanced.watchCommands": {
           "type": "string",
           "default": "from ocp_vscode import show_all, get_port; show_all(locals(), port=get_port(), _visual_debug=True)",

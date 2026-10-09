@@ -173,6 +173,7 @@ export class OCPCADController {
         c["direct_intensity"] = options.get("direct_intensity");
         c["metalness"] = options.get("metalness");
         c["roughness"] = options.get("roughness");
+        c["python_enumeration"] = options.get("python_enumeration");
         c["_splash"] = this.splash;
         return c;
     }
