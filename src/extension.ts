@@ -90,6 +90,57 @@ function check_upgrade(libraryManager: LibraryManagerProvider) {
     }
 }
 
+const IGNORE_PYTHON_ENVS_WARNING = "ocpCadViewer.ignorePythonEnvsActivationWarning";
+
+/**
+ * Warn when the Python Environments extension activates terminals by command.
+ *
+ * With that setting - its default - the "OCP backend" terminal reports
+ * KeyboardInterrupt or "Aborted" and the Quickstart buttons "Operation cancelled
+ * by user", without anything having been cancelled; "shellStartup" avoids it
+ * (issue #241). Only a warning: it could not be reproduced everywhere.
+ */
+function check_python_envs_activation(context: vscode.ExtensionContext) {
+    if (vscode.extensions.getExtension("ms-python.vscode-python-envs") === undefined) {
+        return;
+    }
+    const activation = vscode.workspace
+        .getConfiguration("python-envs.terminal")
+        .get<string>("autoActivationType");
+    output.info(`extension.check_python_envs_activation: autoActivationType = ${activation}`);
+    if (activation !== "command" || context.globalState.get(IGNORE_PYTHON_ENVS_WARNING) === true) {
+        return;
+    }
+    const openSetting = "Open Setting";
+    const troubleshooting = "Troubleshooting";
+    const dontShow = "Don't show again";
+    vscode.window
+        .showWarningMessage(
+            "OCP CAD Viewer: the Python Environments extension activates terminals by command " +
+                "(python-envs.terminal.autoActivationType). This can abort the viewer's backend and " +
+                "the Quickstart installs. Setting it to 'shellStartup' avoids it.",
+            openSetting,
+            troubleshooting,
+            dontShow
+        )
+        .then(async (selection) => {
+            if (selection === openSetting) {
+                await vscode.commands.executeCommand(
+                    "workbench.action.openSettings",
+                    "python-envs.terminal.autoActivationType"
+                );
+            } else if (selection === troubleshooting) {
+                await vscode.env.openExternal(
+                    vscode.Uri.parse(
+                        "https://bernhard-42.github.io/ocp_viewer_docs/viewers/ocp_vscode/troubleshooting/"
+                    )
+                );
+            } else if (selection === dontShow) {
+                await context.globalState.update(IGNORE_PYTHON_ENVS_WARNING, true);
+            }
+        });
+}
+
 var viewerStarting = false;
 var jupyterOpen = false;
 
@@ -170,6 +221,9 @@ export async function activate(context: vscode.ExtensionContext) {
 
     // For migrations
     removeOldLockfile();
+
+    // Not awaited: a warning must not hold up activation.
+    check_python_envs_activation(context);
 
     output.debug("extension.activate: OCP CAD Viewer");
 

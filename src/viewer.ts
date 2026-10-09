@@ -19,6 +19,19 @@ import * as vscode from "vscode";
 import { OCPCADController } from "./controller";
 import * as output from "./output";
 
+/**
+ * A copied point as three-cad-viewer writes it: "x, y, z", four decimals, and
+ * no "-0.0000" (`copyPointUnderCursor`, COPY_POINT_DECIMALS = 4).
+ */
+export function formatPoint(point: number[]): string {
+    return point
+        .map((v) => {
+            const s = v.toFixed(4);
+            return Number(s) === 0 ? (0).toFixed(4) : s;
+        })
+        .join(", ");
+}
+
 export class OCPCADViewer {
     /**
      * Track the currently panel. Only allow a single panel to exist at a time.
@@ -131,6 +144,12 @@ export class OCPCADViewer {
                     case "status":
                         if (message.text.selected != null) {
                             vscode.env.clipboard.writeText(message.text.selected.join(","));
+                        }
+                        // Ctrl/Cmd-C over the model (three-cad-viewer 5.1): the
+                        // webview's own clipboard write may be refused, so the
+                        // extension writes it, in the renderer's format.
+                        if (Array.isArray(message.text.copiedPoint)) {
+                            vscode.env.clipboard.writeText(formatPoint(message.text.copiedPoint));
                         }
                 }
             },
