@@ -31,6 +31,13 @@ def _approx_angle(value, expected, tol=0.5):
     )
 
 
+def _approx_angle_row(row, expected, tol=0.5):
+    """Assert get_distance's angle row "a (b)": a near expected, b its supplement."""
+    angle, supplement = row.rstrip(")").split(" (")
+    _approx_angle(float(angle), expected, tol)
+    _approx_angle(float(supplement), 180 - float(angle), 0.001)
+
+
 def _approx_dist(value, expected, tol=0.01):
     """Assert distance is within tol of expected."""
     assert value == pytest.approx(expected, abs=tol), (
@@ -635,18 +642,18 @@ class TestGetDistance:
         sections = resp["result"]
         assert len(sections) == 3
         _approx_dist(sections[0]["distance"], 0.0)
-        _approx_angle(sections[2]["angle"], 90)
+        _approx_angle_row(sections[2]["angle"], 90)
 
     def test_perpendicular_faces(self, face_xy, face_xz):
         resp = get_distance(_w(face_xy), _w(face_xz), center=False)
-        _approx_angle(resp["result"][2]["angle"], 90)
+        _approx_angle_row(resp["result"][2]["angle"], 90)
 
     def test_line_above_face(self, face_xy):
         """X-line at z=5 above XY face → dist=5, angle=0°."""
         line = bd.Line((0, 0, 5), (10, 0, 5))
         resp = get_distance(_w(line), _w(face_xy), center=False)
         _approx_dist(resp["result"][0]["distance"], 5.0)
-        _approx_angle(resp["result"][2]["angle"], 0)
+        _approx_angle_row(resp["result"][2]["angle"], 0)
 
     def test_vertex_has_no_angle(self, line_x):
         """Vertex + line → distance present, no angle section."""
@@ -661,7 +668,7 @@ class TestGetDistance:
         line2 = bd.Line((3, 5, 0), (3, 5, 10))
         resp = get_distance(_w(line1), _w(line2), center=False)
         _approx_dist(resp["result"][0]["distance"], 5.0)
-        _approx_angle(resp["result"][2]["angle"], 90)
+        _approx_angle_row(resp["result"][2]["angle"], 90)
 
     def test_sections_structure(self, line_x, face_xy):
         """Verify the response structure: refpoints at top, sections in result."""
