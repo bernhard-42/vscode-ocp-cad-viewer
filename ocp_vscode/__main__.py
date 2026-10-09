@@ -41,7 +41,15 @@ Standalone OCP viewer is now part of the package ocp_viewer
 
 
 def main():
-    parser = argparse.ArgumentParser("OCP CAD Viewer measurement backend")
+    # MOVED as the epilog too, because `--help` exits inside parse_args, before
+    # the no-arguments branch below can print it - and `--help` is the other
+    # thing people type when the old command stops starting a viewer.
+    parser = argparse.ArgumentParser(
+        prog="python -m ocp_vscode",
+        description="OCP CAD Viewer measurement backend",
+        epilog=MOVED,
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
     parser.add_argument(
         "--backend",
         action="store_true",
