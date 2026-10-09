@@ -700,20 +700,20 @@ class TestGetPropertiesEdgeAngleToXY:
     def test_horizontal_line(self, line_x):
         """Horizontal line → 0° at both endpoints."""
         props = get_properties(_w(line_x))
-        _approx_angle(_find(props, "angle@0 to XY"), 0)
-        _approx_angle(_find(props, "angle@1 to XY"), 0)
+        _approx_angle_row(_find(props, "angle@0 to XY"), 0)
+        _approx_angle_row(_find(props, "angle@1 to XY"), 0)
 
     def test_vertical_line(self, line_z):
         """Vertical line → 90° at both endpoints."""
         props = get_properties(_w(line_z))
-        _approx_angle(_find(props, "angle@0 to XY"), 90)
-        _approx_angle(_find(props, "angle@1 to XY"), 90)
+        _approx_angle_row(_find(props, "angle@0 to XY"), 90)
+        _approx_angle_row(_find(props, "angle@1 to XY"), 90)
 
     def test_45_line(self, line_45_xz):
         """45° line in XZ → 45° at both endpoints."""
         props = get_properties(_w(line_45_xz))
-        _approx_angle(_find(props, "angle@0 to XY"), 45)
-        _approx_angle(_find(props, "angle@1 to XY"), 45)
+        _approx_angle_row(_find(props, "angle@0 to XY"), 45)
+        _approx_angle_row(_find(props, "angle@1 to XY"), 45)
 
     def test_30_degree_line(self):
         """Line at 30° from horizontal → 30° at both endpoints."""
@@ -721,8 +721,8 @@ class TestGetPropertiesEdgeAngleToXY:
         dz = 10 * sin(30 * pi / 180)
         line = bd.Line((0, 0, 0), (dx, 0, dz))
         props = get_properties(_w(line))
-        _approx_angle(_find(props, "angle@0 to XY"), 30)
-        _approx_angle(_find(props, "angle@1 to XY"), 30)
+        _approx_angle_row(_find(props, "angle@0 to XY"), 30)
+        _approx_angle_row(_find(props, "angle@1 to XY"), 30)
 
     def test_60_degree_line(self):
         """Line at 60° from horizontal → 60° at both endpoints."""
@@ -730,21 +730,21 @@ class TestGetPropertiesEdgeAngleToXY:
         dz = 10 * sin(60 * pi / 180)
         line = bd.Line((0, 0, 0), (dx, 0, dz))
         props = get_properties(_w(line))
-        _approx_angle(_find(props, "angle@0 to XY"), 60)
-        _approx_angle(_find(props, "angle@1 to XY"), 60)
+        _approx_angle_row(_find(props, "angle@0 to XY"), 60)
+        _approx_angle_row(_find(props, "angle@1 to XY"), 60)
 
     def test_spline_in_xy_plane(self, spline_xy):
         """BSpline in XY → endpoints near 0° to XY."""
         props = get_properties(_w(spline_xy))
         assert _has(props, "angle@0 to XY")
         assert _has(props, "angle@1 to XY")
-        _approx_angle(_find(props, "angle@0 to XY"), 0, tol=5)
-        _approx_angle(_find(props, "angle@1 to XY"), 0, tol=5)
+        _approx_angle_row(_find(props, "angle@0 to XY"), 0, tol=5)
+        _approx_angle_row(_find(props, "angle@1 to XY"), 0, tol=5)
 
     def test_circle_in_xy(self, circle_xy):
         """Circle in XY → tangent always horizontal → 0°."""
         props = get_properties(_w(circle_xy))
-        _approx_angle(_find(props, "angle@0 to XY"), 0)
+        _approx_angle_row(_find(props, "angle@0 to XY"), 0)
 
 
 # ===========================================================================
@@ -755,23 +755,23 @@ class TestGetPropertiesFaceAngleToXY:
     def test_xy_face(self, face_xy):
         """XY face → 0°."""
         props = get_properties(_w(face_xy))
-        _approx_angle(_find(props, "angle to XY"), 0)
+        _approx_angle_row(_find(props, "angle to XY"), 0)
 
     def test_xz_face(self, face_xz):
         """XZ face → 90°."""
         props = get_properties(_w(face_xz))
-        _approx_angle(_find(props, "angle to XY"), 90)
+        _approx_angle_row(_find(props, "angle to XY"), 90)
 
     def test_45_tilted_face(self, face_tilted_45):
         """45° tilted face → 45°."""
         props = get_properties(_w(face_tilted_45))
-        _approx_angle(_find(props, "angle to XY"), 45)
+        _approx_angle_row(_find(props, "angle to XY"), 45)
 
     def test_cylinder_along_z(self, cylinder_z):
         """Cylinder along Z: normal at center is horizontal → 90° to XY."""
         props = get_properties(_w(cylinder_z))
         assert _has(props, "angle to XY")
-        _approx_angle(_find(props, "angle to XY"), 90)
+        _approx_angle_row(_find(props, "angle to XY"), 90)
 
     def test_sphere(self):
         """Sphere at origin: normal at center-UV exists."""
