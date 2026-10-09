@@ -37,7 +37,7 @@ show(cq.Workplane().box(1, 2, 3))
 
 ### Installation within VS Code
 
-1. Open the VS Code Marketplace, and search and install _OCP CAD Viewer 4.1.0_.
+1. Open the VS Code Marketplace, and search and install _OCP CAD Viewer 4.2.0_.
 
     Afterwards the OCP viewer is available in the VS Code sidebar:
 

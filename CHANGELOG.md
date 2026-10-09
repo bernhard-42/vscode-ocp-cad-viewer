@@ -8,6 +8,7 @@ All notable changes to the "OCP CAD Viewer" extension will be documented in this
     - New setting `OcpCadViewer.render.python_enumeration` (default `false`) and keyword `python_enumeration` of `show`, `show_object`, `show_objects` and `set_defaults` ([issue #242](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/242)): `true` numbers repeated object names from 0 like Python indices - `Solid(0)`, `Solid(1)`, `Solid(2)` instead of `Solid`, `Solid(2)`, `Solid(3)`. Off by default, because the names are the tree paths that animations, states and selections use
 
 - **Changes**
+    - `ocp_vscode` depends on `ocp-viewer-core[cli]>=1.1.0,<1.2.0` (was `>=1.0.11,<1.1.0`): ocp-viewer-core 1.1 runs on ocp-tessellate 3.6
     - The native-tessellator toggles are gone: `enable_native_tessellator()`, `disable_native_tessellator()`, `is_native_tessellator_enabled()` and `init_native_tessellator()` are no longer exported, and importing `ocp_vscode` no longer prints "Found and enabled native tessellator.". ocp-tessellate dropped its native tessellator and `ocp_addons`, and ocp-viewer-core the toggles with it. The `native_tests` make target and `NATIVE_TESSELLATOR=0` in `make tests` are removed.
 
 ## 4.1.0
