@@ -4,7 +4,11 @@ import os
 import time
 
 import pytest
-import cadquery as cq
+
+# The test assembly is built with cadquery; an environment without it (a
+# build123d-only one, or nanocct alone) skips this module rather than failing
+# to collect it.
+cq = pytest.importorskip("cadquery")
 
 
 @pytest.fixture(scope="module", autouse=True)
