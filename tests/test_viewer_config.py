@@ -5,10 +5,16 @@ import time
 
 import pytest
 
-# The test assembly is built with cadquery; an environment without it (a
-# build123d-only one, or nanocct alone) skips this module rather than failing
-# to collect it.
-cq = pytest.importorskip("cadquery")
+# The test model is built with cadquery where it is installed, and with
+# build123d where it is not (a nanocct-only environment) - these tests are about
+# the viewer's configuration, not about either library. build123d is imported
+# only as the fallback: an environment with cadquery need not import it, and
+# one with neither skips the module.
+try:
+    import cadquery as cq
+except ImportError:
+    cq = None
+    bd = pytest.importorskip("build123d")
 
 
 @pytest.fixture(scope="module", autouse=True)
@@ -97,6 +103,35 @@ def assert_config(conf, delay=0.5):
 @pytest.fixture(scope="module")
 def assembly():
     """Create a test assembly for viewer tests."""
+    if cq is None:
+        return _build123d_assembly()
+    return _cadquery_assembly()
+
+
+def _build123d_assembly():
+    """The cadquery assembly below, built with build123d."""
+    box1 = bd.Box(10, 20, 30)
+    by_x = box1.edges().group_by(bd.Axis.X)
+    box1 = bd.chamfer(by_x[0] + by_x[-1], 2)
+
+    box2 = bd.Box(8, 18, 28)
+    by_x = box2.edges().group_by(bd.Axis.X)
+    box2 = bd.chamfer(by_x[0] + by_x[-1], 2)
+
+    box3 = bd.Pos(0, 15, 7) * bd.Box(30, 20, 6)
+    box3 = bd.fillet(box3.edges().group_by(bd.Axis.Z)[-1], 3)
+
+    box4 = bd.Pos(0, -5, 0) * bd.mirror(box3, bd.Plane.XY)
+
+    box1 = box1 - box2 - box3 - box4
+
+    box1.label, box1.color = "red box", bd.Color("#d7191c80")
+    box3.label, box3.color = "green box", bd.Color("#abdda4")
+    box4.label, box4.color = "blue box", bd.Color(43 / 255, 131 / 255, 186 / 255, 0.3)
+    return bd.Compound(label="ensemble", children=[box1, box3, box4])
+
+
+def _cadquery_assembly():
     box1 = cq.Workplane("XY").box(10, 20, 30).edges(">X or <X").chamfer(2)
     box1.name = "box1"
 
