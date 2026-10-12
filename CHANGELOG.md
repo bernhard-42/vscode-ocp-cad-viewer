@@ -5,13 +5,31 @@ All notable changes to the "OCP CAD Viewer" extension will be documented in this
 ## Unreleased
 
 - **Features**
-    - New setting `OcpCadViewer.render.python_enumeration` (default `false`) and keyword `python_enumeration` of `show`, `show_object`, `show_objects` and `set_defaults` ([issue #242](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/242)): `true` numbers repeated object names from 0 like Python indices - `Solid(0)`, `Solid(1)`, `Solid(2)` instead of `Solid`, `Solid(2)`, `Solid(3)`. Off by default, because the names are the tree paths that animations, states and selections use
-    - Ctrl/Cmd-C over the model copies the point under the mouse as `x, y, z` (three-cad-viewer 5.1); the extension writes it to the clipboard, so it arrives where the webview's own clipboard access is refused
-    - A warning when the Python Environments extension activates terminals by command (`python-envs.terminal.autoActivationType`, its default), which can abort the viewer's backend and the Quickstart installs; it offers the setting and the troubleshooting page ([issue #241](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/241))
+    - New setting `OcpCadViewer.render.python_enumeration` (default `false`) and keyword `python_enumeration` of `show`, `show_object`, `show_objects` and `set_defaults` ([vscode-ocp-cad-viewer #242](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/242)): `true` numbers repeated object names from 0 like Python indices - `Solid(0)`, `Solid(1)`, `Solid(2)` instead of `Solid`, `Solid(2)`, `Solid(3)`. Off by default, because the names are the tree paths that animations, states and selections use
+    - Measured angles show their supplement as well, `60.000 (120.000)`: the distance tool's angle, and the properties tool's angle to XY of a face and of an edge's ends ([vscode-ocp-cad-viewer #236](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/236)). A cone's half angle stays one number
+    - `ColorMap.golden_ratio(..., hue_offset=0.0)` shifts where the golden-ratio color sequence starts, as a fraction of the colormap from 0 to 1; 0 gives the colors as before ([vscode-ocp-cad-viewer #222](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/222))
+    - `save_screenshot(..., timeout_s=2)` sets how long to wait for the file, in seconds
+    - nanocct support (ocp-tessellate 3.6): `show()` handles shapes of build123d or CadQuery running on nanocct, and OCP and nanocct objects can be shown together. Where nanocct is installed it is the binding for everything that does not bring its own OCCT object, as in the other libraries of the ecosystem
+    - **three-cad-viewer 5.1.3** (was 5.0.6)
+        - Hovering a row of the tree highlights that object, or everything below a group: the faces of solids and faces, the edges of objects that have only edges, the vertices of objects that have only vertices
+        - Ctrl/Cmd-C over the model copies the point under the mouse to the clipboard as `x, y, z` (4 decimals), and the status line shows `copied: x, y, z`. It follows the topology filter (All / Vertex / Edge / Face / Solid) and needs no click into the viewer first; it is off in explode mode, with a z-scale other than 1, and while an animation has moved the parts (Play or the time slider; Stop turns it back on, Pause does not); the extension writes the point to the clipboard itself, so it arrives where the webview's own clipboard access is refused
+        - Clip caps are hatched: neighbouring solids alternate the direction and spacing of the lines, which stay fixed to the clip plane while the view moves
+        - Clip caps are outlined in the edge color while the Clip tab is active, also where caps of touching solids meet and, seen from behind, along the cut contour on the faces. The outline is drawn once the camera has been still for 150 ms
+    - A warning when the Python Environments extension activates terminals by command (`python-envs.terminal.autoActivationType`, its default), which can abort the viewer's backend and the Quickstart installs; it offers the setting and the troubleshooting page ([vscode-ocp-cad-viewer #241](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/241))
 
 - **Changes**
     - `ocp_vscode` depends on `ocp-viewer-core[cli]>=1.1.0,<1.2.0` (was `>=1.0.11,<1.1.0`): ocp-viewer-core 1.1 runs on ocp-tessellate 3.6
-    - The native-tessellator toggles are gone: `enable_native_tessellator()`, `disable_native_tessellator()`, `is_native_tessellator_enabled()` and `init_native_tessellator()` are no longer exported, and importing `ocp_vscode` no longer prints "Found and enabled native tessellator.". ocp-tessellate dropped its native tessellator and `ocp_addons`, and ocp-viewer-core the toggles with it. The `native_tests` make target and `NATIVE_TESSELLATOR=0` in `make tests` are removed.
+    - The native-tessellator toggles are gone: `enable_native_tessellator()`, `disable_native_tessellator()`, `is_native_tessellator_enabled()` and `init_native_tessellator()` are no longer exported, `NATIVE_TESSELLATOR` in the environment no longer means anything, and importing `ocp_vscode` no longer prints "Found and enabled native tessellator.". ocp-tessellate dropped its native tessellator and `ocp_addons`, and ocp-viewer-core the toggles with it
+    - Breaking, for scripts that import from the libraries directly: `ocp_tessellate` no longer re-exports OCCT classes (`ocp_tessellate.ocp_utils.TopoDS_Shape`, `ocp_tessellate.tessellator.gp_Pnt`, ...), import them from OCP or nanocct; `ocp_viewer_core.measure.get_center` returns `(x, y, z)` instead of a vertex
+    - The `native_tests` make target and `NATIVE_TESSELLATOR=0` in `make tests` are removed
+
+- **Fixes**
+    - The center distance between two build123d parts works; wires, shells, compsolids and compounds failed. The properties tool reports the length of a wire and the area of a shell
+    - Reference points (centers of mass) of vertices, edges and compounds of faces, edges or vertices are right; they came out at the origin
+    - An unknown matplotlib colormap name (`"mpl:nonexistent"`) is reported as unknown instead of as "not a linear segmented colormap"
+    - An object whose `is_empty` is true is shown as the empty placeholder, like an empty list
+    - A loaded animation no longer keeps the viewer redrawing the scene on every display frame until it is cleared - also while paused, stopped or never started - which cost constant CPU and GPU time in an idle viewer (three-cad-viewer 5.1.3, [three-cad-viewer #44](https://github.com/bernhard-42/three-cad-viewer/issues/44)). Resuming after a pause no longer jumps ahead by the time spent paused
+    - Clearing or replacing a model no longer leaks the orientation marker's graphics resources (three-cad-viewer 5.0.7)
 
 ## 4.1.0
 
