@@ -812,7 +812,7 @@
     "proper-lockfile": "./proper-lockfile-4.1.2-esm.tgz",
     "semver": "^7.5.1",
     "signal-exit": "3",
-    "three-cad-viewer": "5.1.2",
+    "three-cad-viewer": "5.1.3",
     "ws": "^8.13.0"
   },
   "resolutions": {
