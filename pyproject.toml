@@ -28,7 +28,7 @@ classifiers = [
 
 # `[cli]`: scripts run from VS Code are a plain shell, where choosing
 # between several viewers is questionary's prompt rather than `input()`.
-dependencies = ["ocp-viewer-core[cli]>=1.1.0,<1.2.0"]
+dependencies = ["ocp-viewer-core[cli]>=1.1.2,<1.2.0"]
 
 [project.urls]
 "Homepage" = "https://github.com/bernhard-42/vscode-ocp-cad-viewer"

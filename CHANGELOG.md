@@ -2,7 +2,7 @@
 
 All notable changes to the "OCP CAD Viewer" extension will be documented in this file.
 
-## Unreleased
+## 4.2.0
 
 - **Features**
     - New setting `OcpCadViewer.render.python_enumeration` (default `true`) and keyword `python_enumeration` of `show`, `show_object`, `show_objects` and `set_defaults` ([vscode-ocp-cad-viewer #242](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/242)): repeated object names are numbered from 0 like Python indices - `Solid(0)`, `Solid(1)`, `Solid(2)` instead of `Solid`, `Solid(2)`, `Solid(3)`. `false` restores the former names
@@ -18,7 +18,7 @@ All notable changes to the "OCP CAD Viewer" extension will be documented in this
     - A warning when the Python Environments extension activates terminals by command (`python-envs.terminal.autoActivationType`, its default), which can abort the viewer's backend and the Quickstart installs; it offers the setting and the troubleshooting page ([vscode-ocp-cad-viewer #241](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/241))
 
 - **Changes**
-    - `ocp_vscode` depends on `ocp-viewer-core[cli]>=1.1.0,<1.2.0` (was `>=1.0.11,<1.1.0`): ocp-viewer-core 1.1 runs on ocp-tessellate 3.6
+    - `ocp_vscode` depends on `ocp-viewer-core[cli]>=1.1.2,<1.2.0` (was `>=1.0.11,<1.1.0`): ocp-viewer-core 1.1 runs on ocp-tessellate 3.6, and 1.1.2 brings ocp-tessellate 3.6.2 (`render_mates` works where nanocct is installed) and `pbr_to_vis_material(..., like=)`. The floor is 1.1.2 because pip's default upgrade strategy keeps an installed core that still satisfies the range
     - The native-tessellator toggles are gone: `enable_native_tessellator()`, `disable_native_tessellator()`, `is_native_tessellator_enabled()` and `init_native_tessellator()` are no longer exported, `NATIVE_TESSELLATOR` in the environment no longer means anything, and importing `ocp_vscode` no longer prints "Found and enabled native tessellator.". ocp-tessellate dropped its native tessellator and `ocp_addons`, and ocp-viewer-core the toggles with it
     - Breaking: repeated object names are numbered from 0 by default (`python_enumeration`, above), so a tree path such as `/Group/Solid(2)` now names the third `Solid`, not the second. Animation tracks, saved states and selections that address such paths need the new names, or `python_enumeration=False` - as the setting, through `set_defaults` or as a show keyword - which restores the former names
     - Breaking, for scripts that import from the libraries directly: `ocp_tessellate` no longer re-exports OCCT classes (`ocp_tessellate.ocp_utils.TopoDS_Shape`, `ocp_tessellate.tessellator.gp_Pnt`, ...), import them from OCP or nanocct; `ocp_viewer_core.measure.get_center` returns `(x, y, z)` instead of a vertex
