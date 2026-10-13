@@ -121,14 +121,14 @@ class ShowTests(Tests):
         self.assertPartsElementsEqual(
             "id",
             [
-                "/Group/Solid",
-                "/Group/Solid(2)",
+                "/Group/Solid(0)",
+                "/Group/Solid(1)",
                 "/Group/Object (empty)",
-                "/Group/List",
-                "/Group/List(2)",
+                "/Group/List(0)",
+                "/Group/List(1)",
             ],
         )
-        self.assertEqual(self.parts[3]["parts"][0]["id"], "/Group/List/sphere")
+        self.assertEqual(self.parts[3]["parts"][0]["id"], "/Group/List(0)/sphere")
         self.assertPartsElementsEqual(
             "color",
             ["#000000", "#00ffff", "#000000", None, None],
@@ -288,11 +288,12 @@ class ShowAllTests(Tests):
         self.get(r)
         self.assertEqual(len(self.instances), 0)
         self.assertEqual(len(self.parts), 25)
-        self.assertEqual(self.parts[0]["name"], "Location")
+        self.assertEqual(self.parts[0]["name"], "Location(0)")
         self.assertPartsElementsEqual(
             "id",
             [
-                "/loc/Location",
+                "/loc/Location(0)",
+                "/loc/Location(1)",
                 "/loc/Location(2)",
                 "/loc/Location(3)",
                 "/loc/Location(4)",
@@ -316,7 +317,6 @@ class ShowAllTests(Tests):
                 "/loc/Location(22)",
                 "/loc/Location(23)",
                 "/loc/Location(24)",
-                "/loc/Location(25)",
             ],
         )
 

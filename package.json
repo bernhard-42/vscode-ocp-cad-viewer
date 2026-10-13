@@ -509,8 +509,8 @@
         },
         "OcpCadViewer.render.python_enumeration": {
           "type": "boolean",
-          "default": false,
-          "description": "Number repeated object names from 0 like Python indices - Solid(0), Solid(1), ... instead of Solid, Solid(2), ... The names are the tree paths that animations, states and selections use (default: false)",
+          "default": true,
+          "description": "Number repeated object names from 0 like Python indices - Solid(0), Solid(1), ... instead of Solid, Solid(2), ... The names are the tree paths that animations, states and selections use; false restores the former names (default: true)",
           "order": 45
         },
         "OcpCadViewer.advanced.watchCommands": {
