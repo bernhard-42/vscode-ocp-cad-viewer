@@ -2,6 +2,11 @@
 
 All notable changes to the "OCP CAD Viewer" extension will be documented in this file.
 
+## unreleased
+
+- **Changes**
+    - `ocp_vscode` depends on `ocp-viewer-core[cli]>=1.1.3,<1.2.0` (was `>=1.1.2,<1.2.0`). ocp-viewer-core 1.1.3, on ocp-tessellate 3.7, brings kernel plugins: objects of CAD kernels other than OCCT are shown, and measured by the Distance and Properties tools from that kernel's own geometry. The first plugin is [ocp-viewer-smlibpy](https://github.com/bernhard-42/ocp-viewer-smlibpy) for SMLib. To measure a plugin's objects, install the plugin in the Python interpreter the extension starts the backend with. Nothing changes for build123d and CadQuery objects
+
 ## 4.2.0
 
 - **Features**
