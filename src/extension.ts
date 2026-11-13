@@ -360,6 +360,15 @@ export async function activate(context: vscode.ExtensionContext) {
                 OCPCADViewer.currentPanel?.dispose();
             }
         }
+        // A changed viewer setting reaches an open viewer now, not only when
+        // the viewer is reopened.
+        if (
+            controller?.isStarted() &&
+            (event.affectsConfiguration("OcpCadViewer.view") ||
+                event.affectsConfiguration("OcpCadViewer.render"))
+        ) {
+            await controller.pushSettings();
+        }
     });
 
     vscode.window.onDidChangeActiveTextEditor(async (editor) => {

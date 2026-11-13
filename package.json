@@ -2,7 +2,7 @@
   "name": "ocp-cad-viewer",
   "displayName": "OCP CAD Viewer",
   "description": "An integrated OCP CAD viewer for CadQuery and build123d",
-  "version": "4.2.0",
+  "version": "4.3.0",
   "publisher": "bernhard-42",
   "icon": "resources/ocp-logo.png",
   "license": "Apache-2.0",
@@ -312,6 +312,18 @@
           "type": "number",
           "default": 1,
           "description": "Pan speed (default: 1)",
+          "order": 8
+        },
+        "OcpCadViewer.view.cursor_pivot": {
+          "type": "boolean",
+          "default": true,
+          "description": "Rotate around the point under the cursor, or around the centre of the visible objects when the drag starts on the background; false rotates around the camera target (default: true)",
+          "order": 8
+        },
+        "OcpCadViewer.view.zoom_to_cursor": {
+          "type": "boolean",
+          "default": true,
+          "description": "Zoom towards the cursor with the wheel and trackpad pinch; false zooms towards the centre of the view (default: true)",
           "order": 8
         },
         "OcpCadViewer.view.axes": {

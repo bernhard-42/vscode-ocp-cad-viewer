@@ -360,6 +360,15 @@ class TestSpeedSettings:
         set_viewer_config(zoom_speed=1, pan_speed=1, rotate_speed=1)
         assert_config(dict(zoom_speed=1, pan_speed=1, rotate_speed=1))
 
+    def test_cursor_options(self, assembly):
+        show(assembly, reset_camera=Camera.RESET)
+        c = dict(cursor_pivot=False, zoom_to_cursor=False)
+        set_viewer_config(**c)
+        assert_config(c)
+        c = dict(cursor_pivot=True, zoom_to_cursor=True)
+        set_viewer_config(**c)
+        assert_config(c)
+
 
 # ---------------------------------------------------------------------------
 # Tests — Glass and Tools

@@ -75,6 +75,10 @@ export class OCPCADController {
     viewer_message: Record<string, any> = {};
     splash: boolean = true;
     private backendHasRegistered = false;
+    // The settings the open viewer was started with or last sent, so that a
+    // change of the settings sends only what changed: sending all of them would
+    // undo what the user changed at the viewer's toolbar.
+    private viewerSettings: Record<string, any> | null = null;
 
     constructor(
         private context: vscode.ExtensionContext,
@@ -101,6 +105,7 @@ export class OCPCADController {
         // boundary. The splash model itself is ocp-viewer-core's and does not
         // travel: the webview has the core loaded and asks it by name.
         var conf = this.config();
+        this.viewerSettings = conf;
         return await this.view?.postMessage({
             type: "init",
             paths: {
@@ -122,6 +127,34 @@ export class OCPCADController {
                 control: conf["control"]
             }
         });
+    }
+
+    /**
+     * The settings changed: send the ones that differ to the open viewer.
+     *
+     * Once a model is shown, the viewer's reported state wins over the stored
+     * settings at the next show, so a changed setting has to reach the viewer
+     * itself. The page translates the names (ocp-viewer-core's `settings`
+     * message) and applies what an open viewer can take; the rest applies with
+     * the next model.
+     */
+    public async pushSettings() {
+        if (this.view === undefined || this.viewerSettings === null) {
+            return;
+        }
+        const next = this.config();
+        const changed: Record<string, any> = {};
+        for (const key of Object.keys(next)) {
+            if (JSON.stringify(next[key]) !== JSON.stringify(this.viewerSettings[key])) {
+                changed[key] = next[key];
+            }
+        }
+        this.viewerSettings = next;
+        if (Object.keys(changed).length === 0) {
+            return;
+        }
+        output.debug(`OCPCADController.pushSettings: ${JSON.stringify(changed)}`);
+        await this.view.postMessage({ type: "settings", config: changed });
     }
 
     private resourceUri(...segments: string[]): string {
@@ -146,6 +179,8 @@ export class OCPCADController {
             rotate_speed: options.get("rotate_speed"),
             zoom_speed: options.get("zoom_speed"),
             pan_speed: options.get("pan_speed"),
+            cursor_pivot: options.get("cursor_pivot"),
+            zoom_to_cursor: options.get("zoom_to_cursor"),
             axes: options.get("axes"),
             axes0: options.get("axes0"),
             black_edges: options.get("black_edges"),
