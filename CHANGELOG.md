@@ -4,32 +4,54 @@ All notable changes to the "OCP CAD Viewer" extension will be documented in this
 
 ## unreleased
 
-- **Features**
-    - Kernel plugins: objects of CAD kernels other than OCCT are shown, and measured by the Distance and Properties tools from that kernel's own geometry. The first plugin is [ocp-viewer-smlibpy](https://github.com/bernhard-42/ocp-viewer-smlibpy) for SMLib. A plugin must also be installed where the viewer's measurement backend runs, which can be another environment than the script's. Nothing changes for OCCT objects
-    - To measure a plugin's objects in VS Code, install the plugin in the Python interpreter the extension starts the backend with
-    - **three-cad-viewer 5.2.0** (was 5.1.3)
-        - A rotate drag that starts on the model turns the camera around the point under the cursor, one that starts on the background around the centre of the visible objects. The wheel, trackpad pinch and middle-button drag zoom towards the cursor. Both are on by default. The camera target moves with the pivot; Reset and Recenter put it back
-        - A double-click picks what the hover highlights: it follows the topology filter (All / Vertex / Edge / Face / Solid), and the bounding box wraps the picked face or edge. A vertex gets a marker, and the info panel names the picked element and shows a vertex's coordinates. A second double-click on the same element removes the box
+- **Viewer changes**
+
+    - **Features**
+        - To measure a plugin's objects in VS Code, install the plugin in the Python interpreter the extension starts the backend with
+        - `cursor_pivot` and `zoom_to_cursor` switch rotating around and zooming towards the cursor off separately, with `show`, `set_defaults`, `set_viewer_config` and the settings `OcpCadViewer.view.cursor_pivot` and `OcpCadViewer.view.zoom_to_cursor`
+        - A changed viewer setting reaches an open viewer at once, e.g. a pan speed or `cursor_pivot`; reopening the viewer is no longer needed. Settings an open viewer cannot take (ticks, tessellation tolerances, default colors) apply with the next model
+
+    - **Changes**
+        - `ocp_vscode` depends on `ocp-viewer-core[cli]>=1.2.0,<1.3.0` (was `>=1.1.3,<1.2.0`): ocp-viewer-core 1.2.0 runs on ocp-tessellate 3.7, which brings the kernel plugins, and has the two cursor options
+
+- **Inherited changes**
+    - **from ocp-tessellate 3.7.0** (was 3.6.3)
+        - Objects of CAD kernels other than OCCT are shown when the kernel's plugin is installed, alone or mixed with build123d, CadQuery and OCCT objects ([CAD kernel plugins](https://bernhard-42.github.io/ocp_viewer_docs/plugins/overview/)). The first plugin is [ocp-viewer-smlibpy](https://github.com/bernhard-42/ocp-viewer-smlibpy) for SMLib. Nothing changes for OCCT objects
+        - An object nothing can draw is left out, passed directly or inside a list, tuple or dict, and its type is named once per show, e.g. `show: skipped smlibpy.shapes.Part (no kernel plugin installed?)`. `None` and other builtin values stay silent, like numbers and strings
+        - Finding shared shapes no longer slows down with the square of their number
+        - Fix: a face that cannot be meshed no longer shifts the ids of the faces and edges after it, so clicking a face or edge reports that one and the Properties tool measures that one
+        - Fix: edges and vertices inside a located assembly are measured where they are drawn, not at the origin, and the view fits them where they are
+    - **from ocp-viewer-core 1.2.0** (was 1.1.3)
+        - The Distance and Properties tools measure objects of other kernels from that kernel's own geometry, through the kernel's plugin of the measurement backend. A distance between shapes of two kernels is one row saying so
+        - `cursor_pivot` and `zoom_to_cursor` switch rotating around and zooming towards the cursor off separately; they are arguments of `show`, `show_object`, `show_objects`, `set_defaults` and `set_viewer_config`, and carry over from show to show
+        - `set_viewer_config(shape_filter=...)` sets the topology filter, `"none"` (all), `"vertex"`, `"edge"`, `"face"` or `"solid"`, as the dropdown and the keys `a` / `v` / `e` / `f` / `s` do. Every new model resets it to `"none"`
+        - A selection copied with the select tool holds the indices for one object and one kind as before, e.g. `6,16,7,17`. For several objects or kinds it holds one labelled line per object and kind, `# <object path> <kind>` followed by its indices, where it used to mix them into one list that selected the wrong shapes
+        - `status()` reports the current selection (`selected`) and the last double-click pick (`lastPick`), each with a counter (`selection_seq`, `pick_seq`) that moves with every new one; a new model clears the last pick
+        - A `show` with nothing it can draw prints `show: No CAD objects to show` and sends nothing, so the viewer keeps its model
+    - **from three-cad-viewer 5.2.0** (was 5.1.3)
+        - A rotate drag that starts on the model turns the camera around the point under the cursor, one that starts on the background around the centre of the visible objects; a small black sphere marks the pivot while dragging. The wheel, trackpad pinch and middle-button drag zoom towards the cursor. Both are on by default; Reset and Recenter put the camera target back ([three-cad-viewer#48](https://github.com/bernhard-42/three-cad-viewer/pull/48), by @Xapphire13)
+        - On a touchscreen, a one-finger drag rotates around the point under the finger; two fingers zoom and pan
+        - The Info box lists the control type and how it rotates and zooms, and logs each change
+        - A double-click picks what the hover highlights: it follows the topology filter (All / Vertex / Edge / Face / Solid), and the bounding box wraps the picked face or edge. A vertex gets a marker, and the info panel names the picked element and shows a vertex's coordinates. A second double-click on the same element removes the box. With the filter on All and the cursor on or near an edge, the edge is picked (vertices before edges, edges before faces); hide (`meta`) and isolate (`shift`) still act on the whole object
         - `lastPick` has the new fields `component`, the full path of what was picked, and `point`, the world coordinates of the double-clicked point, and it is sent on every double-click
-    - `cursor_pivot` and `zoom_to_cursor` switch rotating around and zooming towards the cursor off separately, with `show`, `set_defaults`, `set_viewer_config` and the settings `OcpCadViewer.view.cursor_pivot` and `OcpCadViewer.view.zoom_to_cursor`
-    - A changed viewer setting reaches an open viewer at once, e.g. a pan speed or `cursor_pivot`; reopening the viewer is no longer needed. Settings an open viewer cannot take (ticks, tessellation tolerances, default colors) apply with the next model
-
-- **Changes**
-    - `ocp_vscode` depends on `ocp-viewer-core[cli]>=1.2.0,<1.3.0` (was `>=1.1.3,<1.2.0`): ocp-viewer-core 1.2.0 runs on ocp-tessellate 3.7, which brings the kernel plugins, and has the two cursor options
-    - A double-click with the filter on All and the cursor on or near an edge picks the edge (vertices come before edges, edges before faces), where it always picked the whole object. Hide (`meta`) and isolate (`shift`) still act on the whole object, and they ignore the filter (three-cad-viewer 5.2.0)
-    - With `cursor_pivot` on, `shift` + `meta` + double-click on the model no longer sets the camera target, since every rotation already turns around the point under the cursor. With `cursor_pivot=False` it sets the target to the clicked point (three-cad-viewer 5.2.0)
-    - `lastPick.boundingBox` and `lastPick.boundingSphere` describe the picked face, edge or vertex, no longer its object; a vertex has a box of size zero. With the filter on Solid, for hide and isolate, for objects that are faces, edges or vertices themselves, and for clicks in the tree they are the object's box as before (three-cad-viewer 5.2.0)
-    - Geometry types in the status line and the properties panel read `B-spline surface` instead of `bspline` or `BSplineSurface`, and `Surface of revolution` instead of `surface of revolution` (three-cad-viewer 5.2.0)
-    - `show` leaves out an object it cannot draw and names its type once, e.g. `show: skipped smlibpy.shapes.Part (no kernel plugin installed?)`; when nothing drawable is left it says `show: No CAD objects to show` and the viewer keeps its model (ocp-viewer-core 1.2.0, ocp-tessellate 3.7.0)
-
-- **Fixes**
-    - Toolbar tooltips and the grid menu are no longer cut off at the toolbar's bottom edge in Safari and other WebKit browsers ([three-cad-viewer#47](https://github.com/bernhard-42/three-cad-viewer/pull/47), three-cad-viewer 5.2.0)
-    - Object names containing `<`, `"` or `\` are shown literally, and their tree rows keep working (three-cad-viewer 5.2.0)
-    - The view no longer jumps at the first rotation after a `quaternion` that is not exactly unit length, such as a rounded one, nor again after every Reset (three-cad-viewer 5.2.0)
-    - Switching the Studio background from a solid color back to Environment draws the environment again (three-cad-viewer 5.2.0)
-    - The help names the filter key for all object types correctly, `a`, and shows scrollbars only when it doesn't fit (three-cad-viewer 5.2.0)
-    - The topology filter keys `a` / `v` / `e` / `f` / `s` and the select tool's Escape and Backspace act only when the viewer has focus: Cmd-V, or a `v` typed elsewhere such as in a notebook cell, no longer sets the filter to Vertex, and Backspace in a text field no longer removes a selected element (three-cad-viewer 5.2.0)
-    - The measurement panel stays fully inside the viewer when it reopens at its previous position after a new model, a smaller viewer or a larger result (three-cad-viewer 5.2.0)
+        - **Breaking:** `lastPick.boundingBox` and `lastPick.boundingSphere` describe the picked face, edge or vertex, no longer its object; a vertex has a box of size zero. With the filter on Solid, for hide and isolate, for objects that are faces, edges or vertices themselves, and for clicks in the tree they are the object's box as before
+        - With `cursor_pivot` on, `shift` + `meta` + double-click on the model no longer sets the camera target, since every rotation already turns around the point under the cursor; with `cursor_pivot` off it does, as before
+        - Image faces and the back sides of faces and open shells can be clicked, highlighted and copied like any face ([vscode-ocp-cad-viewer#248](https://github.com/bernhard-42/vscode-ocp-cad-viewer/issues/248))
+        - The status line shows the clicked point with the platform's copy key (`Cmd+C` on macOS, `Ctrl+C` elsewhere)
+        - Selected vertices are drawn larger (8 px instead of 4), also while hovered
+        - The help names the platform's modifier keys (`Cmd` / `Option` on macOS, `Win` on Windows, `Super` on Linux) and shows keys in code style
+        - Geometry types in the status line and the Properties panel read `B-spline surface` instead of `bspline` or `BSplineSurface`, and `Surface of revolution` instead of `surface of revolution`
+        - three.js r187 (was r184), postprocessing 6.39.6
+        - Fix: the topology filter keys `a` / `v` / `e` / `f` / `s` and the select tool's Escape and Backspace act only when the viewer has focus: Cmd-V, or a `v` typed elsewhere such as in a notebook cell, no longer sets the filter to Vertex, and Backspace in a text field no longer removes a selected element
+        - Fix: the measurement panel stays fully inside the viewer when it reopens at its previous position after a new model, a smaller viewer or a larger result
+        - Fix: turning the select tool off or pressing Escape reports the empty selection
+        - Fix: toolbar tooltips and the grid menu are no longer cut off at the toolbar's bottom edge in Safari and other WebKit browsers ([three-cad-viewer#47](https://github.com/bernhard-42/three-cad-viewer/pull/47), by @Xapphire13)
+        - Fix: object names containing `<`, `"` or `\` are shown literally, and their tree rows keep working
+        - Fix: the view no longer jumps at the first rotation after a `quaternion` that is not exactly unit length, nor again after every Reset
+        - Fix: switching the Studio background from a solid color back to Environment draws the environment again
+        - Fix: the help names the filter key for all object types correctly, `a`, and shows scrollbars only when it does not fit
+        - Fix: a two-finger pinch no longer rotates the view with the holroyd trackball
+        - Fix: a long press on the viewer no longer selects it in Safari on iPad and iPhone
 
 ## 4.2.0
 
