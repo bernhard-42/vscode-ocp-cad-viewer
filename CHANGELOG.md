@@ -21,6 +21,7 @@ All notable changes to the "OCP CAD Viewer" extension will be documented in this
         - Finding shared shapes no longer slows down with the square of their number
         - Fix: a face that cannot be meshed no longer shifts the ids of the faces and edges after it, so clicking a face or edge reports that one and the Properties tool measures that one
         - Fix: edges and vertices inside a located assembly are measured where they are drawn, not at the origin, and the view fits them where they are
+        - Fix: a build123d builder (`BuildPart`, `BuildSketch`, `BuildLine`, `BuildSheet`) shown with `colors` is drawn in that color, not in its default color, and a part, sketch or sheet also takes the given `alphas`
     - **from ocp-viewer-core 1.2.0** (was 1.1.3)
         - The Distance and Properties tools measure objects of other kernels from that kernel's own geometry, through the kernel's plugin of the measurement backend. A distance between shapes of two kernels is one row saying so
         - `cursor_pivot` and `zoom_to_cursor` switch rotating around and zooming towards the cursor off separately; they are arguments of `show`, `show_object`, `show_objects`, `set_defaults` and `set_viewer_config`, and carry over from show to show
