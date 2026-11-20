@@ -29,7 +29,11 @@ All notable changes to the "OCP CAD Viewer" extension will be documented in this
         - A selection copied with the select tool holds the indices for one object and one kind as before, e.g. `6,16,7,17`. For several objects or kinds it holds one labelled line per object and kind, `# <object path> <kind>` followed by its indices, where it used to mix them into one list that selected the wrong shapes
         - `status()` reports the current selection (`selected`) and the last double-click pick (`lastPick`), each with a counter (`selection_seq`, `pick_seq`) that moves with every new one; a new model clears the last pick
         - A `show` with nothing it can draw prints `show: No CAD objects to show` and sends nothing, so the viewer keeps its model
-    - **from three-cad-viewer 5.2.0** (was 5.1.3)
+        - Fix: the Properties tool and the Distance tool's center-to-center put the center of a cylinder or cone face on its axis at the face's middle, not at an end of the surface such as the top of a hole; the center of a planar face is its center of mass, not one of its corners
+        - Fix: the Properties tool shows the vertex of a hyperbola, not its center
+        - Fix: `progress=None` in `show`, `show_object`, `show_objects` and `show_all` shows no progress, as documented; it printed the default progress
+        - Fix: `modes=Render.FACES` (one mode, not a list) applies to every object, as documented; it failed with "object of type 'Render' has no len()"
+    - **from three-cad-viewer 5.2.1** (was 5.1.3)
         - A rotate drag that starts on the model turns the camera around the point under the cursor, one that starts on the background around the centre of the visible objects; a small black sphere marks the pivot while dragging. The wheel, trackpad pinch and middle-button drag zoom towards the cursor. Both are on by default; Reset and Recenter put the camera target back ([three-cad-viewer#48](https://github.com/bernhard-42/three-cad-viewer/pull/48), by @Xapphire13)
         - On a touchscreen, a one-finger drag rotates around the point under the finger; two fingers zoom and pan
         - The Info box lists the control type and how it rotates and zooms, and logs each change
@@ -43,6 +47,7 @@ All notable changes to the "OCP CAD Viewer" extension will be documented in this
         - The help names the platform's modifier keys (`Cmd` / `Option` on macOS, `Win` on Windows, `Super` on Linux) and shows keys in code style
         - Geometry types in the status line and the Properties panel read `B-spline surface` instead of `bspline` or `BSplineSurface`, and `Surface of revolution` instead of `surface of revolution`
         - three.js r187 (was r184), postprocessing 6.39.6
+        - Trackball: holding `a`, `s` or `d` no longer changes a drag to rotate, zoom or pan; these keys also reacted to typing elsewhere on the page, and `a` and `s` changed the shape filter at the same time
         - Fix: the topology filter keys `a` / `v` / `e` / `f` / `s` and the select tool's Escape and Backspace act only when the viewer has focus: Cmd-V, or a `v` typed elsewhere such as in a notebook cell, no longer sets the filter to Vertex, and Backspace in a text field no longer removes a selected element
         - Fix: the measurement panel stays fully inside the viewer when it reopens at its previous position after a new model, a smaller viewer or a larger result
         - Fix: turning the select tool off or pressing Escape reports the empty selection
@@ -53,6 +58,7 @@ All notable changes to the "OCP CAD Viewer" extension will be documented in this
         - Fix: the help names the filter key for all object types correctly, `a`, and shows scrollbars only when it does not fit
         - Fix: a two-finger pinch no longer rotates the view with the holroyd trackball
         - Fix: a long press on the viewer no longer selects it in Safari on iPad and iPhone
+        - Fix: Escape with the filter dropdown open closes only the dropdown; the next Escape clears the selection or stops the animation. It used to clear the selection as well, and without a tool it did not close the dropdown
 
 ## 4.2.0
 

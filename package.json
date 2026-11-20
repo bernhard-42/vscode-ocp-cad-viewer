@@ -820,11 +820,11 @@
     "@vscode/python-extension": "^1.0.6",
     "adm-zip": "^0.5.16",
     "follow-redirects": "^1.15.11",
-    "ocp-viewer-core": "1.1.0",
+    "ocp-viewer-core": "1.2.0",
     "proper-lockfile": "./proper-lockfile-4.1.2-esm.tgz",
     "semver": "^7.5.1",
     "signal-exit": "3",
-    "three-cad-viewer": "5.1.3",
+    "three-cad-viewer": "5.2.1",
     "ws": "^8.13.0"
   },
   "resolutions": {
