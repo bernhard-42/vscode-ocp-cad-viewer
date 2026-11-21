@@ -127,7 +127,7 @@ The simplest way to run a Python script with OCP CAD Viewer is via VS Code's bui
 
 ### Standalone mode
 
-The standalone viewer became its own package, [ocp_viewer](https://github.com/bernhard-42/ocp-viewer): `pip install ocp_viewer`, then `python -m ocp_viewer` starts a server reachable at `http://127.0.0.1:3939`. See [OCP Viewer](https://bernhard-42.github.io/ocp_viewer_docs/viewers/ocp_viewer/installation/) in the documentation, including the full CLI reference and how to run it in Docker.
+The standalone viewer became its own package, [ocp_viewer](https://github.com/bernhard-42/ocp_viewer): `pip install ocp_viewer`, then `python -m ocp_viewer` starts a server reachable at `http://127.0.0.1:3939`. See [OCP Viewer](https://bernhard-42.github.io/ocp_viewer_docs/viewers/ocp_viewer/installation/) in the documentation, including the full CLI reference and how to run it in Docker.
 
 ### Debugging code with visual debugging
 
