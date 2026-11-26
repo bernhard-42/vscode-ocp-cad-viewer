@@ -382,6 +382,11 @@ export class OCPCADController {
             // reloads. Without this, the panel reappears with replayed
             // scrollback and a fresh shell, looking like a leftover backend.
             isTransient: true,
+            // Python Environments and the Python extension don't activate
+            // terminals created hidden, as those are an extension's own. So no
+            // activation command can mix with the backend command typed below
+            // and abort it (issue #241). show() then displays the terminal.
+            hideFromUser: true,
             ...shellConfig
         });
         pythonBackendTerminal.show();

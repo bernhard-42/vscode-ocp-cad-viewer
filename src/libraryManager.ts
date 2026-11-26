@@ -128,6 +128,11 @@ export async function installLib(
     const shellConfig = getAutomationShellConfig();
     let term = vscode.window.createTerminal({
         name: "Library Installations",
+        // Python Environments and the Python extension don't activate terminals
+        // created hidden, as those are an extension's own. So no activation
+        // command can mix with the install command typed below and abort it
+        // (issue #241). show() then displays the terminal.
+        hideFromUser: true,
         ...shellConfig
     });
     term.show();
