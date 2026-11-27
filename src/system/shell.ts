@@ -55,7 +55,8 @@ export function execute(cmd: string, needWorkspaceFolder: boolean = true) {
     if (needWorkspaceFolder) {
         currentFolder = getCurrentFolder()[0];
     }
-    if (currentFolder === "") {
+    // A folder that was deleted or moved would make execSync fail.
+    if (currentFolder === "" || !fs.existsSync(currentFolder)) {
         currentFolder = ".";
     }
     try {
