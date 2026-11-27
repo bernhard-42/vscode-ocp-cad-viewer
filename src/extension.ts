@@ -93,21 +93,35 @@ function check_upgrade(libraryManager: LibraryManagerProvider) {
 const IGNORE_PYTHON_ENVS_WARNING = "ocpCadViewer.ignorePythonEnvsActivationWarning";
 
 /**
- * Warn when the Python Environments extension activates terminals by command.
+ * Warn when a Python Environments older than 1.34.0 activates terminals by command.
  *
  * With that setting - its default - the "OCP backend" terminal reports
  * KeyboardInterrupt or "Aborted" and the Quickstart buttons "Operation cancelled
  * by user", without anything having been cancelled; "shellStartup" avoids it
- * (issue #241). Only a warning: it could not be reproduced everywhere.
+ * (issue #241). OCP creates the backend and install terminals with hideFromUser,
+ * which Python Environments skips when they open, and from 1.34.0 on in every
+ * case. Older versions still activate terminals that already exist when they
+ * start, so they keep the warning. The Jupyter Console terminal isn't hidden, as
+ * VS Code before 1.106 shows a hidden terminal in the panel, not the editor area.
  */
 function check_python_envs_activation(context: vscode.ExtensionContext) {
-    if (vscode.extensions.getExtension("ms-python.vscode-python-envs") === undefined) {
+    const pythonEnvs = vscode.extensions.getExtension("ms-python.vscode-python-envs");
+    if (pythonEnvs === undefined) {
         return;
     }
     const activation = vscode.workspace
         .getConfiguration("python-envs.terminal")
         .get<string>("autoActivationType");
-    output.info(`extension.check_python_envs_activation: autoActivationType = ${activation}`);
+    const version = pythonEnvs.packageJSON?.version;
+    output.info(
+        "extension.check_python_envs_activation: " +
+            `Python Environments ${version}, autoActivationType = ${activation}`
+    );
+    // An unreadable version keeps the warning.
+    const parsed = semver.coerce(version);
+    if (parsed !== null && semver.gte(parsed, "1.34.0")) {
+        return;
+    }
     if (activation !== "command" || context.globalState.get(IGNORE_PYTHON_ENVS_WARNING) === true) {
         return;
     }
@@ -118,7 +132,8 @@ function check_python_envs_activation(context: vscode.ExtensionContext) {
         .showWarningMessage(
             "OCP CAD Viewer: the Python Environments extension activates terminals by command " +
                 "(python-envs.terminal.autoActivationType). This can abort the viewer's backend and " +
-                "the Quickstart installs. Setting it to 'shellStartup' avoids it.",
+                "the Quickstart installs. To avoid it, update Python Environments to 1.34 or " +
+                "later, or set autoActivationType to 'shellStartup'.",
             openSetting,
             troubleshooting,
             dontShow
