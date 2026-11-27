@@ -58,8 +58,15 @@ export async function pipList(python: string): Promise<Map<string, Omit<Package,
 
     try {
         if (await isUvVenv(python)) {
-            result = execute(`uv pip list -p "${python}" -q --format json`, false);
+            // From the current folder (getCurrentFolder): tool managers such as
+            // mise pick uv's version by folder, so from "." `uv` may not be
+            // found. --no-config (uv 0.2.30 or later), since the listing needs no
+            // uv settings, and a project's uv.toml or [tool.uv], such as a
+            // required-version, could make it fail.
+            result = execute(`uv pip list --no-config -p "${python}" -q --format json`);
         } else {
+            // From ".": pip needs nothing from the current folder, and -m would
+            // put that folder first on sys.path.
             result = execute(`"${python}" -m pip list -v --format json`, false);
         }
     } catch (error: any) {
